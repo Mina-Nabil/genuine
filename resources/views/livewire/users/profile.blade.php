@@ -35,11 +35,11 @@
                         <ul class="dropdown-menu min-w-max absolute text-sm text-slate-700 dark:text-white hidden bg-white dark:bg-slate-700 shadow z-[2] float-left overflow-hidden list-none text-left rounded-lg mt-1 m-0 bg-clip-padding border-none"
                             data-popper-placement="bottom-start"
                             style="position: absolute; inset: 0px auto auto 0px; margin: 0px; transform: translate(0px, 50px);">
-                            <li>
-                                <a href="#"
-                                    class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600
-                                            dark:hover:text-white">
-                                    Change Password</a>
+                            <li class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600
+                            dark:hover:text-white cusor-pointer"
+                                wire:click="openChangePass">
+
+                                Change Password</a>
                             </li>
 
                         </ul>
@@ -168,8 +168,7 @@
                                 <div class="uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]">
                                     Email
                                 </div>
-                                <input type="email"
-                                    class="form-control @error('email') !border-danger-500 @enderror"
+                                <input type="email" class="form-control @error('email') !border-danger-500 @enderror"
                                     wire:model.live="email">
                                 @error('email')
                                     <span
@@ -298,72 +297,91 @@
         </div>
 
         @if ($is_open_update_pass)
-            <div>
-                <div class="card h-full">
-                    <header class="card-header">
-                        <h4 class="card-title">Security</h4>
-                    </header>
-                    <form wire:submit.prevent="changePassword">
-                        <div class="card-body p-6">
-                            <ul class="list space-y-8">
-                                <li class="flex space-x-3 rtl:space-x-reverse">
-                                    <div class="flex-none text-2xl text-slate-600 dark:text-slate-300">
-                                        <iconify-icon icon="solar:lock-password-broken"></iconify-icon>
-                                    </div>
-                                    <div class="flex-1">
-                                        <div
-                                            class="uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]">
-                                            Current Password
-                                        </div>
-                                        <input type="password"
-                                            class="form-control @error('currentPassword') !border-danger-500 @enderror"
-                                            wire:model="currentPassword">
-                                        @error('currentPassword')
-                                            <span
-                                                class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-                                </li>
-                                <li class="flex space-x-3 rtl:space-x-reverse">
-                                    <div class="flex-none text-2xl text-slate-600 dark:text-slate-300">
-                                        <iconify-icon icon="solar:lock-password-bold-duotone"></iconify-icon>
-                                    </div>
-                                    <div class="flex-1">
-                                        <div
-                                            class="uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]">
-                                            New Password
-                                        </div>
-                                        <input type="password"
-                                            class="form-control @error('newPassword') !border-danger-500 @enderror"
-                                            wire:model="newPassword">
-                                        @error('newPassword')
-                                            <span
-                                                class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
-                                        @enderror
+            <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+                tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
+                style="display: block;">
+                <div class="modal-dialog relative w-auto pointer-events-none">
+                    <div
+                        class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
+                        <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
+                            <!-- Modal header -->
+                            <div
+                                class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
+                                <h3 class="text-xl font-medium text-white dark:text-white capitalize">
+                                    Change Password
+                                </h3>
 
+                                <button wire:click="closeChangePassSec" type="button"
+                                    class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
+                                    data-bs-dismiss="modal">
+                                    <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10
+                            11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                            clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span class="sr-only">Close modal</span>
+                                </button>
+                            </div>
+                            <!-- Modal body -->
+                            <div class="p-6 space-y-4">
+                                <!-- Current Password Input -->
+                                <div class="form-group">
+                                    <div class="input-area">
+                                        <label for="oldPass" class="form-label">Current Password</label>
+                                        <input id="oldPass" type="password"
+                                            class="form-control @error('oldPass') !border-danger-500 @enderror"
+                                            wire:model.live="oldPass">
+                                        @error('oldPass')
+                                            <span class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                        @enderror
                                     </div>
-                                </li>
-                                {{-- <li class="flex space-x-3 rtl:space-x-reverse">
-                                    <div class="flex-none text-2xl text-slate-600 dark:text-slate-300">
-                                        <iconify-icon icon="solar:lock-password-bold-duotone"></iconify-icon>
+                                </div>
+                            
+                                <!-- New Password Input -->
+                                <div class="form-group">
+                                    <div class="input-area">
+                                        <label for="password" class="form-label">New Password</label>
+                                        <input id="password" type="password"
+                                            class="form-control @error('password') !border-danger-500 @enderror @if (!$passwordsMatch && $newPasswordConfirm) !border-danger-500 @elseif($newPasswordConfirm) !border-success-500 @endif"
+                                            wire:model.live="password">
+                                        @error('password')
+                                            <span class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                        @enderror
                                     </div>
-                                    <div class="flex-1">
-                                        <div
-                                            class="uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]">
-                                            Confirm Password
-                                        </div>
-                                        <input type="password" class="form-control" wire:model="password_confirmation">
+                                </div>
+                            
+                                <!-- Confirm Password Input -->
+                                <div class="form-group">
+                                    <div class="input-area">
+                                        <label for="newPasswordConfirm" class="form-label">Confirm Password</label>
+                                        <input id="newPasswordConfirm" type="password"
+                                            class="form-control @if (!$passwordsMatch && $newPasswordConfirm) !border-danger-500 @elseif($newPasswordConfirm) !border-success-500 @endif"
+                                            wire:model.live="newPasswordConfirm">
+                                        @if (!$passwordsMatch && $newPasswordConfirm)
+                                            <span class="font-Inter text-sm text-danger-500 pt-2 inline-block">Passwords do not match</span>
+                                        @endif
+                                        @error('newPasswordConfirm')
+                                            <span class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                        @enderror
                                     </div>
-                                </li> --}}
-                                <!-- end single list -->
-                                <li class="flex space-x-3 rtl:space-x-reverse float-right">
-                                    <button class="btn inline-flex justify-center btn-success" type="submit">Change
-                                        Password</button>
-                                </li>
-                                <!-- end single list -->
-                            </ul>
+                                </div>
+                            </div>
+                            
+
+                            <!-- Modal footer -->
+                            <div
+                                class="flex items-center justify-end p-6 space-x-2 border-t border-slate-200 rounded-b dark:border-slate-600">
+                                <button wire:click="editPassword" data-bs-dismiss="modal"
+                                    class="btn inline-flex justify-center text-white bg-black-500">
+                                    <span wire:loading.remove wire:target="editPassword">Submit</span>
+                                    <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
+                                        wire:loading wire:target="editPassword"
+                                        icon="line-md:loading-twotone-loop"></iconify-icon>
+                                </button>
+                            </div>
                         </div>
-                    </form>
+                    </div>
                 </div>
             </div>
         @endif

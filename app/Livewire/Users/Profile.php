@@ -34,9 +34,23 @@ class Profile extends Component
 
     public $changes;
 
-    public $currentPassword;
-    public $newPassword;
-    public $password_confirmation;
+    public $oldPass, $password, $newPasswordConfirm;
+    public $passwordsMatch = true; // Used to track if the passwords match
+
+    public function updatedPassword()
+    {
+        $this->checkPasswordsMatch();
+    }
+
+    public function updatedNewPasswordConfirm()
+    {
+        $this->checkPasswordsMatch();
+    }
+
+    public function checkPasswordsMatch()
+    {
+        $this->passwordsMatch = $this->password === $this->newPasswordConfirm;
+    }
 
     public $is_open_update_pass;
 
@@ -67,7 +81,6 @@ class Profile extends Component
             $headers,
         );
     }
-
 
     public function downloadLicDocument()
     {
@@ -116,6 +129,46 @@ class Profile extends Component
         return $url;
     }
 
+    
+
+    // Live check for password match
+    public function updated($propertyName)
+    {
+        if ($propertyName === 'password' || $propertyName === 'newPasswordConfirm') {
+            $this->passwordsMatch = $this->password === $this->newPasswordConfirm;
+        }
+    }
+
+    public function editPassword()
+    {
+        $this->validate(
+            [
+                'oldPass' => 'required',
+                'password' => 'required|min:8',
+            ]
+        );
+
+        // Get the authenticated user
+        $user = Auth::user();
+
+        // Check if the old password matches the user's current password
+        if (!Hash::check($this->oldPass, $user->password)) {
+            $this->addError('oldPass', 'The current password is incorrect.');
+            return;
+        }
+
+        // Change the password
+        $user->changePassword($this->password);
+
+        $this->alertSuccess('Password Changed!');
+        $this->closeChangePassSec();
+    }
+
+    public function closeChangePassSec()
+    {
+        $this->reset(['oldPass', 'password', 'newPasswordConfirm', 'passwordsMatch', 'is_open_update_pass']);
+    }
+
     public function mount()
     {
         $this->username = Auth::user()->username;
@@ -128,6 +181,11 @@ class Profile extends Component
         $this->OLDuserImage = Auth::user()->image_url;
         $this->OLDuploadIDFile = Auth::user()->id_doc_url;
         $this->OLDuploadLicFile = Auth::user()->driving_license_doc_url;
+    }
+
+    public function openChangePass()
+    {
+        $this->is_open_update_pass = true;
     }
 
     public function updatingUsername()
@@ -165,8 +223,6 @@ class Profile extends Component
         $this->changes = true;
     }
 
-    
-
     public function saveInfo()
     {
         $this->validate([
@@ -181,34 +237,34 @@ class Profile extends Component
 
         if ($this->OLDuserImage) {
             $user_image_url = $this->OLDuserImage;
-        } elseif($this->userImage) {
+        } elseif ($this->userImage) {
             $this->validate([
                 'userImage' => 'nullable|image|mimes:jpg,jpeg,png,gif,svg,webp|max:2048',
             ]);
             $user_image_url = $this->userImage->store(User::FILES_DIRECTORY, 's3');
-        }else{
+        } else {
             $user_image_url = null;
         }
 
         if ($this->OLDuploadIDFile) {
             $user_id_url = $this->OLDuploadIDFile;
-        } elseif($this->uploadIDFile) {
+        } elseif ($this->uploadIDFile) {
             $this->validate([
                 'uploadIDFile' => 'nullable|image|mimes:jpg,jpeg,png,gif,svg,webp|max:2048',
             ]);
             $user_id_url = $this->uploadIDFile->store(User::FILES_DIRECTORY, 's3');
-        }else{
+        } else {
             $user_image_url = null;
         }
 
         if ($this->OLDuploadLicFile) {
             $user_lic_url = $this->OLDuploadLicFile;
-        }elseif($this->uploadLicFile) {
+        } elseif ($this->uploadLicFile) {
             $this->validate([
                 'uploadLicFile' => 'nullable|image|mimes:jpg,jpeg,png,gif,svg,webp|max:2048',
             ]);
             $user_id_url = $this->uploadLicFile->store(User::FILES_DIRECTORY, 's3');
-        }else{
+        } else {
             $user_image_url = null;
         }
 
