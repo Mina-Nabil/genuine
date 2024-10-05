@@ -1008,7 +1008,9 @@ setTimeout(function () {
 window.addEventListener("toastalert", (event) => {
     var x = document.getElementById("simpleToast");
 
-    const { message, type } = event.detail;
+    // The correct data is inside event.detail.detail
+    const { message, type } = event.detail.detail || {}; // Access the nested detail
+
     let icon = "";
 
     if (type === "success") {
@@ -1025,7 +1027,7 @@ window.addEventListener("toastalert", (event) => {
         x.style.backgroundColor = "gray";
     }
 
-    x.innerHTML = message;
+    x.innerHTML = icon + (message || "No message provided");
 
     x.className = "show";
 

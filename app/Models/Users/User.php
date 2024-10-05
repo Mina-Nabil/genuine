@@ -29,7 +29,7 @@ class User extends Authenticatable
 
     protected $hidden = ['password', 'remember_token'];
 
-    public static function newUser($username, $first_name, $last_name, $type, $password, $email = null, $phone = null, $id_number = null, $id_doc_url = null, $driving_license_number = null, $driving_license_doc_url = null): self|false
+    public static function newUser($username, $first_name, $last_name, $type, $password, $email = null, $phone = null, $id_number = null, $id_doc_url = null, $driving_license_number = null, $driving_license_doc_url = null, $image_url = null): self|false
     {
         try {
             // Check if the user already exists
@@ -50,6 +50,8 @@ class User extends Authenticatable
                 'driving_license_number' => $driving_license_number,
                 'driving_license_doc_url' => $driving_license_doc_url,
                 'type' => $type,
+                'image_url' => $image_url,
+                'is_active' => 1,
                 'password' => bcrypt($password),
             ]);
 
@@ -67,7 +69,19 @@ class User extends Authenticatable
         }
     }
 
-    public function editInfo($username, $first_name, $last_name, $type, $email = null, $phone = null, $id_number = null, $id_doc_url = null, $driving_license_number = null, $driving_license_doc_url = null, $image = null, $password = null): bool
+    public function editInfo(
+        $username,
+        $first_name,
+        $last_name,
+        $type,
+        $email = null,
+        $phone = null,
+        $id_number = null,
+        $id_doc_url = null,
+        $driving_license_number = null,
+        $driving_license_doc_url = null,
+        $image_url = null,
+        $password = null): bool
     {
         try {
             // Update user attributes
@@ -81,7 +95,7 @@ class User extends Authenticatable
             $this->driving_license_number = $driving_license_number;
             $this->driving_license_doc_url = $driving_license_doc_url;
             $this->type = $type;
-            $this->image = $image;
+            $this->image_url = $image_url;
 
             // Only update password if provided
             if ($password) {

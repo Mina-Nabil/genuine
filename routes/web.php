@@ -9,7 +9,6 @@ Route::get('/', function () {
 });
 
 Route::get('/profile',Profile::class);
-// Route::get('/',view());
 Route::get('/welcome', [HomeController::class, 'welcome']);
 Route::post('/login', [HomeController::class, 'authenticate']);
 Route::get('/login', [HomeController::class, 'login'])->name('login');
