@@ -29,15 +29,27 @@ class User extends Authenticatable
 
     protected $hidden = ['password', 'remember_token'];
 
-    public static function newUser($username, $first_name, $last_name, $type, $password, $email = null, $phone = null, $id_number = null, $id_doc_url = null, $driving_license_number = null, $driving_license_doc_url = null, $image_url = null): self|false
-    {
+    public static function newUser(
+        $username,
+        $first_name,
+        $last_name,
+        $type,
+        $password,
+        $email = null,
+        $phone = null,
+        $id_number = null,
+        $id_doc_url = null,
+        $driving_license_number = null,
+        $driving_license_doc_url = null,
+        $image_url = null
+    ): self|false {
         try {
             // Check if the user already exists
             $exists = self::userExists($username);
             if ($exists) {
                 return $exists;
             }
-
+    
             // Create a new user instance
             $user = new self([
                 'username' => $username,
@@ -52,12 +64,13 @@ class User extends Authenticatable
                 'type' => $type,
                 'image_url' => $image_url,
                 'is_active' => 1,
+                // Hash the password before storing
                 'password' => bcrypt($password),
             ]);
-
+    
             // Save the user
             $user->save();
-
+    
             // Log user creation
             AppLog::info('User created', "User $username created");
             return $user;
@@ -68,6 +81,7 @@ class User extends Authenticatable
             return false;
         }
     }
+    
 
     public function editInfo(
         $username,
