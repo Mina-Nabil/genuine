@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\Storage;
 
 class Profile extends Component
 {
-    // use AlertFrontEnd;
     use WithFileUploads, AlertFrontEnd;
     public $page_title = '• Profile';
 
@@ -254,7 +253,7 @@ class Profile extends Component
             ]);
             $user_id_url = $this->uploadIDFile->store(User::FILES_DIRECTORY, 's3');
         } else {
-            $user_image_url = null;
+            $user_id_url = null;
         }
 
         if ($this->OLDuploadLicFile) {
@@ -265,7 +264,7 @@ class Profile extends Component
             ]);
             $user_id_url = $this->uploadLicFile->store(User::FILES_DIRECTORY, 's3');
         } else {
-            $user_image_url = null;
+            $user_lic_url = null;
         }
 
         $user = User::find(Auth::user()->id);
@@ -285,12 +284,14 @@ class Profile extends Component
         );
 
         if ($u) {
-            $this->alert('success', 'Updated Successfuly');
+            $this->alertSuccess( 'Updated Successfuly');
             $this->changes = false;
         } else {
-            $this->alert('failed', 'Server error');
+            $this->alertFailed( 'Server error');
         }
     }
+
+
 
     public function changePassword()
     {

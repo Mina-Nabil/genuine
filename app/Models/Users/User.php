@@ -17,7 +17,8 @@ class User extends Authenticatable
 {
     use HasFactory,Notifiable;
 
-    const FILES_DIRECTORY = '\users';
+    const FILES_DIRECTORY = 'users/';
+    
     const TYPE_ADMIN = 'admin';
     const TYPE_INVENTORY = 'inventory';
     const TYPE_SALES = 'sales';
