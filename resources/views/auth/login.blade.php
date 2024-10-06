@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <title>Genuine • Login</title>
-    <link rel="icon" type="image/png" href="assets/images/logo/favicon.svg">
+    <link rel="icon" type="image/png" href="{{ asset('assets/images/logo/genuine-favicon.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
@@ -36,10 +36,10 @@
                         <div class="mobile-logo text-center mb-6  block flex justify-center">
 
                             {{-- <img src="assets/images/logo/logo.svg" alt="" class="mb-10 dark_logo"> --}}
-                            {{-- <img src="{{ asset('assets/images/logo/wise-logo.png') }}" alt=""
-                                class="mb-10 dark_logo" width="250px">
-                            <img src="{{ asset('assets/images/logo/wise-logo-white.png') }}" alt=""
-                                class="mb-10 white_logo" width="250px"> --}}
+                            <img src="{{ asset('assets/images/logo/genuine-logo.png') }}" alt=""
+                                class="dark_logo" width="250px">
+                            <img src="{{ asset('assets/images/logo/genuine-logo-white.png') }}" alt=""
+                                class="white_logo" width="250px">
 
                         </div>
                         <div class="text-center 2xl:mb-10">

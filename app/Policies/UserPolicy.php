@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\Users\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use Illuminate\Auth\Access\Response;
 
 class UserPolicy
 {
@@ -30,7 +31,8 @@ class UserPolicy
      */
     public function create(User $user): bool
     {
-        return true;
+        if($user->is_admin) return true;
+        return Response::deny("Unauthorized action");
     }
 
     /**
@@ -38,7 +40,8 @@ class UserPolicy
      */
     public function update(User $user, User $model): bool
     {
-        return true;
+        if($user->is_admin || $user->id == $model->id) return true;
+        return Response::deny("Unauthorized action");
     }
 
     /**
@@ -46,7 +49,14 @@ class UserPolicy
      */
     public function delete(User $user, User $model): bool
     {
-        return true;
+        if($user->is_admin || $user->id == $model->id) return true;
+        return Response::deny("Unauthorized action");
+    }
+
+    public function activate(User $user, User $model): bool
+    {
+        if($user->is_admin) return true;
+        return Response::deny("Unauthorized action");
     }
 
     // You can add more methods for actions like restore, forceDelete, etc.

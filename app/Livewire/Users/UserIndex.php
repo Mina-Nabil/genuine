@@ -7,10 +7,11 @@ use App\Traits\AlertFrontEnd;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use Livewire\WithPagination;
 
 class UserIndex extends Component
 {
-    use WithFileUploads, AlertFrontEnd;
+    use WithFileUploads, AlertFrontEnd,WithPagination;
     public $page_title = '• Users';
 
     public $newUserSection;
@@ -40,10 +41,17 @@ class UserIndex extends Component
     public $phone;
     public $password;
     public $user;
+    public $upIdNumber;
+    public $upDrivingLicenceNo;
 
     public function clearImage()
     {
         $this->userImage = null;
+    }
+
+    public function updatedSearch()
+    {
+        $this->resetPage();
     }
 
     function generateUrl()
@@ -80,102 +88,86 @@ class UserIndex extends Component
         $this->type = $user->type;
         $this->email = $user->email;
         $this->phone = $user->phone;
-        if ($user->image) {
-            $this->userImage = Storage::disk('s3')->url(str_replace('//', '/', $user->image));
-        }
+        $this->upIdNumber = $user->id_number;
+        $this->upDrivingLicenceNo = $user->driving_license_number;
     }
 
     public function toggleUserStatus($id)
     {
-        $res = User::find($id)->toggle();
+        $res = User::find($id)->toggleActivation();
         if ($res) {
-            $this->alert('success', 'User updated successfuly!');
+            $this->alertSuccess( 'User updated successfuly!');
         } else {
-            $this->alert('failed', 'Server error');
+            $this->alertFailed( 'Server error');
         }
     }
 
     public function closeUpdateThisUser()
     {
-        $this->reset(['updateUserSec', 'username', 'first_name', 'last_name', 'type', 'email', 'phone', 'userImage']);
+        $this->reset(['updateUserSec', 'username', 'first_name', 'last_name', 'type', 'email', 'phone','upIdNumber' ,'upDrivingLicenceNo']);
     }
 
     public function EditUser()
-{
-    $currentUserId = $this->updateUserSec;
-    $this->validate([
-        'username' => [
-            'required',
-            'string',
-            'max:255',
-            function ($attribute, $value, $fail) use ($currentUserId) {
-                $exists = User::where('username', $value)->where('id', '!=', $currentUserId)->exists();
-                if ($exists) {
-                    $fail('The ' . $attribute . ' has already been taken.');
-                }
-            },
-        ],
-        'first_name' => 'required|string|max:255',
-        'last_name' => 'required|string|max:255',
-        'type' => 'nullable|in:' . implode(',', User::TYPES),
-        'email' => [
-            'nullable',
-            'email',
-            function ($attribute, $value, $fail) use ($currentUserId) {
-                $exists = User::where('email', $value)->where('id', '!=', $currentUserId)->exists();
-                if ($exists) {
-                    $fail('The ' . $attribute . ' has already been taken.');
-                }
-            },
-        ],
-        'phone' => 'nullable|numeric',
-        'IdNumber' => 'nullable|string|max:255', // Validate ID Number
-        'DrivingLicenceNo' => 'nullable|string|max:255', // Validate Driving License Number
-    ]);
+    {
+        $currentUserId = $this->updateUserSec;
+        $this->validate([
+            'username' => [
+                'required',
+                'string',
+                'max:255',
+                function ($attribute, $value, $fail) use ($currentUserId) {
+                    $exists = User::where('username', $value)->where('id', '!=', $currentUserId)->exists();
+                    if ($exists) {
+                        $fail('The ' . $attribute . ' has already been taken.');
+                    }
+                },
+            ],
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'type' => 'nullable|in:' . implode(',', User::TYPES),
+            'email' => [
+                'nullable',
+                'email',
+                function ($attribute, $value, $fail) use ($currentUserId) {
+                    $exists = User::where('email', $value)->where('id', '!=', $currentUserId)->exists();
+                    if ($exists) {
+                        $fail('The ' . $attribute . ' has already been taken.');
+                    }
+                },
+            ],
+            'phone' => 'nullable|numeric',
+            'upIdNumber' => 'nullable|string|max:255', // Validate ID Number
+            'upDrivingLicenceNo' => 'nullable|string|max:255', // Validate Driving License Number
+        ]);
 
-    // Call the editInfo method, omitting id_doc_url, driving_license_doc_url, and image_url
-    $res = User::find($currentUserId)->editInfo(
-        $this->username,
-        $this->first_name,
-        $this->last_name,
-        $this->type,
-        $this->email,
-        $this->phone,
-        $this->IdNumber, // Pass ID Number
-        null, // id_doc_url
-        $this->DrivingLicenceNo, // Pass Driving License Number
-        null, // driving_license_doc_url
-        null, // image_url
-        $this->password // Include password if provided
-    );
+        // Call the editInfo method, omitting id_doc_url, driving_license_doc_url, and image_url
+        $res = User::find($currentUserId)->editInfo(
+            $this->username,
+            $this->first_name,
+            $this->last_name,
+            $this->type,
+            $this->email,
+            $this->phone,
+            $this->upIdNumber, // Pass ID Number
+            null, // id_doc_url
+            $this->upDrivingLicenceNo, // Pass Driving License Number
+            null, // driving_license_doc_url
+            null, // image_url
+            $this->password, // Include password if provided
+        );
 
-    if ($res) {
-        $this->closeUpdateThisUser();
-        $this->alertSuccess( 'User updated successfully!');
-    } else {
-        $this->alertFailed( 'Server error');
+        if ($res) {
+            $this->closeUpdateThisUser();
+            $this->alertSuccess('User updated successfully!');
+        } else {
+            $this->alertFailed('Server error');
+        }
     }
-}
-
 
     public function closeNewUserSec()
     {
         $this->newUserSection = false;
-        $this->reset([
-            'newUsername',
-            'newFirstName',
-            'newLastName',
-            'newType',
-            'newPassword',
-            'newPassword_confirmation',
-            'newEmail',
-            'newPhone',
-            'newManagerId',
-            'IdNumber',
-            'IdNumberDoc', 
-            'DrivingLicenceNo', 
-            'DrivingLicenceDoc', 
-        ]);
+        $this->reset(['newUsername', 'newFirstName', 'newLastName', 'newType', 'newPassword', 'newPassword_confirmation', 'newEmail', 'newPhone', 'newManagerId', 'IdNumber', 'IdNumberDoc', 'DrivingLicenceNo', 'DrivingLicenceDoc']);
     }
 
     protected $rules = [
@@ -199,10 +191,10 @@ class UserIndex extends Component
             'newEmail' => 'nullable|email|unique:users,email',
             'newPhone' => 'nullable|numeric',
             'newManagerId' => 'nullable|exists:users,id',
-            'IdNumber' => 'nullable|string|max:255', 
-            'IdNumberDoc' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048', 
-            'DrivingLicenceNo' => 'nullable|string|max:255', 
-            'DrivingLicenceDoc' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048', 
+            'IdNumber' => 'nullable|string|max:255',
+            'IdNumberDoc' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'DrivingLicenceNo' => 'nullable|string|max:255',
+            'DrivingLicenceDoc' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
         // Store the documents if they exist
@@ -217,7 +209,7 @@ class UserIndex extends Component
             $this->closeNewUserSec(); // Close the user creation section
             $this->alertSuccess('User added successfully!'); // Show success alert
         } else {
-            $this->alertFailed( 'Server error'); // Show failure alert
+            $this->alertFailed('Server error'); // Show failure alert
         }
     }
 
@@ -229,7 +221,7 @@ class UserIndex extends Component
     public function render()
     {
         $TYPES = User::TYPES;
-        $users = User::when($this->search, fn($q) => $q->search($this->search))->paginate(50);
+        $users = User::when($this->search, fn($q) => $q->search($this->search))->paginate(30);
         return view('livewire.users.user-index', [
             'users' => $users,
             'TYPES' => $TYPES,

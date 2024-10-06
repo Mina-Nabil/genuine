@@ -83,52 +83,52 @@ class User extends Authenticatable
     }
     
 
-    public function editInfo(
-        $username,
-        $first_name,
-        $last_name,
-        $type,
-        $email = null,
-        $phone = null,
-        $id_number = null,
-        $id_doc_url = null,
-        $driving_license_number = null,
-        $driving_license_doc_url = null,
-        $image_url = null,
-        $password = null): bool
-    {
-        try {
-            // Update user attributes
-            $this->username = $username;
-            $this->first_name = $first_name;
-            $this->last_name = $last_name;
-            $this->email = $email;
-            $this->phone = $phone;
-            $this->id_number = $id_number;
-            $this->id_doc_url = $id_doc_url;
-            $this->driving_license_number = $driving_license_number;
-            $this->driving_license_doc_url = $driving_license_doc_url;
-            $this->type = $type;
-            $this->image_url = $image_url;
+        public function editInfo(
+            $username,
+            $first_name,
+            $last_name,
+            $type,
+            $email = null,
+            $phone = null,
+            $id_number = null,
+            $id_doc_url = null,
+            $driving_license_number = null,
+            $driving_license_doc_url = null,
+            $image_url = null,
+            $password = null): bool
+        {
+            try {
+                // Update user attributes
+                $this->username = $username;
+                $this->first_name = $first_name;
+                $this->last_name = $last_name;
+                $this->email = $email;
+                $this->phone = $phone;
+                $this->id_number = $id_number;
+                $this->id_doc_url = $id_doc_url;
+                $this->driving_license_number = $driving_license_number;
+                $this->driving_license_doc_url = $driving_license_doc_url;
+                $this->type = $type;
+                $this->image_url = $image_url;
 
-            // Only update password if provided
-            if ($password) {
-                $this->password = bcrypt($password);
-            }
+                // Only update password if provided
+                if ($password) {
+                    $this->password = bcrypt($password);
+                }
 
-            // Save the updated user
-            if ($this->save()) {
-                AppLog::info('User updated', "User $username updated");
-                return true;
-            } else {
+                // Save the updated user
+                if ($this->save()) {
+                    AppLog::info('User updated', "User $username updated");
+                    return true;
+                } else {
+                    return false;
+                }
+            } catch (Exception $e) {
+                AppLog::error('Updating user failed', $e->getMessage());
+                report($e);
                 return false;
             }
-        } catch (Exception $e) {
-            AppLog::error('Updating user failed', $e->getMessage());
-            report($e);
-            return false;
         }
-    }
 
     public function switchSession($username)
     {
@@ -148,6 +148,28 @@ class User extends Authenticatable
 
         return true; // Indicate successful switch
     }
+
+    public function toggleActivation(): bool
+    {
+        try {
+            // Toggle the is_active field (flip between true/false)
+            $this->is_active = !$this->is_active;
+    
+            // Save the updated status
+            if ($this->save()) {
+                $status = $this->is_active ? 'activated' : 'deactivated';
+                AppLog::info('User activation toggled', "User {$this->username} has been {$status}");
+                return true;
+            } else {
+                return false;
+            }
+        } catch (Exception $e) {
+            AppLog::error('Toggling user activation failed', $e->getMessage());
+            report($e);
+            return false;
+        }
+    }
+    
 
     public function addTempAccess($to_username, Carbon $expiry)
     {

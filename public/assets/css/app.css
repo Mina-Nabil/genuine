@@ -17528,3 +17528,19 @@ ul.custom-list ul {
     height: 85px;
     background-color: #20293b;
 }
+
+
+.page-item.disabled .page-link {
+    color: #d3d3d3; /* Very light gray for disabled arrows */
+    pointer-events: none; /* Make sure disabled buttons are not clickable */
+    background-color: transparent;
+    border: none;
+}
+
+.page-link {
+    color: #000; /* Default color for active buttons */
+}
+
+.page-item.disabled .page-link.text-muted {
+    color: #d3d3d3 !important; /* Override and ensure muted effect for disabled arrows */
+}

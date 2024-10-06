@@ -9,8 +9,10 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::middleware('auth')->group(function () {
 Route::get('/profile',Profile::class);
 Route::get('/users',UserIndex::class);
+});
 Route::get('/welcome', [HomeController::class, 'welcome']);
 Route::post('/login', [HomeController::class, 'authenticate']);
 Route::get('/login', [HomeController::class, 'login'])->name('login');
