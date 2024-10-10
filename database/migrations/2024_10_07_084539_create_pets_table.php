@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->enum('type', ['cat', 'dog']);
             $table->date('bdate');
-            $table->foreignId('customer_id')->constrained('customers');
+            $table->foreignId('customer_id')->nullable()->constrained('customers');
             $table->timestamps();
         });
     }

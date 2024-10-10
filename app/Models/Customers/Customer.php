@@ -39,7 +39,7 @@ class Customer extends Model
     }
 
     // Edit customer info
-    public function editInfo($name, $address, $phone, $location_url, $zone_id)
+    public function editInfo($name, $address = null, $phone, $location_url = null, $zone_id = null)
     {
         try {
             $this->name = $name;

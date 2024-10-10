@@ -81,7 +81,28 @@ class Pet extends Model
         }
     }
 
-    public function reassignToCustomer($customerId, $reason = null, $notifyCustomer = false, $updatedBy = null): bool
+    public function unassignFromCustomer(): bool
+    {
+        try {
+            // Set the customer_id to null
+            $this->customer_id = null;
+
+            // Save the changes
+            if ($this->save()) {
+                AppLog::info('Pet unassigned', "Pet {$this->name} unassigned from customer successfully.");
+                return true;
+            } else {
+                return false;
+            }
+        } catch (Exception $e) {
+            // Log and handle the exception
+            AppLog::error('Unassigning pet failed', $e->getMessage());
+            report($e);
+            return false;
+        }
+    }
+
+    public static function reassignToCustomer(array $petIds, $customerId, $updatedBy = null): bool
     {
         try {
             // Validate the new customer ID
@@ -89,34 +110,34 @@ class Pet extends Model
                 throw new Exception("Customer with ID $customerId does not exist.");
             }
 
-            // Assign the pet to the new customer
-            $this->customer_id = $customerId;
+            // Fetch all pets using the array of pet IDs
+            $pets = Pet::whereIn('id', $petIds)->get();
 
-            // Save the changes
-            if ($this->save()) {
-                // Optionally notify the customer
-                if ($notifyCustomer) {
-                    // Here you can add a method to send notifications to the customer
-                    // $this->notifyCustomerAboutReassignment($customerId);
+            if ($pets->isEmpty()) {
+                throw new Exception('No valid pets found for the given IDs.');
+            }
+
+            // Loop through each pet and reassign it to the customer
+            foreach ($pets as $pet) {
+                $pet->customer_id = $customerId;
+
+                // Save the changes
+                if (!$pet->save()) {
+                    throw new Exception("Failed to reassign pet ID {$pet->id}.");
                 }
 
-                // Log the reassignment with a reason and the person who made the change
-                $logMessage = "Pet '{$this->name}' reassigned to Customer ID: $customerId";
-                if ($reason) {
-                    $logMessage .= " | Reason: $reason";
-                }
+                // Log the reassignment
+                $logMessage = "Pet '{$pet->name}' (ID: {$pet->id}) reassigned to Customer ID: $customerId";
                 if ($updatedBy) {
                     $logMessage .= " | Updated by: $updatedBy";
                 }
 
-                AppLog::info($logMessage, 'Pet reassigned successfully.');
-
-                return true;
-            } else {
-                return false;
+                AppLog::info($logMessage);
             }
+
+            return true;
         } catch (Exception $e) {
-            // Log the error
+            // Log the error and report the exception
             AppLog::error('Pet reassignment failed', $e->getMessage());
             report($e);
             return false;
