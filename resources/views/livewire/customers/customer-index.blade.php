@@ -83,7 +83,7 @@
                                                     class="h-[10px] w-[10px] block m-auto opacity-0"></span>
                                         </label>
                                     </div>
-                                    <a href=""> <span
+                                    <a href="{{ route('customer.show',$customer->id) }}"> <span
                                             class="hover-underline">
                                             <b>
                                                 {{ $customer->name }}
