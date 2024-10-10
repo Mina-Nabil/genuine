@@ -29,11 +29,11 @@
     <!-- End : Theme CSS-->
     <script src="{{ asset('assets/js/settings.js') }}" sync></script>
     @auth
-    {{-- Sweet Alert --}}
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    {{-- Pusher file --}}
-    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
-    {{-- <script>
+        {{-- Sweet Alert --}}
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        {{-- Pusher file --}}
+        <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+        {{-- <script>
         @env(['development', 'staging'])
 
                 // Enable pusher logging - not included in prod
@@ -66,6 +66,9 @@
             });
     </script> --}}
     @endauth
+
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 </head>
 
 <body class=" font-inter dashcode-app">
@@ -78,8 +81,10 @@
                 class="w-screen h-screen fixed top-0 bg-slate-900 bg-opacity-50 backdrop-blur-sm z-10 hidden"></div>
             <div class="logo-segment">
                 <a class="flex items-center" href="{{ url('/') }}">
-                    <img src="{{ asset('assets/images/logo/genuine-logo-wide.png') }}" class="black_logo" alt="logo">
-                    <img src="{{ asset('assets/images/logo/genuine-logo-wide.png') }}" class="white_logo" alt="logo">
+                    <img src="{{ asset('assets/images/logo/genuine-logo-wide.png') }}" class="black_logo"
+                        alt="logo">
+                    <img src="{{ asset('assets/images/logo/genuine-logo-wide.png') }}" class="white_logo"
+                        alt="logo">
                     {{-- <span
                         class="ltr:ml-3 rtl:mr-3 text-xl font-Inter font-bold text-slate-900 dark:text-white">Wise
                         Ins.</span> --}}
@@ -102,7 +107,8 @@
                     </iconify-icon>
                 </button>
             </div>
-            <div id="nav_shadow" class="nav_shadow h-[60px] absolute top-[80px] nav-shadow z-[1] w-full transition-all duration-200 pointer-events-none
+            <div id="nav_shadow"
+                class="nav_shadow h-[60px] absolute top-[80px] nav-shadow z-[1] w-full transition-all duration-200 pointer-events-none
       opacity-0">
             </div>
             <div class="sidebar-menus bg-white dark:bg-slate-800 py-2 px-4 h-[calc(100%-80px)] overflow-y-auto z-50"
@@ -124,6 +130,33 @@
                                 <iconify-icon class=" nav-icon" icon="ph:user-bold">
                                 </iconify-icon>
                                 <span>Profile</span>
+                            </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url('/customers') }}" class="navItem {{ $customers ?? '' }}">
+                            <span class="flex items-center">
+                                <iconify-icon class=" nav-icon" icon="mdi:user">
+                                </iconify-icon>
+                                <span>Customers</span>
+                            </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url('/pets') }}" class="navItem {{ $pets ?? '' }}">
+                            <span class="flex items-center">
+                                <iconify-icon class=" nav-icon" icon="streamline:pets-allowed-solid">
+                                </iconify-icon>
+                                <span>Pets</span>
+                            </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url('/zones') }}" class="navItem {{ $zones ?? '' }}">
+                            <span class="flex items-center">
+                                <iconify-icon class=" nav-icon" icon="ri:time-zone-line">
+                                </iconify-icon>
+                                <span>Zones</span>
                             </span>
                         </a>
                     </li>
@@ -155,8 +188,10 @@
                                         class="leading-none bg-transparent relative text-xl top-[2px] text-slate-900 dark:text-white"
                                         icon="heroicons-outline:menu-alt-3"></iconify-icon>
                                 </button>
-                                <button class="flex items-center xl:text-sm text-lg xl:text-slate-400 text-slate-800 dark:text-slate-300 px-1
-        rtl:space-x-reverse search-modal" data-bs-toggle="modal" data-bs-target="#searchModal">
+                                <button
+                                    class="flex items-center xl:text-sm text-lg xl:text-slate-400 text-slate-800 dark:text-slate-300 px-1
+        rtl:space-x-reverse search-modal"
+                                    data-bs-toggle="modal" data-bs-target="#searchModal">
                                     <iconify-icon icon="heroicons-outline:search"></iconify-icon>
                                     <span class="xl:inline-block hidden ml-3">Search...
                                     </span>
@@ -244,7 +279,8 @@
                                                 </span>
                                                 <div class="text-box">Settings</div>
                                             </div>
-                                            <div class="flex-none text-sm ltr:ml-3 rtl:mr-3 leading-[1] relative top-1">
+                                            <div
+                                                class="flex-none text-sm ltr:ml-3 rtl:mr-3 leading-[1] relative top-1">
                                                 <iconify-icon icon="heroicons-outline:chevron-down"> </iconify-icon>
                                             </div>
                                         </a>
@@ -342,7 +378,8 @@
 
                                 <!-- BEGIN: gray-scale Dropdown -->
                                 <div>
-                                    <button id="grayScale" class="lg:h-[32px] lg:w-[32px] lg:bg-slate-100 lg:dark:bg-slate-900 dark:text-white text-slate-900 cursor-pointer
+                                    <button id="grayScale"
+                                        class="lg:h-[32px] lg:w-[32px] lg:bg-slate-100 lg:dark:bg-slate-900 dark:text-white text-slate-900 cursor-pointer
             rounded-full text-[20px] flex flex-col items-center justify-center">
                                         <iconify-icon class="text-slate-800 dark:text-white text-xl"
                                             icon="mdi:paint-outline"></iconify-icon>
@@ -412,8 +449,10 @@
                                 <!-- BEGIN: Profile Dropdown -->
                                 <!-- Profile DropDown Area -->
                                 <div class="md:block hidden w-full">
-                                    <button class="text-slate-800 dark:text-white focus:ring-0 focus:outline-none font-medium rounded-lg text-sm text-center
-      inline-flex items-center" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <button
+                                        class="text-slate-800 dark:text-white focus:ring-0 focus:outline-none font-medium rounded-lg text-sm text-center
+      inline-flex items-center"
+                                        type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                         <div
                                             class="lg:h-8 lg:w-8 h-7 w-7 rounded-full flex-1 ltr:mr-[10px] rtl:ml-[10px]">
                                             <span
@@ -422,21 +461,22 @@
                                             </span>
                                         </div>
                                         <span
-                                            class="flex-none text-slate-600 dark:text-white text-sm font-normal items-center lg:flex hidden overflow-hidden text-ellipsis whitespace-nowrap">{{
-                                            ucwords(Auth::user()->username) }}</span>
+                                            class="flex-none text-slate-600 dark:text-white text-sm font-normal items-center lg:flex hidden overflow-hidden text-ellipsis whitespace-nowrap">{{ ucwords(Auth::user()->username) }}</span>
                                         <svg class="w-[16px] h-[16px] dark:text-white hidden lg:inline-block text-base inline-block ml-[10px] rtl:mr-[10px]"
-                                            aria-hidden="true" fill="none" stroke="currentColor" viewbox="0 0 24 24"
-                                            xmlns="http://www.w3.org/2000/svg">
+                                            aria-hidden="true" fill="none" stroke="currentColor"
+                                            viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M19 9l-7 7-7-7"></path>
                                         </svg>
                                     </button>
                                     <!-- Dropdown menu -->
-                                    <div class="dropdown-menu z-10 hidden bg-white divide-y divide-slate-100 shadow w-44 dark:bg-slate-800 border dark:border-slate-700 !top-[23px] rounded-md
+                                    <div
+                                        class="dropdown-menu z-10 hidden bg-white divide-y divide-slate-100 shadow w-44 dark:bg-slate-800 border dark:border-slate-700 !top-[23px] rounded-md
       overflow-hidden">
                                         <ul class="py-1 text-sm text-slate-800 dark:text-slate-200">
                                             <li>
-                                                <a href="{{ url('/') }}" class="block px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white font-inter text-sm text-slate-600
+                                                <a href="{{ url('/') }}"
+                                                    class="block px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white font-inter text-sm text-slate-600
             dark:text-white font-normal">
                                                     <iconify-icon icon="heroicons-outline:user"
                                                         class="relative top-[2px] text-lg ltr:mr-1 rtl:ml-1">
@@ -446,7 +486,8 @@
                                             </li>
 
                                             <li>
-                                                <a href="{{ url('tasks/my') }}" class="block px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white font-inter text-sm text-slate-600
+                                                <a href="{{ url('tasks/my') }}"
+                                                    class="block px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white font-inter text-sm text-slate-600
             dark:text-white font-normal">
                                                     <iconify-icon icon="heroicons-outline:clipboard-check"
                                                         class="relative top-[2px] text-lg ltr:mr-1 rtl:ml-1">
@@ -457,7 +498,8 @@
 
 
                                             <li>
-                                                <a href="{{ url('profile') }}" class="block px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white font-inter text-sm text-slate-600
+                                                <a href="{{ url('profile') }}"
+                                                    class="block px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white font-inter text-sm text-slate-600
             dark:text-white font-normal">
                                                     <iconify-icon icon="iconamoon:profile-bold"
                                                         class="relative top-[2px] text-lg ltr:mr-1 rtl:ml-1">
@@ -466,7 +508,8 @@
                                                 </a>
                                             </li>
                                             <li>
-                                                <a href="{{ url('logout') }}" class="block px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white font-inter text-sm text-slate-600
+                                                <a href="{{ url('logout') }}"
+                                                    class="block px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white font-inter text-sm text-slate-600
             dark:text-white font-normal">
                                                     <iconify-icon icon="heroicons-outline:login"
                                                         class="relative top-[2px] text-lg ltr:mr-1 rtl:ml-1">
@@ -523,7 +566,7 @@
 
                                 </div>
 
-                                
+
                                 {{-- <livewire:confirmation-modal /> --}}
                                 <div class=" space-y-5">
                                     {{ $slot }}
@@ -535,14 +578,17 @@
                 </div>
             </div>
 
-            <div class="bg-white bg-no-repeat custom-dropshadow footer-bg dark:bg-slate-700 flex justify-around items-center
+            <div
+                class="bg-white bg-no-repeat custom-dropshadow footer-bg dark:bg-slate-700 flex justify-around items-center
     backdrop-filter backdrop-blur-[40px] fixed left-0 bottom-0 w-full z-[9999] bothrefm-0 py-[12px] px-4 md:hidden">
                 <a href="chat.html">
                     <div>
-                        <span class="relative cursor-pointer rounded-full text-[20px] flex flex-col items-center justify-center mb-1 dark:text-white
+                        <span
+                            class="relative cursor-pointer rounded-full text-[20px] flex flex-col items-center justify-center mb-1 dark:text-white
           text-slate-900 ">
                             <iconify-icon icon="heroicons-outline:mail"></iconify-icon>
-                            <span class="absolute right-[5px] lg:hrefp-0 -hrefp-2 h-4 w-4 bg-red-500 text-[8px] font-semibold flex flex-col items-center
+                            <span
+                                class="absolute right-[5px] lg:hrefp-0 -hrefp-2 h-4 w-4 bg-red-500 text-[8px] font-semibold flex flex-col items-center
             justify-center rounded-full text-white z-[99]">
                                 10
                             </span>
@@ -552,7 +598,8 @@
                         </span>
                     </div>
                 </a>
-                <a href="profile.html" class="relative bg-white bg-no-repeat backdrop-filter backdrop-blur-[40px] rounded-full footer-bg dark:bg-slate-700
+                <a href="profile.html"
+                    class="relative bg-white bg-no-repeat backdrop-filter backdrop-blur-[40px] rounded-full footer-bg dark:bg-slate-700
       h-[65px] w-[65px] z-[-1] -mt-[40px] flex justify-center items-center">
                     <div class="h-[50px] w-[50px] rounded-full relative left-[0px] hrefp-[0px] custom-dropshadow">
                         <img src="{{ asset('assets/images/users/user-1.jpg') }}" alt=""
@@ -561,10 +608,12 @@
                 </a>
                 <a href="{{ url('notifications') }}">
                     <div>
-                        <span class=" relative cursor-pointer rounded-full text-[20px] flex flex-col items-center justify-center mb-1 dark:text-white
+                        <span
+                            class=" relative cursor-pointer rounded-full text-[20px] flex flex-col items-center justify-center mb-1 dark:text-white
           text-slate-900">
                             <iconify-icon icon="heroicons-outline:bell"></iconify-icon>
-                            <span class="absolute right-[17px] lg:hrefp-0 -hrefp-2 h-4 w-4 bg-red-500 text-[8px] font-semibold flex flex-col items-center
+                            <span
+                                class="absolute right-[17px] lg:hrefp-0 -hrefp-2 h-4 w-4 bg-red-500 text-[8px] font-semibold flex flex-col items-center
             justify-center rounded-full text-white z-[99]">
                                 2
                             </span>

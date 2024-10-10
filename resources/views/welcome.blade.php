@@ -56,6 +56,14 @@
 
                     <main class="mt-6">
                         <div class="grid gap-6 lg:grid-cols-2 lg:gap-8">
+                            <div>
+                                <label for="select2basic" class="form-label">Basic Select</label>
+                                <select name="select2basic" id="select2basic" class="select2 form-control w-full mt-2 py-2">
+                                  <option value="option1" class=" inline-block font-Inter font-normal text-sm text-slate-600">Option 1</option>
+                                  <option value="option2" class=" inline-block font-Inter font-normal text-sm text-slate-600">Option 2</option>
+                                  <option value="option3" class=" inline-block font-Inter font-normal text-sm text-slate-600">Option 3</option>
+                                </select>
+                              </div>
                             <a
                                 href="https://laravel.com/docs"
                                 id="docs-card"

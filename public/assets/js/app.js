@@ -1211,3 +1211,12 @@ function handleButtonClick(event) {
         }
     });
 }
+
+document.addEventListener("scroll", function () {
+    const stickyColumn = document.querySelector(".sticky-column");
+    if (window.scrollX > 0) {
+        stickyColumn.classList.add("is-stuck");
+    } else {
+        stickyColumn.classList.remove("is-stuck");
+    }
+});

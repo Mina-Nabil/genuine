@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('address');
+            $table->string('address')->nullable();
             $table->string('phone');
-            $table->string('location_url');
-            $table->foreignId('zone_id')->constrained('zones');
+            $table->string('location_url')->nullable();
+            $table->foreignId('zone_id')->constrained('zones')->nullable();
             $table->timestamps();
         });
     }

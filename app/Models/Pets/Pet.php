@@ -81,22 +81,17 @@ class Pet extends Model
         }
     }
 
-    public function reassignToCustomer(
-        $customerId,
-        $reason = null,
-        $notifyCustomer = false,
-        $updatedBy = null
-    ): bool
+    public function reassignToCustomer($customerId, $reason = null, $notifyCustomer = false, $updatedBy = null): bool
     {
         try {
             // Validate the new customer ID
             if (!Customer::find($customerId)) {
                 throw new Exception("Customer with ID $customerId does not exist.");
             }
-    
+
             // Assign the pet to the new customer
             $this->customer_id = $customerId;
-    
+
             // Save the changes
             if ($this->save()) {
                 // Optionally notify the customer
@@ -104,7 +99,7 @@ class Pet extends Model
                     // Here you can add a method to send notifications to the customer
                     // $this->notifyCustomerAboutReassignment($customerId);
                 }
-    
+
                 // Log the reassignment with a reason and the person who made the change
                 $logMessage = "Pet '{$this->name}' reassigned to Customer ID: $customerId";
                 if ($reason) {
@@ -113,9 +108,9 @@ class Pet extends Model
                 if ($updatedBy) {
                     $logMessage .= " | Updated by: $updatedBy";
                 }
-    
-                AppLog::info($logMessage, "Pet reassigned successfully.");
-    
+
+                AppLog::info($logMessage, 'Pet reassigned successfully.');
+
                 return true;
             } else {
                 return false;
@@ -138,11 +133,15 @@ class Pet extends Model
         return self::where('type', $type)->get();
     }
 
-    // Scopes
     public function scopeSearch($query, $term)
     {
         $term = "%{$term}%";
-        return $query->where('name', 'like', $term)->orWhere('type', 'like', $term);
+        return $query
+            ->where('name', 'like', $term)
+            ->orWhere('type', 'like', $term)
+            ->orWhereHas('customer', function ($q) use ($term) {
+                $q->where('name', 'like', $term);
+            });
     }
 
     // Relations

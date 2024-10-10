@@ -15,7 +15,7 @@ class Customer extends Model
     protected $fillable = ['name', 'address', 'phone', 'location_url', 'zone_id'];
 
     // Create a new customer
-    public static function newCustomer($name, $address, $phone, $location_url, $zone_id)
+    public static function newCustomer($name, $address = null, $phone, $location_url = null, $zone_id = null)
     {
         try {
             $customer = new self();

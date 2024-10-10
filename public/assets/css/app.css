@@ -11346,7 +11346,8 @@ ul.custom-list ul {
     font-weight: 400;
     /* text-transform: capitalize; */
     --tw-text-opacity: 1;
-    color: rgb(71 85 105 / var(--tw-text-opacity));
+    /* color: rgb(71 85 105 / var(--tw-text-opacity)); */
+    color: rgb(0 0 0);
 }
 
 .dark .table-td {
@@ -17543,4 +17544,49 @@ ul.custom-list ul {
 
 .page-item.disabled .page-link.text-muted {
     color: #d3d3d3 !important; /* Override and ensure muted effect for disabled arrows */
+}
+
+
+.sticky-column {
+    /* Sticky properties */
+    position: sticky;
+    left: 0;
+    background-color: white;
+    z-index: 10;
+    /* Transition for smooth appearance */
+    transition: box-shadow 0.3s ease;
+    /* Adding padding to ensure shadow visibility */
+    padding-right: 10px;
+}
+
+.sticky-column.is-stuck {
+    /* Visible shadow to the right */
+    box-shadow: 10px 0 15px -5px rgba(0, 0, 0, 0.5); /* Darker and larger shadow */
+}
+
+
+.colomn-shadow {
+    border-right: 3px solid transparent; /* Set the border width */;
+    border-image: linear-gradient(to right, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0)) 1; /* Gradient effect */
+}
+
+.clickable-link {
+    color: blue;
+    cursor: pointer;
+    text-decoration: none; /* Remove the default underline if needed */
+}
+
+.clickable-link:hover {
+    text-decoration: underline; /* Add underline on hover */
+}
+
+
+.hover-underline {
+    color: inherit; /* Maintain the original text color */
+    text-decoration: none; /* Remove default underline */
+    transition: color 0.3s ease; /* Smooth transition for color change */
+}
+
+.hover-underline:hover {
+    text-decoration: underline; /* Underline text on hover */
 }

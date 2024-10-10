@@ -16,7 +16,7 @@
 
         </div>
     </div>
-    <div class="card overflow-x-auto">
+    <div class="card">
         <header class="card-header cust-card-header noborder">
             <iconify-icon wire:loading wire:target="search" class="loading-icon text-lg"
                 icon="line-md:loading-twotone-loop"></iconify-icon>
@@ -24,7 +24,7 @@
                 wire:model.live.debounce.400ms="search">
         </header>
 
-        <div class="card-body px-6 pb-6">
+        <div class="card-body px-6 pb-6  overflow-x-auto">
             <div class=""> <!-- Add this wrapper to allow horizontal scroll -->
                 <table class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700">
                     <thead class="border-t border-slate-100 dark:border-slate-800 bg-slate-200 dark:bg-slate-700">
@@ -145,9 +145,9 @@
                         @endforeach
 
                     </tbody>
-                    
+
                 </table>
-                
+
 
                 @if ($users->isEmpty())
                     {{-- START: empty filter result --}}
@@ -171,12 +171,16 @@
                     {{-- END: empty filter result --}}
                 @endif
 
-                
+
             </div>
-            {{ $users->links('vendor.livewire.simple-bootstrap') }}
+
 
         </div>
+        <div>
+            {{ $users->links('vendor.livewire.simple-bootstrap') }}
+        </div>
     </div>
+
 
     @can('create', App\Models\Users\User::class)
         @if ($newUserSection)
