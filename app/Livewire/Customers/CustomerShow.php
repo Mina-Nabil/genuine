@@ -8,10 +8,11 @@ use App\Models\Pets\Pet;
 use Livewire\Component;
 use App\Traits\AlertFrontEnd;
 use Illuminate\Support\Arr;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class CustomerShow extends Component
 {
-    use AlertFrontEnd;
+    use AlertFrontEnd,AuthorizesRequests;
 
     public $page_title;
 
@@ -59,6 +60,7 @@ class CustomerShow extends Component
     }
 
     public function editCustomer(){
+        $this->authorize('update' , $this->customer);
         $this->validate([
             'fullName' => 'required|string|max:255',
             'phone' => 'required|string|max:15',
@@ -96,12 +98,14 @@ class CustomerShow extends Component
 
     public function assignPets()
     {
+        
         if(empty($this->selectedPets)){
             $this->closeAddPetsSection();
             return;
         }
         // Assuming $index is the key you're trying to pluck
         $petsIds =  array_keys($this->selectedPets, true);
+        $this->authorize('assign' , Pet::class);
 
         $res = Pet::reassignToCustomer($petsIds , $this->customer->id);
 
@@ -123,6 +127,7 @@ class CustomerShow extends Component
 
     public function removePet($id)
     {
+        $this->authorize('assign' , Pet::class);
         $res = Pet::findOrFail($id)->unassignFromCustomer();
 
         if ($res) {

@@ -7,11 +7,12 @@ use Livewire\Component;
 use App\Traits\AlertFrontEnd;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class ZoneIndex extends Component
 {
 
-    use WithFileUploads, AlertFrontEnd, WithPagination;
+    use WithFileUploads, AlertFrontEnd, WithPagination,AuthorizesRequests;
     public $page_title = '• Zones';
 
     public $fetched_zones_IDs;
@@ -23,6 +24,35 @@ class ZoneIndex extends Component
 
     public $name;
     public $deliveryRate;
+
+    public $updatedZone; //to edit model
+
+    public function updateThisZone($id){
+        $this->updatedZone =  Zone::findOrFail($id);
+        $this->authorize('update' ,  $this->updatedZone);
+        $this->name = $this->updatedZone->name;
+        $this->deliveryRate = $this->updatedZone->delivery_rate;
+    }
+
+    public function closeUpdateZoneSec(){
+        $this->reset(['updatedZone','name','deliveryRate']);
+    }
+
+    public function updateZone(){
+        $this->validate([
+            'name' => 'required|string|max:255',
+            'deliveryRate' => 'required|numeric|regex:/^\d+(\.\d{1,2})?$/', // Ensure up to 2 decimal places
+        ]);
+
+        $res = $this->updatedZone->editInfo($this->name,$this->deliveryRate);
+
+        if($res){
+            $this->alertSuccess('Zone updated!');
+            $this->closeUpdateZoneSec();
+        }else{
+            $this->alertFailed();
+        }
+    }
 
     public function updatedSelectAll($value)
     {
@@ -62,10 +92,11 @@ class ZoneIndex extends Component
 
     public function addNewZone()
     {
+        $this->authorize('create', Zone::class);
+
         $this->validate([
             'name' => 'required|string|max:255',
-            'deliveryRate' => 'required|integer',
-
+            'deliveryRate' => 'required|numeric|regex:/^\d+(\.\d{1,2})?$/', // Ensure up to 2 decimal places
         ]);
 
         $res = Zone::newZone($this->name,$this->deliveryRate);

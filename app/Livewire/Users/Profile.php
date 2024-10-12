@@ -262,7 +262,7 @@ class Profile extends Component
             $this->validate([
                 'uploadLicFile' => 'nullable|image|mimes:jpg,jpeg,png,gif,svg,webp|max:2048',
             ]);
-            $user_id_url = $this->uploadLicFile->store(User::FILES_DIRECTORY, 's3');
+            $user_lic_url = $this->uploadLicFile->store(User::FILES_DIRECTORY, 's3');
         } else {
             $user_lic_url = null;
         }

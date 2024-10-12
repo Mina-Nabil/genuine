@@ -6,6 +6,7 @@ use App\Models\Customers\Customer;
 use App\Models\Customers\Zone;
 use Livewire\Component;
 use App\Traits\AlertFrontEnd;
+use Illuminate\Routing\Route;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 
@@ -76,8 +77,7 @@ class CustomerIndex extends Component
         $res = Customer::newCustomer($this->fullName,$this->address,$this->phone,$this->locationUrl,$this->zone_id);
 
         if($res){
-            $this->alertSuccess('Customer added!');
-            $this->closeNewCustomerSec();
+            return redirect(route('customer.show',$res->id));
         }else{
             $this->alertFailed();
         }

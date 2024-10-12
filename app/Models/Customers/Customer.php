@@ -27,7 +27,7 @@ class Customer extends Model
 
             if ($customer->save()) {
                 AppLog::info('Customer created', "Customer $name created successfully.");
-                return true;
+                return $customer;
             } else {
                 return false;
             }
