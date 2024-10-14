@@ -33,7 +33,7 @@
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         {{-- Pusher file --}}
         <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
-        {{-- <script>
+        <script>
         @env(['development', 'staging'])
 
                 // Enable pusher logging - not included in prod
@@ -64,7 +64,7 @@
                     }
                 });
             });
-    </script> --}}
+    </script>
     @endauth
 
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
@@ -411,9 +411,9 @@
 
 
                                 <!-- BEGIN: Notification Dropdown -->
-                                {{-- @php
+                                @php
                                 $notfCount = auth()->user()->getUnseenNotfCount();
-                                @endphp --}}
+                                @endphp
                                 <!-- Notifications Dropdown area -->
                                 <div class="relative md:block hidden">
                                     <button
@@ -421,11 +421,11 @@
                                         type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                         <iconify-icon class="animate-tada text-slate-800 dark:text-white text-xl"
                                             icon="heroicons-outline:bell"></iconify-icon>
-                                        {{-- @if ($notfCount)
+                                        @if ($notfCount)
                                         <span
                                             class="absolute -right-1 lg:top-0 -top-[6px] h-4 w-4 bg-red-500 text-[8px] font-semibold flex flex-col items-center justify-center rounded-full text-white z-[99]">
                                             {{ $notfCount }}</span>
-                                        @endif --}}
+                                        @endif
                                     </button>
                                     <!-- Notifications Dropdown -->
                                     <div class="dropdown-menu z-10 hidden bg-white shadow w-[335px] dark:bg-slate-800 border dark:border-slate-700 !top-[23px] rounded-md overflow-hidden lrt:origin-top-right rtl:origin-top-left"
@@ -436,29 +436,54 @@
                                             <a class="text-xs font-Inter font-normal underline text-slate-500 dark:text-white"
                                                 href="{{ url('/notifications') }}">See All</a>
                                         </div>
-                                        {{-- BEGIN: ONE Notification --}}
-                                        {{-- classes for unread notf. dark:bg-slate-700 dark:bg-opacity-70
-                                        text-slate-800 --}}
+                                        @if (!auth()->user()->notifications->isEmpty())
+                                            @foreach (auth()->user()->latest_notifications as $notification)
+                                                {{-- BEGIN: ONE Notification --}}
+                                                {{-- classes for unread notf. dark:bg-slate-700 dark:bg-opacity-70 text-slate-800 --}}
 
-                                        <div class="text-slate-600 dark:text-slate-300 block w-full px-4 py-2 text-sm">
-                                            <div class="flex ltr:text-left rtl:text-right relative">
-                                                <div class="flex-none ltr:mr-3 rtl:ml-3">
-                                                    <div class="h-8 w-8 bg-white rounded-full">
-                                                        <img src="{{ asset('assets/images/all-img/user3.png') }}"
-                                                            alt="user"
-                                                            class="border-transparent block w-full h-full object-cover rounded-full border">
+                                                <div
+                                                    class="text-slate-600 dark:text-slate-300 block w-full px-4 py-2 text-sm">
+                                                    <div class="flex ltr:text-left rtl:text-right relative">
+                                                        <div class="flex-none ltr:mr-3 rtl:ml-3">
+                                                            <div
+                                            class="lg:h-8 lg:w-8 h-7 w-7 rounded-full flex-1 ltr:mr-[10px] rtl:ml-[10px]">
+                                            <span
+                                                class="block w-full h-full object-cover text-center text-lg leading-8 user-initial">
+                                                {{ strtoupper(substr(Auth::user()->username, 0, 1)) }}
+                                            </span>
+                                        </div>
+                                                        </div>
+                                                        <div class="flex-1">
+                                                            <a href="{{ $notification->route }}"
+                                                                class="text-slate-600 dark:text-slate-300 text-sm font-medium mb-1 before:w-full before:h-full before:absolute before:top-0 before:left-0">
+                                                                @if (!$notification->is_seen)
+                                                                    *
+                                                                @endif
+                                                                {{ $notification->title }}
+                                                            </a>
+                                                            <div
+                                                                class="text-slate-600 dark:text-slate-300 text-xs leading-4">
+                                                                {{ $notification->message }}
+                                                            </div>
+                                                            {{ $notification->created_at->diffForHumans() }}
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {{-- End: ONE Notification --}}
+                                            @endforeach
+                                        @else
+                                            <div
+                                                class="text-slate-600 dark:text-slate-300 block w-full px-4 py-2 text-sm">
+                                                <div class="flex ltr:text-left rtl:text-right relative">
+                                                    <div class="flex-none ltr:mr-3 rtl:ml-3">
+                                                        <p>You have no notifications at the moment.</p>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div class="text-slate-600 dark:text-slate-300 block w-full px-4 py-2 text-sm">
-                                            <div class="flex ltr:text-left rtl:text-right relative">
-                                                <div class="flex-none ltr:mr-3 rtl:ml-3">
-                                                    <p>You have no notifications at the moment.</p>
-                                                </div>
-                                            </div>
-                                        </div>
 
+                                        @endif
 
                                     </div>
                                 </div>

@@ -470,6 +470,7 @@ class TaskShow extends Component
             ->get();
 
         $statuses = Task::STATUSES;
+        
         if ($this->task->assigned_to_type)
             $users = User::where('type', $this->task->assigned_to_type)->get();
         else $users = User::all();
