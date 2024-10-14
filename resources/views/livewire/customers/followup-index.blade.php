@@ -32,7 +32,7 @@
                                                 class="h-[10px] w-[10px] block m-auto opacity-0"></span>
                                     </label>
                                 </div>
-                                Name
+                                Title
                             </th>
                             @if ($selectAll)
                                 @if ($selectedAllFollowups)
@@ -49,10 +49,8 @@
                                             All Followups</span></th>
                                 @endif
                             @else
-                                <th scope="col" class="table-th">Phone</th>
-                                <th scope="col" class="table-th">Zone</th>
-                                <th scope="col" class="table-th">Address</th>
-                                <th scope="col" class="table-th">Location</th>
+                                <th scope="col" class="table-th">Status</th>
+                                <th scope="col" class="table-th">Call Time</th>
                             @endif
 
                         </tr>
@@ -74,25 +72,23 @@
                                                     class="h-[10px] w-[10px] block m-auto opacity-0"></span>
                                         </label>
                                     </div>
-                                    <a href="{{ route('customer.show',$customer->id) }}"> <span
+                                    <a> <span
                                             class="hover-underline">
                                             <b>
-                                                {{ $customer->name }}
+                                                {{ $followup->title }}
                                             </b>
                                         </span>
                                     </a>
 
                                 </td>
 
-
                                 <td class="table-td">
-                                    {{ $customer->phone }}
+                                    {{ $followup->status }}
                                 </td>
 
                                 <td class="table-td">
-                                    {{ $customer->zone->name }}
+                                    {{ $followup->call_time }}
                                 </td>
-
 
                             </tr>
                         @endforeach
@@ -102,7 +98,7 @@
                 </table>
 
 
-                @if ($customers->isEmpty())
+                @if ($followups->isEmpty())
                     {{-- START: empty filter result --}}
                     <div class="card m-5 p-5">
                         <div class="card-body rounded-md bg-white dark:bg-slate-800">
@@ -110,150 +106,28 @@
                                 <h2>
                                     <iconify-icon icon="icon-park-outline:search"></iconify-icon>
                                 </h2>
-                                <h2 class="card-title text-slate-900 dark:text-white mb-3">No customers with the
+                                <h2 class="card-title text-slate-900 dark:text-white mb-3">No follow-ups with the
                                     applied
                                     filters</h2>
                                 <p class="card-text">Try changing the filters or search terms for this view.
                                 </p>
-                                <a href="{{ url('/customers') }}"
+                                <a href="{{ url('/followups') }}"
                                     class="btn inline-flex justify-center mx-2 mt-3 btn-primary active btn-sm">View
-                                    all customers</a>
+                                    all follow-ups</a>
                             </div>
                         </div>
                     </div>
                     {{-- END: empty filter result --}}
                 @endif
 
-
             </div>
-
 
         </div>
         <div style="position: sticky ; bottom:0;width:100%; z-index:10;"
             class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
-            {{ $customers->links('vendor.livewire.simple-bootstrap') }}
+            {{ $followups->links('vendor.livewire.simple-bootstrap') }}
         </div>
 
     </div>
-
-
-
-    @can('create', App\Models\Customers\Customer::class)
-        @if ($newCustomerSection)
-            <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
-                tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog" style="display: block;">
-                <div class="modal-dialog relative w-auto pointer-events-none">
-                    <div
-                        class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
-                        <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
-                            <!-- Modal header -->
-                            <div
-                                class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
-                                <h3 class="text-xl font-medium text-white dark:text-white capitalize">
-                                    Create new customer
-                                </h3>
-                                <button wire:click="closeNewCustomerSec" type="button"
-                                    class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
-                                    data-bs-dismiss="modal">
-                                    <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path fill-rule="evenodd"
-                                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                            clip-rule="evenodd"></path>
-                                    </svg>
-                                    <span class="sr-only">Close modal</span>
-                                </button>
-                            </div>
-                            <!-- Modal body -->
-                            <div class="p-6 space-y-4">
-                                <div class="from-group">
-                                    <div class="input-area">
-                                        <label for="fullName" class="form-label">Full name</label>
-                                        <input id="fullName" type="text"
-                                            class="form-control @error('fullName') !border-danger-500 @enderror"
-                                            wire:model.lazy="fullName" autocomplete="off">
-                                    </div>
-                                    @error('fullName')
-                                        <span
-                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                                <div class="from-group">
-                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-                                        <div class="input-area">
-                                            <label for="phone" class="form-label">Phone</label>
-                                            <input id="phone" type="text"
-                                                class="form-control @error('phone') !border-danger-500 @enderror"
-                                                wire:model="phone" autocomplete="off">
-                                        </div>
-                                        <div class="input-area">
-                                            <label for="zone_id" class="form-label">Zone</label>
-                                            <select name="zone_id" id="zone_id"
-                                                class="form-control w-full mt-2 @error('zone_id') !border-danger-500 @enderror"
-                                                wire:model="zone_id" autocomplete="off">
-                                                <option value="">None</option>
-                                                @foreach ($ZONES as $SINGLE_ZONE)
-                                                    <option value="{{ $SINGLE_ZONE->id }}">
-                                                        {{ ucwords(str_replace('_', ' ', $SINGLE_ZONE->name)) }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    </div>
-                                    @error('phone')
-                                        <span
-                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
-                                    @enderror
-
-                                    @error('zone')
-                                        <span
-                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
-                                    @enderror
-                                </div>
-
-
-                                <div class="from-group">
-                                    <div class="input-area">
-                                        <label for="locationUrl" class="form-label">Location URL</label>
-                                        <input id="locationUrl" type="text"
-                                            class="form-control @error('locationUrl') !border-danger-500 @enderror"
-                                            wire:model="locationUrl" autocomplete="off">
-                                    </div>
-                                    @error('locationUrl')
-                                        <span
-                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
-                                    @enderror
-                                </div>
-
-                                <div class="from-group">
-                                    <div class="input-area">
-                                        <label for="address" class="form-label">Address</label>
-                                        <textarea id="address" type="text" class="form-control @error('address') !border-danger-500 @enderror"
-                                            wire:model="address" autocomplete="off"></textarea>
-                                    </div>
-                                    @error('address')
-                                        <span
-                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
-                                    @enderror
-                                </div>
-
-                            </div>
-                            <!-- Modal footer -->
-                            <div
-                                class="flex items-center justify-end p-6 space-x-2 border-t border-slate-200 rounded-b dark:border-slate-600">
-                                <button wire:click="addNewCustomer" data-bs-dismiss="modal"
-                                    class="btn inline-flex justify-center text-white bg-black-500">
-                                    <span wire:loading.remove wire:target="addNewCustomer">Submit</span>
-                                    <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
-                                        wire:loading wire:target="addNewCustomer"
-                                        icon="line-md:loading-twotone-loop"></iconify-icon>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endif
-    @endcan
-
 
 </div>

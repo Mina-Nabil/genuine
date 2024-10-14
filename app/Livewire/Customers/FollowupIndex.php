@@ -27,7 +27,7 @@ class FollowupIndex extends Component
     public function updatedSelectAll($value)
     {
         if ($value) {
-            $this->selectedFollowups = $this->fetched_customers_IDs;
+            $this->selectedFollowups = $this->fetched_followups_IDs;
         } else {
             $this->selectedFollowups = [];
         }
@@ -40,7 +40,7 @@ class FollowupIndex extends Component
 
     public function undoSelectAllFollowups(){
         $this->selectedAllFollowups = false;
-        $this->selectedFollowups = $this->fetched_customers_IDs;
+        $this->selectedFollowups = $this->fetched_followups_IDs;
     }
 
 
@@ -84,6 +84,10 @@ class FollowupIndex extends Component
 
     public function render()
     {
-        return view('livewire.customers.followup-index')->layout('layouts.app', ['page_title' => $this->page_title, 'followups' => 'active']);
+        $followups = Followup::paginate(30);
+        $this->fetched_followups_IDs = $followups->pluck('id')->toArray();
+        return view('livewire.customers.followup-index',[
+            'followups' => $followups
+        ])->layout('layouts.app', ['page_title' => $this->page_title, 'followups' => 'active']);
     }
 }

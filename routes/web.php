@@ -3,6 +3,7 @@
 use App\Http\Controllers\HomeController;
 use App\Livewire\Customers\CustomerIndex;
 use App\Livewire\Customers\CustomerShow;
+use App\Livewire\Customers\FollowupIndex;
 use App\Livewire\Customers\ZoneIndex;
 use App\Livewire\Pets\PetIndex;
 use App\Livewire\Tasks\TaskIndex;
@@ -22,6 +23,7 @@ Route::get('/customers',CustomerIndex::class)->name('customer.index');
 Route::get('/customers/{id}',CustomerShow::class)->name('customer.show');
 Route::get('/pets',PetIndex::class);
 Route::get('/zones',ZoneIndex::class);
+Route::get('/followups',FollowupIndex::class);
 Route::get('/tasks',TaskIndex::class);
 Route::get('/tasks/{id}',TaskShow::class)->name('tasks.show');
 });

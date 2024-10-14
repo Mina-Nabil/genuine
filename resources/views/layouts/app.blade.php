@@ -152,6 +152,15 @@
                         </a>
                     </li>
                     <li>
+                        <a href="{{ url('/followups') }}" class="navItem {{ $followups ?? '' }}">
+                            <span class="flex items-center">
+                                <iconify-icon class=" nav-icon" icon="mdi:user">
+                                </iconify-icon>
+                                <span>Follow-ups</span>
+                            </span>
+                        </a>
+                    </li>
+                    <li>
                         <a href="{{ url('/pets') }}" class="navItem {{ $pets ?? '' }}">
                             <span class="flex items-center">
                                 <iconify-icon class=" nav-icon" icon="streamline:pets-allowed-solid">

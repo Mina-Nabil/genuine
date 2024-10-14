@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Exception;
 use App\Models\Users\AppLog;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Support\Facades\Auth;
 
 class Customer extends Model
 {
@@ -84,6 +87,24 @@ class Customer extends Model
         }
     }
 
+    public function addFollowup($title, $call_time, $desc = null): Followup|false
+    {
+        try {
+            $res = $this->followups()->create([
+                "creator_id" =>  Auth::id(),
+                "title"     =>  $title,
+                "call_time" =>  Carbon::parse($call_time),
+                "desc"      =>  $desc
+            ]);
+            AppLog::info("Follow-up created", loggable: $res);
+            return $res;
+        } catch (Exception $e) {
+            AppLog::error("Can't create followup", desc: $e->getMessage());
+            report($e);
+            return false;
+        }
+    }
+
     // Delete customer and optionally associated pets
     public function deleteCustomer($deletePets = false): bool
     {
@@ -122,6 +143,11 @@ class Customer extends Model
     public function zone()
     {
         return $this->belongsTo(Zone::class);
+    }
+
+    public function followups(): MorphMany
+    {
+        return $this->morphMany(Followup::class, 'called');
     }
 
     public function pets()
