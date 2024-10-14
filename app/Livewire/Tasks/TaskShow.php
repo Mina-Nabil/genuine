@@ -8,6 +8,7 @@ use App\Models\Tasks\Task;
 use App\Models\Tasks\TaskFile;
 use App\Models\Users\User;
 use App\Models\Tasks\TaskComment;
+use App\Models\Users\Notification;
 use App\Traits\AlertFrontEnd;
 use App\Traits\ToggleSectionLivewire;
 use Carbon\Carbon;
@@ -76,8 +77,6 @@ class TaskShow extends Component
         $this->watchersList = $task->watcher_ids;
         $this->editedStatus = $task->status;
 
-
-
         // dd($this->watchersList->pluck('user_id')->all());
 
         $createdAt = Carbon::parse($task->due);
@@ -86,6 +85,8 @@ class TaskShow extends Component
 
         $this->taskableType = $task->taskable_type;
         $this->task = $task;
+
+        Notification::where('route','tasks/'.$id.'')->where('user_id',Auth::id())->first()?->setAsSeen();
     }
 
 
