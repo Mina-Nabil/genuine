@@ -14,6 +14,7 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         User::newUser("michael", "Michael", "Rafaillo", User::TYPE_ADMIN, "michael@genuine");
+        User::newUser("mina", "Mina", "Nabil", User::TYPE_ADMIN, "mina@genuine");
         for ($i = 51; $i <= 100; $i++) {
             User::newUser(
                 "user{$i}",                       // Unique username
