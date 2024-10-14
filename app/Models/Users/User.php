@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use App\Events\AppNotification;
 
 class User extends Authenticatable
 {
@@ -131,6 +132,7 @@ class User extends Authenticatable
             }
         }
 
+        
     public function switchSession($username)
     {
         // Assuming 'username' is the attribute to identify the user instead of user_id
@@ -252,6 +254,42 @@ class User extends Authenticatable
         } else return "Incorrect password";
     }
 
+    public function pushNotification($title, $message, $route)
+    {
+        try {
+            $this->notifications()->create([
+                "sender_id" =>  Auth::user() ? Auth::id() : null,
+                "title"     =>  $title,
+                "route"     =>  $route
+            ]);
+
+            event(new AppNotification([
+                "title"     =>  $title,
+                "message"   =>  $message,
+                "route"     =>  $route
+            ], $this));
+        } catch (Exception $e) {
+            report($e);
+        }
+    }
+
+    public function markNotificationsAsSeenByRoute($route)
+    {
+        try {
+            $now = Carbon::now();
+            $this->notifications()->whereNull('seen_at')->where("route", $route)->update([
+                "seen_at"   =>  $now
+            ]);
+        } catch (Exception $e) {
+            report($e);
+        }
+    }
+
+    public function getUnseenNotfCount()
+    {
+        return $this->notifications()->whereNull('seen_at')->selectRaw("count(*) as unseen")->first()->unseen;
+    }
+
     //scope
     public function scopeAdmin($query)
     {
@@ -325,6 +363,16 @@ class User extends Authenticatable
     public function logs(): HasMany
     {
         return $this->hasMany(AppLog::class);
+    }
+
+    public function latest_notifications(): HasMany
+    {
+        return $this->hasMany(Notification::class)->latest(); //->limit(6)
+    }
+
+    public function notifications(): HasMany
+    {
+        return $this->hasMany(Notification::class)->latest();
     }
 
     //auth

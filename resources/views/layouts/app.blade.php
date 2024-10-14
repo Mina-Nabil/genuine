@@ -125,6 +125,15 @@
                         </a>
                     </li>
                     <li>
+                        <a href="{{ url('/tasks') }}" class="navItem {{ $tasks ?? '' }}">
+                            <span class="flex items-center">
+                                <iconify-icon class=" nav-icon" icon="ic:round-add-task">
+                                </iconify-icon>
+                                <span>Tasks</span>
+                            </span>
+                        </a>
+                    </li>
+                    <li>
                         <a href="{{ url('/profile') }}" class="navItem {{ $profile ?? '' }}">
                             <span class="flex items-center">
                                 <iconify-icon class=" nav-icon" icon="ph:user-bold">

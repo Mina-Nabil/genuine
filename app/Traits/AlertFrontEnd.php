@@ -40,6 +40,17 @@ trait AlertFrontEnd
         );
     }
 
+    public function alert($type , $message)
+    {
+        $this->dispatch(
+            'toastalert',
+            detail: [
+                'message' => $message,
+                'type' => $type,
+            ],
+        );
+    }
+
     public function throwError($property, $message)
     {
         throw ValidationException::withMessages([
