@@ -17,7 +17,6 @@ use Illuminate\Support\Facades\Auth;
 class Followup extends Model
 {
     use HasFactory;
-    use HasFactory;
     const MORPH_TYPE = 'followup';
 
     const STATUS_NEW = 'new';
