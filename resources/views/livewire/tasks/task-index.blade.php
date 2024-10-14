@@ -417,8 +417,6 @@
                                                     aria-label="multiple select example"
                                                     class="select2 form-control w-full mt-2 py-2   @error('setWatchersList') !border-danger-500 @enderror"
                                                     multiple="multiple" style="height: 250px">
-                                                    aaaaaaaaaaaaaaaa
-                                                    aaaaaaaaa
                                                     @foreach ($users as $user)
                                                         <option value="{{ $user->id }}" class="">
                                                             {{ $user->first_name . ' ' . $user->last_name }}
