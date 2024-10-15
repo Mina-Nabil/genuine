@@ -14,7 +14,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class CustomerShow extends Component
 {
-    use AlertFrontEnd, AuthorizesRequests,ToggleSectionLivewire;
+    use AlertFrontEnd, AuthorizesRequests, ToggleSectionLivewire;
 
     public $page_title;
 
@@ -22,9 +22,11 @@ class CustomerShow extends Component
     public $section = 'profile';
     public $isOpenAddPetsSec = false;
 
-    public $All_pets;
-    public $selectedPets = [];
-    public $searchPets;
+    public $petCategory = Pet::CATEGORIES[0];
+    public $petType;
+    public $petBdate;
+    public $petName;
+    public $petNote;
 
     //followups
     public $addFollowupSection = false;
@@ -48,14 +50,6 @@ class CustomerShow extends Component
 
     protected $queryString = ['section'];
     protected $listeners = ['removePet'];
-
-    public function updatedSearchPets()
-    {
-        $this->All_pets = Pet::where('customer_id', null)
-            ->search($this->searchPets)
-            ->limit(10)
-            ->get();
-    }
 
     public function showEditCustomerSection()
     {
@@ -103,7 +97,8 @@ class CustomerShow extends Component
     public function closeAddPetsSection()
     {
         $this->isOpenAddPetsSec = false;
-        $this->reset(['selectedPets', 'searchPets']);
+        $this->reset(['petType', 'petBdate', 'petName', 'petNote']);
+        $this->petCategory = Pet::CATEGORIES[0];
     }
 
     public function changeSection($section)
@@ -112,17 +107,17 @@ class CustomerShow extends Component
         $this->mount($this->customer->id);
     }
 
-    public function assignPets()
+    public function addPet()
     {
-        if (empty($this->selectedPets)) {
-            $this->closeAddPetsSection();
-            return;
-        }
-        // Assuming $index is the key you're trying to pluck
-        $petsIds = array_keys($this->selectedPets, true);
-        $this->authorize('assign', Pet::class);
+        $this->validate([
+            'petCategory' => 'required|in:' . implode(',', Pet::CATEGORIES), // Must be a valid category
+            'petType' => 'required|string|max:255', // Required string with a maximum length
+            'petBdate' => 'required|date|before_or_equal:today', // Required date, should not be a future date
+            'petName' => 'nullable|string|max:255', // Optional string with a maximum length
+            'petNote' => 'nullable|string',
+        ]);
 
-        $res = Pet::reassignToCustomer($petsIds, $this->customer->id);
+        $res = $this->customer->addPet($this->petName, $this->petCategory, $this->petType, $this->petBdate, $this->petNote);
 
         if ($res) {
             $this->mount($this->customer->id);
@@ -137,7 +132,6 @@ class CustomerShow extends Component
     {
         $this->customer = Customer::findOrFail($id);
         $this->page_title = '• ' . $this->customer->name;
-        $this->All_pets = Pet::where('customer_id', null)->limit(10)->get();
     }
 
     public function removePet($id)
@@ -300,8 +294,13 @@ class CustomerShow extends Component
     public function render()
     {
         $ZONES = Zone::select('id', 'name')->get();
+        $PET_CATEGORIES = Pet::CATEGORIES;
+
+        $PET_TYPES = Pet::getDistinctPetTypes($this->petCategory);
         return view('livewire.customers.customer-show', [
             'ZONES' => $ZONES,
+            'PET_CATEGORIES' => $PET_CATEGORIES,
+            'PET_TYPES' => $PET_TYPES,
         ])->layout('layouts.app', ['page_title' => $this->page_title, 'customers' => 'active']);
     }
 }

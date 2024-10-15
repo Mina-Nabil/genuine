@@ -238,30 +238,50 @@
                                             <hr><br>
                                             <div class="grid grid-cols-2 mb-4">
                                                 <div class="border-r ml-5">
-                                                    <p><b>Type</b></p>
+                                                    <p><b>Category</b></p>
                                                     <p class=" flex items-center">
-                                                        @if ($pet->type === \App\Models\Pets\Pet::TYPE_DOG)
+                                                        @if ($pet->category === \App\Models\Pets\Pet::CATEGORY_DOG)
                                                             <iconify-icon icon="mdi:dog" width="1.2em"
                                                                 height="1.2em" class="mr-1"></iconify-icon>
-                                                        @elseif($pet->type === \App\Models\Pets\Pet::TYPE_CAT)
+                                                        @elseif($pet->category === \App\Models\Pets\Pet::CATEGORY_CAT)
                                                             <iconify-icon icon="mdi:cat" width="1.2em"
                                                                 height="1.2em" class="mr-1"></iconify-icon>
                                                         @endif
-                                                        {{ ucwords($pet->type) }}
+                                                        {{ ucwords($pet->category) }}
                                                     </p>
                                                 </div>
                                                 <div class="ml-5">
                                                     <p class="mr-2"><b>Age </b></p>
                                                     <p>
+                                                    @php
+                                                        $years = \Carbon\Carbon::parse($pet->bdate)
+                                                            ->diff(\Carbon\Carbon::now())
+                                                            ->format('%y');
+                                                        $months = \Carbon\Carbon::parse($pet->bdate)
+                                                            ->diff(\Carbon\Carbon::now())
+                                                            ->format('%m');
+                                                        $days = \Carbon\Carbon::parse($pet->bdate)
+                                                            ->diff(\Carbon\Carbon::now())
+                                                            ->format('%d');
+                                                    @endphp
+
+                                                    @if ($years > 0)
                                                         <span
-                                                            class="text-success-500"><b>{{ \Carbon\Carbon::parse($pet->bdate)->diff(\Carbon\Carbon::now())->format('%y') }}</b></span>
+                                                            class="text-success-500"><b>{{ $years }}</b></span>
                                                         YEAR
+                                                    @endif
+
+                                                    @if ($months > 0)
                                                         <span
-                                                            class="text-success-500"><b>{{ \Carbon\Carbon::parse($pet->bdate)->diff(\Carbon\Carbon::now())->format('%m') }}</b></span>
+                                                            class="text-success-500"><b>{{ $months }}</b></span>
                                                         MONTH
+                                                    @endif
+
+                                                    @if ($days > 0)
                                                         <span
-                                                            class="text-success-500"><b>{{ \Carbon\Carbon::parse($pet->bdate)->diff(\Carbon\Carbon::now())->format('%d') }}</b></span>
+                                                            class="text-success-500"><b>{{ $days }}</b></span>
                                                         DAY
+                                                    @endif
                                                     </p>
                                                 </div>
                                             </div>
@@ -295,7 +315,7 @@
                             <div
                                 class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
                                 <h3 class="text-xl font-medium text-white dark:text-white capitalize">
-                                    Assign pet
+                                    Add pet
                                 </h3>
                                 <button wire:click="closeAddPetsSection" type="button"
                                     class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
@@ -310,114 +330,89 @@
                                 </button>
                             </div>
                             <!-- Modal body -->
-                            <header class="card-header cust-card-header noborder px-0 mt-5">
-                                <iconify-icon wire:loading wire:target="searchPets" class="loading-icon text-lg"
-                                    icon="line-md:loading-twotone-loop"></iconify-icon>
-                                <input type="text" class="form-control !pl-9 mr-1 basis-1/4"
-                                    placeholder="Search Pets..." wire:model.live.debounce.400ms="searchPets">
-                            </header>
                             <div class="p-6 space-y-4">
+                                <div class="from-group">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+                                        <div class="input-area">
+                                            <label for="phone" class="form-label">Category*</label>
+                                            <select name="petCategory" id="petCategory"
+                                                class="form-control w-full mt-2 @error('petCategory') !border-danger-500 @enderror"
+                                                wire:model.live="petCategory" autocomplete="off">
+                                                @foreach ($PET_CATEGORIES as $PET_CATEGORY)
+                                                    <option value="{{ $PET_CATEGORY }}">
+                                                        {{ ucwords(str_replace('_', ' ', $PET_CATEGORY)) }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="input-area">
+                                            <label for="petType" class="form-label">Type*</label>
+                                            <input id="petType" list="petTypes" placeholder="Type to search..."
+                                                class="form-control @error('petType') !border-danger-500 @enderror"
+                                                wire:model="petType">
 
-                                @if ($All_pets->isEmpty())
-                                    <div
-                                        class="py-[18px] px-6 font-normal text-sm rounded-md bg-white text-warning-500 border border-warning-500
-                                dark:bg-slate-800">
-                                        <div class="flex items-center space-x-3 rtl:space-x-reverse">
-                                            <iconify-icon class="text-2xl flex-0" icon="quill:warning"></iconify-icon>
-                                            <p class="flex-1 font-Inter">
-                                                No pets found!
-                                            </p>
+                                            <datalist id="petTypes">
+                                                @foreach ($PET_TYPES as $PET_TYPE)
+                                                    <option value="{{ ucwords($PET_TYPE) }}">
+                                                @endforeach
+                                            </datalist>
+
                                         </div>
                                     </div>
-                                @else
-                                    <table class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700">
-                                        <thead
-                                            class="border-t border-slate-100 dark:border-slate-800 bg-slate-200 dark:bg-slate-700">
-                                            <tr>
-                                                <th scope="col"
-                                                    class="table-th  flex items-center border-t border-slate-100 dark:border-slate-800 bg-slate-200 dark:bg-slate-700"
-                                                    style="position: sticky; left: -25px;  z-index: 10;">
-                                                    Name
-                                                </th>
+                                    @error('petCategory')
+                                        <span
+                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                    @enderror
 
-                                                <th scope="col" class="table-th">Type</th>
-                                                <th scope="col" class="table-th">Age </th>
-
-
-                                            </tr>
-                                        </thead>
-                                        <tbody
-                                            class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700 no-wrap">
-
-                                            @foreach ($All_pets as $single_pet)
-                                                <tr>
-
-                                                    <td class="table-td flex items-center sticky-column bg-white dark:bg-slate-800 colomn-shadow"
-                                                        style="position: sticky; left: -25px;  z-index: 10;">
-                                                        <div class="checkbox-area">
-                                                            <label class="inline-flex items-center cursor-pointer">
-                                                                <input type="checkbox"
-                                                                    wire:model="selectedPets.{{ $single_pet->id }}"
-                                                                    value="{{ $single_pet->id }}" class="hidden">
-                                                                <span
-                                                                    class="h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 bg-slate-100 dark:bg-slate-900">
-                                                                    <img src="{{ asset('assets/images/icon/ck-white.svg') }}"
-                                                                        alt=""
-                                                                        class="h-[10px] w-[10px] block m-auto opacity-0"></span>
-                                                            </label>
-                                                        </div>
-                                                        <p> <span>
-                                                                <b>
-                                                                    {{ $single_pet->name }}
-                                                                </b>
-                                                            </span>
-                                                        </p>
-
-                                                    </td>
-
-                                                    <td class="table-td">
-                                                        <div class=" flex items-center">
-                                                            @if ($single_pet->type === \App\Models\Pets\Pet::TYPE_DOG)
-                                                                <iconify-icon icon="mdi:dog" width="1.2em"
-                                                                    height="1.2em" class="mr-1"></iconify-icon>
-                                                            @elseif($single_pet->type === \App\Models\Pets\Pet::TYPE_CAT)
-                                                                <iconify-icon icon="mdi:cat" width="1.2em"
-                                                                    height="1.2em" class="mr-1"></iconify-icon>
-                                                            @endif
-                                                            {{ ucwords($single_pet->type) }}
-                                                        </div>
-                                                    </td>
-
-                                                    <td class="table-td">
-                                                        <span
-                                                            class="text-success-500"><b>{{ \Carbon\Carbon::parse($single_pet->bdate)->diff(\Carbon\Carbon::now())->format('%y') }}</b></span>
-                                                        YEAR
-                                                        <span
-                                                            class="text-success-500"><b>{{ \Carbon\Carbon::parse($single_pet->bdate)->diff(\Carbon\Carbon::now())->format('%m') }}</b></span>
-                                                        MONTH
-                                                        <span
-                                                            class="text-success-500"><b>{{ \Carbon\Carbon::parse($single_pet->bdate)->diff(\Carbon\Carbon::now())->format('%d') }}</b></span>
-                                                        DAY
-                                                    </td>
-
-                                                </tr>
-                                            @endforeach
-
-                                        </tbody>
-
-                                    </table>
-                                @endif
+                                    @error('petType')
+                                        <span
+                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                                <div class="from-group">
+                                    <div class="input-area">
+                                        <label for="petBdate" class="form-label">Birth Date*</label>
+                                        <input id="petBdate" type="date"
+                                            class="form-control @error('petBdate') !border-danger-500 @enderror"
+                                            wire:model="petBdate" autocomplete="off">
+                                    </div>
+                                    @error('petBdate')
+                                        <span
+                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                                <div class="from-group">
+                                    <div class="input-area">
+                                        <label for="petName" class="form-label">Name</label>
+                                        <input id="petName" type="text"
+                                            class="form-control @error('petName') !border-danger-500 @enderror"
+                                            wire:model="petName" autocomplete="off">
+                                    </div>
+                                    @error('petName')
+                                        <span
+                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                                <div class="from-group">
+                                    <div class="input-area">
+                                        <label for="petNote" class="form-label">Note</label>
+                                        <textarea id="petNote" class="form-control @error('petNote') !border-danger-500 @enderror" wire:model="petNote"></textarea>
+                                    </div>
+                                    @error('petNote')
+                                        <span
+                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                    @enderror
+                                </div>
 
 
                             </div>
                             <!-- Modal footer -->
                             <div
                                 class="flex items-center justify-end p-6 space-x-2 border-t border-slate-200 rounded-b dark:border-slate-600">
-                                <button wire:click="assignPets" data-bs-dismiss="modal"
+                                <button wire:click="addPet" data-bs-dismiss="modal"
                                     class="btn inline-flex justify-center text-white bg-black-500">
-                                    <span wire:loading.remove wire:target="assignPets">Submit</span>
+                                    <span wire:loading.remove wire:target="addPet">Submit</span>
                                     <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
-                                        wire:loading wire:target="assignPets"
+                                        wire:loading wire:target="addPet"
                                         icon="line-md:loading-twotone-loop"></iconify-icon>
                                 </button>
                             </div>

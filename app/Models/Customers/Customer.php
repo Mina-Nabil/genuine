@@ -65,17 +65,19 @@ class Customer extends Model
     }
 
     // Method to add a new pet for this customer
-    public function addPet($name, $type, $bdate)
+    public function addPet($name,$category ,$type, $bdate , $note = null)
     {
         try {
             $pet = new Pet();
             $pet->name = $name;
+            $pet->category =  $category;
             $pet->type = $type;
             $pet->bdate = $bdate;
+            $pet->note = $note;
 
             // Associate the pet with the current customer
             if ($this->pets()->save($pet)) {
-                AppLog::info('Pet added', "Pet $name added for customer {$this->name}.");
+                AppLog::info('Pet added', "Pet $name added for customer {$this->name}.",loggable:$this);
                 return true;
             } else {
                 return false;

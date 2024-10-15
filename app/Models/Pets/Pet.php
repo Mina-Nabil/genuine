@@ -12,21 +12,22 @@ class Pet extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'type', 'bdate', 'customer_id'];
+    protected $fillable = ['name', 'category', 'type', 'bdate', 'customer_id'];
 
-    const TYPE_DOG = 'dog';
-    const TYPE_CAT = 'cat';
-
-    const TYPES = [self::TYPE_DOG, self::TYPE_CAT];
+    const CATEGORY_DOG = 'dog';
+    const CATEGORY_CAT = 'cat';
+    const CATEGORIES = [self::CATEGORY_DOG, self::CATEGORY_CAT];
 
     // Create a new pet
-    public static function newPet($name, $type, $bdate, $customer_id)
+    public static function newPet($name, $category, $type, $bdate, $customer_id, $note = null)
     {
         try {
             $pet = new self();
             $pet->name = $name;
+            $pet->category = $category;
             $pet->type = $type;
             $pet->bdate = $bdate;
+            $pet->note = $note;
             $pet->customer_id = $customer_id;
 
             if ($pet->save()) {
@@ -43,13 +44,15 @@ class Pet extends Model
     }
 
     // Edit pet info
-    public function editInfo($name, $type, $bdate, $customer_id)
+    public function editInfo($name, $category, $type, $bdate, $customer_id, $note = null)
     {
         try {
             $this->name = $name;
+            $this->category = $category;
             $this->type = $type;
             $this->bdate = $bdate;
             $this->customer_id = $customer_id;
+            $this->note = $note;
 
             if ($this->save()) {
                 AppLog::info('Pet updated', "Pet $name updated successfully.");
@@ -163,6 +166,11 @@ class Pet extends Model
             ->orWhereHas('customer', function ($q) use ($term) {
                 $q->where('name', 'like', $term);
             });
+    }
+
+    public static function getDistinctPetTypes($category)
+    {
+        return self::where('category', $category)->select('type')->distinct()->get()->pluck('type');
     }
 
     // Relations

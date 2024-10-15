@@ -17,10 +17,24 @@ class PetsTableSeeder extends Seeder
     {
         $faker = Faker::create();
 
+        // Define arrays of types for cats and dogs
+        $catTypes = ['Siamese', 'Persian', 'Maine Coon', 'Sphynx'];
+        $dogTypes = ['German Shepherd', 'Bulldog', 'Poodle', 'Labrador'];
+
         for ($i = 0; $i < 200; $i++) {
+            // Randomly select a category (cat or dog)
+            $category = $faker->randomElement(['cat', 'dog']);
+
+            // Based on the category, select the type
+            $type = $category === 'cat' 
+                ? $faker->randomElement($catTypes) 
+                : $faker->randomElement($dogTypes);
+
+            // Create the pet with the appropriate type and category
             Pet::create([
                 'name' => $faker->name,
-                'type' => $faker->randomElement(Pet::TYPES), // Randomly select a type (cat or dog)
+                'category' => $category,
+                'type' => $type,
                 'bdate' => $faker->date(), // Random birthdate
                 'customer_id' => Customer::inRandomOrder()->first()->id, // Assign a random existing customer
             ]);
