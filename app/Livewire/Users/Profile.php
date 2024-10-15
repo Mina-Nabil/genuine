@@ -23,13 +23,16 @@ class Profile extends Component
     public $phone;
     public $idNumber;
     public $driveLicienceNo;
+    public $carLicienceNo;
 
     public $OLDuserImage;
     public $OLDuploadIDFile;
     public $OLDuploadLicFile;
+    public $OLDuploadCarLicFile;
     public $userImage;
     public $uploadIDFile;
     public $uploadLicFile;
+    public $uploadCarLicFile;
 
     public $changes;
 
@@ -63,6 +66,11 @@ class Profile extends Component
         $this->reset('uploadLicFile');
     }
 
+    public function clearCarLicDocFile()
+    {
+        $this->reset('uploadCarLicFile');
+    }
+
     public function downloadIDDocument()
     {
         $fileContents = Storage::disk('s3')->get(Auth::user()->id_doc_url);
@@ -88,6 +96,24 @@ class Profile extends Component
         $headers = [
             'Content-Type' => 'application/octet-stream',
             'Content-Disposition' => 'attachment; filename="' . Auth::user()->full_name . '_licience_document.' . $extension . '"',
+        ];
+
+        return response()->stream(
+            function () use ($fileContents) {
+                echo $fileContents;
+            },
+            200,
+            $headers,
+        );
+    }
+
+    public function downloadCarLicDocument()
+    {
+        $fileContents = Storage::disk('s3')->get(Auth::user()->car_license_doc_url);
+        $extension = pathinfo(Auth::user()->car_license_doc_url, PATHINFO_EXTENSION);
+        $headers = [
+            'Content-Type' => 'application/octet-stream',
+            'Content-Disposition' => 'attachment; filename="' . Auth::user()->full_name . '_car_licience_document.' . $extension . '"',
         ];
 
         return response()->stream(
@@ -180,6 +206,7 @@ class Profile extends Component
         $this->OLDuserImage = Auth::user()->image_url;
         $this->OLDuploadIDFile = Auth::user()->id_doc_url;
         $this->OLDuploadLicFile = Auth::user()->driving_license_doc_url;
+        $this->OLDuploadCarLicFile = Auth::user()->car_license_doc_url;
     }
 
     public function openChangePass()
@@ -222,6 +249,11 @@ class Profile extends Component
         $this->changes = true;
     }
 
+    public function updatingCarLicienceNo()
+    {
+        $this->changes = true;
+    }
+
     public function saveInfo()
     {
         $this->validate([
@@ -232,6 +264,7 @@ class Profile extends Component
             'email' => 'nullable|email',
             'idNumber' => 'nullable|string|max:255',
             'driveLicienceNo' => 'nullable|string|max:255',
+            'carLicienceNo' => 'nullable|string|max:255',
         ]);
 
         if ($this->OLDuserImage) {
@@ -267,6 +300,17 @@ class Profile extends Component
             $user_lic_url = null;
         }
 
+        if ($this->OLDuploadCarLicFile) {
+            $user_car_lic_url = $this->OLDuploadCarLicFile;
+        } elseif ($this->uploadCarLicFile) {
+            $this->validate([
+                'uploadCarLicFile' => 'nullable|image|mimes:jpg,jpeg,png,gif,svg,webp|max:2048',
+            ]);
+            $user_car_lic_url = $this->uploadCarLicFile->store(User::FILES_DIRECTORY, 's3');
+        } else {
+            $user_car_lic_url = null;
+        }
+
         $user = User::find(Auth::user()->id);
 
         $u = $user->editInfo(
@@ -280,6 +324,8 @@ class Profile extends Component
             $user_id_url,
             $this->driveLicienceNo,
             $user_lic_url,
+            $this->carLicienceNo,
+            $user_car_lic_url,
             $user_image_url,
         );
 

@@ -23,6 +23,8 @@ return new class extends Migration
             $table->string('id_doc_url')->nullable();
             $table->string('driving_license_number')->nullable();
             $table->string('driving_license_doc_url')->nullable();
+            $table->string('car_license_number')->nullable();
+            $table->string('car_license_doc_url')->nullable();
             $table->string('email')->unique()->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');

@@ -16,10 +16,10 @@ use App\Events\AppNotification;
 
 class User extends Authenticatable
 {
-    use HasFactory,Notifiable;
+    use HasFactory, Notifiable;
 
     const FILES_DIRECTORY = 'users/';
-    
+
     const TYPE_ADMIN = 'admin';
     const TYPE_INVENTORY = 'inventory';
     const TYPE_SALES = 'sales';
@@ -27,31 +27,19 @@ class User extends Authenticatable
 
     const TYPES = [self::TYPE_ADMIN, self::TYPE_INVENTORY, self::TYPE_SALES, self::TYPE_DRIVER];
 
-    protected $fillable = ['username', 'first_name', 'last_name', 'type', 'email', 'phone', 'id_number', 'id_doc_url', 'driving_license_number', 'driving_license_doc_url', 'password' ,'image_url', 'is_active'];
+    protected $fillable = ['username', 'first_name', 'last_name', 'type', 'email', 'phone', 'id_number', 'id_doc_url', 'driving_license_number', 'driving_license_doc_url', 'car_license_number', 'car_license_doc_url', 'password', 'image_url', 'is_active'];
 
     protected $hidden = ['password', 'remember_token'];
 
-    public static function newUser(
-        $username,
-        $first_name,
-        $last_name,
-        $type,
-        $password,
-        $email = null,
-        $phone = null,
-        $id_number = null,
-        $id_doc_url = null,
-        $driving_license_number = null,
-        $driving_license_doc_url = null,
-        $image_url = null
-    ): self|false {
+    public static function newUser($username, $first_name, $last_name, $type, $password, $email = null, $phone = null, $id_number = null, $id_doc_url = null, $driving_license_number = null, $driving_license_doc_url = null, $car_license_number = null, $car_license_doc_url = null, $image_url = null): self|false
+    {
         try {
             // Check if the user already exists
             $exists = self::userExists($username);
             if ($exists) {
                 return $exists;
             }
-    
+
             // Create a new user instance
             $user = new self([
                 'username' => $username,
@@ -63,16 +51,18 @@ class User extends Authenticatable
                 'id_doc_url' => $id_doc_url,
                 'driving_license_number' => $driving_license_number,
                 'driving_license_doc_url' => $driving_license_doc_url,
+                'car_license_number' => $car_license_number,
+                'car_license_doc_url' => $car_license_doc_url,
                 'type' => $type,
                 'image_url' => $image_url,
                 'is_active' => 1,
                 // Hash the password before storing
                 'password' => bcrypt($password),
             ]);
-    
+
             // Save the user
             $user->save();
-    
+
             // Log user creation
             AppLog::info('User created', "User $username created");
             return $user;
@@ -83,56 +73,44 @@ class User extends Authenticatable
             return false;
         }
     }
-    
 
-        public function editInfo(
-            $username,
-            $first_name,
-            $last_name,
-            $type,
-            $email = null,
-            $phone = null,
-            $id_number = null,
-            $id_doc_url = null,
-            $driving_license_number = null,
-            $driving_license_doc_url = null,
-            $image_url = null,
-            $password = null): bool
-        {
-            try {
-                // Update user attributes
-                $this->username = $username;
-                $this->first_name = $first_name;
-                $this->last_name = $last_name;
-                $this->email = $email;
-                $this->phone = $phone;
-                $this->id_number = $id_number;
-                $this->id_doc_url = $id_doc_url;
-                $this->driving_license_number = $driving_license_number;
-                $this->driving_license_doc_url = $driving_license_doc_url;
-                $this->type = $type;
-                $this->image_url = $image_url;
+    public function editInfo($username, $first_name, $last_name, $type, $email = null, $phone = null, $id_number = null, $id_doc_url = null, $driving_license_number = null, $driving_license_doc_url = null, $car_license_number = null, $car_license_doc_url = null, $image_url = null, $password = null): bool
+    {
+        try {
+            // Update user attributes
+            $this->username = $username;
+            $this->first_name = $first_name;
+            $this->last_name = $last_name;
+            $this->email = $email;
+            $this->phone = $phone;
+            $this->id_number = $id_number;
+            $this->id_doc_url = $id_doc_url;
+            $this->driving_license_number = $driving_license_number;
+            $this->driving_license_doc_url = $driving_license_doc_url;
+            $this->car_license_number = $car_license_number;
+            $this->car_license_doc_url = $car_license_doc_url;
+            $this->type = $type;
+            $this->image_url = $image_url;
 
-                // Only update password if provided
-                if ($password) {
-                    $this->password = bcrypt($password);
-                }
+            // Only update password if provided
+            if ($password) {
+                $this->password = bcrypt($password);
+            }
 
-                // Save the updated user
-                if ($this->save()) {
-                    AppLog::info('User updated', "User $username updated");
-                    return true;
-                } else {
-                    return false;
-                }
-            } catch (Exception $e) {
-                AppLog::error('Updating user failed', $e->getMessage());
-                report($e);
+            // Save the updated user
+            if ($this->save()) {
+                AppLog::info('User updated', "User $username updated");
+                return true;
+            } else {
                 return false;
             }
+        } catch (Exception $e) {
+            AppLog::error('Updating user failed', $e->getMessage());
+            report($e);
+            return false;
         }
+    }
 
-        
     public function switchSession($username)
     {
         // Assuming 'username' is the attribute to identify the user instead of user_id
@@ -157,7 +135,7 @@ class User extends Authenticatable
         try {
             // Toggle the is_active field (flip between true/false)
             $this->is_active = !$this->is_active;
-    
+
             // Save the updated status
             if ($this->save()) {
                 $status = $this->is_active ? 'activated' : 'deactivated';
@@ -172,7 +150,6 @@ class User extends Authenticatable
             return false;
         }
     }
-    
 
     public function addTempAccess($to_username, Carbon $expiry)
     {
@@ -225,13 +202,13 @@ class User extends Authenticatable
         try {
             $this->password = bcrypt($password);
             if ($this->save()) {
-                AppLog::info("Password updated", "New password for $this->username");
+                AppLog::info('Password updated', "New password for $this->username");
                 return true;
             } else {
                 return false;
             }
         } catch (Exception $e) {
-            AppLog::error("Changing user password failed", $e->getMessage());
+            AppLog::error('Changing user password failed', $e->getMessage());
             report($e);
             return false;
         }
@@ -242,32 +219,42 @@ class User extends Authenticatable
      */
     public static function login($username, $password): string|bool
     {
-
-        $user = self::where("username", $username)->first();
-        if ($user == null) return "Username not found";
-        if (Auth::attempt([
-            "username"  =>  $user->username,
-            "password"  =>  $password
-        ])) {
+        $user = self::where('username', $username)->first();
+        if ($user == null) {
+            return 'Username not found';
+        }
+        if (
+            Auth::attempt([
+                'username' => $user->username,
+                'password' => $password,
+            ])
+        ) {
             AppLog::info('User logged in');
             return true;
-        } else return "Incorrect password";
+        } else {
+            return 'Incorrect password';
+        }
     }
 
     public function pushNotification($title, $message, $route)
     {
         try {
             $this->notifications()->create([
-                "sender_id" =>  Auth::user() ? Auth::id() : null,
-                "title"     =>  $title,
-                "route"     =>  $route
+                'sender_id' => Auth::user() ? Auth::id() : null,
+                'title' => $title,
+                'route' => $route,
             ]);
 
-            event(new AppNotification([
-                "title"     =>  $title,
-                "message"   =>  $message,
-                "route"     =>  $route
-            ], $this));
+            event(
+                new AppNotification(
+                    [
+                        'title' => $title,
+                        'message' => $message,
+                        'route' => $route,
+                    ],
+                    $this,
+                ),
+            );
         } catch (Exception $e) {
             report($e);
         }
@@ -277,9 +264,12 @@ class User extends Authenticatable
     {
         try {
             $now = Carbon::now();
-            $this->notifications()->whereNull('seen_at')->where("route", $route)->update([
-                "seen_at"   =>  $now
-            ]);
+            $this->notifications()
+                ->whereNull('seen_at')
+                ->where('route', $route)
+                ->update([
+                    'seen_at' => $now,
+                ]);
         } catch (Exception $e) {
             report($e);
         }
@@ -287,7 +277,7 @@ class User extends Authenticatable
 
     public function getUnseenNotfCount()
     {
-        return $this->notifications()->whereNull('seen_at')->selectRaw("count(*) as unseen")->first()->unseen;
+        return $this->notifications()->whereNull('seen_at')->selectRaw('count(*) as unseen')->first()->unseen;
     }
 
     //scope
@@ -349,8 +339,9 @@ class User extends Authenticatable
         return $this->type == self::TYPE_DRIVER;
     }
 
-    public function getFullNameAttribute(){
-        return ucwords($this->first_name.' '.$this->last_name);
+    public function getFullNameAttribute()
+    {
+        return ucwords($this->first_name . ' ' . $this->last_name);
     }
 
     // Placeholder for userExists function

@@ -258,7 +258,7 @@
 
                         @if ($OLDuploadLicFile)
                         <button class="btn inline-flex justify-center btn-dark btn-sm"
-                            wire:click="downloadIDDocument">Download ID</button>
+                            wire:click="downloadIDDocument">Download Licence</button>
                         @elseif($uploadLicFile)
                         <img src="{{ $uploadLicFile->temporaryUrl() }}"
                             class="rounded-md border-4 border-slate-300 max-w-full w-full block" alt="image">
@@ -272,6 +272,61 @@
                                 file or drop it here...</p>
                             <input name="file" id="fileInput" type="file" class="dropzone dropzone-input"
                                 wire:model="uploadLicFile" />
+                        </div>
+                        @endif
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <div class="card h-full">
+                <header class="card-header flex justify-between">
+                    <h4 class="card-title flex items-center">
+                        <iconify-icon icon="mdi:car-outline" class="mr-2"></iconify-icon>
+                        Car Licence
+                    </h4>
+                </header>
+
+                <div class="card-body p-6">
+                    <ul class="list space-y-4">
+                        <li class="flex space-x-3 rtl:space-x-reverse">
+                            <div class="flex-1">
+                                <div class="uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]">
+                                    Car Licence Number
+                                </div>
+                                <input type="text" wire:model.live="carLicienceNo"
+                                    class="form-control @error('carLicienceNo') !border-danger-500 @enderror">
+                                @error('carLicienceNo')
+                                <span class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </li>
+
+                        <div class="uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]">
+                            Car Licience Document
+                            @if ($uploadCarLicFile)
+                            <span class="float-right cursor-pointer" wire:click='clearCarLicDocFile'>clear</span>
+                            @endif
+                        </div>
+
+                        @if ($OLDuploadCarLicFile)
+                        <button class="btn inline-flex justify-center btn-dark btn-sm"
+                            wire:click="downloadCarLicDocument">Download Licence</button>
+                        @elseif($uploadCarLicFile)
+                        <img src="{{ $uploadCarLicFile->temporaryUrl() }}"
+                            class="rounded-md border-4 border-slate-300 max-w-full w-full block" alt="image">
+                        @else
+                        <div class="border-dashed border dropzone-container cursor-pointer mt-2"
+                            style="border-color: #aeaeae">
+                            <p class="dropzone-para" wire:loading wire:target="uploadCarLicFile" style="font-size:20px">
+                                <iconify-icon icon="svg-spinners:tadpole"></iconify-icon>
+                            </p>
+                            <p class="dropzone-para" wire:loading.remove wire:target="uploadCarLicFile">Choose a
+                                file or drop it here...</p>
+                            <input name="file" id="fileInput" type="file" class="dropzone dropzone-input"
+                                wire:model="uploadCarLicFile" />
                         </div>
                         @endif
 

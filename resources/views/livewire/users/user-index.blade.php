@@ -372,6 +372,33 @@
                                     @enderror
                                 </div>
 
+                                <div class="from-group">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+                                        <div class="input-area">
+                                            <label for="CarLicenceNo" class="form-label">Car Licence
+                                                number</label>
+                                            <input id="CarLicenceNo" type="text"
+                                                class="form-control @error('CarLicenceNo') !border-danger-500 @enderror"
+                                                wire:model="CarLicenceNo" autocomplete="off">
+                                        </div>
+                                        <div class="input-area">
+                                            <label for="CarLicenceDoc" class="form-label">Document</label>
+                                            <input id="CarLicenceDoc" type="file"
+                                                class="form-control @error('CarLicenceDoc') !border-danger-500 @enderror"
+                                                wire:model="CarLicenceDoc" autocomplete="off">
+                                        </div>
+                                    </div>
+                                    @error('CarLicenceNo')
+                                        <span
+                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                    @enderror
+
+                                    @error('CarLicenceDoc')
+                                        <span
+                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
 
                             </div>
                             <!-- Modal footer -->

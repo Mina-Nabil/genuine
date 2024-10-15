@@ -30,6 +30,8 @@ class UserIndex extends Component
     public $IdNumberDoc;
     public $DrivingLicenceNo;
     public $DrivingLicenceDoc;
+    public $CarLicenceNo;
+    public $CarLicenceDoc;
 
     public $updateUserSec;
     public $username;
@@ -167,7 +169,7 @@ class UserIndex extends Component
     public function closeNewUserSec()
     {
         $this->newUserSection = false;
-        $this->reset(['newUsername', 'newFirstName', 'newLastName', 'newType', 'newPassword', 'newPassword_confirmation', 'newEmail', 'newPhone', 'newManagerId', 'IdNumber', 'IdNumberDoc', 'DrivingLicenceNo', 'DrivingLicenceDoc']);
+        $this->reset(['newUsername', 'newFirstName', 'newLastName', 'newType', 'newPassword', 'newPassword_confirmation', 'newEmail', 'newPhone', 'newManagerId', 'IdNumber', 'IdNumberDoc', 'DrivingLicenceNo', 'DrivingLicenceDoc','CarLicenceNo','CarLicenceDoc']);
     }
 
     protected $rules = [
@@ -195,14 +197,17 @@ class UserIndex extends Component
             'IdNumberDoc' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
             'DrivingLicenceNo' => 'nullable|string|max:255',
             'DrivingLicenceDoc' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'CarLicenceNo' => 'nullable|string|max:255',
+            'CarLicenceDoc' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
         // Store the documents if they exist
         $idDocUrl = $this->IdNumberDoc ? $this->IdNumberDoc->store(User::FILES_DIRECTORY, 's3') : null;
         $drivingLicenseDocUrl = $this->DrivingLicenceDoc ? $this->DrivingLicenceDoc->store(User::FILES_DIRECTORY, 's3') : null;
+        $carLicenseDocUrl = $this->CarLicenceDoc ? $this->CarLicenceDoc->store(User::FILES_DIRECTORY, 's3') : null;
 
         // Create a new user with the validated data and document URLs
-        $res = User::newUser($this->newUsername, $this->newFirstName, $this->newLastName, $this->newType, $this->newPassword, $this->newEmail, $this->newPhone, $this->IdNumber, $idDocUrl, $this->DrivingLicenceNo, $drivingLicenseDocUrl);
+        $res = User::newUser($this->newUsername, $this->newFirstName, $this->newLastName, $this->newType, $this->newPassword, $this->newEmail, $this->newPhone, $this->IdNumber, $idDocUrl, $this->DrivingLicenceNo, $drivingLicenseDocUrl, $this->CarLicenceNo, $carLicenseDocUrl);
 
         // Check if the user was created successfully
         if ($res) {
