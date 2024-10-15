@@ -114,16 +114,8 @@
             <div class="sidebar-menus bg-white dark:bg-slate-800 py-2 px-4 h-[calc(100%-80px)] overflow-y-auto z-50"
                 id="sidebar_menus">
                 <ul class="sidebar-menu">
-                    <li class="sidebar-menu-title">Main</li>
-                    <li>
-                        <a href="{{ url('/users') }}" class="navItem {{ $users ?? '' }}">
-                            <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="material-symbols-light:account-tree-rounded">
-                                </iconify-icon>
-                                <span>Users</span>
-                            </span>
-                        </a>
-                    </li>
+
+                    <li class="sidebar-menu-title">Operations</li>
                     <li>
                         <a href="{{ url('/tasks') }}" class="navItem {{ $tasks ?? '' }}">
                             <span class="flex items-center">
@@ -133,6 +125,38 @@
                             </span>
                         </a>
                     </li>
+
+                    <li class="sidebar-menu-title">CRM</li>
+                    <li>
+                        <a href="{{ url('/customers') }}" class="navItem {{ $customers ?? '' }}">
+                            <span class="flex items-center">
+                                <iconify-icon class=" nav-icon" icon="mdi:user">
+                                </iconify-icon>
+                                <span>Customers</span>
+                            </span>
+                        </a>
+                    </li>
+                    {{-- <li>
+                        <a href="{{ url('/pets') }}" class="navItem {{ $pets ?? '' }}">
+                            <span class="flex items-center">
+                                <iconify-icon class=" nav-icon" icon="streamline:pets-allowed-solid">
+                                </iconify-icon>
+                                <span>Pets</span>
+                            </span>
+                        </a>
+                    </li> --}}
+                    <li>
+                        <a href="{{ url('/followups') }}" class="navItem {{ $followups ?? '' }}">
+                            <span class="flex items-center">
+                                <iconify-icon class=" nav-icon" icon="icon-park-outline:cycle-arrow">
+                                </iconify-icon>
+                                <span>Follow-ups</span>
+                            </span>
+                        </a>
+                    </li>
+
+                    <li class="sidebar-menu-title">Settings</li>
+
                     <li>
                         <a href="{{ url('/profile') }}" class="navItem {{ $profile ?? '' }}">
                             <span class="flex items-center">
@@ -143,29 +167,11 @@
                         </a>
                     </li>
                     <li>
-                        <a href="{{ url('/customers') }}" class="navItem {{ $customers ?? '' }}">
+                        <a href="{{ url('/users') }}" class="navItem {{ $users ?? '' }}">
                             <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="mdi:user">
+                                <iconify-icon class=" nav-icon" icon="material-symbols-light:account-tree-rounded">
                                 </iconify-icon>
-                                <span>Customers</span>
-                            </span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ url('/followups') }}" class="navItem {{ $followups ?? '' }}">
-                            <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="mdi:user">
-                                </iconify-icon>
-                                <span>Follow-ups</span>
-                            </span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ url('/pets') }}" class="navItem {{ $pets ?? '' }}">
-                            <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="streamline:pets-allowed-solid">
-                                </iconify-icon>
-                                <span>Pets</span>
+                                <span>Users</span>
                             </span>
                         </a>
                     </li>
