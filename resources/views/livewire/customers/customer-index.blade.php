@@ -83,7 +83,7 @@
                                                     class="h-[10px] w-[10px] block m-auto opacity-0"></span>
                                         </label>
                                     </div>
-                                    <a href="{{ route('customer.show',$customer->id) }}"> <span
+                                    <a href="{{ route('customer.show', $customer->id) }}"> <span
                                             class="hover-underline">
                                             <b>
                                                 {{ $customer->name }}
@@ -191,6 +191,7 @@
                                     <span class="sr-only">Close modal</span>
                                 </button>
                             </div>
+
                             <!-- Modal body -->
                             <div class="p-6 space-y-4">
                                 <div class="from-group">
@@ -230,13 +231,11 @@
                                         <span
                                             class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
                                     @enderror
-
                                     @error('zone')
                                         <span
                                             class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
                                     @enderror
                                 </div>
-
 
                                 <div class="from-group">
                                     <div class="input-area">
@@ -263,11 +262,100 @@
                                     @enderror
                                 </div>
 
+                                <!-- Pet Section -->
+                                <div>
+                                    <h3 class="text-lg font-medium mb-4 flex justify-between"><span><b>Pets</b></span> <button type="button" wire:click="addPet" class="btn btn-dark btn-sm mt-2">
+                                        Add Pet
+                                    </button></h3>
+                                    @foreach ($pets as $index => $pet)
+                                        <div class="border p-4 rounded-md mb-4">
+                                            <h6 class="font-semibold mb-2">Pet {{ $index + 1 }}</h6>
+                                            <hr class="mb-4">
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div class="input-area">
+                                                    <label for="petCategory{{ $index }}"
+                                                        class="form-label">Category</label>
+                                                    <select id="petCategory{{ $index }}"
+                                                        class="form-control @error('pets.' . $index . '.category') !border-danger-500 @enderror"
+                                                        wire:model.live="pets.{{ $index }}.category">
+                                                        @foreach ($PET_CATEGORIES as $PET_CATEGORY)
+                                                            <option value="{{ $PET_CATEGORY }}">
+                                                                {{ ucwords($PET_CATEGORY) }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                    @error('pets.' . $index . '.category')
+                                                        <span
+                                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                                    @enderror
+                                                </div>
+
+                                                <div class="input-area">
+                                                    <label for="petType{{ $index }}"
+                                                        class="form-label">Type</label>
+                                                    <input id="petType{{ $index }}"
+                                                        list="petTypeList{{ $index }}" type="text"
+                                                        class="form-control @error('pets.' . $index . '.type') !border-danger-500 @enderror"
+                                                        wire:model.live="pets.{{ $index }}.type"
+                                                        autocomplete="off">
+                                                    <datalist id="petTypeList{{ $index }}">
+                                                        @foreach ($pets[$index]['types'] as $type)
+                                                            <option value="{{ ucwords($type) }}"></option>
+                                                        @endforeach
+                                                    </datalist>
+                                                    @error('pets.' . $index . '.type')
+                                                        <span
+                                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                                    @enderror
+                                                </div>
+                                            </div>
+
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                                <div class="input-area">
+                                                    <label for="petBdate{{ $index }}"
+                                                        class="form-label">Birthdate</label>
+                                                    <input id="petBdate{{ $index }}" type="date"
+                                                        class="form-control @error('pets.' . $index . '.bdate') !border-danger-500 @enderror"
+                                                        wire:model.live="pets.{{ $index }}.bdate"
+                                                        autocomplete="off">
+                                                    @error('pets.' . $index . '.bdate')
+                                                        <span
+                                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                                    @enderror
+                                                </div>
+
+                                                <div class="input-area">
+                                                    <label for="petName{{ $index }}"
+                                                        class="form-label">Name</label>
+                                                    <input id="petName{{ $index }}" type="text"
+                                                        class="form-control @error('pets.' . $index . '.name') !border-danger-500 @enderror"
+                                                        wire:model.live="pets.{{ $index }}.name"
+                                                        autocomplete="off">
+                                                    @error('pets.' . $index . '.name')
+                                                        <span
+                                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                                    @enderror
+                                                </div>
+                                            </div>
+                                            <div class="flex justify-end">
+                                                <button wire:click="removePet({{ $index }})"
+                                                    class="btn inline-flex justify-center btn-outline-danger btn-sm mt-4">Remove
+                                                    Pet</button>
+                                            </div>
+
+                                        </div>
+                                    @endforeach
+
+                                    
+                                </div>
+
+
+
+
                             </div>
+
                             <!-- Modal footer -->
-                            <div
-                                class="flex items-center justify-end p-6 space-x-2 border-t border-slate-200 rounded-b dark:border-slate-600">
-                                <button wire:click="addNewCustomer" data-bs-dismiss="modal"
+                            <div class="flex items-center justify-end p-6 border-t border-slate-200 rounded-b">
+                                    <button wire:click="addNewCustomer" data-bs-dismiss="modal"
                                     class="btn inline-flex justify-center text-white bg-black-500">
                                     <span wire:loading.remove wire:target="addNewCustomer">Submit</span>
                                     <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
@@ -281,6 +369,7 @@
             </div>
         @endif
     @endcan
+
 
 
 </div>
