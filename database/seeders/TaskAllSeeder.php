@@ -31,7 +31,7 @@ class TaskAllSeeder extends Seeder
                 'open_by_id' => $user->id,
                 'assigned_to_id' => $user->id,
                 'last_action_by_id' => $user->id,
-                'assigned_to_type' => 'User', // or another entity type
+                'assigned_to_type' => null, // or another entity type
                 'due' => now()->addDays(10),
                 'status' => Task::STATUS_NEW, // Use a valid status from Task::STATUSES
             ]);
