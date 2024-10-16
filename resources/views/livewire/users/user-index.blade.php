@@ -568,31 +568,195 @@
                                     @enderror
                                 </div>
 
-                                <div class="from-group">
-                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-                                        <div class="input-area">
-                                            <label for="upIdNumber" class="form-label">ID Number</label>
-                                            <input id="upIdNumber" type="text"
-                                                class="form-control @error('upIdNumber') !border-danger-500 @enderror"
-                                                wire:model.defer="upIdNumber" autocomplete="off">
-                                        </div>
-                                        <div class="input-area">
-                                            <label for="upDrivingLicenceNo" class="form-label">Driver Licence
-                                                Number</label>
-                                            <input id="upDrivingLicenceNo" type="text"
-                                                class="form-control @error('upDrivingLicenceNo') !border-danger-500 @enderror"
-                                                wire:model.defer="upDrivingLicenceNo" autocomplete="off">
+                                {{-- ID  --}}
+                                <div>
+                                    <div class="card h-full">
+                                        <header class="card-header flex items-center justify-between mb-4">
+                                            <h4 class="card-title flex items-center">
+                                                <iconify-icon icon="teenyicons:id-outline" class="mr-2"></iconify-icon>
+                                                ID
+                                            </h4>
+                                        </header>
+
+                                        <div class="card-body">
+                                            <ul class="list space-y-4">
+                                                <li class="flex space-x-3 rtl:space-x-reverse">
+                                                    <div class="flex-1">
+                                                        <div
+                                                            class="uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]">
+                                                            ID Number
+                                                        </div>
+                                                        <input type="text" wire:model.live="upIdNumber"
+                                                            class="form-control @error('upIdNumber') !border-danger-500 @enderror">
+                                                        @error('upIdNumber')
+                                                            <span
+                                                                class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                                        @enderror
+                                                    </div>
+                                                </li>
+
+                                                <div
+                                                    class="uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]">
+                                                    ID Document
+                                                    @if ($uploadIDFile || $OLDuploadIDFile)
+                                                        <span class="float-right cursor-pointer"
+                                                            wire:click='clearIDdocFile'>clear</span>
+                                                    @endif
+                                                </div>
+
+                                                @if ($OLDuploadIDFile)
+                                                    <button class="btn inline-flex justify-center btn-dark btn-sm"
+                                                        wire:click="downloadIDDocument">Download ID</button>
+                                                @elseif($uploadIDFile)
+                                                    <img src="{{ $uploadIDFile->temporaryUrl() }}"
+                                                        class="rounded-md border-4 border-slate-300 max-w-full w-full block"
+                                                        alt="image">
+                                                @else
+                                                    <div class="border-dashed border dropzone-container cursor-pointer mt-2"
+                                                        style="border-color: #aeaeae">
+                                                        <p class="dropzone-para" wire:loading wire:target="uploadIDFile"
+                                                            style="font-size:20px">
+                                                            <iconify-icon icon="svg-spinners:tadpole"></iconify-icon>
+                                                        </p>
+                                                        <p class="dropzone-para" wire:loading.remove
+                                                            wire:target="uploadIDFile">Choose a
+                                                            file or drop it here...</p>
+                                                        <input name="file" type="file"
+                                                            class="dropzone dropzone-input" wire:model="uploadIDFile" />
+                                                    </div>
+                                                @endif
+
+                                            </ul>
                                         </div>
                                     </div>
-                                    @error('upIdNumber')
-                                        <span
-                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
-                                    @enderror
+                                </div>
 
-                                    @error('upDrivingLicenceNo')
-                                        <span
-                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
-                                    @enderror
+                                {{-- Drive Licence --}}
+                                <div>
+                                    <div class="card h-full">
+                                        <header class="card-header flex justify-between mb-4">
+                                            <h4 class="card-title flex items-center">
+                                                <iconify-icon icon="healthicons:truck-driver"
+                                                    class="mr-2"></iconify-icon>
+                                                Licence
+                                            </h4>
+                                        </header>
+
+                                        <div class="card-body">
+                                            <ul class="list space-y-4">
+                                                <li class="flex space-x-3 rtl:space-x-reverse">
+                                                    <div class="flex-1">
+                                                        <div
+                                                            class="uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]">
+                                                            Licence Number
+                                                        </div>
+                                                        <input type="text" wire:model.live="upDrivingLicenceNo"
+                                                            class="form-control @error('upDrivingLicenceNo') !border-danger-500 @enderror">
+                                                        @error('upDrivingLicenceNo')
+                                                            <span
+                                                                class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                                        @enderror
+                                                    </div>
+                                                </li>
+
+                                                <div
+                                                    class="uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]">
+                                                    Licience Document
+                                                    @if ($uploadLicFile || $OLDuploadLicFile)
+                                                        <span class="float-right cursor-pointer"
+                                                            wire:click='clearLicDocFile'>clear</span>
+                                                    @endif
+                                                </div>
+
+                                                @if ($OLDuploadLicFile)
+                                                    <button class="btn inline-flex justify-center btn-dark btn-sm"
+                                                        wire:click="downloadLicDocument">Download Licence</button>
+                                                @elseif($uploadLicFile)
+                                                    <img src="{{ $uploadLicFile->temporaryUrl() }}"
+                                                        class="rounded-md border-4 border-slate-300 max-w-full w-full block"
+                                                        alt="image">
+                                                @else
+                                                    <div class="border-dashed border dropzone-container cursor-pointer mt-2"
+                                                        style="border-color: #aeaeae">
+                                                        <p class="dropzone-para" wire:loading wire:target="uploadLicFile"
+                                                            style="font-size:20px">
+                                                            <iconify-icon icon="svg-spinners:tadpole"></iconify-icon>
+                                                        </p>
+                                                        <p class="dropzone-para" wire:loading.remove
+                                                            wire:target="uploadLicFile">Choose a
+                                                            file or drop it here...</p>
+                                                        <input name="file" id="fileInput" type="file"
+                                                            class="dropzone dropzone-input" wire:model="uploadLicFile" />
+                                                    </div>
+                                                @endif
+
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- Car Licence --}}
+                                <div>
+                                    <div class="card h-full">
+                                        <header class="card-header flex justify-between mb-4">
+                                            <h4 class="card-title flex items-center">
+                                                <iconify-icon icon="mdi:car-outline" class="mr-2"></iconify-icon>
+                                                Car Licence
+                                            </h4>
+                                        </header>
+
+                                        <div class="card-body">
+                                            <ul class="list space-y-4">
+                                                <li class="flex space-x-3 rtl:space-x-reverse">
+                                                    <div class="flex-1">
+                                                        <div
+                                                            class="uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]">
+                                                            Car Licence Number
+                                                        </div>
+                                                        <input type="text" wire:model.live="upCarLicenceNo"
+                                                            class="form-control @error('upCarLicenceNo') !border-danger-500 @enderror">
+                                                        @error('upCarLicenceNo')
+                                                            <span
+                                                                class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                                        @enderror
+                                                    </div>
+                                                </li>
+
+                                                <div
+                                                    class="uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]">
+                                                    Car Licience Document
+                                                    @if ($uploadCarLicFile || $OLDuploadCarLicFile)
+                                                        <span class="float-right cursor-pointer"
+                                                            wire:click='clearCarLicDocFile'>clear</span>
+                                                    @endif
+                                                </div>
+
+                                                @if ($OLDuploadCarLicFile)
+                                                    <button class="btn inline-flex justify-center btn-dark btn-sm"
+                                                        wire:click="downloadCarLicDocument">Download Licence</button>
+                                                @elseif($uploadCarLicFile)
+                                                    <img src="{{ $uploadCarLicFile->temporaryUrl() }}"
+                                                        class="rounded-md border-4 border-slate-300 max-w-full w-full block"
+                                                        alt="image">
+                                                @else
+                                                    <div class="border-dashed border dropzone-container cursor-pointer mt-2"
+                                                        style="border-color: #aeaeae">
+                                                        <p class="dropzone-para" wire:loading
+                                                            wire:target="uploadCarLicFile" style="font-size:20px">
+                                                            <iconify-icon icon="svg-spinners:tadpole"></iconify-icon>
+                                                        </p>
+                                                        <p class="dropzone-para" wire:loading.remove
+                                                            wire:target="uploadCarLicFile">Choose a
+                                                            file or drop it here...</p>
+                                                        <input name="file" id="fileInput" type="file"
+                                                            class="dropzone dropzone-input"
+                                                            wire:model="uploadCarLicFile" />
+                                                    </div>
+                                                @endif
+
+                                            </ul>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <!-- Modal footer -->

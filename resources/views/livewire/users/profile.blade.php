@@ -171,6 +171,7 @@
             </div>
         </div>
 
+        {{-- ID  --}}
         <div>
             <div class="card h-full">
                 <header class="card-header flex items-center justify-between">
@@ -197,9 +198,7 @@
 
                         <div class="uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]">
                             ID Document
-                            @if ($uploadIDFile)
                             <span class="float-right cursor-pointer" wire:click='clearIDdocFile'>clear</span>
-                            @endif
                         </div>
 
                         @if ($OLDuploadIDFile)
@@ -225,6 +224,7 @@
             </div>
         </div>
 
+        {{-- Drive Licence --}}
         <div>
             <div class="card h-full">
                 <header class="card-header flex justify-between">
@@ -251,14 +251,12 @@
 
                         <div class="uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]">
                             Licience Document
-                            @if ($uploadLicFile)
                             <span class="float-right cursor-pointer" wire:click='clearLicDocFile'>clear</span>
-                            @endif
                         </div>
 
                         @if ($OLDuploadLicFile)
                         <button class="btn inline-flex justify-center btn-dark btn-sm"
-                            wire:click="downloadIDDocument">Download Licence</button>
+                            wire:click="downloadLicDocument">Download Licence</button>
                         @elseif($uploadLicFile)
                         <img src="{{ $uploadLicFile->temporaryUrl() }}"
                             class="rounded-md border-4 border-slate-300 max-w-full w-full block" alt="image">
@@ -280,6 +278,7 @@
             </div>
         </div>
 
+        {{-- Car Licence --}}
         <div>
             <div class="card h-full">
                 <header class="card-header flex justify-between">
@@ -306,9 +305,7 @@
 
                         <div class="uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]">
                             Car Licience Document
-                            @if ($uploadCarLicFile)
                             <span class="float-right cursor-pointer" wire:click='clearCarLicDocFile'>clear</span>
-                            @endif
                         </div>
 
                         @if ($OLDuploadCarLicFile)

@@ -11,7 +11,7 @@ use Livewire\WithPagination;
 
 class UserIndex extends Component
 {
-    use WithFileUploads, AlertFrontEnd,WithPagination;
+    use WithFileUploads, AlertFrontEnd, WithPagination;
     public $page_title = '• Users';
 
     public $newUserSection;
@@ -45,6 +45,13 @@ class UserIndex extends Component
     public $user;
     public $upIdNumber;
     public $upDrivingLicenceNo;
+    public $upCarLicenceNo;
+    public $OLDuploadIDFile;
+    public $OLDuploadLicFile;
+    public $OLDuploadCarLicFile;
+    public $uploadIDFile;
+    public $uploadLicFile;
+    public $uploadCarLicFile;
 
     public function clearImage()
     {
@@ -92,21 +99,93 @@ class UserIndex extends Component
         $this->phone = $user->phone;
         $this->upIdNumber = $user->id_number;
         $this->upDrivingLicenceNo = $user->driving_license_number;
+        $this->OLDuploadIDFile = $user->id_doc_url;
+        $this->OLDuploadLicFile = $user->driving_license_doc_url;
+        $this->OLDuploadCarLicFile = $user->car_license_doc_url;
     }
 
     public function toggleUserStatus($id)
     {
         $res = User::find($id)->toggleActivation();
         if ($res) {
-            $this->alertSuccess( 'User updated successfuly!');
+            $this->alertSuccess('User updated successfuly!');
         } else {
-            $this->alertFailed( 'Server error');
+            $this->alertFailed('Server error');
         }
     }
 
     public function closeUpdateThisUser()
     {
-        $this->reset(['updateUserSec', 'username', 'first_name', 'last_name', 'type', 'email', 'phone','upIdNumber' ,'upDrivingLicenceNo']);
+        $this->reset(['updateUserSec', 'username', 'first_name', 'last_name', 'type', 'email', 'phone', 'upIdNumber', 'upDrivingLicenceNo', 'OLDuploadIDFile', 'OLDuploadLicFile', 'OLDuploadCarLicFile', 'uploadIDFile', 'uploadLicFile', 'uploadCarLicFile']);
+    }
+
+    public function clearIDdocFile()
+    {
+        $this->reset('uploadIDFile','OLDuploadIDFile');
+    }
+
+    public function clearLicDocFile()
+    {
+        $this->reset('uploadLicFile','OLDuploadLicFile');
+    }
+
+    public function clearCarLicDocFile()
+    {
+        $this->reset('uploadCarLicFile','OLDuploadCarLicFile');
+    }
+
+    public function downloadIDDocument()
+    {
+        $fileContents = Storage::disk('s3')->get($this->user->id_doc_url);
+        $extension = pathinfo($this->user->id_doc_url, PATHINFO_EXTENSION);
+        $headers = [
+            'Content-Type' => 'application/octet-stream',
+            'Content-Disposition' => 'attachment; filename="' . $this->user->full_name . '_id_document.' . $extension . '"',
+        ];
+
+        return response()->stream(
+            function () use ($fileContents) {
+                echo $fileContents;
+            },
+            200,
+            $headers,
+        );
+    }
+
+    public function downloadLicDocument()
+    {
+        $fileContents = Storage::disk('s3')->get($this->user->driving_license_doc_url);
+        $extension = pathinfo($this->user->driving_license_doc_url,PATHINFO_EXTENSION);
+        $headers = [
+            'Content-Type' => 'application/octet-stream',
+            'Content-Disposition' => 'attachment; filename="' . $this->user->full_name . '_licience_document.' . $extension . '"',
+        ];
+
+        return response()->stream(
+            function () use ($fileContents) {
+                echo $fileContents;
+            },
+            200,
+            $headers,
+        );
+    }
+
+    public function downloadCarLicDocument()
+    {
+        $fileContents = Storage::disk('s3')->get($this->user->car_license_doc_url);
+        $extension = pathinfo($this->user->car_license_doc_url, PATHINFO_EXTENSION);
+        $headers = [
+            'Content-Type' => 'application/octet-stream',
+            'Content-Disposition' => 'attachment; filename="' . $this->user->full_name . '_car_licience_document.' . $extension . '"',
+        ];
+
+        return response()->stream(
+            function () use ($fileContents) {
+                echo $fileContents;
+            },
+            200,
+            $headers,
+        );
     }
 
     public function EditUser()
@@ -142,6 +221,39 @@ class UserIndex extends Component
             'upDrivingLicenceNo' => 'nullable|string|max:255', // Validate Driving License Number
         ]);
 
+        if ($this->OLDuploadIDFile) {
+            $id_doc = $this->OLDuploadIDFile;
+        } elseif ($this->uploadIDFile) {
+            $this->validate([
+                'uploadIDFile' => 'nullable|image|mimes:jpg,jpeg,png,gif,svg,webp|max:2048',
+            ]);
+            $id_doc = $this->uploadIDFile->store(User::FILES_DIRECTORY, 's3');
+        } else {
+            $id_doc = null;
+        }
+
+        if ($this->OLDuploadLicFile) {
+            $drive_lic_doc = $this->OLDuploadLicFile;
+        } elseif ($this->uploadLicFile) {
+            $this->validate([
+                'uploadLicFile' => 'nullable|image|mimes:jpg,jpeg,png,gif,svg,webp|max:2048',
+            ]);
+            $drive_lic_doc = $this->uploadLicFile->store(User::FILES_DIRECTORY, 's3');
+        } else {
+            $drive_lic_doc = null;
+        }
+
+        if ($this->OLDuploadCarLicFile) {
+            $car_lic_doc = $this->OLDuploadCarLicFile;
+        } elseif ($this->uploadCarLicFile) {
+            $this->validate([
+                'uploadCarLicFile' => 'nullable|image|mimes:jpg,jpeg,png,gif,svg,webp|max:2048',
+            ]);
+            $car_lic_doc = $this->uploadCarLicFile->store(User::FILES_DIRECTORY, 's3');
+        } else {
+            $car_lic_doc = null;
+        }
+
         // Call the editInfo method, omitting id_doc_url, driving_license_doc_url, and image_url
         $res = User::find($currentUserId)->editInfo(
             $this->username,
@@ -151,9 +263,11 @@ class UserIndex extends Component
             $this->email,
             $this->phone,
             $this->upIdNumber, // Pass ID Number
-            null, // id_doc_url
+            $id_doc, // id_doc_url
             $this->upDrivingLicenceNo, // Pass Driving License Number
-            null, // driving_license_doc_url
+            $drive_lic_doc, // driving_license_doc_url
+            $this->upCarLicenceNo,
+            $car_lic_doc,
             null, // image_url
             $this->password, // Include password if provided
         );
@@ -169,7 +283,7 @@ class UserIndex extends Component
     public function closeNewUserSec()
     {
         $this->newUserSection = false;
-        $this->reset(['newUsername', 'newFirstName', 'newLastName', 'newType', 'newPassword', 'newPassword_confirmation', 'newEmail', 'newPhone', 'newManagerId', 'IdNumber', 'IdNumberDoc', 'DrivingLicenceNo', 'DrivingLicenceDoc','CarLicenceNo','CarLicenceDoc']);
+        $this->reset(['newUsername', 'newFirstName', 'newLastName', 'newType', 'newPassword', 'newPassword_confirmation', 'newEmail', 'newPhone', 'newManagerId', 'IdNumber', 'IdNumberDoc', 'DrivingLicenceNo', 'DrivingLicenceDoc', 'CarLicenceNo', 'CarLicenceDoc']);
     }
 
     protected $rules = [

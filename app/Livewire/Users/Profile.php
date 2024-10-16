@@ -58,17 +58,17 @@ class Profile extends Component
 
     public function clearIDdocFile()
     {
-        $this->reset('uploadIDFile');
+        $this->reset('uploadIDFile','OLDuploadIDFile');
     }
 
     public function clearLicDocFile()
     {
-        $this->reset('uploadLicFile');
+        $this->reset('uploadLicFile','OLDuploadLicFile');
     }
 
     public function clearCarLicDocFile()
     {
-        $this->reset('uploadCarLicFile');
+        $this->reset('uploadCarLicFile','OLDuploadCarLicFile');
     }
 
     public function downloadIDDocument()
@@ -202,7 +202,8 @@ class Profile extends Component
         $this->phone = Auth::user()->phone;
         $this->email = Auth::user()->email;
         $this->idNumber = Auth::user()->id_number;
-        $this->driveLicienceNo = Auth::user()->driving_license_doc_url;
+        $this->driveLicienceNo = Auth::user()->driving_license_number;
+        $this->carLicienceNo = Auth::user()->car_license_number;
         $this->OLDuserImage = Auth::user()->image_url;
         $this->OLDuploadIDFile = Auth::user()->id_doc_url;
         $this->OLDuploadLicFile = Auth::user()->driving_license_doc_url;
