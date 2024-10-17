@@ -173,10 +173,20 @@ class Product extends Model
         return $this->hasMany(AppLog::class, 'loggable_id')->where('loggable_type', self::class);
     }
 
-    // $products = Product::search($searchTerm)
-    //                ->filterByCategory($categoryId)
-    //                ->filterByPriceRange($minPrice, $maxPrice)
-    //                ->filterByWeightRange($minWeight, $maxWeight)
-    //                ->sortByName($sortDirection) // or sortByPrice($sortDirection) / sortByWeight($sortDirection)
-    //                ->get();
+    public function inventory()
+    {
+        return $this->hasOne(Inventory::class);
+    }
+
+    // Calculate available stock
+    public function getAvailableAttribute()
+    {
+        return $this->inventory->on_hand - $this->inventory->committed;
+    }
+
+    // Calculate unavailable stock
+    public function getUnavailableAttribute()
+    {
+        return $this->inventory->on_hand - $this->available;
+    }
 }

@@ -64,6 +64,31 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="card active relative mt-5">
+                    <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base menu-open">
+                        <div class="items-center p-5">
+                            <div class="grid grid-cols-4 mb-4">
+                                <div class="border-r ml-5">
+                                    <p class="mb-2 text-xs"><b>On Hand</b></p>
+                                    <h6 class=" flex items-center justify-start">{{ $product->inventory->on_hand }}</h6>
+                                </div>
+                                <div class="border-r ml-5">
+                                    <p class="mb-2 text-xs"><b>Available </b></p>
+                                    <h6 class=" flex items-center justify-start">{{ $product->inventory->available }}</h6>
+                                </div>
+                                <div class="border-r ml-5">
+                                    <p class="mb-2 text-xs"><b>Commited </b></p>
+                                    <h6 class=" flex items-center justify-start">{{ $product->inventory->committed }}</h6>
+                                </div>
+                                <div class="ml-5">
+                                    <p class="mb-2 text-xs"><b>Weight </b></p>
+                                    <h6 class=" flex items-center justify-start">{{ $product->inventory->unavailable }}</h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div>
