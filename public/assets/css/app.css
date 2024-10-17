@@ -17580,6 +17580,15 @@ ul.custom-list ul {
     text-decoration: underline; /* Add underline on hover */
 }
 
+.clickable-header {
+    cursor: pointer;
+    text-decoration: none; /* Remove the default underline if needed */
+}
+
+.clickable-header:hover {
+    text-decoration: underline; /* Add underline on hover */
+}
+
 
 .hover-underline {
     color: inherit; /* Maintain the original text color */

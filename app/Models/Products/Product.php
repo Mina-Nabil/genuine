@@ -110,23 +110,19 @@ class Product extends Model
         return $query; // Return the original query if both weights are null
     }
 
-    public function scopeSortByName($query, $direction = 'asc')
+    public function scopeSortBy($query, $column = null, $direction = 'asc')
     {
-        return $query->orderBy('name', $direction);
-    }
+        // Ensure the column is not null and exists in the table
+        if ($column && in_array($column, \Illuminate\Support\Facades\Schema::getColumnListing($this->getTable()))) {
+            return $query->orderBy($column, $direction);
+        }
 
-    public function scopeSortByPrice($query, $direction = 'asc')
-    {
-        return $query->orderBy('price', $direction);
-    }
-
-    public function scopeSortByWeight($query, $direction = 'asc')
-    {
-        return $query->orderBy('weight', $direction);
+        // If column is not valid, just return the query without sorting
+        return $query;
     }
 
     //Relations
-    public function category() :BelongsTo
+    public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
