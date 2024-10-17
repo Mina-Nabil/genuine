@@ -25,7 +25,7 @@
 
         <div class="card-body px-6 pb-6  overflow-x-auto">
             <div class=""> <!-- Add this wrapper to allow horizontal scroll -->
-                <table class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700">
+                <table class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700 ">
                     <thead class="border-t border-slate-100 dark:border-slate-800 bg-slate-200 dark:bg-slate-700">
                         <tr>
                             <th scope="col"
@@ -127,11 +127,11 @@
                                 </td>
 
                                 <td class="table-td">
-                                    <b>{{ $product->price }}</b><small>EGP</small>
+                                    <b>{{ number_format($product->price) }}</b><small>EGP</small>
                                 </td>
 
                                 <td class="table-td">
-                                    <b>{{ $product->weight }}</b>gm
+                                    <b>{{ number_format($product->weight) }}</b>gm
                                 </td>
 
 

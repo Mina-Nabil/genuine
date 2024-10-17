@@ -25,6 +25,7 @@ return new class extends Migration
             $table->string('name'); // Item name (e.g., رز بالخلطه)
             $table->decimal('price', 10, 2); // Price of the item
             $table->integer('weight')->unsigned(); // Weight in grams (or other units)
+            $table->text('desc')->nullable();
             $table->timestamps();
         });
     }

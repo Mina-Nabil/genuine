@@ -4,41 +4,61 @@
         <div class="flex justify-between">
             <div>
                 <h3
-                class=" text-slate-900 dark:text-white {{ preg_match('/[\p{Arabic}]/u', $product->name) ? 'text-right' : 'text-left' }}">
-                <b>{{ $product->name }}</b>
-            </h3>
+                    class=" text-slate-900 dark:text-white {{ preg_match('/[\p{Arabic}]/u', $product->name) ? 'text-right' : 'text-left' }}">
+                    <b>{{ $product->name }}</b>
+                </h3>
             </div>
             <div>
-                <button class="btn inline-flex justify-center btn-secondary btn-sm">Edit</button>
+                <button class="btn inline-flex justify-center btn-secondary btn-sm"
+                    wire:click='openEditSection'>Edit</button>
             </div>
         </div>
 
         <div class="card active">
             <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base menu-open">
                 <div class="items-center p-5">
-                    
-                    <p class="card-text my-5">Lorem ipsum dolor sit amet, consec tetur adipiscing elit, sed do
-                        eiusmod tempor incididun ut labore et dolor magna aliqua.</p>
-                    <a href="card.html" class="underline btn-link active">{{ $product->category->name }}</a>
+
+                    <p class="card-text my-5">{{ $product->desc }}</p>
+                    <span class="">{{ $product->category->name }}</span>
                 </div>
             </div>
         </div>
 
-
         <div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-5 mb-5 text-wrap">
 
             <div>
-                <div class="card active">
+                <div class="card active relative">
                     <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base menu-open">
                         <div class="items-center p-5">
+                            <div class="dropstart absolute top-2 right-2">
+                                <button class="inline-flex justify-center items-center" type="button"
+                                    id="tableDropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <iconify-icon class="text-xl ltr:ml-2 rtl:mr-2"
+                                        icon="heroicons-outline:dots-vertical"></iconify-icon>
+                                </button>
+                                <ul
+                                    class="dropdown-menu min-w-max absolute text-sm text-slate-700 dark:text-white hidden bg-white dark:bg-slate-700 shadow z-[2] float-left overflow-hidden list-none text-left rounded-lg mt-1 m-0 bg-clip-padding border-none">
+
+                                    <li wire:click="openEditPriceWeightSection">
+                                        <span
+                                            class="hover:bg-slate-900 dark:hover:bg-slate-600 dark:hover:bg-opacity-70 hover:text-white w-full border-b border-b-gray-500 border-opacity-10 px-4 py-2 text-sm dark:text-slate-300  last:mb-0 cursor-pointer first:rounded-t last:rounded-b flex space-x-2 items-center capitalize  rtl:space-x-reverse">
+                                            <iconify-icon icon="lucide:edit"></iconify-icon>
+                                            <span>Edit</span>
+                                        </span>
+                                    </li>
+
+                                </ul>
+                            </div>
                             <div class="grid grid-cols-2 mb-4">
                                 <div class="border-r ml-5">
                                     <p class="mb-2"><b>Price</b></p>
-                                        <h4 class=" flex items-center justify-start">{{ $product->price }}&nbsp;<small class="text-xs"> EGP</small> </h4>
+                                    <h4 class=" flex items-center justify-start">{{ number_format($product->price) }}&nbsp;<small
+                                            class="text-xs"> EGP</small> </h4>
                                 </div>
                                 <div class="ml-5">
-                                    <p  class="mb-2"><b>Weight </b></p>
-                                    <h4 class=" flex items-center justify-start">{{ $product->weight }}&nbsp;<small class="text-xs"> GM</small> </h4>
+                                    <p class="mb-2"><b>Weight </b></p>
+                                    <h4 class=" flex items-center justify-start">{{ number_format($product->weight) }}&nbsp;<small
+                                            class="text-xs"> GM</small> </h4>
                                 </div>
                             </div>
                         </div>
@@ -74,17 +94,17 @@
                                 </span>
                                 <div class="timeline-item-description">
                                     <span class="avatar | small">
-                                        <span
-                                            class="block w-full h-full object-cover text-center text-lg user-initial" style="font-size: 12px">
+                                        <span class="block w-full h-full object-cover text-center text-lg user-initial"
+                                            style="font-size: 12px">
                                             {{ strtoupper(substr($comment->user->username, 0, 1)) }}
                                         </span>
                                     </span>
                                     <span><a href="#">{{ $comment->user->full_name }}</a> {{ $comment->title }}
                                         <time datetime="21-01-2021">
                                             @if ($comment->created_at->isToday())
-                                                Today
+                                                Today {{ $comment->created_at->format('h:m') }}
                                             @elseif($comment->created_at->isYesterday())
-                                                Yesterday
+                                                Yesterday {{ $comment->created_at->format('h:m') }}
                                             @else
                                                 on {{ $comment->created_at->format('M d, Y') }}
                                             @endif
@@ -106,16 +126,17 @@
                                     <div class="timeline-item-description">
                                         <span class="avatar | small">
                                             <span
-                                                class="block w-full h-full object-cover text-center text-lg user-initial" style="font-size: 12px">
+                                                class="block w-full h-full object-cover text-center text-lg user-initial"
+                                                style="font-size: 12px">
                                                 {{ strtoupper(substr($comment->user->username, 0, 1)) }}
                                             </span>
                                         </span>
                                         <span><a href="#">{{ $comment->user->full_name }}</a> commented <time
                                                 datetime="20-01-2021">
                                                 @if ($comment->created_at->isToday())
-                                                    Today
+                                                    Today at {{ $comment->created_at->format('h:m') }}
                                                 @elseif($comment->created_at->isYesterday())
-                                                    Yesterday
+                                                    Yesterday at {{ $comment->created_at->format('h:m') }}
                                                 @else
                                                     on {{ $comment->created_at->format('M d, Y') }}
                                                 @endif
@@ -158,4 +179,167 @@
         </div>
 
     </div>
+
+    {{-- @can('create', App\Models\Products\Product::class) --}}
+    @if ($editProductSection)
+        <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+            tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog" style="display: block;">
+            <div class="modal-dialog relative w-auto pointer-events-none">
+                <div
+                    class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
+                    <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
+                        <!-- Modal header -->
+                        <div
+                            class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
+                            <h3 class="text-xl font-medium text-white dark:text-white capitalize">
+                                Edit product
+                            </h3>
+                            <button wire:click="closeEditSection" type="button"
+                                class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
+                                data-bs-dismiss="modal">
+                                <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd"
+                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                <span class="sr-only">Close modal</span>
+                            </button>
+                        </div>
+
+                        <!-- Modal body -->
+                        <div class="p-6 space-y-4">
+                            <div class="from-group">
+                                <div class="input-area">
+                                    <label for="productName" class="form-label">Name</label>
+                                    <input id="productName" type="text"
+                                        class="form-control @error('productName') !border-danger-500 @enderror"
+                                        wire:model="productName" autocomplete="off">
+                                </div>
+                                @error('productName')
+                                    <span
+                                        class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            <div class="from-group">
+                                <div class="input-area">
+                                    <label for="productDesc" class="form-label">Description</label>
+                                    <input id="productDesc" type="text"
+                                        class="form-control @error('productDesc') !border-danger-500 @enderror"
+                                        wire:model="productDesc" autocomplete="off">
+                                </div>
+                                @error('productDesc')
+                                    <span
+                                        class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <!-- Modal footer -->
+                        <div class="flex items-center justify-end p-6 border-t border-slate-200 rounded-b">
+                            <button wire:click="updateTitleDesc" data-bs-dismiss="modal"
+                                class="btn inline-flex justify-center text-white bg-black-500">
+                                <span wire:loading.remove wire:target="updateTitleDesc">Submit</span>
+                                <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
+                                    wire:loading wire:target="updateTitleDesc"
+                                    icon="line-md:loading-twotone-loop"></iconify-icon>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    @endif
+    {{-- @endcan --}}
+
+
+    {{-- @can('create', App\Models\Products\Product::class) --}}
+    @if ($editProductPriceWeightSection)
+        <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+            tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
+            style="display: block;">
+            <div class="modal-dialog relative w-auto pointer-events-none">
+                <div
+                    class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
+                    <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
+                        <!-- Modal header -->
+                        <div
+                            class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
+                            <h3 class="text-xl font-medium text-white dark:text-white capitalize">
+                                Edit product
+                            </h3>
+                            <button wire:click="closeEditPriceWeightSection" type="button"
+                                class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
+                                data-bs-dismiss="modal">
+                                <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd"
+                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                <span class="sr-only">Close modal</span>
+                            </button>
+                        </div>
+
+                        <!-- Modal body -->
+                        <div class="p-6 space-y-4">
+                            {{-- <div class="from-group">
+                                <div class="input-area">
+                                    <label for="productPrice" class="form-label">Price</label>
+                                    <input id="productPrice" type="number"
+                                        class="form-control @error('productPrice') !border-danger-500 @enderror"
+                                        wire:model="productPrice" autocomplete="off">
+                                </div>
+                                @error('productPrice')
+                                    <span
+                                        class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                @enderror
+                            </div> --}}
+
+                            <div class="input-area">
+                                <label for="productPrice" class="form-label">Price</label>
+                                <div class="relative">
+                                    <input class="form-control @error('productPrice') !border-danger-500 @enderror" id="productPrice" type="number" wire:model="productPrice" autocomplete="off">
+                                    <span
+                                        class="absolute right-3 text-sm top-1/2 -translate-y-1/2 w-9 h-full border-none flex item-center justify-end">
+                                        EGP
+                                    </span>
+                                </div>
+                                @error('productPrice')
+                                    <span
+                                        class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            <div class="input-area">
+                                <label for="productWeight" class="form-label">Weight</label>
+                                <div class="relative">
+                                    <input class="form-control @error('productWeight') !border-danger-500 @enderror" id="productWeight" type="number" wire:model="productWeight" autocomplete="off">
+                                    <span
+                                        class="absolute right-3 text-sm top-1/2 -translate-y-1/2 w-9 h-full border-none flex item-center justify-end">
+                                        Grams
+                                    </span>
+                                </div>
+                                @error('productWeight')
+                                    <span
+                                        class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <!-- Modal footer -->
+                        <div class="flex items-center justify-end p-6 border-t border-slate-200 rounded-b">
+                            <button wire:click="updatePriceWeight" data-bs-dismiss="modal"
+                                class="btn inline-flex justify-center text-white bg-black-500">
+                                <span wire:loading.remove wire:target="updatePriceWeight">Submit</span>
+                                <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
+                                    wire:loading wire:target="updatePriceWeight"
+                                    icon="line-md:loading-twotone-loop"></iconify-icon>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    @endif
+    {{-- @endcan --}}
 </div>

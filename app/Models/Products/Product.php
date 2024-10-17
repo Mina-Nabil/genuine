@@ -7,15 +7,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Exception;
 
 class Product extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['category_id', 'name', 'price', 'weight'];
+    protected $fillable = ['category_id', 'name', 'price', 'weight','desc'];
 
     // Create a new product
-    public static function createProduct($category_id, $name, $price, $weight)
+    public static function createProduct($category_id, $name, $price, $weight,$desc = null)
     {
         try {
             $product = self::create([
@@ -23,25 +24,57 @@ class Product extends Model
                 'name' => $name,
                 'price' => $price,
                 'weight' => $weight,
+                'desc' => $desc
             ]);
             AppLog::info("Product created successfully", loggable: $product);
             return $product;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             AppLog::error('Failed to create product: ' . $e->getMessage());
             return null;
         }
     }
 
     // Update product
-    public function updateProduct($category_id, $name, $price, $weight)
+    public function updateProduct($category_id, $name, $price, $weight, $desc = null)
     {
         try {
             $this->category_id = $category_id;
             $this->name = $name;
             $this->price = $price;
             $this->weight = $weight;
+            $this->desc = $desc;
             $this->save();
             AppLog::info("Product updated successfully", loggable: $this);
+            return true;
+        } catch (Exception $e) {
+            AppLog::error("Failed to update product ID {$this->id}: ", $e->getMessage(), loggable: $this);
+            return false;
+        }
+    }
+
+    // Update product
+    public function updateProductTitleDesc($name, $desc = null)
+    {
+        try {
+            $this->name = $name;
+            $this->desc = $desc;
+            $this->save();
+            AppLog::info("Product title and description updated", loggable: $this);
+            return true;
+        } catch (Exception $e) {
+            AppLog::error("Failed to update product ID {$this->id}: ", $e->getMessage(), loggable: $this);
+            return false;
+        }
+    }
+
+    // Update product
+    public function updateProductPriceWeight($price, $weight)
+    {
+        try {
+            $this->price = $price;
+            $this->weight = $weight;
+            $this->save();
+            AppLog::info("Product price and weight updated", loggable: $this);
             return true;
         } catch (\Exception $e) {
             AppLog::error("Failed to update product ID {$this->id}: ", $e->getMessage(), loggable: $this);
@@ -61,7 +94,7 @@ class Product extends Model
             $this->delete();
             AppLog::info("Product ID {$this->id} deleted successfully");
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             AppLog::error("Failed to delete product ID {$this->id}: ", $e->getMessage(), loggable: $this);
             return false;
         }

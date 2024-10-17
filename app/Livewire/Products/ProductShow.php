@@ -16,6 +16,72 @@ class ProductShow extends Component
     public $addedComment;
     public $visibleCommentsCount = 5; // Initially show 5 comments
 
+    public $editProductSection;
+    public $productName;
+    public $productDesc;
+
+    public $editProductPriceWeightSection;
+    public $productPrice;
+    public $productWeight;
+
+
+    public function openEditSection(){
+        $this->productName = $this->product->name;
+        $this->productDesc = $this->product->desc;
+        $this->editProductSection = true;
+    }
+
+    public function closeEditSection(){
+        $this->editProductSection = false;
+        $this->reset(['productName','productDesc']);
+    }
+
+    public function openEditPriceWeightSection(){
+        $this->productPrice = $this->product->price;
+        $this->productWeight = $this->product->weight;
+        $this->editProductPriceWeightSection = true;
+    }
+
+    public function closeEditPriceWeightSection(){
+        $this->editProductPriceWeightSection = false;
+        $this->reset(['productPrice','productWeight']);
+    }
+
+
+
+    public function updateTitleDesc(){
+        $this->validate([
+            'productName' => 'required|string|max:255',
+            'productDesc' => 'nullable|string'
+        ]);
+
+        $res = $this->product->updateProductTitleDesc($this->productName,$this->productDesc);
+
+        if ($res) {
+            $this->closeEditSection();
+            $this->alertSuccess('Product updated!');
+        }else{
+            $this->alertFailed();
+        }
+    }
+
+    public function updatePriceWeight(){
+        $this->validate([
+            'productPrice' => 'required|numeric|min:0',
+            'productWeight' => 'required|numeric|min:0',
+        ]);
+
+        $res = $this->product->updateProductPriceWeight($this->productPrice,$this->productWeight);
+
+        if ($res) {
+            $this->closeEditPriceWeightSection();
+            $this->alertSuccess('Product updated!');
+        }else{
+            $this->alertFailed();
+        }
+    }
+
+
     public function addComment(){
         $this->validate([
             'addedComment' => 'required|string'

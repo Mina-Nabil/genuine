@@ -11309,8 +11309,8 @@ ul.custom-list ul {
 }
 
 .table-th {
-    padding-top: 1.25rem;
-    padding-bottom: 1.25rem;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
     padding-left: 1.5rem;
     padding-right: 1.5rem;
     font-size: 0.75rem;
@@ -17792,4 +17792,14 @@ ul.custom-list ul {
     position: relative;
     box-shadow: 0 0 0 2px #fff;
     margin-right: -8px;
+}
+
+
+
+.sticky-table thead th {
+    position: sticky;
+    top: 0; /* Sticks the header at the top */
+    background-color: #f1f1f1; /* Prevents content from showing through */
+    z-index: 2; /* Ensures the header stays above other content */
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1); /* Optional shadow for better visibility */
 }
