@@ -18,9 +18,10 @@ class AppLog extends Model
     const LEVEL_INFO = 'info';
     const LEVEL_WARNING = 'warning';
     const LEVEL_ERROR = 'error';
+    const LEVEL_COMMENT = 'comment';
 
     const LEVELS = [
-        self::LEVEL_INFO, self::LEVEL_WARNING, self::LEVEL_ERROR
+        self::LEVEL_INFO, self::LEVEL_WARNING, self::LEVEL_ERROR,self::LEVEL_COMMENT
     ];
 
     protected $table = 'app_logs';
@@ -45,6 +46,12 @@ class AppLog extends Model
     {
         $id = Auth::id();
         self::addLog(self::LEVEL_ERROR, $title, $desc, $id, $loggable);
+    }
+
+    public static function comment($title, $desc = null, Model $loggable = null)
+    {
+        $id = Auth::id();
+        self::addLog(self::LEVEL_COMMENT, $title, $desc, $id, $loggable);
     }
 
     private static function addLog($level, $title, $desc, $user_id = null, Model $loggable = null)

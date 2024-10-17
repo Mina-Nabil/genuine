@@ -6,6 +6,7 @@ use App\Models\Users\AppLog;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Product extends Model
 {
@@ -23,7 +24,7 @@ class Product extends Model
                 'price' => $price,
                 'weight' => $weight,
             ]);
-            AppLog::info("Product created successfully with ID {$product->id}", loggable: $product);
+            AppLog::info("Product created successfully", loggable: $product);
             return $product;
         } catch (\Exception $e) {
             AppLog::error('Failed to create product: ' . $e->getMessage());
@@ -40,12 +41,17 @@ class Product extends Model
             $this->price = $price;
             $this->weight = $weight;
             $this->save();
-            AppLog::info("Product ID {$this->id} updated successfully", loggable: $this);
+            AppLog::info("Product updated successfully", loggable: $this);
             return true;
         } catch (\Exception $e) {
             AppLog::error("Failed to update product ID {$this->id}: ", $e->getMessage(), loggable: $this);
             return false;
         }
+    }
+
+    public function addComment(string $comment): void
+    {
+        AppLog::comment($comment, $desc = null, loggable:$this);
     }
 
     // Delete product
@@ -121,10 +127,17 @@ class Product extends Model
         return $query;
     }
 
+    
+
     //Relations
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function comments(): HasMany
+    {
+        return $this->hasMany(AppLog::class, 'loggable_id')->where('loggable_type', self::class);
     }
 
     // $products = Product::search($searchTerm)

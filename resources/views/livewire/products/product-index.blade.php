@@ -113,7 +113,7 @@
                                                     class="h-[10px] w-[10px] block m-auto opacity-0"></span>
                                         </label>
                                     </div>
-                                    <a href=""> <span class="hover-underline">
+                                    <a href="{{ route('product.show',$product->id) }}"> <span class="hover-underline">
                                             <b>
                                                 {{ $product->name }}
                                             </b>

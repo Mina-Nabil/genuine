@@ -128,6 +128,15 @@
 
                     <li class="sidebar-menu-title">CRM</li>
                     <li>
+                        <a href="{{ url('/products') }}" class="navItem {{ $products ?? '' }}">
+                            <span class="flex items-center">
+                                <iconify-icon class=" nav-icon" icon="icon-park-outline:ad-product">
+                                </iconify-icon>
+                                <span>Products</span>
+                            </span>
+                        </a>
+                    </li>
+                    <li>
                         <a href="{{ url('/customers') }}" class="navItem {{ $customers ?? '' }}">
                             <span class="flex items-center">
                                 <iconify-icon class=" nav-icon" icon="mdi:user">

@@ -25,5 +25,7 @@ class DatabaseSeeder extends Seeder
         $this->call(PetsTableSeeder::class);
         $this->call(TaskAllSeeder::class);
         $this->call(FollowupsTableSeeder::class);
+        $this->call(CategoriesTableSeeder::class);
+        $this->call(ProductsTableSeeder::class);
     }
 }
