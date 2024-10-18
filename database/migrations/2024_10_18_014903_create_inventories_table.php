@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('product_id')->constrained()->onDelete('cascade'); // one-to-one relationship with products
             $table->integer('on_hand')->default(0); // Total stock physically in store
             $table->integer('committed')->default(0); // Inventory reserved for unfulfilled orders
+            $table->integer('available')->default(0);
             $table->timestamps();
         });
     }

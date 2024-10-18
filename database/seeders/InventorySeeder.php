@@ -19,10 +19,14 @@ class InventorySeeder extends Seeder
 
         // Loop through each product and create a corresponding inventory record
         foreach ($products as $product) {
+            $onhand =  rand(50, 200);
+            $committed = rand(5, 20);
+            $available = $onhand - $committed;
             Inventory::create([
                 'product_id' => $product->id,
-                'on_hand' => rand(50, 200),  // Random value for demonstration
-                'committed' => rand(5, 20),  // Random value for demonstration
+                'on_hand' => $onhand,  // Random value for demonstration
+                'committed' => $committed,  // Random value for demonstration
+                'available' => $available,  // Random value for demonstration
             ]);
         }
 

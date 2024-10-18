@@ -52,42 +52,148 @@
                             <div class="grid grid-cols-2 mb-4">
                                 <div class="border-r ml-5">
                                     <p class="mb-2"><b>Price</b></p>
-                                    <h4 class=" flex items-center justify-start">{{ number_format($product->price) }}&nbsp;<small
-                                            class="text-xs"> EGP</small> </h4>
+                                    <h4 class=" flex items-center justify-start">
+                                        {{ number_format($product->price) }}&nbsp;<small class="text-xs"> EGP</small>
+                                    </h4>
                                 </div>
                                 <div class="ml-5">
                                     <p class="mb-2"><b>Weight </b></p>
-                                    <h4 class=" flex items-center justify-start">{{ number_format($product->weight) }}&nbsp;<small
-                                            class="text-xs"> GM</small> </h4>
+                                    <h4 class=" flex items-center justify-start">
+                                        {{ number_format($product->weight) }}&nbsp;<small class="text-xs"> GM</small>
+                                    </h4>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="card active relative mt-5">
-                    <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base menu-open">
-                        <div class="items-center p-5">
-                            <div class="grid grid-cols-4 mb-4">
-                                <div class="border-r ml-5">
-                                    <p class="mb-2 text-xs"><b>On Hand</b></p>
-                                    <h6 class=" flex items-center justify-start">{{ $product->inventory->on_hand }}</h6>
-                                </div>
-                                <div class="border-r ml-5">
-                                    <p class="mb-2 text-xs"><b>Available </b></p>
-                                    <h6 class=" flex items-center justify-start">{{ $product->inventory->available }}</h6>
-                                </div>
-                                <div class="border-r ml-5">
-                                    <p class="mb-2 text-xs"><b>Commited </b></p>
-                                    <h6 class=" flex items-center justify-start">{{ $product->inventory->committed }}</h6>
-                                </div>
-                                <div class="ml-5">
-                                    <p class="mb-2 text-xs"><b>Weight </b></p>
-                                    <h6 class=" flex items-center justify-start">{{ $product->inventory->unavailable }}</h6>
+                <div class="card active relative mt-5 p-3">
+                    <div class="my-2 flex justify-between items-center">
+                        <p class="mb-0 text-xs"><b>Inventory</b></p>
+                        <button wire:click='openTransSection'
+                            class="btn inline-flex justify-center btn-outline-light btn-sm">
+                            <iconify-icon icon="ic:baseline-plus" width="1.2em" height="1.2em"></iconify-icon>Add
+                            transaction
+                        </button>
+                    </div>
+
+                    <div class="card-body flex flex-col justify-between border rounded-lg h-full menu-open p-0"
+                        style="border-color:rgb(224, 224, 224)">
+                        <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base menu-open">
+                            <div class="items-center p-5">
+                                <div class="grid grid-cols-3">
+                                    <div class="border-r ml-5">
+                                        <p class="mb-2 text-xs toolTip onTop  cursor-pointer" wire:ignore
+                                            data-tippy-content="Total inventory in stock."><b>On Hand</b></p>
+                                        <h6 class=" flex items-center justify-start">
+                                            {{ number_format($product->inventory->on_hand) }}
+                                        </h6>
+                                    </div>
+                                    <div class="border-r ml-5">
+                                        <p class="mb-2 text-xs toolTip onTop  cursor-pointer" wire:ignore
+                                            data-tippy-content="Inventory committed to unfulfilled orders."><b>Commited
+                                            </b></p>
+                                        <h6 class=" flex items-center justify-start">
+                                            {{ number_format($product->inventory->committed) }}</h6>
+                                    </div>
+                                    <div class="ml-5">
+                                        <p class="mb-2 text-xs toolTip onTop  cursor-pointer" wire:ignore
+                                            data-tippy-content="Inventory available for sale."><b>Available </b></p>
+                                        <h6 class=" flex items-center justify-start">
+                                            {{ number_format($product->inventory->available) }}</h6>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    <div class="my-2 flex justify-between items-center mt-5">
+                        <p class="mb-0 text-xs"><b>Transactions</b></p>
+                        {{-- <button wire:click='openTransSection'
+                            class="btn inline-flex justify-center btn-outline-light btn-sm">
+                            <iconify-icon icon="ic:baseline-plus" width="1.2em" height="1.2em"></iconify-icon>Add
+                            transaction
+                        </button> --}}
+                    </div>
+
+                
+
+                    @if ($product->transactions->isEmpty())
+                        <p class="text-xs font-light text-slate-600 dark:text-slate-300 text-center m-5">
+                            No transactions added for this product!
+                        </p>
+                    @else
+                        <table class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700 text-xs">
+                            <thead class="">
+                                <tr>
+
+                                    <th scope="col"
+                                        class=" table-th  border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
+                                        Created
+                                    </th>
+
+                                    <th scope="col"
+                                        class="table-th  border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
+                                        Quantity
+                                    </th>
+
+                                    <th scope="col"
+                                        class=" table-th  border border-slate-100 dark:bg-slate-800 dark:border-slate-700 p-1 ">
+                                        Changes
+                                    </th>
+
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
+
+                                @foreach ($product->transactions as $transaction)
+                                    <tr>
+
+                                        <td
+                                            class="table-td border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
+                                            <div class="flex items-center">
+                                                <div class="flex-1 text-start">
+                                                    <h4 class="text-sm font-medium text-slate-600 whitespace-nowrap">
+                                                        {{ $transaction->user->fullname }}
+                                                    </h4>
+                                                    <div class="text-xs font-normal text-slate-600 dark:text-slate-400">
+                                                        {{ $transaction->created_at }}
+                                                    </div>
+                                                    @if ($transaction->remarks)
+                                                    <hr class="mt-1 mb-1">
+                                                        <div class="text-xs font-normal text-slate-600 dark:text-slate-400 text-wrap flex item-center"
+                                                            style="max-width:150px;font-size:12px;">
+                                                            {{ $transaction->remarks }}
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </td>
+
+                                        <td
+                                            class="table-td border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
+                                            {{ $transaction->quantity }}
+                                        </td>
+
+                                        <td
+                                            class="table-td border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
+                                            <div class=" flex item-center justify-between">
+                                                {{ $transaction->before }}
+                                                <iconify-icon icon="ep:right" width="1.2em"
+                                                    height="1.2em"></iconify-icon>
+                                                {{ $transaction->after }}
+                                            </div>
+                                        </td>
+
+
+                                    </tr>
+                                @endforeach
+
+                            </tbody>
+                        </table>
+                    @endif
+
+
                 </div>
             </div>
 
@@ -208,7 +314,8 @@
     {{-- @can('create', App\Models\Products\Product::class) --}}
     @if ($editProductSection)
         <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
-            tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog" style="display: block;">
+            tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
+            style="display: block;">
             <div class="modal-dialog relative w-auto pointer-events-none">
                 <div
                     class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
@@ -324,7 +431,9 @@
                             <div class="input-area">
                                 <label for="productPrice" class="form-label">Price</label>
                                 <div class="relative">
-                                    <input class="form-control @error('productPrice') !border-danger-500 @enderror" id="productPrice" type="number" wire:model="productPrice" autocomplete="off">
+                                    <input class="form-control @error('productPrice') !border-danger-500 @enderror"
+                                        id="productPrice" type="number" wire:model="productPrice"
+                                        autocomplete="off">
                                     <span
                                         class="absolute right-3 text-sm top-1/2 -translate-y-1/2 w-9 h-full border-none flex item-center justify-end">
                                         EGP
@@ -339,7 +448,9 @@
                             <div class="input-area">
                                 <label for="productWeight" class="form-label">Weight</label>
                                 <div class="relative">
-                                    <input class="form-control @error('productWeight') !border-danger-500 @enderror" id="productWeight" type="number" wire:model="productWeight" autocomplete="off">
+                                    <input class="form-control @error('productWeight') !border-danger-500 @enderror"
+                                        id="productWeight" type="number" wire:model="productWeight"
+                                        autocomplete="off">
                                     <span
                                         class="absolute right-3 text-sm top-1/2 -translate-y-1/2 w-9 h-full border-none flex item-center justify-end">
                                         Grams
@@ -359,6 +470,82 @@
                                 <span wire:loading.remove wire:target="updatePriceWeight">Submit</span>
                                 <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
                                     wire:loading wire:target="updatePriceWeight"
+                                    icon="line-md:loading-twotone-loop"></iconify-icon>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    @endif
+    {{-- @endcan --}}
+
+    {{-- @can('create', App\Models\Products\Product::class) --}}
+    @if ($addTransSection)
+        <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+            tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
+            style="display: block;">
+            <div class="modal-dialog relative w-auto pointer-events-none">
+                <div
+                    class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
+                    <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
+                        <!-- Modal header -->
+                        <div
+                            class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
+                            <h3 class="text-xl font-medium text-white dark:text-white capitalize">
+                                New Transaction
+                            </h3>
+                            <button wire:click="closeTransSection" type="button"
+                                class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
+                                data-bs-dismiss="modal">
+                                <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd"
+                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                <span class="sr-only">Close modal</span>
+                            </button>
+                        </div>
+
+                        <!-- Modal body -->
+                        <div class="p-6 space-y-4">
+                            <div class="from-group">
+                                <div class="input-area">
+                                    <label for="transQuantity" class="form-label">Quantity*</label>
+                                    <input id="transQuantity" type="number"
+                                        class="form-control @error('transQuantity') !border-danger-500 @enderror"
+                                        wire:model="transQuantity" autocomplete="off">
+                                        <small class="text-gray-500">Enter the quantity of the transaction. This can be a positive number or a negative value if you're recording a deduction or a return.</small>
+                                </div>
+                                @error('transQuantity')
+                                    <span
+                                        class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            <div class="from-group">
+                                <div class="input-area">
+                                    <label for="transRemark" class="form-label">Remark</label>
+                                    <textarea id="transRemark" class="form-control @error('transRemark') !border-danger-500 @enderror"
+                                        wire:model="transRemark" autocomplete="off"></textarea>
+                                        <small class="text-gray-500">Optional: Provide any additional notes or remarks related to this transaction. This can help clarify the reason for the entry.</small>
+                                </div>
+                                @error('transRemark')
+                                    <span
+                                        class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+
+                        </div>
+
+                        <!-- Modal footer -->
+                        <div class="flex items-center justify-end p-6 border-t border-slate-200 rounded-b">
+                            <button wire:click="addTransaction" data-bs-dismiss="modal"
+                                class="btn inline-flex justify-center text-white bg-black-500">
+                                <span wire:loading.remove wire:target="addTransaction">Submit</span>
+                                <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
+                                    wire:loading wire:target="addTransaction"
                                     icon="line-md:loading-twotone-loop"></iconify-icon>
                             </button>
                         </div>

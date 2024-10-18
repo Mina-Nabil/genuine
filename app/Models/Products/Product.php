@@ -178,11 +178,10 @@ class Product extends Model
         return $this->hasOne(Inventory::class);
     }
 
-    // Calculate available stock
-    public function getAvailableAttribute()
-    {
-        return $this->inventory->on_hand - $this->inventory->committed;
-    }
+    public function transactions()
+{
+    return $this->hasManyThrough(Transaction::class,Inventory::class);
+}
 
     // Calculate unavailable stock
     public function getUnavailableAttribute()

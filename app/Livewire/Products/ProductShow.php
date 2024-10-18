@@ -24,6 +24,19 @@ class ProductShow extends Component
     public $productPrice;
     public $productWeight;
 
+    public $addTransSection;
+    public $transQuantity;
+    public $transRemark;
+
+    public function loadMore()
+    {
+        $this->visibleCommentsCount += 5; // Load 5 more comments
+    }
+
+    public function showLess()
+    {
+        $this->visibleCommentsCount = max(5, $this->visibleCommentsCount - 5); // Show less but minimum 5
+    }
 
     public function openEditSection(){
         $this->productName = $this->product->name;
@@ -34,6 +47,15 @@ class ProductShow extends Component
     public function closeEditSection(){
         $this->editProductSection = false;
         $this->reset(['productName','productDesc']);
+    }
+
+    public function openTransSection(){
+        $this->addTransSection = true;
+    }
+
+    public function closeTransSection(){
+        $this->addTransSection = false;
+        $this->reset(['transQuantity','transRemark']);
     }
 
     public function openEditPriceWeightSection(){
@@ -47,7 +69,22 @@ class ProductShow extends Component
         $this->reset(['productPrice','productWeight']);
     }
 
+    public function addTransaction(){
 
+        $this->validate([
+            'transQuantity' => 'required|integer',
+            'transRemark' => 'nullable|string'
+        ]);
+
+        $res = $this->product->inventory->addTransaction($this->transQuantity , $this->transRemark);
+
+        if ($res) {
+            $this->closeEditSection();
+            $this->alertSuccess('Transaction added!');
+        }else{
+            $this->alertFailed();
+        }
+    }
 
     public function updateTitleDesc(){
         $this->validate([
@@ -81,7 +118,6 @@ class ProductShow extends Component
         }
     }
 
-
     public function addComment(){
         $this->validate([
             'addedComment' => 'required|string'
@@ -91,18 +127,6 @@ class ProductShow extends Component
         $this->alertSuccess('Comment added !');
         $this->comments = $this->product->comments()->latest()->take($this->visibleCommentsCount)->get();
     }
-
-    public function loadMore()
-    {
-        $this->visibleCommentsCount += 5; // Load 5 more comments
-    }
-
-    public function showLess()
-    {
-        $this->visibleCommentsCount = max(5, $this->visibleCommentsCount - 5); // Show less but minimum 5
-    }
-
-
 
     public function mount($id){
         $this->product = Product::findOrFail($id);
