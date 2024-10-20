@@ -5,24 +5,27 @@
             <div>
                 <h3
                     class=" text-slate-900 dark:text-white {{ preg_match('/[\p{Arabic}]/u', $product->name) ? 'text-right' : 'text-left' }}">
-                    <b>{{ $product->name }}</b>
+                    <b>{{ $product->name }} • {{ $product->category->name }}</b>
                 </h3>
             </div>
+
+
             <div>
                 <button class="btn inline-flex justify-center btn-secondary btn-sm"
                     wire:click='openEditSection'>Edit</button>
             </div>
         </div>
 
+        @if($product->desc)
         <div class="card active">
             <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base menu-open">
-                <div class="items-center p-5">
+                <div class="items-center p-5 text-wrap">
 
-                    <p class="card-text my-5">{{ $product->desc }}</p>
-                    <span class="">{{ $product->category->name }}</span>
+                    <p class="card-text my-5">{!! $product->desc !!}</p>
                 </div>
             </div>
         </div>
+        @endif
 
         <div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-5 mb-5 text-wrap">
 
@@ -116,7 +119,7 @@
                         </button> --}}
                     </div>
 
-                
+
 
                     @if ($product->transactions->isEmpty())
                         <p class="text-xs font-light text-slate-600 dark:text-slate-300 text-center m-5">
@@ -146,9 +149,8 @@
                             </thead>
                             <tbody class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
 
-                                @foreach ($product->transactions as $transaction)
+                                @foreach ($transactions as $transaction)
                                     <tr>
-
                                         <td
                                             class="table-td border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
                                             <div class="flex items-center">
@@ -157,10 +159,17 @@
                                                         {{ $transaction->user->fullname }}
                                                     </h4>
                                                     <div class="text-xs font-normal text-slate-600 dark:text-slate-400">
-                                                        {{ $transaction->created_at }}
+                                                        @if ($transaction->created_at->isToday())
+                                                            Today at {{ $transaction->created_at->format('h:i A') }}
+                                                        @elseif($transaction->created_at->isYesterday())
+                                                            Yesterday at
+                                                            {{ $transaction->created_at->format('h:i A') }}
+                                                        @else
+                                                            on {{ $transaction->created_at->format('M d, Y') }}
+                                                        @endif
                                                     </div>
                                                     @if ($transaction->remarks)
-                                                    <hr class="mt-1 mb-1">
+                                                        <hr class="mt-1 mb-1">
                                                         <div class="text-xs font-normal text-slate-600 dark:text-slate-400 text-wrap flex item-center"
                                                             style="max-width:150px;font-size:12px;">
                                                             {{ $transaction->remarks }}
@@ -184,13 +193,12 @@
                                                 {{ $transaction->after }}
                                             </div>
                                         </td>
-
-
                                     </tr>
                                 @endforeach
 
                             </tbody>
                         </table>
+                        {{ $transactions->links('vendor.livewire.simple-bootstrap') }}
                     @endif
 
 
@@ -233,9 +241,9 @@
                                     <span><a href="#">{{ $comment->user->full_name }}</a> {{ $comment->title }}
                                         <time datetime="21-01-2021">
                                             @if ($comment->created_at->isToday())
-                                                Today {{ $comment->created_at->format('h:m') }}
+                                                Today {{ $comment->created_at->format('h:i A') }}
                                             @elseif($comment->created_at->isYesterday())
-                                                Yesterday {{ $comment->created_at->format('h:m') }}
+                                                Yesterday {{ $comment->created_at->format('h:i A') }}
                                             @else
                                                 on {{ $comment->created_at->format('M d, Y') }}
                                             @endif
@@ -515,12 +523,15 @@
                                     <input id="transQuantity" type="number"
                                         class="form-control @error('transQuantity') !border-danger-500 @enderror"
                                         wire:model="transQuantity" autocomplete="off">
-                                        <small class="text-gray-500">Enter the quantity of the transaction. This can be a positive number or a negative value if you're recording a deduction or a return.</small>
+                                    @error('transQuantity')
+                                        <span
+                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                    @enderror
+                                    <small class="text-gray-500">Enter the quantity of the transaction. This can be a
+                                        positive number or a negative value if you're recording a deduction or a
+                                        return.</small>
                                 </div>
-                                @error('transQuantity')
-                                    <span
-                                        class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
-                                @enderror
+
                             </div>
 
                             <div class="from-group">
@@ -528,12 +539,15 @@
                                     <label for="transRemark" class="form-label">Remark</label>
                                     <textarea id="transRemark" class="form-control @error('transRemark') !border-danger-500 @enderror"
                                         wire:model="transRemark" autocomplete="off"></textarea>
-                                        <small class="text-gray-500">Optional: Provide any additional notes or remarks related to this transaction. This can help clarify the reason for the entry.</small>
+                                    @error('transRemark')
+                                        <span
+                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                    @enderror
+                                    <small class="text-gray-500">Optional: Provide any additional notes or remarks
+                                        related to this transaction. This can help clarify the reason for the
+                                        entry.</small>
                                 </div>
-                                @error('transRemark')
-                                    <span
-                                        class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
-                                @enderror
+
                             </div>
 
 
@@ -554,4 +568,6 @@
             </div>
     @endif
     {{-- @endcan --}}
+    <!-- Full file path: /path/to/your/livewire/component/view.blade.php -->
+
 </div>

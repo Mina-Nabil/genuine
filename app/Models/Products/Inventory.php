@@ -76,7 +76,9 @@ class Inventory extends Model
         } catch (\Exception $e) {
             // Log error to AppLog
             AppLog::error('Inventory Update Failed', $e->getMessage(), loggable: $this->product);
-            return false;
+            // return false;
+            return $e;
+
         }
     }
 
@@ -148,6 +150,29 @@ class Inventory extends Model
             // Log error to AppLog
             AppLog::error('Inventory Commit Failed', $e->getMessage(), loggable: $this->product);
             return false;
+        }
+    }
+
+    // File: app/Models/Products/Inventory.php
+
+    public static function initializeQuantity($product_id, $initial_quantity)
+    {
+        try {
+            $inventory = new self();
+            $inventory->product_id = $product_id; // Associate with the product
+            $inventory->on_hand = $initial_quantity; // Set initial on hand quantity
+            $inventory->committed = 0; // No committed quantity initially
+            $inventory->available = $initial_quantity; // All quantity is available initially
+            $inventory->save(); // Save the inventory record
+
+            // Log the action
+            AppLog::info('Initial quantity set for product ID ' . $product_id, loggable: $inventory);
+
+            return $inventory; // Return the newly created inventory record
+        } catch (Exception $e) {
+            // Log error to AppLog
+            AppLog::error('Failed to initialize quantity for product ID ' . $product_id, $e->getMessage());
+            return null; // Indicate failure
         }
     }
 

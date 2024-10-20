@@ -4,11 +4,14 @@ namespace App\Livewire\Products;
 
 use App\Models\Products\Product;
 use App\Traits\AlertFrontEnd;
+use Exception;
+use Illuminate\Validation\ValidationException;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class ProductShow extends Component
 {
-    use AlertFrontEnd;
+    use AlertFrontEnd,WithPagination;
 
     public $page_title;
     public $product;
@@ -78,12 +81,18 @@ class ProductShow extends Component
 
         $res = $this->product->inventory->addTransaction($this->transQuantity , $this->transRemark);
 
-        if ($res) {
-            $this->closeEditSection();
-            $this->alertSuccess('Transaction added!');
-        }else{
+            if ($res instanceof Exception) {
+                throw ValidationException::withMessages([
+                    'transQuantity' => $res->getMessage(),
+                ]);
+            }else{
+                $this->closeTransSection();
+                $this->alertSuccess('Transaction added!');
+                return;
+            }
+            
             $this->alertFailed();
-        }
+            
     }
 
     public function updateTitleDesc(){
@@ -128,14 +137,29 @@ class ProductShow extends Component
         $this->comments = $this->product->comments()->latest()->take($this->visibleCommentsCount)->get();
     }
 
+    public $description;
+
+    protected $listeners = ['updateDescription'];
+
+    // Method to handle the event emitted by the Quill editor
+    public function updateDescription($content)
+    {
+        $this->description = $content;
+    }
+
+
     public function mount($id){
         $this->product = Product::findOrFail($id);
         $this->page_title = '• '.$this->product->name;
     }
 
+
     public function render()
     {
         $this->comments = $this->product->comments()->latest()->take($this->visibleCommentsCount)->get();
-        return view('livewire.products.product-show')->layout('layouts.app', ['page_title' => $this->page_title, 'products' => 'active']);
+        $transactions = $this->product->transactions()->orderBy('created_at', 'desc')->paginate(5);
+        return view('livewire.products.product-show',[
+            'transactions' => $transactions
+        ])->layout('layouts.app', ['page_title' => $this->page_title, 'products' => 'active']);
     }
 }

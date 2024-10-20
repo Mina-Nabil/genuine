@@ -5,6 +5,7 @@ namespace App\Livewire\Products;
 use App\Models\Products\Category;
 use App\Models\Products\Product;
 use App\Traits\AlertFrontEnd;
+use Illuminate\Routing\Route;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -25,6 +26,7 @@ class ProductIndex extends Component
     public $productPrice;
     public $productWeight;
     public $category_id;
+    public $initialQuantity;
 
     public $searchTerm;
     public $categoryId;
@@ -78,14 +80,16 @@ class ProductIndex extends Component
             'productPrice' => 'required|numeric|min:0',
             'productWeight' => 'required|numeric|min:0',
             'category_id' => 'required|exists:categories,id',
+            'initialQuantity' => 'required|numeric|min:1',
+        ],attributes:[
+            'category_id' => 'category',
         ]);
 
         // Create a new product
-        $res = Product::createProduct($this->category_id , $this->productName, $this->productPrice, $this->productWeight);
+        $res = Product::createProduct($this->category_id , $this->productName, $this->productPrice, $this->productWeight ,null,$this->initialQuantity );
 
         if ($res) {
-            $this->closeNewProductSec();
-            $this->alertSuccess('Product Added!');
+            return redirect(Route('product.show' , $res->id));
         }else{
             $this->alertFailed();
         }

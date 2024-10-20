@@ -13,10 +13,10 @@ class Product extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['category_id', 'name', 'price', 'weight','desc'];
+    protected $fillable = ['category_id', 'name', 'price', 'weight', 'desc'];
 
     // Create a new product
-    public static function createProduct($category_id, $name, $price, $weight,$desc = null)
+    public static function createProduct($category_id, $name, $price, $weight, $desc = null, $initial_quantity)
     {
         try {
             $product = self::create([
@@ -24,9 +24,13 @@ class Product extends Model
                 'name' => $name,
                 'price' => $price,
                 'weight' => $weight,
-                'desc' => $desc
+                'desc' => $desc,
             ]);
-            AppLog::info("Product created successfully", loggable: $product);
+
+            // Create an inventory record for the product
+            Inventory::initializeQuantity($product->id,$initial_quantity);
+
+            AppLog::info('Product created successfully', loggable: $product);
             return $product;
         } catch (Exception $e) {
             AppLog::error('Failed to create product: ' . $e->getMessage());
@@ -44,7 +48,7 @@ class Product extends Model
             $this->weight = $weight;
             $this->desc = $desc;
             $this->save();
-            AppLog::info("Product updated successfully", loggable: $this);
+            AppLog::info('Product updated successfully', loggable: $this);
             return true;
         } catch (Exception $e) {
             AppLog::error("Failed to update product ID {$this->id}: ", $e->getMessage(), loggable: $this);
@@ -59,7 +63,7 @@ class Product extends Model
             $this->name = $name;
             $this->desc = $desc;
             $this->save();
-            AppLog::info("Product title and description updated", loggable: $this);
+            AppLog::info('Product title and description updated', loggable: $this);
             return true;
         } catch (Exception $e) {
             AppLog::error("Failed to update product ID {$this->id}: ", $e->getMessage(), loggable: $this);
@@ -74,7 +78,7 @@ class Product extends Model
             $this->price = $price;
             $this->weight = $weight;
             $this->save();
-            AppLog::info("Product price and weight updated", loggable: $this);
+            AppLog::info('Product price and weight updated', loggable: $this);
             return true;
         } catch (\Exception $e) {
             AppLog::error("Failed to update product ID {$this->id}: ", $e->getMessage(), loggable: $this);
@@ -84,7 +88,7 @@ class Product extends Model
 
     public function addComment(string $comment): void
     {
-        AppLog::comment($comment, $desc = null, loggable:$this);
+        AppLog::comment($comment, $desc = null, loggable: $this);
     }
 
     // Delete product
@@ -160,8 +164,6 @@ class Product extends Model
         return $query;
     }
 
-    
-
     //Relations
     public function category(): BelongsTo
     {
@@ -179,9 +181,9 @@ class Product extends Model
     }
 
     public function transactions()
-{
-    return $this->hasManyThrough(Transaction::class,Inventory::class);
-}
+    {
+        return $this->hasManyThrough(Transaction::class, Inventory::class);
+    }
 
     // Calculate unavailable stock
     public function getUnavailableAttribute()

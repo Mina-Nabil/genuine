@@ -66,7 +66,9 @@
                                             All Products</span></th>
                                 @endif
                             @else
+
                                 <th scope="col" class="table-th">Category</th>
+
                                 <th scope="col" class="table-th">
                                     <span wire:click="sortByColomn('price')" class="clickable-header">
                                         Price
@@ -79,6 +81,9 @@
                                         @endif
                                     </span>
                                 </th>
+
+                                <th scope="col" class="table-th">Quantity ( Available )</th>
+
                                 <th scope="col" class="table-th">
                                     <span wire:click="sortByColomn('weight')" class="clickable-header">
                                         Weight
@@ -92,6 +97,7 @@
                                     </span>
                                     
                                 </th>
+
                             @endif
 
                         </tr>
@@ -128,6 +134,10 @@
 
                                 <td class="table-td">
                                     <b>{{ number_format($product->price) }}</b><small>EGP</small>
+                                </td>
+
+                                <td class="table-td">
+                                    <b>{{ number_format($product->inventory->available) }}</b>
                                 </td>
 
                                 <td class="table-td">
@@ -208,7 +218,7 @@
                         <div class="p-6 space-y-4">
                             <div class="from-group">
                                 <div class="input-area">
-                                    <label for="productName" class="form-label">Product Name</label>
+                                    <label for="productName" class="form-label">Product Name*</label>
                                     <input id="productName" type="text"
                                         class="form-control @error('productName') !border-danger-500 @enderror"
                                         wire:model.lazy="productName" autocomplete="off">
@@ -222,13 +232,13 @@
                             <div class="from-group">
                                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
                                     <div class="input-area">
-                                        <label for="productPrice" class="form-label">Price</label>
+                                        <label for="productPrice" class="form-label">Price*</label>
                                         <input id="productPrice" type="number" step="0.01"
                                             class="form-control @error('productPrice') !border-danger-500 @enderror"
                                             wire:model.lazy="productPrice" autocomplete="off">
                                     </div>
                                     <div class="input-area">
-                                        <label for="productWeight" class="form-label">Weight (grams)</label>
+                                        <label for="productWeight" class="form-label">Weight (grams)*</label>
                                         <input id="productWeight" type="number"
                                             class="form-control @error('productWeight') !border-danger-500 @enderror"
                                             wire:model.lazy="productWeight" autocomplete="off">
@@ -246,7 +256,7 @@
 
                             <div class="from-group">
                                 <div class="input-area">
-                                    <label for="category_id" class="form-label">Category</label>
+                                    <label for="category_id" class="form-label">Category*</label>
                                     <select name="category_id" id="category_id"
                                         class="form-control w-full mt-2 @error('category_id') !border-danger-500 @enderror"
                                         wire:model.lazy="category_id" autocomplete="off">
@@ -258,6 +268,20 @@
                                     </select>
                                 </div>
                                 @error('category_id')
+                                    <span
+                                        class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+
+                            <div class="from-group">
+                                    <div class="input-area">
+                                        <label for="initialQuantity" class="form-label">Initial quantity*</label>
+                                        <input id="initialQuantity" type="number" step="0.01"
+                                            class="form-control @error('initialQuantity') !border-danger-500 @enderror"
+                                            wire:model.lazy="initialQuantity" autocomplete="off">
+                                    </div>
+                                @error('initialQuantity')
                                     <span
                                         class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
                                 @enderror
