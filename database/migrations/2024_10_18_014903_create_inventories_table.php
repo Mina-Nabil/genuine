@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('inventories', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('product_id')->constrained()->onDelete('cascade'); // one-to-one relationship with products
+            $table->morphs('inventoryable'); // This creates `inventoryable_id` and `inventoryable_type` columns
             $table->integer('on_hand')->default(0); // Total stock physically in store
             $table->integer('committed')->default(0); // Inventory reserved for unfulfilled orders
             $table->integer('available')->default(0);

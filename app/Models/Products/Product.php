@@ -15,10 +15,21 @@ class Product extends Model
 
     protected $fillable = ['category_id', 'name', 'price', 'weight', 'desc'];
 
-    // Create a new product
+    /**
+     * Create a new product along with its initial inventory.
+     *
+     * @param int $category_id
+     * @param string $name
+     * @param float $price
+     * @param float $weight
+     * @param string|null $desc
+     * @param int $initial_quantity
+     * @return \App\Models\Product|null
+     */
     public static function createProduct($category_id, $name, $price, $weight, $desc = null, $initial_quantity)
     {
         try {
+            // Create a new product
             $product = self::create([
                 'category_id' => $category_id,
                 'name' => $name,
@@ -27,12 +38,15 @@ class Product extends Model
                 'desc' => $desc,
             ]);
 
-            // Create an inventory record for the product
-            Inventory::initializeQuantity($product->id,$initial_quantity);
+            // Initialize inventory for the created product
+            Inventory::initializeQuantity($product->id, $initial_quantity);
 
+            // Log the successful creation
             AppLog::info('Product created successfully', loggable: $product);
+
             return $product;
         } catch (Exception $e) {
+            // Log the error if creation fails
             AppLog::error('Failed to create product: ' . $e->getMessage());
             return null;
         }
@@ -177,12 +191,12 @@ class Product extends Model
 
     public function inventory()
     {
-        return $this->hasOne(Inventory::class);
+        return $this->morphOne(Inventory::class, 'inventoryable');
     }
 
     public function transactions()
     {
-        return $this->hasManyThrough(Transaction::class, Inventory::class);
+        return $this->hasManyThrough(Transaction::class, Inventory::class, 'inventoryable_id', 'inventory_id')->where('inventoryable_type', self::class);
     }
 
     // Calculate unavailable stock

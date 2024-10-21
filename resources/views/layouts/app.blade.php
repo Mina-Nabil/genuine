@@ -137,6 +137,15 @@
                         </a>
                     </li>
                     <li>
+                        <a href="{{ url('/combos') }}" class="navItem {{ $combos ?? '' }}">
+                            <span class="flex items-center">
+                                <iconify-icon class=" nav-icon" icon="mage:box-3d-plus">
+                                </iconify-icon>
+                                <span>Combos</span>
+                            </span>
+                        </a>
+                    </li>
+                    <li>
                         <a href="{{ url('/customers') }}" class="navItem {{ $customers ?? '' }}">
                             <span class="flex items-center">
                                 <iconify-icon class=" nav-icon" icon="mdi:user">

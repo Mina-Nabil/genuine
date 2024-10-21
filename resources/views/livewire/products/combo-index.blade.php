@@ -2,14 +2,14 @@
     <div class="flex justify-between flex-wrap items-center">
         <div class="md:mb-6 mb-4 flex space-x-3 rtl:space-x-reverse">
             <h4 class="font-medium lg:text-2xl text-xl capitalize text-slate-900 inline-block ltr:pr-4 rtl:pl-4">
-                Products
+                Combos
             </h4>
         </div>
         <div class="flex sm:space-x-4 space-x-2 sm:justify-end items-center md:mb-6 mb-4 rtl:space-x-reverse">
             {{-- @can('create', App\Models\Customers\Customer::class) --}}
-            <button wire:click="openNewProductSec"
+            <button wire:click="openNewComboSec"
                 class="btn inline-flex justify-center btn-dark dark:bg-slate-700 dark:text-slate-300 m-1 btn-sm">
-                Add Product
+                Add Combo
             </button>
             {{-- @endcan --}}
 
@@ -52,23 +52,20 @@
                                 </span>
                             </th>
                             @if ($selectAll)
-                                @if ($selectedAllProducts)
+                                @if ($selectedAllCombos)
                                     <th colspan="4" class="table-th"><iconify-icon style="vertical-align: top;"
                                             icon="lucide:info" width="1.2em" height="1.2em"></iconify-icon> A
-                                        {{ count($selectedProducts) }} product selected ..
-                                        <span class="clickable-link" wire:click='undoSelectAllProducts'>Undo</span>
+                                        {{ count($selectedCombos) }} combo selected ..
+                                        <span class="clickable-link" wire:click='undoSelectAllCombos'>Undo</span>
                                     </th>
                                 @else
                                     <th colspan="4" class="table-th"><iconify-icon style="vertical-align: top;"
                                             icon="lucide:info" width="1.2em" height="1.2em"></iconify-icon>
-                                        {{ count($selectedProducts) }} product
-                                        selected .. <span class="clickable-link" wire:click='selectAllProducts'>Select
-                                            All Products</span></th>
+                                        {{ count($selectedCombos) }} combo
+                                        selected .. <span class="clickable-link" wire:click='selectAllCombos'>Select
+                                            All Combos</span></th>
                                 @endif
                             @else
-
-                                <th scope="col" class="table-th">Category</th>
-
                                 <th scope="col" class="table-th">
                                     <span wire:click="sortByColomn('price')" class="clickable-header">
                                         Price
@@ -82,21 +79,8 @@
                                     </span>
                                 </th>
 
-                                <th scope="col" class="table-th">Quantity ( Available )</th>
+                                <th scope="col" class="table-th">Products</th>
 
-                                <th scope="col" class="table-th">
-                                    <span wire:click="sortByColomn('weight')" class="clickable-header">
-                                        Weight
-                                        @if ($sortColomn === 'weight')
-                                            @if ($sortDirection === 'asc')
-                                                <iconify-icon icon="fluent:arrow-up-12-filled"></iconify-icon>
-                                            @else
-                                                <iconify-icon icon="fluent:arrow-down-12-filled"></iconify-icon>
-                                            @endif
-                                        @endif
-                                    </span>
-                                    
-                                </th>
 
                             @endif
 
@@ -104,24 +88,24 @@
                     </thead>
                     <tbody class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700 no-wrap">
 
-                        @foreach ($products as $product)
+                        @foreach ($combos as $combo)
                             <tr>
 
                                 <td class="table-td flex items-center sticky-column bg-white dark:bg-slate-800 colomn-shadow"
                                     style="position: sticky; left: -25px;  z-index: 10;">
                                     <div class="checkbox-area">
                                         <label class="inline-flex items-center cursor-pointer">
-                                            <input type="checkbox" wire:model="selectedProducts"
-                                                value="{{ $product->id }}" class="hidden" id="select-all">
+                                            <input type="checkbox" wire:model="selectedCombos"
+                                                value="{{ $combo->id }}" class="hidden" id="select-all">
                                             <span
                                                 class="h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 bg-slate-100 dark:bg-slate-900">
                                                 <img src="assets/images/icon/ck-white.svg" alt=""
                                                     class="h-[10px] w-[10px] block m-auto opacity-0"></span>
                                         </label>
                                     </div>
-                                    <a href="{{ route('product.show',$product->id) }}"> <span class="hover-underline">
+                                    <a href="{{ route('combo.show', $combo->id) }}"> <span class="hover-underline">
                                             <b>
-                                                {{ $product->name }}
+                                                {{ $combo->name }}
                                             </b>
                                         </span>
                                     </a>
@@ -129,19 +113,11 @@
                                 </td>
 
                                 <td class="table-td">
-                                    {{ $product->category->name }}
+                                    <b>{{ number_format($combo->price) }}</b>&nbsp;<small>EGP</small>
                                 </td>
 
                                 <td class="table-td">
-                                    <b>{{ number_format($product->price) }}</b><small>EGP</small>
-                                </td>
-
-                                <td class="table-td">
-                                    <b>{{ number_format($product->inventory->available) }}</b> in stock
-                                </td>
-
-                                <td class="table-td">
-                                    <b>{{ number_format($product->weight) }}</b>gm
+                                    <b>{{ $combo->products->count() }}</b>&nbsp;<small>Product{{ $combo->products->count() !== 1 ? 's' : '' }}</small>
                                 </td>
 
 
@@ -153,7 +129,7 @@
                 </table>
 
 
-                @if ($products->isEmpty())
+                @if ($combos->isEmpty())
                     {{-- START: empty filter result --}}
                     <div class="card m-5 p-5">
                         <div class="card-body rounded-md bg-white dark:bg-slate-800">
@@ -161,14 +137,14 @@
                                 <h2>
                                     <iconify-icon icon="icon-park-outline:search"></iconify-icon>
                                 </h2>
-                                <h2 class="card-title text-slate-900 dark:text-white mb-3">No products with the
+                                <h2 class="card-title text-slate-900 dark:text-white mb-3">No combos with the
                                     applied
                                     filters</h2>
                                 <p class="card-text">Try changing the filters or search terms for this view.
                                 </p>
-                                <a href="{{ url('/products') }}"
+                                <a href="{{ url('/combos') }}"
                                     class="btn inline-flex justify-center mx-2 mt-3 btn-primary active btn-sm">View
-                                    all products</a>
+                                    all combos</a>
                             </div>
                         </div>
                     </div>
@@ -182,13 +158,13 @@
         </div>
         <div style="position: sticky ; bottom:0;width:100%; z-index:10;"
             class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
-            {{ $products->links('vendor.livewire.simple-bootstrap') }}
+            {{ $combos->links('vendor.livewire.simple-bootstrap') }}
         </div>
 
     </div>
 
-    {{-- @can('create', App\Models\Products\Product::class) --}}
-    @if ($newProductSection)
+
+    @if ($newComboSection)
         <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
             tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog" style="display: block;">
             <div class="modal-dialog relative w-auto pointer-events-none">
@@ -199,9 +175,9 @@
                         <div
                             class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
                             <h3 class="text-xl font-medium text-white dark:text-white capitalize">
-                                Create new product
+                                Create new combo
                             </h3>
-                            <button wire:click="closeNewProductSec" type="button"
+                            <button wire:click="closeNewComboSec" type="button"
                                 class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
                                 data-bs-dismiss="modal">
                                 <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
@@ -216,92 +192,106 @@
 
                         <!-- Modal body -->
                         <div class="p-6 space-y-4">
-                            <div class="from-group">
+                            <div class="form-group">
                                 <div class="input-area">
-                                    <label for="productName" class="form-label">Product Name*</label>
-                                    <input id="productName" type="text"
-                                        class="form-control @error('productName') !border-danger-500 @enderror"
-                                        wire:model.lazy="productName" autocomplete="off">
+                                    <label for="comboName" class="form-label">Combo Name*</label>
+                                    <input id="comboName" type="text"
+                                        class="form-control @error('comboName') !border-danger-500 @enderror"
+                                        wire:model.lazy="comboName" autocomplete="off">
                                 </div>
-                                @error('productName')
+                                @error('comboName')
                                     <span
                                         class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
                                 @enderror
                             </div>
 
-                            <div class="from-group">
-                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-                                    <div class="input-area">
-                                        <label for="productPrice" class="form-label">Price*</label>
-                                        <input id="productPrice" type="number" step="0.01"
-                                            class="form-control @error('productPrice') !border-danger-500 @enderror"
-                                            wire:model.lazy="productPrice" autocomplete="off">
-                                    </div>
-                                    <div class="input-area">
-                                        <label for="productWeight" class="form-label">Weight (grams)*</label>
-                                        <input id="productWeight" type="number"
-                                            class="form-control @error('productWeight') !border-danger-500 @enderror"
-                                            wire:model.lazy="productWeight" autocomplete="off">
-                                    </div>
-                                </div>
-                                @error('productPrice')
-                                    <span
-                                        class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
-                                @enderror
-                                @error('productWeight')
-                                    <span
-                                        class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
-                                @enderror
-                            </div>
-
-                            <div class="from-group">
+                            <div class="form-group">
                                 <div class="input-area">
-                                    <label for="category_id" class="form-label">Category*</label>
-                                    <select name="category_id" id="category_id"
-                                        class="form-control w-full mt-2 @error('category_id') !border-danger-500 @enderror"
-                                        wire:model.lazy="category_id" autocomplete="off">
-                                        <option value="">Select Category</option>
-                                        @foreach ($categories as $category)
-                                            <option value="{{ $category->id }}">
-                                                {{ ucwords($category->name) }}</option>
-                                        @endforeach
-                                    </select>
+                                    <label for="comboPrice" class="form-label">Combo Price*</label>
+                                    <input id="comboPrice" type="number" step="0.01"
+                                        class="form-control @error('comboPrice') !border-danger-500 @enderror"
+                                        wire:model.lazy="comboPrice" autocomplete="off">
                                 </div>
-                                @error('category_id')
+                                @error('comboPrice')
                                     <span
                                         class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
                                 @enderror
                             </div>
 
-
-                            <div class="from-group">
-                                    <div class="input-area">
-                                        <label for="initialQuantity" class="form-label">Initial quantity*</label>
-                                        <input id="initialQuantity" type="number" step="0.01"
-                                            class="form-control @error('initialQuantity') !border-danger-500 @enderror"
-                                            wire:model.lazy="initialQuantity" autocomplete="off">
-                                    </div>
-                                @error('initialQuantity')
+                            <div class="form-group">
+                                <div class="input-area">
+                                    <label for="comboQuantity" class="form-label">Combo Quantity*</label>
+                                    <input id="comboQuantity" type="number" step="1"
+                                        class="form-control @error('comboQuantity') !border-danger-500 @enderror"
+                                        wire:model.lazy="comboQuantity" autocomplete="off">
+                                </div>
+                                @error('comboQuantity')
                                     <span
                                         class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
                                 @enderror
                             </div>
 
+                            <div class="form-group">
+                                <label for="products" class="form-label">Add Products*</label>
+                                <div class="space-y-4">
+                                    @foreach ($productQuantities as $index => $quantity)
+                                        <div class="flex items-center space-x-2">
+                                            <select wire:model="productQuantities.{{ $index }}.product_id"
+                                                class="form-control @error('productQuantities.' . $index . '.product_id') !border-danger-500 @enderror">
+                                                <option value="">Select Product</option>
+                                                @foreach ($products as $product)
+                                                    <option value="{{ $product->id }}">
+                                                        {{ ucwords($product->name) }} - Price: {{ $product->price }}
+                                                        EGP
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <input type="number"
+                                                wire:model="productQuantities.{{ $index }}.quantity"
+                                                class="form-control @error('productQuantities.' . $index . '.quantity') !border-danger-500 @enderror"
+                                                placeholder="Quantity" min="1">
+                                            @if (count($productQuantities) > 1)
+                                                <button type="button"
+                                                    wire:click="removeProduct({{ $index }})"
+                                                    class="text-red-600">
+                                                    Remove
+                                                </button>
+                                            @endif
+                                        </div>
+                                        @error('productQuantities.' . $index . '.product_id')
+                                            <span
+                                                class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                        @enderror
+                                        @error('productQuantities.' . $index . '.quantity')
+                                            <span
+                                                class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                        @enderror
+                                    @endforeach
+
+                                </div>
+                                <button type="button" wire:click="addProduct" class="btn btn-secondary mt-2">
+                                    Add Product
+                                </button>
+                            </div>
                         </div>
 
                         <!-- Modal footer -->
                         <div class="flex items-center justify-end p-6 border-t border-slate-200 rounded-b">
-                            <button wire:click="addNewProduct" data-bs-dismiss="modal"
+                            <button wire:click="addNewCombo" data-bs-dismiss="modal"
                                 class="btn inline-flex justify-center text-white bg-black-500">
-                                <span wire:loading.remove wire:target="addNewProduct">Submit</span>
+                                <span wire:loading.remove wire:target="addNewCombo">Submit</span>
                                 <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
-                                    wire:loading wire:target="addNewProduct"
+                                    wire:loading wire:target="addNewCombo"
                                     icon="line-md:loading-twotone-loop"></iconify-icon>
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
     @endif
-    {{-- @endcan --}}
+
+
+
+
 </div>

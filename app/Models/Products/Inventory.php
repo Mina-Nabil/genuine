@@ -12,7 +12,7 @@ class Inventory extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['product_id', 'on_hand', 'committed', 'available'];
+    protected $fillable = ['on_hand', 'committed', 'available', 'inventoryable_id', 'inventoryable_type'];
 
     /**
      * Add a transaction and update inventory based on quantity (positive for addition, negative for subtraction).
@@ -70,15 +70,13 @@ class Inventory extends Model
             ]);
 
             // Log the action in AppLog
-            AppLog::info('Transaction created.', loggable: $this->product);
+            AppLog::info('Transaction created.', loggable: $this->inventoryable);
 
             return $transaction;
         } catch (\Exception $e) {
             // Log error to AppLog
-            AppLog::error('Inventory Update Failed', $e->getMessage(), loggable: $this->product);
-            // return false;
+            AppLog::error('Inventory Update Failed', $e->getMessage(), loggable: $this->inventoryable);
             return $e;
-
         }
     }
 
@@ -129,7 +127,6 @@ class Inventory extends Model
             $this->save();
 
             // Record after quantities
-
             $afterAvailable = $this->available;
 
             // Create transaction log
@@ -143,44 +140,43 @@ class Inventory extends Model
             ]);
 
             // Log the action in AppLog
-            AppLog::info('Inventory commit transaction created.', loggable: $this->product);
+            AppLog::info('Inventory commit transaction created.', loggable: $this->inventoryable);
 
             return $transaction;
         } catch (Exception $e) {
             // Log error to AppLog
-            AppLog::error('Inventory Commit Failed', $e->getMessage(), loggable: $this->product);
+            AppLog::error('Inventory Commit Failed', $e->getMessage(), loggable: $this->inventoryable);
             return false;
         }
     }
 
-    // File: app/Models/Products/Inventory.php
-
-    public static function initializeQuantity($product_id, $initial_quantity)
+    /**
+     * Initialize the quantity for a product or any inventoryable item.
+     *
+     * @param Model $inventoryable
+     * @param int $initial_quantity
+     * @return Inventory|null
+     */
+    public static function initializeQuantity($inventoryable, $initial_quantity)
     {
         try {
             $inventory = new self();
-            $inventory->product_id = $product_id; // Associate with the product
+            $inventory->inventoryable()->associate($inventoryable); // Associate with the polymorphic model
             $inventory->on_hand = $initial_quantity; // Set initial on hand quantity
             $inventory->committed = 0; // No committed quantity initially
             $inventory->available = $initial_quantity; // All quantity is available initially
             $inventory->save(); // Save the inventory record
 
             // Log the action
-            AppLog::info('Initial quantity set for product ID ' . $product_id, loggable: $inventory);
+            AppLog::info('Initial quantity set for inventoryable ID ' . $inventoryable->id, loggable: $inventory);
 
             return $inventory; // Return the newly created inventory record
         } catch (Exception $e) {
             // Log error to AppLog
-            AppLog::error('Failed to initialize quantity for product ID ' . $product_id, $e->getMessage());
+            AppLog::error('Failed to initialize quantity for inventoryable ID ' . $inventoryable->id, $e->getMessage());
             return null; // Indicate failure
         }
     }
-
-    /**
-     * Get the available inventory dynamically.
-     *
-     * @return int
-     */
 
     /**
      * Get the unavailable inventory dynamically.
@@ -193,11 +189,11 @@ class Inventory extends Model
     }
 
     /**
-     * Define the one-to-one relationship with the Product.
+     * Define the polymorphic relationship with the parent model (product or others).
      */
-    public function product()
+    public function inventoryable()
     {
-        return $this->belongsTo(Product::class);
+        return $this->morphTo();
     }
 
     public function transactions()
