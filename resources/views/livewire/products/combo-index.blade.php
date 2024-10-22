@@ -67,9 +67,15 @@
                                 @endif
                             @else
                                 <th scope="col" class="table-th">
-                                    <span wire:click="sortByColomn('price')" class="clickable-header">
+                                   
                                         Price
-                                        @if ($sortColomn === 'price')
+                                       
+                                </th>
+
+                                <th scope="col" class="table-th">
+                                    <span wire:click="sortByColomn('product_count')" class="clickable-header">
+                                        Products
+                                        @if ($sortColomn === 'product_count')
                                             @if ($sortDirection === 'asc')
                                                 <iconify-icon icon="fluent:arrow-up-12-filled"></iconify-icon>
                                             @else
@@ -78,9 +84,6 @@
                                         @endif
                                     </span>
                                 </th>
-
-                                <th scope="col" class="table-th">Products</th>
-
 
                             @endif
 
@@ -113,7 +116,7 @@
                                 </td>
 
                                 <td class="table-td">
-                                    <b>{{ number_format($combo->price) }}</b>&nbsp;<small>EGP</small>
+                                    <b>{{ number_format($combo->total_price) }}</b>&nbsp;<small>EGP</small>
                                 </td>
 
                                 <td class="table-td">
@@ -206,33 +209,6 @@
                             </div>
 
                             <div class="form-group">
-                                <div class="input-area">
-                                    <label for="comboPrice" class="form-label">Combo Price*</label>
-                                    <input id="comboPrice" type="number" step="0.01"
-                                        class="form-control @error('comboPrice') !border-danger-500 @enderror"
-                                        wire:model.lazy="comboPrice" autocomplete="off">
-                                </div>
-                                @error('comboPrice')
-                                    <span
-                                        class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
-                                @enderror
-                            </div>
-
-                            <div class="form-group">
-                                <div class="input-area">
-                                    <label for="comboQuantity" class="form-label">Combo Quantity*</label>
-                                    <input id="comboQuantity" type="number" step="1"
-                                        class="form-control @error('comboQuantity') !border-danger-500 @enderror"
-                                        wire:model.lazy="comboQuantity" autocomplete="off">
-                                </div>
-                                @error('comboQuantity')
-                                    <span
-                                        class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
-                                @enderror
-                            </div>
-
-                            <div class="form-group">
-                                <label for="products" class="form-label">Add Products*</label>
                                 @error('productQuantities')
                                     <div
                                         class="py-[18px] px-6 font-normal text-sm rounded-md bg-white text-danger-500 border border-danger-500
@@ -249,15 +225,24 @@
                                     </div>
                                 @enderror
                                 <div class="space-y-4">
+                                    <div class="flex items-center justify-around space-x-2">
+                                        <p>Product</p>
+                                        <p>Quantity</p>
+                                        <p>Price</p>
+                                        @if (count($productQuantities) > 1)
+                                                <button class="action-btn2"  style="border:0" type="button">
+                                                </button>
+                                            @endif
+                                    </div>
                                     @foreach ($productQuantities as $index => $quantity)
+                                    
                                         <div class="flex items-center space-x-2">
                                             <select wire:model="productQuantities.{{ $index }}.product_id"
                                                 class="form-control @error('productQuantities.' . $index . '.product_id') !border-danger-500 @enderror">
                                                 <option value="">Select Product</option>
                                                 @foreach ($products as $product)
                                                     <option value="{{ $product->id }}">
-                                                        {{ ucwords($product->name) }} - Price: {{ $product->price }}
-                                                        EGP
+                                                        {{ ucwords($product->name) }}
                                                     </option>
                                                 @endforeach
                                             </select>
@@ -265,6 +250,11 @@
                                                 wire:model="productQuantities.{{ $index }}.quantity"
                                                 class="form-control @error('productQuantities.' . $index . '.quantity') !border-danger-500 @enderror"
                                                 placeholder="Quantity" min="1">
+
+                                                <input type="number"
+                                                wire:model="productQuantities.{{ $index }}.price"
+                                                class="form-control @error('productQuantities.' . $index . '.price') !border-danger-500 @enderror"
+                                                placeholder="Price" min="1">
                                             @if (count($productQuantities) > 1)
                                                 <button class="action-btn2" type="button"
                                                     wire:click="removeProduct({{ $index }})">
@@ -277,6 +267,10 @@
                                                 class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
                                         @enderror
                                         @error('productQuantities.' . $index . '.quantity')
+                                            <span
+                                                class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                        @enderror
+                                        @error('productQuantities.' . $index . '.price')
                                             <span
                                                 class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
                                         @enderror
