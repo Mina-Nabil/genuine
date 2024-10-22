@@ -42,6 +42,7 @@ class Combo extends Model
             AppLog::info("Combo '{$name}' created successfully with products.", loggable: $combo);
             return $combo;
         } catch (Exception $e) {
+            report($e);
             AppLog::error("Failed to create combo '{$name}': " . $e->getMessage(), loggable: null);
             return false;
         }
@@ -64,38 +65,39 @@ class Combo extends Model
             AppLog::info("Combo '{$this->id}' updated to '{$newName}'.", loggable: $this);
             return true;
         } catch (Exception $e) {
+            report($e);
             AppLog::error("Failed to update combo '{$this->id}': " . $e->getMessage(), loggable: $this);
             return false;
         }
     }
 
     /**
- * Add or update a product in the combo.
- *
- * @param int $productId
- * @param int $quantity
- * @param float $price
- * @return bool
- */
-public function addProductToCombo(int $productId, int $quantity, float $price): bool
-{
-    try {
-        // Use syncWithoutDetaching to add or update the product's quantity and price
-        $this->products()->syncWithoutDetaching([
-            $productId => [
-                'quantity' => $quantity,
-                'price' => $price, // Update or insert the price for this product in the combo
-            ]
-        ]);
+     * Add or update a product in the combo.
+     *
+     * @param int $productId
+     * @param int $quantity
+     * @param float $price
+     * @return bool
+     */
+    public function addProductToCombo(int $productId, int $quantity, float $price): bool
+    {
+        try {
+            // Use syncWithoutDetaching to add or update the product's quantity and price
+            $this->products()->syncWithoutDetaching([
+                $productId => [
+                    'quantity' => $quantity,
+                    'price' => $price, // Update or insert the price for this product in the combo
+                ],
+            ]);
 
-        AppLog::info("Product ID {$productId} added/updated in combo '{$this->name}' successfully", loggable: $this);
-        return true;
-    } catch (Exception $e) {
-        AppLog::error("Failed to add/update product ID {$productId} in combo '{$this->name}': " . $e->getMessage(), loggable: $this);
-        return false;
+            AppLog::info("Product ID {$productId} added/updated in combo '{$this->name}' successfully", loggable: $this);
+            return true;
+        } catch (Exception $e) {
+            report($e);
+            AppLog::error("Failed to add/update product ID {$productId} in combo '{$this->name}': " . $e->getMessage(), loggable: $this);
+            return false;
+        }
     }
-}
-
 
     /**
      * Remove a product from the combo.
@@ -110,6 +112,7 @@ public function addProductToCombo(int $productId, int $quantity, float $price): 
             AppLog::info("Product ID {$productId} removed from combo '{$this->name}' successfully", loggable: $this);
             return true;
         } catch (Exception $e) {
+            report($e);
             AppLog::error("Failed to remove product ID {$productId} from combo '{$this->name}': ", $e->getMessage(), loggable: $this);
             return false;
         }
