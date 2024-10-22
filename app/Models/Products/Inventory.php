@@ -12,6 +12,8 @@ class Inventory extends Model
 {
     use HasFactory;
 
+    const MORPH_TYPE = 'inventory';
+
     protected $fillable = ['on_hand', 'committed', 'available', 'inventoryable_id', 'inventoryable_type'];
 
     /**

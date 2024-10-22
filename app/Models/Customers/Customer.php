@@ -16,6 +16,8 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 class Customer extends Model
 {
     use HasFactory;
+    
+    const MORPH_TYPE = 'customer';
 
     protected $fillable = ['name', 'address', 'phone', 'location_url', 'zone_id'];
 

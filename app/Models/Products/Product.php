@@ -15,6 +15,8 @@ class Product extends Model
 {
     use HasFactory;
 
+    const MORPH_TYPE = 'product';
+
     protected $fillable = ['category_id', 'name', 'price', 'weight', 'desc'];
 
     /**
