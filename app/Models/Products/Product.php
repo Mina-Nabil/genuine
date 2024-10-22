@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Exception;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class Product extends Model
 {
@@ -52,6 +54,48 @@ class Product extends Model
             return null;
         }
     }
+
+
+    public static function importData($file)
+    {
+        $spreadsheet = IOFactory::load($file);
+        if (!$spreadsheet) {
+            throw new Exception('Failed to read files content');
+        }
+        $activeSheet = $spreadsheet->getSheet(1);
+        $highestRow = $activeSheet->getHighestDataRow();
+
+        for ($i = 2; $i <= $highestRow; $i++) {
+            $category = $activeSheet->getCell('B' . $i)->getValue();
+            //skip if no car category found
+            if (!$category) {
+                continue;
+            }
+            $catg = Category::firstOrCreate([
+                'name' => $category,
+            ]);
+
+            //skip if no brand found
+            if (!$catg) {
+                continue;
+            }
+            $product_name = $activeSheet->getCell('C' . $i)->getValue();
+            $price = $activeSheet->getCell('D' . $i)->getValue();
+            $weight = $activeSheet->getCell('E' . $i)->getValue();
+            $balance = $activeSheet->getCell('F' . $i)->getValue();
+
+            $prod = self::firstOrCreate([
+                'category_id'   => $catg->id,
+                'name'          => $product_name,
+            ], [
+                'price'         =>  $price,
+                'weight'        =>  $weight,
+            ]);
+            if (!$prod->inventory()->first())
+                Inventory::initializeQuantity($prod, $balance);
+        }
+    }
+
 
     // Update product
     public function updateProduct($category_id, $name, $price, $weight, $desc = null)

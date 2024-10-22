@@ -13,6 +13,8 @@ class CategoriesTableSeeder extends Seeder
      */
     public function run(): void
     {
+        return; //added file import
+        
         $categories = [
             ['name' => 'فراخ'],
             ['name' => 'لحم'],
