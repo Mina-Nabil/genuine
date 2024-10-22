@@ -39,7 +39,7 @@ class Product extends Model
             ]);
 
             // Initialize inventory for the created product
-            Inventory::initializeQuantity($product->id, $initial_quantity);
+            Inventory::initializeQuantity($product, $initial_quantity);
 
             // Log the successful creation
             AppLog::info('Product created successfully', loggable: $product);
@@ -47,6 +47,7 @@ class Product extends Model
             return $product;
         } catch (Exception $e) {
             // Log the error if creation fails
+            report($e);
             AppLog::error('Failed to create product: ' . $e->getMessage());
             return null;
         }

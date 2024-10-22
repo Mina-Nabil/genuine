@@ -173,7 +173,8 @@ class Inventory extends Model
             return $inventory; // Return the newly created inventory record
         } catch (Exception $e) {
             // Log error to AppLog
-            AppLog::error('Failed to initialize quantity for inventoryable ID ' . $inventoryable->id, $e->getMessage());
+            report($e);
+            AppLog::error('Failed to initialize quantity for inventoryable', $e->getMessage());
             return null; // Indicate failure
         }
     }

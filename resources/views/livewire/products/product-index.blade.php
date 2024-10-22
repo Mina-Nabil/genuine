@@ -137,7 +137,7 @@
                                 </td>
 
                                 <td class="table-td">
-                                    <b>{{ number_format($product->inventory->available) }}</b> in stock
+                                    <b>{{ number_format($product->inventory?->available) }}</b> in stock
                                 </td>
 
                                 <td class="table-td">

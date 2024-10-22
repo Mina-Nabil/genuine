@@ -80,7 +80,7 @@ class ProductIndex extends Component
             'productPrice' => 'required|numeric|min:0',
             'productWeight' => 'required|numeric|min:0',
             'category_id' => 'required|exists:categories,id',
-            'initialQuantity' => 'required|numeric|min:1',
+            'initialQuantity' => 'required|numeric|min:0',
         ],attributes:[
             'category_id' => 'category',
         ]);
