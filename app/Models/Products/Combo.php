@@ -46,30 +46,56 @@ class Combo extends Model
             return false;
         }
     }
+
     /**
-     * Add a product to the combo.
+     * Update the name of the current combo instance.
      *
-     * @param int $productId
-     * @param int $quantity
-     * @param float $price
+     * @param string $newName
      * @return bool
      */
-    public function addProductToCombo(int $productId, int $quantity, float $price): bool
+    public function updateCombo(string $newName): bool
     {
         try {
-            // Attach the product with quantity and price
-            $this->products()->attach($productId, [
-                'quantity' => $quantity,
-                'price' => $price, // Include the price for this product in the combo
+            // Update the combo's name
+            $this->update([
+                'name' => $newName,
             ]);
 
-            AppLog::info("Product ID {$productId} added to combo '{$this->name}' successfully", loggable: $this);
+            AppLog::info("Combo '{$this->id}' updated to '{$newName}'.", loggable: $this);
             return true;
         } catch (Exception $e) {
-            AppLog::error("Failed to add product ID {$productId} to combo '{$this->name}': " . $e->getMessage(), loggable: $this);
+            AppLog::error("Failed to update combo '{$this->id}': " . $e->getMessage(), loggable: $this);
             return false;
         }
     }
+
+    /**
+ * Add or update a product in the combo.
+ *
+ * @param int $productId
+ * @param int $quantity
+ * @param float $price
+ * @return bool
+ */
+public function addProductToCombo(int $productId, int $quantity, float $price): bool
+{
+    try {
+        // Use syncWithoutDetaching to add or update the product's quantity and price
+        $this->products()->syncWithoutDetaching([
+            $productId => [
+                'quantity' => $quantity,
+                'price' => $price, // Update or insert the price for this product in the combo
+            ]
+        ]);
+
+        AppLog::info("Product ID {$productId} added/updated in combo '{$this->name}' successfully", loggable: $this);
+        return true;
+    } catch (Exception $e) {
+        AppLog::error("Failed to add/update product ID {$productId} in combo '{$this->name}': " . $e->getMessage(), loggable: $this);
+        return false;
+    }
+}
+
 
     /**
      * Remove a product from the combo.
@@ -147,7 +173,6 @@ class Combo extends Model
             if ($column === 'product_count') {
                 return $query->withCount('products')->orderBy('products_count', $direction);
             }
-
         }
 
         // If column is not valid, just return the query without sorting
