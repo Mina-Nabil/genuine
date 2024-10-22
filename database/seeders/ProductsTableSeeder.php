@@ -15,6 +15,10 @@ class ProductsTableSeeder extends Seeder
      */
     public function run(): void
     {
+
+        Product::importData(resource_path('import/Genuine Data.xlsx'));
+        return ;
+
          // Assuming the categories have already been seeded
         $categories = Category::all();
 

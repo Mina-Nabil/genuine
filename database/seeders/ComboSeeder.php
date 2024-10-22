@@ -14,7 +14,13 @@ class ComboSeeder extends Seeder
      */
     public function run(): void
     {
+<<<<<<< HEAD
         // Example combos with just the name (prices are now stored in the combo_products table)
+=======
+        return; //added file import
+        
+        // Create some example combos with random prices
+>>>>>>> 3d32f378e83d393ffa7a2438630745959b9757e2
         $combos = [
             ['name' => 'Family Meal'],
             ['name' => 'Lunch Combo'],

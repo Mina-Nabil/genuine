@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Customers\Customer;
+use App\Models\Products\Inventory;
+use App\Models\Products\Product;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +23,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Relation::enforceMorphMap([
+            'product'       => Product::class,
+            'customer'      => Customer::class, 
+            'inventory'     => Inventory::class, 
+        ]);
     }
 }
