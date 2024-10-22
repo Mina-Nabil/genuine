@@ -7,67 +7,66 @@ use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class Combo extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'price'];
+    protected $fillable = ['name'];
 
     /**
-     * Create a new combo with associated products and initialize inventory.
+     * Create a new combo with associated products and prices.
      *
      * @param string $name
-     * @param float $price
-     * @param array $productData // Each item should have 'product_id' and 'quantity'
-     * @param int $initialQuantity // Initial quantity for the inventory
+     * @param array $productData // Each item should have 'product_id', 'quantity', and 'price'
      * @return bool
      */
-    public static function createCombo($name, $price, $productData, $initialQuantity)
+    public static function createCombo($name, $productData)
     {
         try {
-            // Create the new combo
+            // Create the new combo without price
             $combo = self::create([
                 'name' => $name,
-                'price' => $price,
             ]);
 
-            // Associate products with the combo
+            // Associate products with the combo, including price and quantity for each product
             foreach ($productData as $data) {
-                $combo->products()->attach($data['product_id'], ['quantity' => $data['quantity']]);
+                $combo->products()->attach($data['product_id'], [
+                    'quantity' => $data['quantity'],
+                    'price' => $data['price'], // Individual product price in the combo
+                ]);
             }
 
-            // Create an inventory record for the combo
-            Inventory::create([
-                'inventoryable_id' => $combo->id, // The ID of the combo
-                'inventoryable_type' => Combo::class, // The type of the model (Combo)
-                'quantity' => $initialQuantity, // The initial quantity
-            ]);
-
             AppLog::info("Combo '{$name}' created successfully with products.", loggable: $combo);
-            return true;
+            return $combo;
         } catch (Exception $e) {
             AppLog::error("Failed to create combo '{$name}': " . $e->getMessage(), loggable: null);
             return false;
         }
     }
-
     /**
      * Add a product to the combo.
      *
      * @param int $productId
      * @param int $quantity
+     * @param float $price
      * @return bool
      */
-    public function addProductToCombo(int $productId, int $quantity): bool
+    public function addProductToCombo(int $productId, int $quantity, float $price): bool
     {
         try {
-            $this->products()->attach($productId, ['quantity' => $quantity]);
+            // Attach the product with quantity and price
+            $this->products()->attach($productId, [
+                'quantity' => $quantity,
+                'price' => $price, // Include the price for this product in the combo
+            ]);
+
             AppLog::info("Product ID {$productId} added to combo '{$this->name}' successfully", loggable: $this);
             return true;
         } catch (Exception $e) {
-            AppLog::error("Failed to add product ID {$productId} to combo '{$this->name}': ", $e->getMessage(), loggable: $this);
+            AppLog::error("Failed to add product ID {$productId} to combo '{$this->name}': " . $e->getMessage(), loggable: $this);
             return false;
         }
     }
@@ -97,7 +96,7 @@ class Combo extends Model
     public function products()
     {
         return $this->belongsToMany(Product::class, 'combo_products')
-            ->withPivot('quantity') // Include the quantity in the pivot table
+            ->withPivot('quantity', 'price') // Include the quantity in the pivot table
             ->withTimestamps(); // Automatically manage created_at and updated_at timestamps
     }
 
@@ -135,11 +134,20 @@ class Combo extends Model
      * Custom Functions
      */
 
-     public function scopeSortBy($query, $column = null, $direction = 'asc')
+    public function scopeSortBy($query, $column = null, $direction = 'asc')
     {
-        // Ensure the column is not null and exists in the table
-        if ($column && in_array($column, Schema::getColumnListing($this->getTable()))) {
-            return $query->orderBy($column, $direction);
+        // Ensure the column is not null
+        if ($column) {
+            // Check if sorting by a column in the main table
+            if (in_array($column, Schema::getColumnListing($this->getTable()))) {
+                return $query->orderBy($column, $direction);
+            }
+
+            // Check if sorting by product count in the combo
+            if ($column === 'product_count') {
+                return $query->withCount('products')->orderBy('products_count', $direction);
+            }
+
         }
 
         // If column is not valid, just return the query without sorting
@@ -150,7 +158,7 @@ class Combo extends Model
     public function getTotalPriceAttribute()
     {
         return $this->products->sum(function ($product) {
-            return $product->pivot->price * $product->pivot->quantity;
+            return $product->pivot->price;
         });
     }
 

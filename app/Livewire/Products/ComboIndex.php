@@ -23,8 +23,6 @@ class ComboIndex extends Component
     public $sortDirection = 'asc';
 
     public $comboName;
-    public $comboPrice;
-    public $comboQuantity;
     public $productQuantities = []; // To hold products and their quantities
     public $products; // To hold all products, load this in mount()
 
@@ -52,18 +50,15 @@ class ComboIndex extends Component
         $this->validate(
             [
                 'comboName' => 'required|string|max:255',
-                'comboPrice' => 'required|numeric|min:0',
-                'comboQuantity' => 'required|numeric|min:1',
-                'productQuantities' => 'required|array',
                 'productQuantities.*.product_id' => 'required|exists:products,id',
-                'productQuantities.*.quantity' => 'required|integer|min:1', // Ensure each quantity is a positive integer
+                'productQuantities.*.quantity' => 'required|integer|min:0', // Ensure each quantity is a positive integer
+                'productQuantities.*.price' => 'required|integer|min:0', // Ensure each quantity is a positive integer
             ],
             attributes: [
                 'comboName' => 'name',
-                'comboPrice' => 'price',
-                'comboQuantity' => 'quantity',
                 'productQuantities.*.product_id' => 'product',
                 'productQuantities.*.quantity' => 'product quantity', // Ensure each quantity is a positive integer
+                'productQuantities.*.price' => 'product price', // Ensure each quantity is a positive integer
             ],
         );
 
@@ -76,7 +71,7 @@ class ComboIndex extends Component
         }
 
         // Create the combo with associated products
-        $res = Combo::createCombo($this->comboName, $this->comboPrice, $this->productQuantities, $this->comboQuantity);
+        $res = Combo::createCombo($this->comboName, $this->productQuantities);
 
         if ($res) {
             $this->closeNewComboSec();
@@ -94,7 +89,8 @@ class ComboIndex extends Component
     public function closeNewComboSec()
     {
         $this->productQuantities = [];
-        $this->reset(['comboName', 'comboPrice', 'comboQuantity', 'newComboSection']);
+        $this->addProduct();
+        $this->reset(['comboName', 'newComboSection']);
     }
 
     public function sortByColomn($colomn)
