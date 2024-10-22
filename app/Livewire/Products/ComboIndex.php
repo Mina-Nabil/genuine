@@ -10,7 +10,7 @@ use Livewire\WithPagination;
 
 class ComboIndex extends Component
 {
-    use WithPagination,AlertFrontEnd;
+    use WithPagination, AlertFrontEnd;
     public $page_title = '• Combos';
 
     public $fetched_combos_IDs;
@@ -49,22 +49,39 @@ class ComboIndex extends Component
 
     public function addNewCombo()
     {
-        $this->validate([
-            'comboName' => 'required|string|max:255',
-            'comboPrice' => 'required|numeric|min:0',
-            'comboQuantity' => 'required|numeric|min:1',
-            'productQuantities' => 'required|array',
-            'productQuantities.*.product_id' => 'required|exists:products,id',
-            'productQuantities.*.quantity' => 'required|integer|min:1', // Ensure each quantity is a positive integer
-        ]);
+        $this->validate(
+            [
+                'comboName' => 'required|string|max:255',
+                'comboPrice' => 'required|numeric|min:0',
+                'comboQuantity' => 'required|numeric|min:1',
+                'productQuantities' => 'required|array',
+                'productQuantities.*.product_id' => 'required|exists:products,id',
+                'productQuantities.*.quantity' => 'required|integer|min:1', // Ensure each quantity is a positive integer
+            ],
+            attributes: [
+                'comboName' => 'name',
+                'comboPrice' => 'price',
+                'comboQuantity' => 'quantity',
+                'productQuantities.*.product_id' => 'product',
+                'productQuantities.*.quantity' => 'product quantity', // Ensure each quantity is a positive integer
+            ],
+        );
+
+        // Check for duplicate product IDs
+        $productIds = array_column($this->productQuantities, 'product_id');
+
+        if (count($productIds) !== count(array_unique($productIds))) {
+            $this->addError('productQuantities', 'Duplicate products are not allowed.');
+            return;
+        }
 
         // Create the combo with associated products
-        $res = Combo::createCombo($this->comboName, $this->comboPrice, $this->productQuantities,$this->comboQuantity);
+        $res = Combo::createCombo($this->comboName, $this->comboPrice, $this->productQuantities, $this->comboQuantity);
 
-        if($res){
+        if ($res) {
             $this->closeNewComboSec();
             $this->alertSuccess('Combo created!');
-        }else{
+        } else {
             $this->alertFailed();
         }
     }

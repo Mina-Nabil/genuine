@@ -233,6 +233,21 @@
 
                             <div class="form-group">
                                 <label for="products" class="form-label">Add Products*</label>
+                                @error('productQuantities')
+                                    <div
+                                        class="py-[18px] px-6 font-normal text-sm rounded-md bg-white text-danger-500 border border-danger-500
+                                    dark:bg-slate-800 mb-3">
+                                    <div class="flex items-center space-x-3 rtl:space-x-reverse">
+                                        <div class="flex-shrink-0">
+                                            <iconify-icon icon="ant-design:alert-outlined" width="1.2em" height="1.2em"></iconify-icon>
+                                        </div>
+                                        <div class="flex-1 font-Inter">
+                                            {{ $message }}
+                                        </div>
+                                    </div>
+                                    
+                                    </div>
+                                @enderror
                                 <div class="space-y-4">
                                     @foreach ($productQuantities as $index => $quantity)
                                         <div class="flex items-center space-x-2">
@@ -251,10 +266,9 @@
                                                 class="form-control @error('productQuantities.' . $index . '.quantity') !border-danger-500 @enderror"
                                                 placeholder="Quantity" min="1">
                                             @if (count($productQuantities) > 1)
-                                                <button type="button"
-                                                    wire:click="removeProduct({{ $index }})"
-                                                    class="text-red-600">
-                                                    Remove
+                                                <button class="action-btn2" type="button"
+                                                    wire:click="removeProduct({{ $index }})">
+                                                    <iconify-icon icon="heroicons:trash"></iconify-icon>
                                                 </button>
                                             @endif
                                         </div>
@@ -269,9 +283,10 @@
                                     @endforeach
 
                                 </div>
-                                <button type="button" wire:click="addProduct" class="btn btn-secondary mt-2">
-                                    Add Product
-                                </button>
+                                <button wire:click="addProduct"
+                                    class="btn inline-flex justify-center btn-outline-dark mt-5 btn-sm"><iconify-icon
+                                        icon="material-symbols:add" width="1.2em" height="1.2em"></iconify-icon> Add
+                                    Product</button>
                             </div>
                         </div>
 
