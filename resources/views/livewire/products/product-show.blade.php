@@ -190,7 +190,11 @@
 
                                         <td
                                             class="table-td border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
-                                            {{ $transaction->quantity }}
+                                            @if ($transaction->quantity >= 0)
+                                                +{{ $transaction->quantity }}
+                                            @else
+                                                {{ $transaction->quantity }}
+                                            @endif
                                         </td>
 
                                         <td

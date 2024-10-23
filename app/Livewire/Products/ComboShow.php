@@ -29,8 +29,7 @@ class ComboShow extends Component
     }
 
     public function openEditComboSec(){
-
-        // dd($this->combo->name);
+        $this->authorize('update',$this->combo);
         $this->comboName  = $this->combo->name;
         $this->editComboSec = true;
     }
@@ -54,7 +53,7 @@ class ComboShow extends Component
 
     public function addProduct()
     {
-        $this->authorize('updteProducts',$this->combo);
+        $this->authorize('updateProducts',$this->combo);
         $this->validate([
             'product_id' => 'required|exists:products,id',
             'productQuantity' => 'required|numeric|min:1',

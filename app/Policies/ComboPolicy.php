@@ -40,7 +40,7 @@ class ComboPolicy
         return true;
     }
 
-    public function updteProducts(User $user, Combo $combo): bool
+    public function updateProducts(User $user, Combo $combo): bool
     {
         return true;
     }

@@ -9,10 +9,9 @@
                 </h3>
             </div>
 
-            @can('updteProducts', $combo)
+            @can('updateProducts', $combo)
                 <div>
-                    <button class="btn inline-flex justify-center btn-dark btn-sm"
-                        wire:click='openEditComboSec'>Edit</button>
+                    <button class="btn inline-flex justify-center btn-dark btn-sm" wire:click='openEditComboSec'>Edit</button>
                 </div>
             @endcan
         </div>
@@ -20,7 +19,7 @@
         <div class="card active relative mt-5 p-3  overflow-x-auto">
             <div class="my-2 flex justify-between items-center">
                 <h6 class="mb-0">Products</h6>
-                @can('updteProducts', $combo)
+                @can('updateProducts', $combo)
                     <button wire:click='openAddProductSec' class="btn inline-flex justify-center btn-outline-light btn-sm">
                         <iconify-icon icon="ic:baseline-plus" width="1.2em" height="1.2em"></iconify-icon>Add
                         Product
@@ -57,7 +56,7 @@
                 <tbody class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
                     @foreach ($combo->products as $index => $product)
                         <tr>
-                            <td class="table-td">{{ $index+1 }}</td>
+                            <td class="table-td">{{ $index + 1 }}</td>
 
                             <td class="table-td">
                                 <div class="flex items-center">
@@ -89,7 +88,7 @@
 
                             <td class="table-td ">
                                 @if ($combo->products->count() > 1)
-                                    @can('updteProducts', $combo)
+                                    @can('updateProducts', $combo)
                                         <button wire:click='removeProduct({{ $product->id }})'
                                             wire:confirm='Are you sure you want to remove this product?' class="action-btn"
                                             type="button">
@@ -100,6 +99,25 @@
                             </td>
                         </tr>
                     @endforeach
+
+                    <tr class="bg-slate-50 dark:bg-slate-700">
+                        <td class="table-td">Total</td>
+                        <td class="table-td"></td>
+
+                        <td class="table-td ">{{ $combo->total_items }} items</td>
+
+                        <td class="table-td ">
+                            <div class="flex items-center">
+                                <div class="flex-1 text-start">
+                                    <h6 class=" whitespace-nowrap mb-1">
+                                        {{ number_format($combo->total_price) }} <span class="text-sm">EGP</span>
+                                    </h6>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td class="table-td "></td>
+                    </tr>
 
                 </tbody>
             </table>
@@ -170,7 +188,7 @@
     @endcan
 
 
-    @can('updteProducts', $combo)
+    @can('updateProducts', $combo)
         @if ($newProductSec)
             <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
                 tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog" style="display: block;">

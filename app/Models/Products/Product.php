@@ -233,7 +233,7 @@ class Product extends Model
 
     public function comments(): HasMany
     {
-        return $this->hasMany(AppLog::class, 'loggable_id')->where('loggable_type', self::class);
+        return $this->hasMany(AppLog::class, 'loggable_id')->where('loggable_type', self::MORPH_TYPE);
     }
 
     public function inventory()
@@ -243,7 +243,7 @@ class Product extends Model
 
     public function transactions()
     {
-        return $this->hasManyThrough(Transaction::class, Inventory::class, 'inventoryable_id', 'inventory_id')->where('inventoryable_type', self::class);
+        return $this->hasManyThrough(Transaction::class, Inventory::class, 'inventoryable_id', 'inventory_id')->where('inventoryable_type', self::MORPH_TYPE);
     }
 
     // Calculate unavailable stock

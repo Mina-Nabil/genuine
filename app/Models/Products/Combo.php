@@ -190,6 +190,13 @@ class Combo extends Model
         });
     }
 
+    public function getTotalItemsAttribute()
+    {
+        return $this->products->sum(function ($product) {
+            return $product->pivot->quantity;
+        });
+    }
+
     // Count the total number of products in the combo
     public function getTotalProductsAttribute()
     {
