@@ -42,6 +42,7 @@ class ProductShow extends Component
     }
 
     public function openEditSection(){
+        $this->authorize('update',$this->product);
         $this->productName = $this->product->name;
         $this->productDesc = $this->product->desc;
         $this->editProductSection = true;
@@ -53,6 +54,7 @@ class ProductShow extends Component
     }
 
     public function openTransSection(){
+        $this->authorize('controlTransactions',$this->product);
         $this->addTransSection = true;
     }
 
@@ -62,6 +64,8 @@ class ProductShow extends Component
     }
 
     public function openEditPriceWeightSection(){
+        $this->authorize('update',$this->product);
+
         $this->productPrice = $this->product->price;
         $this->productWeight = $this->product->weight;
         $this->editProductPriceWeightSection = true;
@@ -73,6 +77,8 @@ class ProductShow extends Component
     }
 
     public function addTransaction(){
+
+        $this->authorize('controlTransactions',$this->product);
 
         $this->validate([
             'transQuantity' => 'required|integer',
@@ -96,6 +102,9 @@ class ProductShow extends Component
     }
 
     public function updateTitleDesc(){
+
+        $this->authorize('update',$this->product);
+
         $this->validate([
             'productName' => 'required|string|max:255',
             'productDesc' => 'nullable|string'
@@ -112,6 +121,9 @@ class ProductShow extends Component
     }
 
     public function updatePriceWeight(){
+
+        $this->authorize('update',$this->product);
+
         $this->validate([
             'productPrice' => 'required|numeric|min:0',
             'productWeight' => 'required|numeric|min:0',
@@ -128,6 +140,9 @@ class ProductShow extends Component
     }
 
     public function addComment(){
+
+        $this->authorize('update',$this->product);
+
         $this->validate([
             'addedComment' => 'required|string'
         ]);
@@ -150,6 +165,7 @@ class ProductShow extends Component
 
     public function mount($id){
         $this->product = Product::findOrFail($id);
+        $this->authorize('view',$this->product);
         $this->page_title = '• '.$this->product->name;
     }
 
