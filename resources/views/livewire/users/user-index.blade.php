@@ -253,11 +253,11 @@
                                     <label for="newType" class="form-label">Type</label>
                                     <select name="newType" id="newType"
                                         class="form-control w-full mt-2 @error('newType') !border-danger-500 @enderror"
-                                        wire:model="newType" autocomplete="off">
+                                        wire:model.live="newType" autocomplete="off">
                                         <option>None</option>
-                                        @foreach ($TYPES as $type)
-                                            <option value="{{ $type }}">
-                                                {{ ucwords(str_replace('_', ' ', $type)) }}</option>
+                                        @foreach ($TYPES as $onetype)
+                                            <option value="{{ $onetype }}">
+                                                {{ ucwords(str_replace('_', ' ', $onetype)) }}</option>
                                         @endforeach
                                     </select>
                                     @error('newType')
@@ -399,6 +399,73 @@
                                     @enderror
                                 </div>
 
+                                @if ($newType === 'driver')
+                                <hr>
+                                    <h6 class="mt-3"><b>Driver Details</b></h6>
+                                    <div class="from-group">
+                                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+                                            <div class="input-area">
+                                                <label for="weightLimit" class="form-label">Weight Limit ( grams )
+                                                </label>
+                                                <input id="weightLimit" type="number"
+                                                    class="form-control @error('weightLimit') !border-danger-500 @enderror"
+                                                    wire:model="weightLimit" autocomplete="off">
+                                            </div>
+                                            <div class="input-area">
+                                                <label for="orderQuantityLimit" class="form-label">Orders Quantity
+                                                    Limit</label>
+                                                <input id="orderQuantityLimit" type="number"
+                                                    class="form-control @error('orderQuantityLimit') !border-danger-500 @enderror"
+                                                    wire:model="orderQuantityLimit" autocomplete="off">
+                                            </div>
+                                        </div>
+                                        @error('weightLimit')
+                                            <span
+                                                class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                        @enderror
+
+                                        @error('orderQuantityLimit')
+                                            <span
+                                                class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+
+                                    <div class="from-group">
+                                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+                                            <div class="input-area">
+                                                <label for="carType" class="form-label">Car type
+                                                </label>
+                                                <select name="carType" id="carType"
+                                                    class="form-control w-full mt-2 @error('carType') !border-danger-500 @enderror"
+                                                    wire:model="carType" autocomplete="off">
+                                                    <option>None</option>
+                                                    @foreach ($carTypes as $OneCarType)
+                                                        <option value="{{ $OneCarType }}">
+                                                            {{ ucwords(str_replace('_', ' ', $OneCarType)) }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="input-area">
+                                                <label for="carModel" class="form-label">Car model
+                                                    Limit</label>
+                                                <input id="carModel" type="string"
+                                                    class="form-control @error('carModel') !border-danger-500 @enderror"
+                                                    wire:model="carModel" autocomplete="off">
+                                            </div>
+                                        </div>
+                                        @error('carType')
+                                            <span
+                                                class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                        @enderror
+
+                                        @error('carModel')
+                                            <span
+                                                class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                @endif
+
+
 
                             </div>
                             <!-- Modal footer -->
@@ -527,13 +594,13 @@
 
                                 <div class="from-group">
                                     <label for="type" class="form-label">Type</label>
-                                    <select name="type" id="type"
+                                    <select name="type"
                                         class="form-control w-full mt-2 @error('type') !border-danger-500 @enderror"
-                                        wire:model.defer="type" autocomplete="off">
+                                        wire:model.live="type" autocomplete="off">
                                         <option>None</option>
-                                        @foreach ($TYPES as $type)
-                                            <option value="{{ $type }}">
-                                                {{ ucwords(str_replace('_', ' ', $type)) }}</option>
+                                        @foreach ($TYPES as $onetype)
+                                            <option value="{{ $onetype }}">
+                                                {{ ucwords(str_replace('_', ' ', $onetype)) }}</option>
                                         @endforeach
                                     </select>
                                     @error('type')
@@ -567,6 +634,71 @@
                                             class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
                                     @enderror
                                 </div>
+                                @if ($type === "driver")
+                                <hr>
+                                    <h6 class="mt-3"><b>Driver Details</b></h6>
+                                    <div class="from-group">
+                                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+                                            <div class="input-area">
+                                                <label for="weightLimit" class="form-label">Weight Limit ( grams )
+                                                </label>
+                                                <input id="weightLimit" type="number"
+                                                    class="form-control @error('weightLimit') !border-danger-500 @enderror"
+                                                    wire:model="weightLimit" autocomplete="off">
+                                            </div>
+                                            <div class="input-area">
+                                                <label for="orderQuantityLimit" class="form-label">Orders Quantity
+                                                    Limit</label>
+                                                <input id="orderQuantityLimit" type="number"
+                                                    class="form-control @error('orderQuantityLimit') !border-danger-500 @enderror"
+                                                    wire:model="orderQuantityLimit" autocomplete="off">
+                                            </div>
+                                        </div>
+                                        @error('weightLimit')
+                                            <span
+                                                class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                        @enderror
+
+                                        @error('orderQuantityLimit')
+                                            <span
+                                                class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+
+                                    <div class="from-group">
+                                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+                                            <div class="input-area">
+                                                <label for="carType" class="form-label">Car type
+                                                </label>
+                                                <select name="carType" id="carType"
+                                                    class="form-control w-full mt-2 @error('carType') !border-danger-500 @enderror"
+                                                    wire:model="carType" autocomplete="off">
+                                                    <option>None</option>
+                                                    @foreach ($carTypes as $OneCarType)
+                                                        <option value="{{ $OneCarType }}">
+                                                            {{ ucwords(str_replace('_', ' ', $OneCarType)) }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="input-area">
+                                                <label for="carModel" class="form-label">Car model
+                                                    Limit</label>
+                                                <input id="carModel" type="string"
+                                                    class="form-control @error('carModel') !border-danger-500 @enderror"
+                                                    wire:model="carModel" autocomplete="off">
+                                            </div>
+                                        </div>
+                                        @error('carType')
+                                            <span
+                                                class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                        @enderror
+
+                                        @error('carModel')
+                                            <span
+                                                class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                @endif
 
                                 {{-- ID  --}}
                                 <div>

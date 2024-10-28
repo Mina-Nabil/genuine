@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Users;
 
+use App\Models\Users\Driver;
 use App\Models\Users\User;
 use App\Traits\AlertFrontEnd;
 use Illuminate\Support\Facades\Storage;
@@ -32,6 +33,11 @@ class UserIndex extends Component
     public $DrivingLicenceDoc;
     public $CarLicenceNo;
     public $CarLicenceDoc;
+    public $weightLimit; //for driver
+    public $orderQuantityLimit; //for driver
+    public $carType; //for driver
+    public $carModel; //for driver
+    public $driverIsAvailable;
 
     public $updateUserSec;
     public $username;
@@ -102,6 +108,13 @@ class UserIndex extends Component
         $this->OLDuploadIDFile = $user->id_doc_url;
         $this->OLDuploadLicFile = $user->driving_license_doc_url;
         $this->OLDuploadCarLicFile = $user->car_license_doc_url;
+        if ($user->type === User::TYPE_DRIVER) {
+            $this->weightLimit  = $user->driver->weight_limit;
+            $this->orderQuantityLimit  = $user->driver->order_quantity_limit;
+            $this->carType  = $user->driver->car_type;
+            $this->carModel  = $user->driver->car_model;
+            $this->driverIsAvailable  = $user->driver->is_available;
+        }
     }
 
     public function toggleUserStatus($id)
@@ -116,22 +129,22 @@ class UserIndex extends Component
 
     public function closeUpdateThisUser()
     {
-        $this->reset(['updateUserSec', 'username', 'first_name', 'last_name', 'type', 'email', 'phone', 'upIdNumber', 'upDrivingLicenceNo', 'OLDuploadIDFile', 'OLDuploadLicFile', 'OLDuploadCarLicFile', 'uploadIDFile', 'uploadLicFile', 'uploadCarLicFile']);
+        $this->reset(['updateUserSec', 'username', 'first_name', 'last_name', 'type', 'email', 'phone', 'upIdNumber', 'upDrivingLicenceNo', 'OLDuploadIDFile', 'OLDuploadLicFile', 'OLDuploadCarLicFile', 'uploadIDFile', 'uploadLicFile', 'uploadCarLicFile','weightLimit','orderQuantityLimit' ,'carType','carModel']);
     }
 
     public function clearIDdocFile()
     {
-        $this->reset('uploadIDFile','OLDuploadIDFile');
+        $this->reset('uploadIDFile', 'OLDuploadIDFile');
     }
 
     public function clearLicDocFile()
     {
-        $this->reset('uploadLicFile','OLDuploadLicFile');
+        $this->reset('uploadLicFile', 'OLDuploadLicFile');
     }
 
     public function clearCarLicDocFile()
     {
-        $this->reset('uploadCarLicFile','OLDuploadCarLicFile');
+        $this->reset('uploadCarLicFile', 'OLDuploadCarLicFile');
     }
 
     public function downloadIDDocument()
@@ -155,7 +168,7 @@ class UserIndex extends Component
     public function downloadLicDocument()
     {
         $fileContents = Storage::disk('s3')->get($this->user->driving_license_doc_url);
-        $extension = pathinfo($this->user->driving_license_doc_url,PATHINFO_EXTENSION);
+        $extension = pathinfo($this->user->driving_license_doc_url, PATHINFO_EXTENSION);
         $headers = [
             'Content-Type' => 'application/octet-stream',
             'Content-Disposition' => 'attachment; filename="' . $this->user->full_name . '_licience_document.' . $extension . '"',
@@ -283,7 +296,7 @@ class UserIndex extends Component
     public function closeNewUserSec()
     {
         $this->newUserSection = false;
-        $this->reset(['newUsername', 'newFirstName', 'newLastName', 'newType', 'newPassword', 'newPassword_confirmation', 'newEmail', 'newPhone', 'newManagerId', 'IdNumber', 'IdNumberDoc', 'DrivingLicenceNo', 'DrivingLicenceDoc', 'CarLicenceNo', 'CarLicenceDoc']);
+        $this->reset(['newUsername', 'newFirstName', 'newLastName', 'newType', 'newPassword', 'newPassword_confirmation', 'newEmail', 'newPhone', 'newManagerId', 'IdNumber', 'IdNumberDoc', 'DrivingLicenceNo', 'DrivingLicenceDoc', 'CarLicenceNo', 'CarLicenceDoc','weightLimit','orderQuantityLimit' ,'carType','carModel']);
     }
 
     protected $rules = [
@@ -315,13 +328,22 @@ class UserIndex extends Component
             'CarLicenceDoc' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
+        if ($this->newType === User::TYPE_DRIVER) {
+            $this->validate([
+                'weightLimit' => 'required|integer|min:1',  
+                'orderQuantityLimit' => 'required|integer|min:1',     
+                'carType' => 'nullable|in:' . implode(',', Driver::CAR_TYPES), 
+                'carModel' => 'nullable|string|max:255',              
+            ]);
+        }
+
         // Store the documents if they exist
         $idDocUrl = $this->IdNumberDoc ? $this->IdNumberDoc->store(User::FILES_DIRECTORY, 's3') : null;
         $drivingLicenseDocUrl = $this->DrivingLicenceDoc ? $this->DrivingLicenceDoc->store(User::FILES_DIRECTORY, 's3') : null;
         $carLicenseDocUrl = $this->CarLicenceDoc ? $this->CarLicenceDoc->store(User::FILES_DIRECTORY, 's3') : null;
 
         // Create a new user with the validated data and document URLs
-        $res = User::newUser($this->newUsername, $this->newFirstName, $this->newLastName, $this->newType, $this->newPassword, $this->newEmail, $this->newPhone, $this->IdNumber, $idDocUrl, $this->DrivingLicenceNo, $drivingLicenseDocUrl, $this->CarLicenceNo, $carLicenseDocUrl);
+        $res = User::newUser($this->newUsername, $this->newFirstName, $this->newLastName, $this->newType, $this->newPassword, $this->newEmail, $this->newPhone, $this->IdNumber, $idDocUrl, $this->DrivingLicenceNo, $drivingLicenseDocUrl, $this->CarLicenceNo, $carLicenseDocUrl,null,$this->weightLimit,$this->orderQuantityLimit,$this->carType,$this->carModel);
 
         // Check if the user was created successfully
         if ($res) {
@@ -340,10 +362,12 @@ class UserIndex extends Component
     public function render()
     {
         $TYPES = User::TYPES;
+        $carTypes = Driver::CAR_TYPES;
         $users = User::when($this->search, fn($q) => $q->search($this->search))->paginate(30);
         return view('livewire.users.user-index', [
             'users' => $users,
             'TYPES' => $TYPES,
+            'carTypes' => $carTypes
         ])->layout('layouts.app', ['page_title' => $this->page_title, 'users' => 'active']);
     }
 }
