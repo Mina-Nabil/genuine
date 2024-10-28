@@ -31,8 +31,26 @@ class User extends Authenticatable
 
     protected $hidden = ['password', 'remember_token'];
 
-    public static function newUser($username, $first_name, $last_name, $type, $password, $email = null, $phone = null, $id_number = null, $id_doc_url = null, $driving_license_number = null, $driving_license_doc_url = null, $car_license_number = null, $car_license_doc_url = null, $image_url = null): self|false
-    {
+    public static function newUser(
+        $username,
+        $first_name,
+        $last_name,
+        $type,
+        $password,
+        $email = null,
+        $phone = null,
+        $id_number = null,
+        $id_doc_url = null,
+        $driving_license_number = null,
+        $driving_license_doc_url = null,
+        $car_license_number = null,
+        $car_license_doc_url = null,
+        $image_url = null,
+        $weight_limit = null, // Driver-specific field
+        $order_quantity_limit = null, // Driver-specific field
+        $car_type = null, // Driver-specific field
+        $car_model = null, // Driver-specific field
+    ): self|false {
         try {
             // Check if the user already exists
             $exists = self::userExists($username);
@@ -63,6 +81,21 @@ class User extends Authenticatable
             // Save the user
             $user->save();
 
+            // Create a corresponding driver instance if the user is a driver
+            if ($type === self::TYPE_DRIVER) {
+                $driver = new Driver([
+                    'user_id' => $user->id,
+                    'weight_limit' => $weight_limit,
+                    'order_quantity_limit' => $order_quantity_limit,
+                    'car_type' => $car_type,
+                    'car_model' => $car_model,
+                    'is_available' => true,
+                ]);
+
+                // Save the driver record
+                $driver->save();
+            }
+
             // Log user creation
             AppLog::info('User created', "User $username created");
             return $user;
@@ -74,7 +107,7 @@ class User extends Authenticatable
         }
     }
 
-    public function editInfo($username, $first_name, $last_name, $type, $email = null, $phone = null, $id_number = null, $id_doc_url = null, $driving_license_number = null, $driving_license_doc_url = null, $car_license_number = null, $car_license_doc_url = null, $image_url = null, $password = null): bool
+    public function editInfo($username, $first_name, $last_name, $type, $email = null, $phone = null, $id_number = null, $id_doc_url = null, $driving_license_number = null, $driving_license_doc_url = null, $car_license_number = null, $car_license_doc_url = null, $image_url = null, $password = null, $weight_limit = null, $order_quantity_limit = null, $car_type = null, $car_model = null, $is_available = true): bool
     {
         try {
             // Update user attributes
@@ -95,6 +128,19 @@ class User extends Authenticatable
             // Only update password if provided
             if ($password) {
                 $this->password = bcrypt($password);
+            }
+
+            // Update or create driver-specific information if the user is a driver
+            if ($type === User::TYPE_DRIVER) {
+                $driver = $this->driver()->firstOrNew();
+                $driver->weight_limit = $weight_limit;
+                $driver->order_quantity_limit = $order_quantity_limit;
+                $driver->car_type = $car_type;
+                $driver->car_model = $car_model;
+                $driver->is_available = $is_available;
+                $driver->save();
+            } else {
+                $this->driver()->delete();
             }
 
             // Save the updated user
@@ -364,6 +410,11 @@ class User extends Authenticatable
     public function notifications(): HasMany
     {
         return $this->hasMany(Notification::class)->latest();
+    }
+
+    public function driver()
+    {
+        return $this->hasOne(Driver::class);
     }
 
     //auth
