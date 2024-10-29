@@ -17815,3 +17815,12 @@ ul.custom-list ul {
     --tw-border-opacity: 1;
     border-color: rgb(226 232 240 / var(--tw-border-opacity));
 }
+
+.imp-p-2 {
+    padding: 0.5rem !important;
+}
+
+
+.\!m-0 {
+    margin: 0;
+}
