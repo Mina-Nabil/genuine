@@ -33,6 +33,9 @@ class OrderCreate extends Component
     public $isOpenSelectCustomerSec;
     public $dummyProductsSearch;
 
+    public $paymentMethod;
+    public $periodicOption;
+
     public $customerIsNew = false;
     public $customerId;
     public $customerName;
@@ -334,13 +337,15 @@ class OrderCreate extends Component
             $res = Customer::newCustomer($this->customerName, $this->shippingAddress, $this->customerPhone, zone_id: $this->zoneId);
             $customerId = $res->id;
         }
-// dd($this->fetchedProducts);
+
         $this->validate([
             'total' => 'nullable|numeric|min:0',
             'shippingFee' => 'nullable|numeric|min:0',
             'discountAmount' => 'nullable|numeric|min:0',
             'ddate' => 'nullable|date',
             'note' => 'nullable|string|max:500',
+            'paymentMethod' => "required|in:" . implode(',', Order::PAYMENT_METHODS),
+            'periodicOption' => "required|in:" . implode(',', Order::PERIODIC_OPTIONS),
             'fetchedProducts.*.id' => 'required|exists:products,id',
             'fetchedProducts.*.combo_id' => 'nullable|exists:combos,id',
             'fetchedProducts.*.quantity' => 'required|integer|min:1',
@@ -351,10 +356,7 @@ class OrderCreate extends Component
         $driverID = null;
         $this->driver ? $driverID = $this->driver->id : null;
 
-        // dd($customerId, $this->customerName, $this->shippingAddress, $this->customerPhone, $this->zoneId, $driverID, Order::PYMT_CASH, Order::PERIODIC_WEEKLY, 0, $this->total, $this->shippingFee, $this->discountAmount, $this->ddate ? Carbon::parse($this->ddate) : null, $this->note, $this->fetchedProducts);
-
-
-        $res = Order::newOrder($customerId, $this->customerName, $this->shippingAddress, $this->customerPhone, $this->zoneId, $driverID, Order::PYMT_CASH, Order::PERIODIC_WEEKLY, 0, $this->total, $this->shippingFee, $this->discountAmount, $this->ddate ? Carbon::parse($this->ddate) : null, $this->note, $this->fetchedProducts);
+        $res = Order::newOrder($customerId, $this->customerName, $this->shippingAddress, $this->customerPhone, $this->zoneId, $driverID, $this->paymentMethod, $this->periodicOption , 0, $this->total, $this->shippingFee, $this->discountAmount, $this->ddate ? Carbon::parse($this->ddate) : null, $this->note, $this->fetchedProducts);
 
         if ($res) {
             $this->alertSuccess('order added!');
@@ -383,12 +385,17 @@ class OrderCreate extends Component
             ->limit(10)
             ->get();
 
+        $PAYMENT_METHODS = Order::PAYMENT_METHODS;
+        $PERIODIC_OPTIONS = Order::PERIODIC_OPTIONS;
+
         return view('livewire.orders.order-create', [
             'products' => $products,
             'drivers' => $drivers,
             'customers' => $customers,
             'zones' => $zones,
             'combos' => $combos,
+            'PAYMENT_METHODS' => $PAYMENT_METHODS,
+            'PERIODIC_OPTIONS' => $PERIODIC_OPTIONS
         ])->layout('layouts.app', ['page_title' => $this->page_title, 'orders' => 'active']);
     }
 }
