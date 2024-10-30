@@ -26,10 +26,13 @@ return new class extends Migration
             $table->string('shipping_address');
             $table->string('customer_phone');
             $table->foreignIdFor(Zone::class)->constrained();
-            $table->foreignIdFor(Driver::class)->constrained()->nullable();
+            $table->foreignIdFor(Driver::class)->nullable()->constrained();
             $table->enum('payment_method', Order::PAYMENT_METHODS); 
             $table->enum('periodic_option', Order::PERIODIC_OPTIONS)->nullable();
             $table->decimal('paid_amount', 10, 2)->default(0);
+            $table->decimal('total_amount', 10, 2)->default(0);
+            $table->decimal('delivery_amount', 10, 2)->default(0);
+            $table->decimal('discount_amount', 10, 2)->default(0);
             $table->date('delivery_date')->nullable();
             $table->boolean('is_paid');
             $table->string('note')->nullable();

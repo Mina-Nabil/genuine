@@ -14,6 +14,8 @@ class Order extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $fillable = ['order_number', 'customer_id', 'customer_name', 'shipping_address', 'customer_phone', 'zone_id', 'driver_id', 'payment_method', 'periodic_option', 'paid_amount', 'total_amount', 'delivery_amount', 'discount_amount', 'delivery_date', 'is_paid', 'note', 'created_by'];
+
     const PAYMENT_METHODS = [self::PYMT_CASH, self::PYMT_WALLET];
     const PYMT_CASH = 'cash';
     const PYMT_WALLET = 'credit_card';
@@ -33,14 +35,30 @@ class Order extends Model
     const STATUS_CANCELLED = 'cancelled';
 
     // Function to create a new order
-    public static function newOrder(int $customerId, string $customerName, string $shippingAddress, string $customerPhone, int $zoneId, int $driverId = null, string $paymentMethod, string $periodicOption = null, float $paidAmount = null, Carbon $deliveryDate = null, string $note = null, array $products): Order
+    public static function newOrder(
+        int $customerId, 
+        string $customerName, 
+        string $shippingAddress, 
+        string $customerPhone, 
+        int $zoneId, 
+        int $driverId = null, 
+        string $paymentMethod, 
+        string $periodicOption = null, 
+        float $paidAmount = 0, 
+        float $totalAmount = 0, 
+        float $deliveryAmount = 0, 
+        float $discountAmount = 0, 
+        Carbon $deliveryDate = null, 
+        string $note = null, 
+        array $products
+    ): Order | bool 
     {
         /** @var User */
         $loggedInUser = Auth::user();
         if ($loggedInUser && !$loggedInUser->can('create', self::class)) {
             return false;
         }
-
+    
         try {
             $order = new self();
             $order->order_number = self::generateNextOrderNumber();
@@ -53,13 +71,16 @@ class Order extends Model
             $order->payment_method = $paymentMethod;
             $order->periodic_option = $periodicOption;
             $order->paid_amount = $paidAmount;
+            $order->total_amount = $totalAmount;
+            $order->delivery_amount = $deliveryAmount;
+            $order->discount_amount = $discountAmount;
             $order->delivery_date = $deliveryDate;
-            $order->is_paid = 0;
+            $order->is_paid = false;
             $order->note = $note;
             $order->created_by = $loggedInUser->id;
-
+    
             $order->save();
-
+    
             foreach ($products as $product) {
                 $order->products()->create([
                     'product_id' => $product['id'],
@@ -68,12 +89,12 @@ class Order extends Model
                     'price' => $product['price'],
                 ]);
             }
-            $user = Auth::user();
-            AppLog::info("Order Created by $user->full_name }");
+    
+            AppLog::info("Order Created by {$loggedInUser->full_name}");
             return $order;
         } catch (Exception $e) {
             report($e);
-            AppLog::error('Failed to create new order', $e->getMessage());
+            AppLog::error('Failed to create new order',  $e->getMessage());
             return false;
         }
     }

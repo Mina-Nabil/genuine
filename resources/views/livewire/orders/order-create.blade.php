@@ -1,6 +1,10 @@
 <div>
     <div class="space-y-5 profile-page mx-auto" style="max-width: 1000px">
-        <h4><b>Create Order</b></h4>
+        <div class="flex justify-between">
+            <h4><b>Create Order</b></h4>
+            <button wire:click='createOrder' class="btn inline-flex justify-center btn-dark btn-sm">Save</button>
+        </div>
+        
         <div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-6 gap-5 mb-5 text-wrap">
 
             <div class="col-span-4">
@@ -12,8 +16,9 @@
                             <div class="flex justify-between items-end space-x-6">
                                 <div class="input-area w-full">
                                     <label for="phone" class="form-label"><b>Products</b></label>
-                                    <input id="phone" type="tel" class="form-control" wire:click='openProductsSection'
-                                        placeholder="Search products..." autocomplete="off">
+                                    <input id="phone" type="tel" class="form-control"
+                                        wire:click='openProductsSection' placeholder="Search products..."
+                                        autocomplete="off">
                                 </div>
                                 <button wire:click='openCombosSection'
                                     class="btn inline-flex justify-center btn-outline-light btn-sm">Combos</button>
@@ -108,21 +113,74 @@
                                     <label for="ddate" class="form-label"><b>Payments</b></label>
                                 </div>
 
+                                <div class="card-body flex flex-col justify-between border rounded-lg h-full menu-open p-0 mb-5 p-2 px-6"
+                                    style="border-color:rgb(224, 224, 224);">
+
+                                    <table
+                                        class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700">
+                                        <tbody class="bg-white dark:bg-slate-800 ">
+
+                                            <tr>
+                                                <td class=" text-xs text-slate-500 dark:text-slate-400">Subtotal</td>
+                                                <td class=" text-xs text-slate-500 dark:text-slate-400">
+                                                    {{ $totalItems ? $totalItems . ' items' : '-' }}</td>
+                                                <td class="float-right text-dark">
+                                                    <b>{{ $subtotal ? number_format($subtotal, 2) : '-' }}<small>&nbsp;EGP</small></b>
+                                                </td>
+                                            </tr>
+
+                                            <tr>
+                                                <td class=" text-xs text-slate-500 dark:text-slate-400">Shipping &
+                                                    Delivery</td>
+                                                <td class=" text-xs text-slate-500 dark:text-slate-400">
+                                                    {{ $zoneName ?? '-' }}</td>
+                                                <td class="float-right text-dark">
+                                                    <b>{{ $shippingFee ? number_format($shippingFee, 2) : '-' }}<small>&nbsp;EGP</small></b>
+                                                </td>
+                                            </tr>
+
+                                            <tr>
+                                                <td class=" text-xs text-slate-500 dark:text-slate-400">
+                                                    @if ($discountAmount)
+                                                        Discount &nbsp;
+                                                        <span class="clickable-link" wire:click='openDiscountSection'>
+                                                            edit
+                                                        </span>
+                                                    @else
+                                                        <span class="clickable-link" wire:click='openDiscountSection'>
+                                                            Add Discount
+                                                        </span>
+                                                    @endif
+
+                                                </td>
+                                                <td class=" text-xs text-slate-500 dark:text-slate-400"></td>
+                                                <td class="float-right text-dark">
+                                                    <b>{{ $discountAmount ? number_format($discountAmount, 2) : '-' }}<small>&nbsp;EGP</small></b>
+                                                </td>
+                                            </tr>
+
+                                            <tr>
+                                                <td class=" text-xs text-slate-500 dark:text-slate-400"></td>
+                                                <td class=" text-xs text-slate-500 dark:text-slate-400"></td>
+                                                <td class="float-right text-dark"></td>
+                                            </tr>
+
+                                            <tr class="!pt-5">
+                                                <td class=" text-xs text-slate-500 dark:text-slate-400">Total</td>
+                                                <td class=" text-xs text-slate-500 dark:text-slate-400"></td>
+                                                <td class="float-right text-dark" style="color: black">
+                                                    <b>{{ $total ? number_format($total, 2) : '-' }}<small>&nbsp;EGP</small></b>
+                                                </td>
+                                            </tr>
+
+                                        </tbody>
+                                    </table>
+
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                </div>
-
-                <div class="card">
-                    <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base">
-                        <div class="items-center p-5">
-                            <h3 class="card-title text-slate-900 dark:text-white mb-3">Sales Automation</h3>
-                            <p class="card-text">Lorem ipsum dolor sit amet, consec tetur adipiscing elit, sed do
-                                eiusmod
-                                tempor incididun ut.</p>
-                        </div>
-                    </div>
                 </div>
             </div>
 
@@ -152,7 +210,7 @@
 
                                     <div class="mb-2 mt-3">
                                         <label for="shippingAddress" class="form-label !m-0">Shipping Address</label>
-                                        <textarea name="shippingAddress" wire:model='shippingAddress' class="form-control"></textarea>
+                                        <textarea name="shippingAddress" wire:model="shippingAddress" class="form-control"></textarea>
                                     </div>
 
                                     <div class="mb-2">
@@ -165,7 +223,7 @@
                                         <label for="zoneId" class="form-label !m-0">Zone</label>
                                         <select name="zoneId" id="zoneId"
                                             class="form-control w-full @error('zoneId') !border-danger-500 @enderror"
-                                            wire:model="zoneId" autocomplete="off">
+                                            wire:model.live="zoneId" autocomplete="off">
                                             <option value="">None</option>
                                             @foreach ($zones as $SINGLE_ZONE)
                                                 <option value="{{ $SINGLE_ZONE->id }}">
@@ -429,8 +487,11 @@
                             <input wire:model.live='combosSearchText' type="text" class="form-control"
                                 placeholder="Search combo...">
 
-                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1"><iconify-icon icon="material-symbols:info-outline" width="1.2em" height="1.2em"></iconify-icon> Adding this combo will replace any individual products in your selection that match the combo's products.</p>
-                                
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1"><iconify-icon
+                                    icon="material-symbols:info-outline" width="1.2em"
+                                    height="1.2em"></iconify-icon> Adding this combo will replace any individual
+                                products in your selection that match the combo's products.</p>
+
 
                             <div class=""> <!-- Add this wrapper to allow horizontal scroll -->
                                 <table class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700 ">
@@ -731,6 +792,68 @@
                                 @endif
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+    @endif
+
+    @if ($isOpenEditDiscount)
+        <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+            tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
+            style="display: block;">
+            <div class="modal-dialog relative w-auto pointer-events-none" style="max-width: 850px;">
+                <div
+                    class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
+                    <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
+                        <!-- Modal header -->
+                        <div
+                            class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
+                            <h3 class="text-xl font-medium text-white dark:text-white capitalize">
+                                Set Discount
+                            </h3>
+                            <button wire:click="closeDiscountSection" type="button"
+                                class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
+                                data-bs-dismiss="modal">
+                                <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd"
+                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                <span class="sr-only">Close modal</span>
+                            </button>
+                        </div>
+
+
+                        <div class="p-6 space-y-4">
+
+                            <div class="from-group">
+                                <div class="input-area">
+                                    <label for="initiateDiscountAmount" class="form-label">Discount Fees*</label>
+                                    <input id="initiateDiscountAmount" type="number"
+                                        class="form-control @error('initiateDiscountAmount') !border-danger-500 @enderror"
+                                        wire:model.lazy="initiateDiscountAmount" autocomplete="off">
+                                </div>
+                                @error('initiateDiscountAmount')
+                                    <span
+                                        class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                        </div>
+
+                        <!-- Modal footer -->
+                        <div class="flex items-center justify-end p-6 border-t border-slate-200 rounded-b">
+                            <button wire:click="updateDiscount" data-bs-dismiss="modal"
+                                class="btn inline-flex justify-center text-white bg-black-500">
+                                <span wire:loading.remove wire:target="updateDiscount">Submit</span>
+                                <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
+                                    wire:loading wire:target="updateDiscount"
+                                    icon="line-md:loading-twotone-loop"></iconify-icon>
+                            </button>
+                        </div>
+
+
                     </div>
                 </div>
             </div>

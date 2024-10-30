@@ -4,14 +4,18 @@ namespace App\Livewire\Orders;
 
 use App\Models\Customers\Customer;
 use App\Models\Customers\Zone;
+use App\Models\Orders\Order;
 use App\Models\Products\Combo;
 use App\Models\Products\Product;
 use App\Models\Users\Driver;
+use App\Traits\AlertFrontEnd;
+use Carbon\Carbon;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 
 class OrderCreate extends Component
 {
+    use AlertFrontEnd;
     public $page_title = '• Orders • New';
 
     //select products sections
@@ -35,9 +39,48 @@ class OrderCreate extends Component
     public $shippingAddress;
     public $customerPhone;
     public $zoneId;
+    public $initiateDiscountAmount;
 
     public $isOpenSelectComboSec = false;
     public $combosSearchText;
+
+    public $isOpenEditDiscount = false;
+
+    //payments
+    public $subtotal;
+    public $totalItems;
+    public $shippingFee;
+    public $zoneName;
+    public $total;
+    public $discountAmount = 0;
+
+    public function closeDiscountSection()
+    {
+        $this->isOpenEditDiscount = false;
+        $this->initiateDiscountAmount = null;
+    }
+
+    public function openDiscountSection()
+    {
+        $this->isOpenEditDiscount = true;
+        $this->initiateDiscountAmount = $this->discountAmount;
+    }
+
+    public function updateDiscount()
+    {
+        $this->validate([
+            'initiateDiscountAmount' => 'required|numeric|min:0',
+        ]);
+
+        $this->discountAmount = $this->initiateDiscountAmount;
+        $this->closeDiscountSection();
+        $this->refreshPayments();
+    }
+
+    public function updatingZoneId()
+    {
+        $this->refreshPayments();
+    }
 
     public function updatedDumySearchProduct()
     {
@@ -75,6 +118,7 @@ class OrderCreate extends Component
     public function clearCustomer()
     {
         $this->reset(['customerIsNew', 'customerId', 'customerName', 'shippingAddress', 'customerPhone', 'zoneId']);
+        $this->refreshPayments();
     }
 
     public function openCustomerSection()
@@ -97,6 +141,7 @@ class OrderCreate extends Component
         $this->customerPhone = $customer->phone;
         $this->zoneId = $customer->zone?->id;
         $this->closeCustomerSection();
+        $this->refreshPayments();
     }
 
     public function openDriverSection()
@@ -145,6 +190,7 @@ class OrderCreate extends Component
         $this->fetchedProducts = array_values($this->fetchedProducts);
 
         $this->closeCombosSection();
+        $this->refreshPayments();
     }
 
     public function addProducts()
@@ -175,6 +221,7 @@ class OrderCreate extends Component
             ->toArray();
 
         $this->closeProductsSection();
+        $this->refreshPayments();
     }
 
     public function updateTotal($index)
@@ -185,6 +232,27 @@ class OrderCreate extends Component
     public function openProductsSection()
     {
         $this->isOpenSelectProductSec = true;
+    }
+
+    public function refreshPayments()
+    {
+        $subtotal = 0;
+        $totalItems = 0;
+        foreach ($this->fetchedProducts as $prod) {
+            $subtotal = $subtotal + $prod['quantity'] * $prod['price'];
+            $totalItems = $totalItems + $prod['quantity'];
+        }
+        $shippingFee = 0;
+        if ($this->zoneId) {
+            $zone = Zone::findOrFail($this->zoneId);
+            $shippingFee = $zone->delivery_rate;
+            $this->zoneName = $zone->name;
+        }
+
+        $this->subtotal = $subtotal;
+        $this->totalItems = $totalItems;
+        $this->shippingFee = $shippingFee;
+        $this->total = $subtotal + $shippingFee - $this->discountAmount;
     }
 
     public function removeProduct($productId)
@@ -214,12 +282,64 @@ class OrderCreate extends Component
 
         // Re-index the selectedProducts array to maintain sequential numeric keys
         $this->selectedProducts = array_values($this->selectedProducts);
+        $this->refreshPayments();
     }
 
     public function closeProductsSection()
     {
         $this->isOpenSelectProductSec = false;
         $this->productsSearchText = null;
+    }
+
+    public function createOrder()
+    {
+        if ($this->customerId) {
+            $this->validate([
+                'customerId' => 'required|exists:customers,id',
+                'customerName' => 'required|string|max:255',
+                'shippingAddress' => 'required|string|max:255',
+                'customerPhone' => 'required|string|max:15',
+                'zoneId' => 'required|exists:zones,id',
+            ]);
+            $customerId = $this->customerId;
+        } else {
+            $this->validate([
+                
+                'customerName' => 'required|string|max:255',
+                'shippingAddress' => 'required|string|max:255',
+                'customerPhone' => 'required|string|max:15',
+                'zoneId' => 'required|exists:zones,id',
+            ]);
+            $res = Customer::newCustomer($this->customerName, $this->shippingAddress, $this->customerPhone, zone_id: $this->zoneId);
+            $customerId = $res->id;
+        }
+// dd($this->fetchedProducts);
+        $this->validate([
+            'total' => 'nullable|numeric|min:0',
+            'shippingFee' => 'nullable|numeric|min:0',
+            'discountAmount' => 'nullable|numeric|min:0',
+            'ddate' => 'nullable|date',
+            'note' => 'nullable|string|max:500',
+            'fetchedProducts.*.id' => 'required|exists:products,id',
+            'fetchedProducts.*.combo_id' => 'nullable|exists:combos,id',
+            'fetchedProducts.*.quantity' => 'required|integer|min:1',
+            'fetchedProducts.*.price' => 'required|numeric|min:0',
+        ]);
+
+
+        $driverID = null;
+        $this->driver ? $driverID = $this->driver->id : null;
+
+        // dd($customerId, $this->customerName, $this->shippingAddress, $this->customerPhone, $this->zoneId, $driverID, Order::PYMT_CASH, Order::PERIODIC_WEEKLY, 0, $this->total, $this->shippingFee, $this->discountAmount, $this->ddate ? Carbon::parse($this->ddate) : null, $this->note, $this->fetchedProducts);
+
+
+        $res = Order::newOrder($customerId, $this->customerName, $this->shippingAddress, $this->customerPhone, $this->zoneId, $driverID, Order::PYMT_CASH, Order::PERIODIC_WEEKLY, 0, $this->total, $this->shippingFee, $this->discountAmount, $this->ddate ? Carbon::parse($this->ddate) : null, $this->note, $this->fetchedProducts);
+
+        if ($res) {
+            $this->alertSuccess('order added!');
+        } else {
+            $this->alertFailed();
+        }
     }
 
     public function render()
