@@ -31,7 +31,7 @@ class OrderCreate extends Component
     public $driversSearchText;
     public $customersSearchText;
     public $isOpenSelectCustomerSec;
-    public $dumySearchProduct;
+    public $dummyProductsSearch;
 
     public $customerIsNew = false;
     public $customerId;
@@ -53,6 +53,10 @@ class OrderCreate extends Component
     public $zoneName;
     public $total;
     public $discountAmount = 0;
+
+    public function updatedFetchedProducts(){
+        $this->refreshPayments();
+    }
 
     public function closeDiscountSection()
     {
@@ -77,7 +81,7 @@ class OrderCreate extends Component
         $this->refreshPayments();
     }
 
-    public function updatingZoneId()
+    public function updatedZoneId()
     {
         $this->refreshPayments();
     }
@@ -226,16 +230,28 @@ class OrderCreate extends Component
 
     public function updateTotal($index)
     {
+        $this->validate([
+            'fetchedProducts.*.quantity' => 'required|integer|min:1',
+            'fetchedProducts.*.price' => 'required|numeric|min:0',
+        ]);
         $this->fetchedProducts[$index]['total'] = $this->fetchedProducts[$index]['quantity'] * $this->fetchedProducts[$index]['price'];
     }
 
     public function openProductsSection()
     {
         $this->isOpenSelectProductSec = true;
+        $this->dummyProductsSearch = null;
     }
 
     public function refreshPayments()
     {
+        $this->validate([
+            'fetchedProducts.*.id' => 'required|exists:products,id',
+            'fetchedProducts.*.combo_id' => 'nullable|exists:combos,id',
+            'fetchedProducts.*.quantity' => 'required|integer|min:1',
+            'fetchedProducts.*.price' => 'required|numeric|min:0',
+        ]);
+
         $subtotal = 0;
         $totalItems = 0;
         foreach ($this->fetchedProducts as $prod) {
@@ -300,6 +316,9 @@ class OrderCreate extends Component
                 'shippingAddress' => 'required|string|max:255',
                 'customerPhone' => 'required|string|max:15',
                 'zoneId' => 'required|exists:zones,id',
+            ],attributes:[
+                'customerId' => 'customer',
+                'zoneId' => 'zone',
             ]);
             $customerId = $this->customerId;
         } else {
@@ -309,6 +328,8 @@ class OrderCreate extends Component
                 'shippingAddress' => 'required|string|max:255',
                 'customerPhone' => 'required|string|max:15',
                 'zoneId' => 'required|exists:zones,id',
+            ],attributes:[
+                'zoneId' => 'zone',
             ]);
             $res = Customer::newCustomer($this->customerName, $this->shippingAddress, $this->customerPhone, zone_id: $this->zoneId);
             $customerId = $res->id;
@@ -352,7 +373,7 @@ class OrderCreate extends Component
             ->limit(10)
             ->get();
 
-        $customers = Customer::search($this->driversSearchText)
+        $customers = Customer::search($this->customersSearchText)
             ->limit(10)
             ->get();
 

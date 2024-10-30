@@ -2,9 +2,24 @@
     <div class="space-y-5 profile-page mx-auto" style="max-width: 1000px">
         <div class="flex justify-between">
             <h4><b>Create Order</b></h4>
-            <button wire:click='createOrder' class="btn inline-flex justify-center btn-dark btn-sm">Save</button>
+            @if (!empty($fetchedProducts))
+                <button wire:click='createOrder' class="btn inline-flex justify-center btn-dark btn-sm">Save</button>
+            @endif
         </div>
-        
+
+        @if ($errors->any())
+            <div
+                class="py-[18px] px-6 font-normal text-sm rounded-md bg-white text-danger-500 border border-danger-500 dark:bg-slate-800">
+                <div class="flex items-start space-x-3 rtl:space-x-reverse">
+                    <div class="flex-1 font-Inter">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-6 gap-5 mb-5 text-wrap">
 
             <div class="col-span-4">
@@ -17,90 +32,102 @@
                                 <div class="input-area w-full">
                                     <label for="phone" class="form-label"><b>Products</b></label>
                                     <input id="phone" type="tel" class="form-control"
-                                        wire:click='openProductsSection' placeholder="Search products..."
-                                        autocomplete="off">
+                                        wire:click='openProductsSection' wire:model.live='dummyProductsSearch'
+                                        placeholder="Search products..." autocomplete="off">
                                 </div>
                                 <button wire:click='openCombosSection'
                                     class="btn inline-flex justify-center btn-outline-light btn-sm">Combos</button>
                             </div>
 
-                            <div class="card-body px-6 pb-6 mt-2">
-                                <div class="overflow-x-auto -mx-6">
-                                    <div class="inline-block min-w-full align-middle">
-                                        <div class="overflow-hidden ">
+                            @if (!empty($fetchedProducts))
+                                <div class="card-body px-6 pb-6 mt-2">
+                                    <div class="overflow-x-auto -mx-6">
+                                        <div class="inline-block min-w-full align-middle">
+                                            <div class="overflow-hidden ">
 
-                                            <table
-                                                class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700">
-                                                <thead class="border-t border-slate-100 dark:border-slate-800">
-                                                    <tr>
-                                                        <th scope="col" class="table-th imp-p-2">Product</th>
-                                                        <th scope="col" class="table-th imp-p-2">Quantity</th>
-                                                        <th scope="col" class="table-th imp-p-2">Price/item</th>
-                                                        <th scope="col" class="table-th imp-p-2">Total</th>
-                                                        <th scope="col" class="table-th imp-p-2"></th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody
-                                                    class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
-                                                    @foreach ($fetchedProducts as $index => $product)
+
+                                                <table
+                                                    class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700">
+                                                    <thead class="border-t border-slate-100 dark:border-slate-800">
                                                         <tr>
-                                                            <!-- Product Name Column -->
-                                                            <td class="table-td imp-p-2">
-                                                                <div class="flex-1 text-start">
-                                                                    <div class="text-start overflow-hidden text-ellipsis whitespace-nowrap"
-                                                                        style="max-width:200px;">
-                                                                        <h6
-                                                                            class="text-slate-600 dark:text-slate-300 overflow-hidden text-ellipsis whitespace-nowrap">
-                                                                            {{ $product['name'] }}
-                                                                        </h6>
-                                                                    </div>
-                                                                    <div
-                                                                        class="text-xs font-normal text-slate-600 dark:text-slate-400">
-                                                                        @if ($product['combo_id'])
-                                                                            Added From Combo
-                                                                        @endif
-                                                                    </div>
-                                                                </div>
-                                                            </td>
-
-                                                            <!-- Quantity Input Column -->
-                                                            <td class="table-td imp-p-2">
-                                                                <input type="number" min="1"
-                                                                    class="form-control" style="max-width: 100px;"
-                                                                    wire:model="fetchedProducts.{{ $index }}.quantity"
-                                                                    wire:input="updateTotal({{ $index }})">
-                                                            </td>
-
-                                                            <!-- Price Input Column -->
-                                                            <td class="table-td imp-p-2">
-                                                                <input type="number" min="0"
-                                                                    class="form-control" style="max-width: 100px;"
-                                                                    wire:model="fetchedProducts.{{ $index }}.price"
-                                                                    wire:input="updateTotal({{ $index }})">
-                                                            </td>
-
-                                                            <!-- Total Calculation Column -->
-                                                            <td class="table-td imp-p-2">
-                                                                <span>{{ number_format($product['quantity'] * $product['price'], 2) }}
-                                                                    <small>EGP</small> </span>
-
-                                                            </td>
-                                                            <td class="table-td imp-p-2">
-                                                                <button class="action-btn" type="button"
-                                                                    wire:click="removeProduct({{ $product['id'] }})">
-                                                                    <iconify-icon icon="heroicons:trash"></iconify-icon>
-                                                                </button>
-                                                            </td>
+                                                            <th scope="col" class="table-th imp-p-2">Product</th>
+                                                            <th scope="col" class="table-th imp-p-2">Quantity</th>
+                                                            <th scope="col" class="table-th imp-p-2">Price/item</th>
+                                                            <th scope="col" class="table-th imp-p-2">Total</th>
+                                                            <th scope="col" class="table-th imp-p-2"></th>
                                                         </tr>
-                                                    @endforeach
-                                                </tbody>
-                                            </table>
+                                                    </thead>
+                                                    <tbody
+                                                        class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
+                                                        @foreach ($fetchedProducts as $index => $product)
+                                                            <tr>
+                                                                <!-- Product Name Column -->
+                                                                <td class="table-td imp-p-2">
+                                                                    <div class="flex-1 text-start">
+                                                                        <div class="text-start overflow-hidden text-ellipsis whitespace-nowrap"
+                                                                            style="max-width:200px;">
+                                                                            <h6
+                                                                                class="text-slate-600 dark:text-slate-300 overflow-hidden text-ellipsis whitespace-nowrap">
+                                                                                {{ $product['name'] }}
+                                                                            </h6>
+                                                                        </div>
+                                                                        <div
+                                                                            class="text-xs font-normal text-slate-600 dark:text-slate-400">
+                                                                            @if ($product['combo_id'])
+                                                                                Added From Combo
+                                                                            @endif
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
 
+                                                                <!-- Quantity Input Column -->
+                                                                <td class="table-td imp-p-2">
+                                                                    <input type="number" min="1"
+                                                                        class="form-control @error('fetchedProducts.' . $index . '.quantity') !border-danger-500 @enderror"
+                                                                        style="max-width: 100px;"
+                                                                        wire:model="fetchedProducts.{{ $index }}.quantity"
+                                                                        wire:input="updateTotal({{ $index }})">
+                                                                </td>
+
+                                                                <!-- Price Input Column -->
+                                                                <td class="table-td imp-p-2">
+                                                                    <input type="number" min="0"
+                                                                        class="form-control @error('fetchedProducts.' . $index . '.price') !border-danger-500 @enderror"
+                                                                        style="max-width: 100px;"
+                                                                        wire:model="fetchedProducts.{{ $index }}.price"
+                                                                        wire:input="updateTotal({{ $index }})">
+                                                                </td>
+
+                                                                <!-- Total Calculation Column -->
+                                                                <td class="table-td imp-p-2">
+                                                                    @if ($product['quantity'] && $product['price'])
+                                                                        <span>{{ number_format($product['quantity'] * $product['price'], 2) }}
+                                                                            <small>EGP</small> </span>
+                                                                    @else
+                                                                        <span>0.00
+                                                                            <small>EGP</small> </span>
+                                                                    @endif
+
+
+                                                                </td>
+                                                                <td class="table-td imp-p-2">
+                                                                    <button class="action-btn" type="button"
+                                                                        wire:click="removeProduct({{ $product['id'] }})">
+                                                                        <iconify-icon
+                                                                            icon="heroicons:trash"></iconify-icon>
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
+
+
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -155,10 +182,15 @@
                                                 </td>
                                                 <td class=" text-xs text-slate-500 dark:text-slate-400"></td>
                                                 <td class="float-right text-dark">
-                                                    <b>{{ $discountAmount ? number_format($discountAmount, 2) : '-' }}<small>&nbsp;EGP</small></b>
+                                                    <b>{{ $discountAmount ? '-' . number_format($discountAmount, 2) : '-' }}<small>&nbsp;EGP</small></b>
                                                 </td>
                                             </tr>
 
+                                            <tr>
+                                                <td class=" text-xs text-slate-500 dark:text-slate-400"></td>
+                                                <td class=" text-xs text-slate-500 dark:text-slate-400"></td>
+                                                <td class="float-right text-dark"></td>
+                                            </tr>
                                             <tr>
                                                 <td class=" text-xs text-slate-500 dark:text-slate-400"></td>
                                                 <td class=" text-xs text-slate-500 dark:text-slate-400"></td>
@@ -203,20 +235,33 @@
                                         <div class="mb-2">
                                             <label for="customerName" class="form-label !m-0">Name</label>
                                             <input wire:model='customerName' type="text" name="customerName"
-                                                class="form-control">
+                                                class="form-control  @error('customerName') !border-danger-500 @enderror">
+                                            @error('customerName')
+                                                <span
+                                                    class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                            @enderror
                                         </div>
                                     @endif
 
 
                                     <div class="mb-2 mt-3">
                                         <label for="shippingAddress" class="form-label !m-0">Shipping Address</label>
-                                        <textarea name="shippingAddress" wire:model="shippingAddress" class="form-control"></textarea>
+                                        <textarea name="shippingAddress" wire:model="shippingAddress"
+                                            class="form-control  @error('shippingAddress') !border-danger-500 @enderror"></textarea>
+                                        @error('shippingAddress')
+                                            <span
+                                                class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                        @enderror
                                     </div>
 
                                     <div class="mb-2">
                                         <label for="customerPhone" class="form-label !m-0">Phone</label>
                                         <input wire:model='customerPhone' type="text" name="customerPhone"
-                                            class="form-control">
+                                            class="form-control @error('customerPhone') !border-danger-500 @enderror">
+                                        @error('customerPhone')
+                                            <span
+                                                class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                        @enderror
                                     </div>
 
                                     <div class="mb-2">
@@ -230,6 +275,10 @@
                                                     {{ ucwords(str_replace('_', ' ', $SINGLE_ZONE->name)) }}</option>
                                             @endforeach
                                         </select>
+                                        @error('zoneId')
+                                            <span
+                                                class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                        @enderror
                                     </div>
 
                                     @if ($customerIsNew)
@@ -267,7 +316,12 @@
                             <div class="items-center p-5">
                                 <div class="input-area w-full">
                                     <label for="ddate" class="form-label"><b>Delivery Date</b></label>
-                                    <input wire:model='ddate' type="date" name="ddate" class="form-control">
+                                    <input wire:model='ddate' type="date" name="ddate"
+                                        class="form-control @error('ddate') !border-danger-500 @enderror">
+                                    @error('ddate')
+                                        <span
+                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                    @enderror
                                 </div>
 
                                 <div class="input-area w-full mt-5">
@@ -289,6 +343,7 @@
                                         </button>
                                     @endif
                                 </div>
+
                             </div>
                         </div>
                     </div>
@@ -633,7 +688,8 @@
                                         class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700 no-wrap">
 
                                         @foreach ($drivers as $driver)
-                                            <tr>
+                                            <tr wire:click='selectDriver({{ $driver->id }})'
+                                                class="hover:bg-slate-200 dark:hover:bg-slate-700 cursor-pointer">
 
                                                 <td class="table-td">
                                                     <b>{{ $driver->user->full_name }}</b>
@@ -645,13 +701,6 @@
 
                                                 <td class="table-td">
                                                     {{ $driver->car_model }}
-                                                </td>
-
-                                                <td class="table-td">
-                                                    <button wire:click='selectDriver({{ $driver->id }})'
-                                                        class="btn inline-flex justify-center btn-dark btn-sm">
-                                                        Select driver
-                                                    </button>
                                                 </td>
 
                                             </tr>
@@ -736,8 +785,6 @@
                                                 Zone
                                             </th>
 
-                                            <th scope="col" class="table-th">
-                                            </th>
 
                                         </tr>
                                     </thead>
@@ -745,7 +792,8 @@
                                         class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700 no-wrap">
 
                                         @foreach ($customers as $customer)
-                                            <tr>
+                                            <tr wire:click='selectCustomer({{ $customer->id }})'
+                                                class="hover:bg-slate-200 dark:hover:bg-slate-700 cursor-pointer">
 
                                                 <td class="table-td">
                                                     <b>{{ $customer->name }}</b>
@@ -757,13 +805,6 @@
 
                                                 <td class="table-td">
                                                     {{ $customer->zone?->name }}
-                                                </td>
-
-                                                <td class="table-td">
-                                                    <button wire:click='selectCustomer({{ $customer->id }})'
-                                                        class="btn inline-flex justify-center btn-dark btn-sm no-wrap">
-                                                        Select customer
-                                                    </button>
                                                 </td>
 
                                             </tr>
