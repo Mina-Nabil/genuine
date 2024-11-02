@@ -7,6 +7,7 @@ use App\Livewire\Customers\CustomerShow;
 use App\Livewire\Customers\FollowupIndex;
 use App\Livewire\Customers\ZoneIndex;
 use App\Livewire\Orders\OrderCreate;
+use App\Livewire\Orders\OrderIndex;
 use App\Livewire\Pets\PetIndex;
 use App\Livewire\Products\ComboIndex;
 use App\Livewire\Products\ComboShow;
@@ -41,6 +42,7 @@ Route::get('/notifications', NotificationIndex::class);
 Route::post('/notifications/seen/{id}', [UserController::class, 'setNotfAsSeen']);
 
 Route::get('/orders/new',OrderCreate::class)->name('orders.create');
+Route::get('/orders',OrderIndex::class)->name('orders.index');
 // Route::get('/orders/{id}',OrderShow::class)->name('orders.show');
 });
 Route::get('/welcome', [HomeController::class, 'welcome']);

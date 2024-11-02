@@ -130,9 +130,18 @@
                     <li>
                         <a href="{{ url('/products') }}" class="navItem {{ $products ?? '' }}">
                             <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="icon-park-outline:ad-product">
+                                <iconify-icon class=" nav-icon" icon="flowbite:tag-outline">
                                 </iconify-icon>
                                 <span>Products</span>
+                            </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url('/orders') }}" class="navItem {{ $orders ?? '' }}">
+                            <span class="flex items-center">
+                                <iconify-icon class=" nav-icon" icon="icon-park-outline:ad-product">
+                                </iconify-icon>
+                                <span>Orders</span>
                             </span>
                         </a>
                     </li>
