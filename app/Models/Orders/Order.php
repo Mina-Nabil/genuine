@@ -14,18 +14,12 @@ class Order extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['order_number', 'customer_id', 'customer_name', 'shipping_address', 'customer_phone', 'zone_id', 'driver_id', 'payment_method', 'periodic_option', 'paid_amount', 'total_amount', 'delivery_amount', 'discount_amount', 'delivery_date', 'is_paid', 'note', 'created_by'];
-
-    const PAYMENT_METHODS = [self::PYMT_CASH, self::PYMT_WALLET];
-    const PYMT_CASH = 'cash';
-    const PYMT_WALLET = 'credit_card';
+    protected $fillable = ['order_number', 'customer_id', 'customer_name', 'shipping_address', 'customer_phone', 'zone_id', 'driver_id', 'periodic_option', 'total_amount', 'delivery_amount', 'discount_amount', 'delivery_date', 'is_paid', 'note', 'created_by'];
 
     const PERIODIC_OPTIONS = [self::PERIODIC_WEEKLY, self::PERIODIC_BI_WEEKLY, self::PERIODIC_MONTHLY];
     const PERIODIC_WEEKLY = 'weekly';
     const PERIODIC_BI_WEEKLY = 'bi-weekly';
     const PERIODIC_MONTHLY = 'bi-monthly';
-
-    const STATUSES = [self::STATUS_NEW, self::STATUS_READY, self::STATUS_IN_DELIVERY, self::STATUS_DONE, self::STATUS_RETURNED, self::STATUS_CANCELLED];
 
     const STATUS_NEW = 'new';
     const STATUS_READY = 'ready';
@@ -33,6 +27,7 @@ class Order extends Model
     const STATUS_DONE = 'done';
     const STATUS_RETURNED = 'returned';
     const STATUS_CANCELLED = 'cancelled';
+    const STATUSES = [self::STATUS_NEW, self::STATUS_READY, self::STATUS_IN_DELIVERY, self::STATUS_DONE, self::STATUS_RETURNED, self::STATUS_CANCELLED];
 
     // Function to create a new order
     public static function newOrder(
@@ -42,9 +37,7 @@ class Order extends Model
         string $customerPhone, 
         int $zoneId, 
         int $driverId = null, 
-        string $paymentMethod, 
         string $periodicOption = null, 
-        float $paidAmount = 0, 
         float $totalAmount = 0, 
         float $deliveryAmount = 0, 
         float $discountAmount = 0, 
@@ -68,9 +61,7 @@ class Order extends Model
             $order->customer_phone = $customerPhone;
             $order->zone_id = $zoneId;
             $order->driver_id = $driverId;
-            $order->payment_method = $paymentMethod;
             $order->periodic_option = $periodicOption;
-            $order->paid_amount = $paidAmount;
             $order->total_amount = $totalAmount;
             $order->delivery_amount = $deliveryAmount;
             $order->discount_amount = $discountAmount;

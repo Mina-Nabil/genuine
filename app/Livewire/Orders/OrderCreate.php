@@ -89,10 +89,10 @@ class OrderCreate extends Component
         $this->refreshPayments();
     }
 
-    public function updatedDumySearchProduct()
+    public function updatedDummyProductsSearch()
     {
         $this->openProductsSection();
-        $this->dumySearchProduct = null;
+        $this->dummyProductsSearch = null;
     }
 
     public function closeCombosSection()
@@ -344,7 +344,6 @@ class OrderCreate extends Component
             'discountAmount' => 'nullable|numeric|min:0',
             'ddate' => 'nullable|date',
             'note' => 'nullable|string|max:500',
-            'paymentMethod' => "required|in:" . implode(',', Order::PAYMENT_METHODS),
             'periodicOption' => "required|in:" . implode(',', Order::PERIODIC_OPTIONS),
             'fetchedProducts.*.id' => 'required|exists:products,id',
             'fetchedProducts.*.combo_id' => 'nullable|exists:combos,id',
@@ -356,7 +355,7 @@ class OrderCreate extends Component
         $driverID = null;
         $this->driver ? $driverID = $this->driver->id : null;
 
-        $res = Order::newOrder($customerId, $this->customerName, $this->shippingAddress, $this->customerPhone, $this->zoneId, $driverID, $this->paymentMethod, $this->periodicOption , 0, $this->total, $this->shippingFee, $this->discountAmount, $this->ddate ? Carbon::parse($this->ddate) : null, $this->note, $this->fetchedProducts);
+        $res = Order::newOrder($customerId, $this->customerName, $this->shippingAddress, $this->customerPhone, $this->zoneId, $driverID, $this->periodicOption , $this->total, $this->shippingFee, $this->discountAmount, $this->ddate ? Carbon::parse($this->ddate) : null, $this->note, $this->fetchedProducts);
 
         if ($res) {
             $this->alertSuccess('order added!');
@@ -385,7 +384,6 @@ class OrderCreate extends Component
             ->limit(10)
             ->get();
 
-        $PAYMENT_METHODS = Order::PAYMENT_METHODS;
         $PERIODIC_OPTIONS = Order::PERIODIC_OPTIONS;
 
         return view('livewire.orders.order-create', [
@@ -394,7 +392,6 @@ class OrderCreate extends Component
             'customers' => $customers,
             'zones' => $zones,
             'combos' => $combos,
-            'PAYMENT_METHODS' => $PAYMENT_METHODS,
             'PERIODIC_OPTIONS' => $PERIODIC_OPTIONS
         ])->layout('layouts.app', ['page_title' => $this->page_title, 'orders' => 'active']);
     }

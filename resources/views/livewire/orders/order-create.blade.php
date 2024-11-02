@@ -314,22 +314,6 @@
                     <div class="card mb-5">
                         <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base">
                             <div class="items-center p-5">
-                                <div class="input-area w-full">
-                                    <label for="ddate" class="form-label"><b>Payment method</b></label>
-                                    <select name="paymentMethod" id="paymentMethod"
-                                            class="form-control w-full @error('paymentMethod') !border-danger-500 @enderror"
-                                            wire:model.live="paymentMethod" autocomplete="off">
-                                            <option value="">None</option>
-                                            @foreach ($PAYMENT_METHODS as $PAYMENT_METHOD)
-                                                <option value="{{ $PAYMENT_METHOD }}">
-                                                    {{ ucwords(str_replace('_', ' ', $PAYMENT_METHOD)) }}</option>
-                                            @endforeach
-                                        </select>
-                                    @error('paymentMethod')
-                                        <span
-                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
-                                    @enderror
-                                </div>
 
                                 <div class="input-area w-full mt-5">
                                     <label for="ddate" class="form-label"><b>Periodic option</b></label>
