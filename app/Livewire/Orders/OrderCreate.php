@@ -236,6 +236,9 @@ class OrderCreate extends Component
         $this->validate([
             'fetchedProducts.*.quantity' => 'required|integer|min:1',
             'fetchedProducts.*.price' => 'required|numeric|min:0',
+        ], [
+            'fetchedProducts.*.quantity' => 'Each order item must have a valid quantity',
+            'fetchedProducts.*.price' => 'Each order item must have a price',   
         ]);
         $this->fetchedProducts[$index]['total'] = $this->fetchedProducts[$index]['quantity'] * $this->fetchedProducts[$index]['price'];
     }
@@ -253,6 +256,10 @@ class OrderCreate extends Component
             'fetchedProducts.*.combo_id' => 'nullable|exists:combos,id',
             'fetchedProducts.*.quantity' => 'required|integer|min:1',
             'fetchedProducts.*.price' => 'required|numeric|min:0',
+        ], [
+            'fetchedProducts.*.id' => 'Each order item is required',
+            'fetchedProducts.*.quantity' => 'Each order item must have a valid quantity',
+            'fetchedProducts.*.price' => 'Each order item must have a price',   
         ]);
 
         $subtotal = 0;
@@ -342,13 +349,17 @@ class OrderCreate extends Component
             'total' => 'nullable|numeric|min:0',
             'shippingFee' => 'nullable|numeric|min:0',
             'discountAmount' => 'nullable|numeric|min:0',
-            'ddate' => 'nullable|date',
+            'ddate' => 'required|date',
             'note' => 'nullable|string|max:500',
-            'periodicOption' => "required|in:" . implode(',', Order::PERIODIC_OPTIONS),
+            'periodicOption' => "nullable|in:" . implode(',', Order::PERIODIC_OPTIONS),
             'fetchedProducts.*.id' => 'required|exists:products,id',
             'fetchedProducts.*.combo_id' => 'nullable|exists:combos,id',
             'fetchedProducts.*.quantity' => 'required|integer|min:1',
             'fetchedProducts.*.price' => 'required|numeric|min:0',
+        ], [
+            'fetchedProducts.*.id' => 'Each order item is required',
+            'fetchedProducts.*.quantity' => 'Each order item must have a valid quantity',
+            'fetchedProducts.*.price' => 'Each order item must have a price',   
         ]);
 
 
