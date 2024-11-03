@@ -13,6 +13,7 @@ use App\Livewire\Products\ComboIndex;
 use App\Livewire\Products\ComboShow;
 use App\Livewire\Products\ProductIndex;
 use App\Livewire\Products\ProductShow;
+use App\Livewire\Reports\ProductionPlanning;
 use App\Livewire\Tasks\TaskIndex;
 use App\Livewire\Tasks\TaskShow;
 use App\Livewire\Users\NotificationIndex;
@@ -44,6 +45,9 @@ Route::post('/notifications/seen/{id}', [UserController::class, 'setNotfAsSeen']
 Route::get('/orders/new',OrderCreate::class)->name('orders.create');
 Route::get('/orders',OrderIndex::class)->name('orders.index');
 // Route::get('/orders/{id}',OrderShow::class)->name('orders.show');
+
+Route::get('/productions',ProductionPlanning::class)->name('production.planning');
+
 });
 Route::get('/welcome', [HomeController::class, 'welcome']);
 Route::post('/login', [HomeController::class, 'authenticate']);

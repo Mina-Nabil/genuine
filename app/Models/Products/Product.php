@@ -2,6 +2,7 @@
 
 namespace App\Models\Products;
 
+use App\Models\Orders\OrderProduct;
 use App\Models\Users\AppLog;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -229,6 +230,11 @@ class Product extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function orderProducts()
+    {
+        return $this->hasMany(OrderProduct::class);
     }
 
     public function comments(): HasMany

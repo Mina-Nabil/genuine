@@ -105,9 +105,9 @@ class Inventory extends Model
             // Handle positive and negative quantities
             if ($quantity > 0) {
                 // Commit stock (increase committed, reduce available, and reduce on_hand)
-                if ($quantity > $this->available) {
-                    throw new \Exception('Not enough available stock to commit.');
-                }
+                // if ($quantity > $this->available) {
+                //     throw new \Exception('Not enough available stock to commit.');
+                // }
                 $this->committed += $quantity;
                 // $this->on_hand -= $quantity; // Reduce on_hand since it's being committed
             } elseif ($quantity < 0) {
@@ -189,6 +189,11 @@ class Inventory extends Model
     public function getUnavailableAttribute()
     {
         return $this->on_hand - $this->available;
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
     }
 
     /**

@@ -16568,6 +16568,12 @@ ul.custom-list ul {
     .md\:top-\[140px\] {
         top: 140px;
     }
+    .sm\:col-span-5 {
+        grid-column: span 5 / span 5;
+    }
+    .md\:col-span-1 {
+        grid-column: span 1 / span 1;
+    }
     .md\:col-span-2 {
         grid-column: span 2 / span 2;
     }

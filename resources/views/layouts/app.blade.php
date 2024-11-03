@@ -125,6 +125,15 @@
                             </span>
                         </a>
                     </li>
+                    <li>
+                        <a href="{{ url('/productions') }}" class="navItem {{ $productions ?? '' }}">
+                            <span class="flex items-center">
+                                <iconify-icon class=" nav-icon" icon="la:industry">
+                                </iconify-icon>
+                                <span>Productions</span>
+                            </span>
+                        </a>
+                    </li>
 
                     <li class="sidebar-menu-title">CRM</li>
                     <li>
