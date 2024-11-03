@@ -109,7 +109,7 @@ class Inventory extends Model
                     throw new \Exception('Not enough available stock to commit.');
                 }
                 $this->committed += $quantity;
-                $this->on_hand -= $quantity; // Reduce on_hand since it's being committed
+                // $this->on_hand -= $quantity; // Reduce on_hand since it's being committed
             } elseif ($quantity < 0) {
                 // Uncommit stock (decrease committed, increase available, and increase on_hand)
                 $uncommitQty = abs($quantity); // convert negative quantity to positive for comparison
@@ -134,7 +134,7 @@ class Inventory extends Model
             // Create transaction log
             $transaction = Transaction::create([
                 'inventory_id' => $this->id,
-                'quantity' => $quantity, // Can be positive or negative
+                'quantity' => -$quantity, // Can be positive or negative
                 'before' => $beforeAvailable,
                 'after' => $afterAvailable,
                 'remarks' => $remarks,

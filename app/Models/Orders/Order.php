@@ -66,12 +66,13 @@ class Order extends Model
             $order->save();
 
             foreach ($products as $product) {
-                $order->products()->create([
+                $orderProduct = $order->products()->create([
                     'product_id' => $product['id'],
                     'combo_id' => $product['combo_id'],
                     'quantity' => $product['quantity'],
                     'price' => $product['price'],
                 ]);
+                $orderProduct->product->inventory->commitQuantity($product['quantity'],'Order: #'.$order->order_number.' committed');
             }
 
             AppLog::info("Order Created by {$loggedInUser->full_name}");
