@@ -14,6 +14,8 @@ class InventorySeeder extends Seeder
      */
     public function run(): void
     {
+        return;
+        
         // Get all products
         $products = Product::all();
 
