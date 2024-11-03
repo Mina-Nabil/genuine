@@ -91,13 +91,14 @@ class ProductShow extends Component
                 throw ValidationException::withMessages([
                     'transQuantity' => $res->getMessage(),
                 ]);
-            }else{
+            }elseif($res){
                 $this->closeTransSection();
                 $this->alertSuccess('Transaction added!');
-                return;
+            }else{
+                $this->alertFailed();
             }
             
-            $this->alertFailed();
+            
             
     }
 
