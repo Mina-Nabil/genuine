@@ -4,6 +4,7 @@ use App\Models\Customers\Customer;
 use App\Models\Orders\Order;
 use App\Models\Payments\BalanceTransaction;
 use App\Models\Payments\CustomerPayment;
+use App\Models\Users\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -16,13 +17,12 @@ return new class extends Migration {
     {
         Schema::create('balance_transactions', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Customer::class, 'customer_id')->constrained();
-            $table->foreignIdFor(CustomerPayment::class, 'payment_id')->nullable()->constrained('customer_payments'); // Inflow
-            $table->foreignIdFor(Order::class, 'order_id')->nullable()->constrained(); // Outflow
-            $table->decimal('amount', 10, 2);
-            $table->enum('type', BalanceTransaction::TYPES); // 'in' for crediting balance, 'out' for debiting balance
+            $table->foreignIdFor(Customer::class)->constrained();
+            $table->foreignIdFor(CustomerPayment::class)->nullable()->constrained('customer_payments'); // Inflow
+            $table->foreignIdFor(Order::class)->nullable()->constrained(); // Outflow
+            $table->decimal('amount', 10, 2); //double 
             $table->string('description')->nullable(); // Explanation of the transaction
-            $table->foreignId('created_by')->constrained('users'); // User who recorded the transaction
+            $table->foreignIdFor(User::class, 'created_by')->constrained('users'); // User who recorded the transaction
             $table->timestamps();
         });
 

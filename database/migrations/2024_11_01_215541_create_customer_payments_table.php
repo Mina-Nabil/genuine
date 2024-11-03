@@ -14,17 +14,14 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('customer_payments', function (Blueprint $table) {
-            $table->id();
-            $table->foreignIdFor(Customer::class, 'customer_id')->constrained();
-            $table->foreignIdFor(Order::class, 'order_id')->nullable()->constrained();
+            $table->id(); 
+            $table->foreignIdFor(Customer::class)->constrained();
+            $table->foreignIdFor(Order::class)->nullable()->constrained();
             $table->decimal('amount', 10, 2);
             $table->enum('payment_method', CustomerPayment::PAYMENT_METHODS);
             $table->date('payment_date');
-            $table->string('reference')->nullable();
             $table->string('note')->nullable();
-            $table->enum('status', CustomerPayment::STATUSES)->default(CustomerPayment::STATUS_NEW);
             $table->foreignId('created_by')->constrained('users');
-            $table->foreignId('closed_by')->nullable()->constrained('users');
             $table->timestamps();
         });
     }
