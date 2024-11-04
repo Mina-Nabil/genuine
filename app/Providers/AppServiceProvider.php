@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Customers\Customer;
+use App\Models\Orders\Order;
 use App\Models\Products\Inventory;
 use App\Models\Products\Product;
 use App\Models\Users\AppLog;
@@ -29,6 +30,7 @@ class AppServiceProvider extends ServiceProvider
             Customer::MORPH_TYPE    => Customer::class, 
             Inventory::MORPH_TYPE   => Inventory::class, 
             AppLog::MORPH_TYPE   => AppLog::class, 
+            Order::MORPH_TYPE   => Order::class, 
         ]);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models\Customers;
 
+use App\Models\Orders\Order;
 use App\Models\Pets\Pet;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -138,6 +139,11 @@ class Customer extends Model
         return $this->pets()->count();
     }
 
+    public function getTotalOrdersAttribute()
+    {
+        return $this->orders()->count();
+    }
+
     // Scopes
     public function scopeSearch($query, $term)
     {
@@ -149,6 +155,11 @@ class Customer extends Model
     public function zone()
     {
         return $this->belongsTo(Zone::class);
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
     }
 
     public function followups(): MorphMany

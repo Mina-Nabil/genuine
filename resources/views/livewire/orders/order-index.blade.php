@@ -88,7 +88,7 @@
                                                     class="h-[10px] w-[10px] block m-auto opacity-0"></span>
                                         </label>
                                     </div>
-                                    <a href=""> <span class="hover-underline">
+                                    <a href="{{ route('orders.show',$order->id) }}"> <span class="hover-underline">
                                             <b>
                                                 #{{ $order->order_number }}
                                             </b>

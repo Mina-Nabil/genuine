@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -19,6 +20,8 @@ use Illuminate\Support\Facades\DB;
 class Order extends Model
 {
     use HasFactory, SoftDeletes;
+
+    const MORPH_TYPE = 'order';
 
     protected $fillable = ['order_number', 'customer_id', 'customer_name', 'shipping_address', 'customer_phone', 'status', 'zone_id', 'driver_id', 'periodic_option', 'total_amount', 'delivery_amount', 'discount_amount', 'delivery_date', 'is_paid', 'note', 'created_by'];
 
@@ -75,7 +78,7 @@ class Order extends Model
                 $orderProduct->product->inventory->commitQuantity($product['quantity'],'Order: #'.$order->order_number.' committed');
             }
 
-            AppLog::info("Order Created by {$loggedInUser->full_name}");
+            AppLog::info("Order Created successfuly",loggable: $order);
             return $order;
         } catch (Exception $e) {
             report($e);
@@ -99,6 +102,11 @@ class Order extends Model
         return str_pad($nextOrderNumber, 4, '0', STR_PAD_LEFT); // Format as a 6-digit number (e.g., 000001)
     }
 
+    public function addComment(string $comment): void
+    {
+        AppLog::comment($comment, $desc = null, loggable: $this);
+    }
+
     public function scopeWithTotalQuantity(Builder $query)
     {
         $query->withCount([
@@ -108,25 +116,39 @@ class Order extends Model
         ]);
     }
 
+    public function getTotalItemsAttribute()
+    {
+        return $this->products->sum('quantity');
+    }
+
+    public function getTotalItemsPriceAttribute()
+    {
+        return $this->products->sum(function ($product) {
+            return $product->price * $product->quantity;
+        });
+    }
+
     // relations
     public function products()
     {
         return $this->hasMany(OrderProduct::class);
     }
 
-    // relations
+    public function comments(): HasMany
+    {
+        return $this->hasMany(AppLog::class, 'loggable_id')->where('loggable_type', self::MORPH_TYPE);
+    }
+
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
     }
 
-    // relations
     public function zone(): BelongsTo
     {
         return $this->belongsTo(Zone::class);
     }
 
-    // relations
     public function driver(): BelongsTo
     {
         return $this->belongsTo(Driver::class);

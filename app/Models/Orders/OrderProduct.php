@@ -2,6 +2,7 @@
 
 namespace App\Models\Orders;
 
+use App\Models\Products\Combo;
 use App\Models\Products\Product;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 class OrderProduct extends Model
 {
     use HasFactory, SoftDeletes;
+    protected $table = 'order_products';
 
     protected $fillable = [
         'order_id', // Foreign key to the order
@@ -69,5 +71,10 @@ class OrderProduct extends Model
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function combo()
+    {
+        return $this->belongsTo(Combo::class);
     }
 }
