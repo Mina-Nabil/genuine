@@ -11,6 +11,8 @@ class Zone extends Model
 {
     use HasFactory;
 
+    const MORPH_TYPE = 'zone';
+
     protected $fillable = ['name', 'delivery_rate'];
 
     // Create a new zone

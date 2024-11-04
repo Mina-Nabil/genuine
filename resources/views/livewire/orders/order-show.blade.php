@@ -210,14 +210,19 @@
                     </div>
                 </div>
 
-                
+
             </div>
             <div class="col-span-2">
                 <div class="card">
                     <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base">
                         <div class="items-center p-5">
                             <div class="input-area w-full">
+                                <div class="flex justify-bewwteen">
                                 <label for="phone" class="form-label"><b>Notes</b></label>
+                                <button wire:click='openUpdateNote' class="action-btn" type="button">
+                                    <iconify-icon icon="heroicons:pencil-square"></iconify-icon>
+                                </button>
+                                </div>
                                 <p class="text-xs">{{ $order->note ?? 'No notes for order' }}</p>
                             </div>
                         </div>
@@ -230,15 +235,23 @@
                             <div class="input-area w-full">
                                 <label for="phone" class="form-label"><b>Customer</b></label>
                                 <p class="text-xs">
-                                    <a class="clickable-link" href="{{ route('customer.show',$order->customer->id) }}">
+                                    <a class="clickable-link"
+                                        href="{{ route('customer.show', $order->customer->id) }}">
                                         {{ $order->customer->name }}
                                     </a>
                                 </p>
-                                <p class="text-xs mt-1">{{ $order->customer->total_orders }} order{{ ($order->customer->total_orders > 1)  ? 's' : '' }}</p>
+                                <p class="text-xs mt-1">{{ $order->customer->total_orders }}
+                                    order{{ $order->customer->total_orders > 1 ? 's' : '' }}</p>
                             </div>
-                            <label for="phone" class="form-label mt-5"><b>Shipping Address</b></label>
+                            <div class="flex justify-bewwteen mt-5">
+                                <label for="phone" class="form-label"><b>Shipping Address</b></label>
+                                <button wire:click='openUpdateShippingDetails' class="action-btn" type="button">
+                                    <iconify-icon icon="heroicons:pencil-square"></iconify-icon>
+                                </button>
+                            </div>
                             <p class="text-xs">{{ $order->customer_name }}</p>
-                            <a class="text-xs clickable-link" href="tel:{{ $order->customer_phone }}">{{ $order->customer_phone }}</a>
+                            <a class="text-xs clickable-link"
+                                href="tel:{{ $order->customer_phone }}">{{ $order->customer_phone }}</a>
                             <p class="text-xs">{{ $order->shipping_address }}</p>
                             <p class="text-xs mt-1">{{ $order->zone->name }}</p>
                         </div>
@@ -254,7 +267,8 @@
                     <ol class="timeline">
                         <li class="timeline-item">
                             <span class="timeline-item-icon | avatar-icon">
-                                <span class="block w-full h-full object-cover text-center leading-10 text-lg user-initial">
+                                <span
+                                    class="block w-full h-full object-cover text-center leading-10 text-lg user-initial">
                                     {{ strtoupper(substr(Auth::user()->username, 0, 1)) }}
                                 </span>
                             </span>
@@ -263,7 +277,7 @@
                                     placeholder="Add a comment..." />
                             </div>
                         </li>
-    
+
                         @forelse ($comments as $comment)
                             @if ($comment->level === 'info')
                                 <li class="timeline-item">
@@ -277,12 +291,14 @@
                                     </span>
                                     <div class="timeline-item-description">
                                         <span class="avatar | small">
-                                            <span class="block w-full h-full object-cover text-center text-lg user-initial"
+                                            <span
+                                                class="block w-full h-full object-cover text-center text-lg user-initial"
                                                 style="font-size: 12px">
                                                 {{ strtoupper(substr($comment->user->username, 0, 1)) }}
                                             </span>
                                         </span>
-                                        <span><a href="#">{{ $comment->user->full_name }}</a> {{ $comment->title }}
+                                        <span><a href="#">{{ $comment->user->full_name }}</a>
+                                            {{ $comment->title }}
                                             <time datetime="21-01-2021">
                                                 @if ($comment->created_at->isToday())
                                                     Today {{ $comment->created_at->format('h:i A') }}
@@ -304,7 +320,7 @@
                                                 d="M6.455 19L2 22.5V4a1 1 0 0 1 1-1h18a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H6.455zM7 10v2h2v-2H7zm4 0v2h2v-2h-2zm4 0v2h2v-2h-2z" />
                                         </svg>
                                     </span>
-    
+
                                     <div class="timeline-item-wrapper w-full">
                                         <div class="timeline-item-description">
                                             <span class="avatar | small">
@@ -314,8 +330,8 @@
                                                     {{ strtoupper(substr($comment->user->username, 0, 1)) }}
                                                 </span>
                                             </span>
-                                            <span><a href="#">{{ $comment->user->full_name }}</a> commented <time
-                                                    datetime="20-01-2021">
+                                            <span><a href="#">{{ $comment->user->full_name }}</a> commented
+                                                <time datetime="20-01-2021">
                                                     @if ($comment->created_at->isToday())
                                                         Today at {{ $comment->created_at->format('h:m') }}
                                                     @elseif($comment->created_at->isYesterday())
@@ -330,7 +346,7 @@
                                             <p>{{ $comment->title }}</p>
                                         </div>
                                     </div>
-    
+
                                 </li>
                             @endif
                         @empty
@@ -349,14 +365,187 @@
                         @if ($visibleCommentsCount < $order->comments()->count())
                             <button wire:click="loadMore"><small class="clickable-link">See More</small></button>
                         @endif
-    
+
                         @if ($visibleCommentsCount > 5)
                             <button wire:click="showLess"><small class="clickable-link">Show Less</small></button>
                         @endif
                     </div>
-    
+
                 </div>
             </div>
         </div>
     </div>
+
+    @can('update', $order)
+        @if ($updateShippingSec)
+            <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+                tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
+                style="display: block;">
+                <div class="modal-dialog relative w-auto pointer-events-none">
+                    <div
+                        class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
+                        <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
+                            <!-- Modal header -->
+                            <div
+                                class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
+                                <h3 class="text-xl font-medium text-white dark:text-white capitalize">
+                                    Edit shipping address
+                                </h3>
+                                <button wire:click="closeUpdateShippingDetails" type="button"
+                                    class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
+                                    data-bs-dismiss="modal">
+                                    <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd"
+                                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                            clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span class="sr-only">Close modal</span>
+                                </button>
+                            </div>
+
+                            <!-- Modal body -->
+                            <div class="p-6 space-y-4">
+                                
+                                <div class="from-group">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+                                        <div class="input-area">
+                                            <label for="customerName" class="form-label">Customer Name*</label>
+                                            <input id="customerName" type="text"
+                                                class="form-control @error('customerName') !border-danger-500 @enderror"
+                                                wire:model="customerName" autocomplete="off">
+                                        </div>
+                                        <div class="input-area">
+                                            <label for="customerPhone" class="form-label">Phone*</label>
+                                            <input id="customerPhone" type="text"
+                                                class="form-control @error('customerPhone') !border-danger-500 @enderror"
+                                                wire:model="customerPhone" autocomplete="off">
+                                        </div>
+                                        
+                                    </div>
+                                    @error('customerName')
+                                        <span
+                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                    @enderror
+                                    @error('customerPhone')
+                                        <span
+                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <div class="from-group">
+                                    <div class="input-area">
+                                        <label for="zoneId" class="form-label">Zone*</label>
+                                        <select name="zoneId" id="zoneId"
+                                            class="form-control w-full mt-2 @error('zoneId') !border-danger-500 @enderror"
+                                            wire:model="zoneId" autocomplete="off">
+                                            <option value="">Select Zone</option>
+                                            @foreach ($zones as $zone)
+                                                <option value="{{ $zone->id }}">
+                                                    {{ ucwords($zone->name) }}</option>
+                                            @endforeach
+                                        </select>
+                                        <small class="text-gray-500">
+                                            Note: Any changes to the zone may affect the shipping rate for this order and total amount.
+                                        </small>
+                                    </div>
+                                    
+                                    @error('zoneId')
+                                        <span
+                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <div class="from-group">
+                                    <div class="input-area">
+                                        <label for="shippingAddress" class="form-label">Address*</label>
+                                        <textarea id="shippingAddress" type="text"
+                                            class="form-control @error('shippingAddress') !border-danger-500 @enderror" wire:model="shippingAddress"
+                                            autocomplete="off"></textarea>
+                                    </div>
+                                    @error('shippingAddress')
+                                        <span
+                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                            </div>
+
+                            <!-- Modal footer -->
+                            <div class="flex items-center justify-end p-6 border-t border-slate-200 rounded-b">
+                                <button wire:click="updateShippingDetails" data-bs-dismiss="modal"
+                                    class="btn inline-flex justify-center text-white bg-black-500">
+                                    <span wire:loading.remove wire:target="updateShippingDetails">Submit</span>
+                                    <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
+                                        wire:loading wire:target="updateShippingDetails"
+                                        icon="line-md:loading-twotone-loop"></iconify-icon>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        @endif
+    @endcan
+
+    @can('update', $order)
+        @if ($updateNoteSec)
+            <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+                tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
+                style="display: block;">
+                <div class="modal-dialog relative w-auto pointer-events-none">
+                    <div
+                        class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
+                        <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
+                            <!-- Modal header -->
+                            <div
+                                class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
+                                <h3 class="text-xl font-medium text-white dark:text-white capitalize">
+                                    Edit note
+                                </h3>
+                                <button wire:click="closeUpdateNote" type="button"
+                                    class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
+                                    data-bs-dismiss="modal">
+                                    <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd"
+                                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                            clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span class="sr-only">Close modal</span>
+                                </button>
+                            </div>
+
+                            <!-- Modal body -->
+                            <div class="p-6 space-y-4">
+                        
+                                <div class="from-group">
+                                    <div class="input-area">
+                                        <label for="note" class="form-label">Note</label>
+                                        <textarea id="note" type="text"
+                                            class="form-control @error('note') !border-danger-500 @enderror" wire:model="note"
+                                            autocomplete="off"></textarea>
+                                    </div>
+                                    @error('note')
+                                        <span
+                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                            </div>
+
+                            <!-- Modal footer -->
+                            <div class="flex items-center justify-end p-6 border-t border-slate-200 rounded-b">
+                                <button wire:click="updateNote" data-bs-dismiss="modal"
+                                    class="btn inline-flex justify-center text-white bg-black-500">
+                                    <span wire:loading.remove wire:target="updateNote">Submit</span>
+                                    <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
+                                        wire:loading wire:target="updateNote"
+                                        icon="line-md:loading-twotone-loop"></iconify-icon>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        @endif
+    @endcan
 </div>

@@ -87,6 +87,75 @@ class Order extends Model
         }
     }
 
+    private function refreshTotalAmount(){
+        $this->total_amount = $this->total_items_price + $this->delivery_amount - $this->discount_amount;
+    }
+
+    /**
+     * Update the note for the order.
+     *
+     * @param  string $note
+     * @return bool
+     */
+    public function updateNote(string $note = null): bool
+    {
+        /** @var User */
+        $loggedInUser = Auth::user();
+        if ($loggedInUser && !$loggedInUser->can('update', $this)) {
+            return false;
+        }
+
+        try {
+            $this->note = empty($note) ? null : $note;
+            $this->save();
+
+            AppLog::info("Note updated", loggable: $this);
+            return true;
+        } catch (Exception $e) {
+            report($e);
+            AppLog::error('Failed to update note for order', $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * @param  string $customerName
+     * @param  string $shippingAddress
+     * @param  string $customerPhone
+     * @param  int    $zoneId
+     * @return bool
+     */
+    public function updateShippingDetails(string $customerName, string $shippingAddress, string $customerPhone, int $zoneId): bool
+    {
+        /** @var User */
+        $loggedInUser = Auth::user();
+        if ($loggedInUser && !$loggedInUser->can('update', $this)) {
+            return false;
+        }
+
+        try {
+            $zone = Zone::findOrFail($zoneId);
+
+            $this->customer_name = $customerName;
+            $this->shipping_address = $shippingAddress;
+            $this->customer_phone = $customerPhone;
+            $this->zone_id = $zoneId;
+            $this->delivery_amount = $zone->delivery_rate;
+
+            $this->save();
+
+            $this->refreshTotalAmount();
+            $this->save();
+
+            AppLog::info("Shipping details updated.", loggable: $this);
+            return true;
+        } catch (Exception $e) {
+            report($e);
+            AppLog::error('Failed to update shipping details for order', $e->getMessage());
+            return false;
+        }
+    }
+
     private static function generateNextOrderNumber(): string
     {
         $latestOrder = self::orderBy('created_at', 'desc')->first();
