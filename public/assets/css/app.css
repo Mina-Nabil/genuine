@@ -6228,7 +6228,8 @@ textarea.form-control.is-invalid {
 }
 .bg-warning-500 {
     --tw-bg-opacity: 1;
-    background-color: rgb(250 145 107 / var(--tw-bg-opacity));
+    /* background-color: rgb(250 145 107 / var(--tw-bg-opacity)); */
+    background-color: #ffd6a4
 }
 .bg-danger-500 {
     --tw-bg-opacity: 1;
