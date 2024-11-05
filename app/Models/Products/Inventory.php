@@ -117,7 +117,6 @@ class Inventory extends Model
                     throw new \Exception('Not enough committed stock to uncommit.');
                 }
                 $this->committed -= $uncommitQty;
-                $this->on_hand += $uncommitQty; // Increase on_hand since stock is being uncommitted
             } else {
                 throw new \Exception('Quantity cannot be zero.');
             }

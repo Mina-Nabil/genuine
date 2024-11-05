@@ -3,6 +3,7 @@
 namespace App\Models\Orders;
 
 use App\Models\Products\Combo;
+use App\Models\Products\Inventory;
 use App\Models\Products\Product;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -59,6 +60,12 @@ class OrderProduct extends Model
                 DB::raw('(inventories.on_hand - SUM(order_products.quantity)) as production_required'),
             )
             ->groupBy('products.id', 'products.name', 'inventories.on_hand', 'inventories.committed', 'inventories.available');
+    }
+
+    // Define the relation to the Inventory model through the Product
+    public function inventory()
+    {
+        return $this->hasOneThrough(Inventory::class, Product::class, 'id', 'inventoryable_id', 'product_id', 'id');
     }
 
     // Define the relationship to the Order model

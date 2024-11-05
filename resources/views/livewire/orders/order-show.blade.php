@@ -29,12 +29,9 @@
 
             @can('update', $order)
                 <div>
-                    <button class="btn inline-flex justify-center btn-secondary btn-sm"
-                        wire:click='openEditSection'>Edit</button>
-                    <button class="btn inline-flex justify-center btn-secondary btn-sm"
-                        wire:click='openEditSection'>Edit</button>
-                    <button class="btn inline-flex justify-center btn-secondary btn-sm"
-                        wire:click='openEditSection'>Edit</button>
+                    <button
+                        class="btn inline-flex justify-center  bg-secondary-500 bg-opacity-30 text-slate-900 dark:text-white btn-sm"
+                        wire:click='openReturnsSection'>Return</button>
                 </div>
             @endcan
         </div>
@@ -110,6 +107,55 @@
                                                     {{ $orderProduct->combo->name }}</p>
                                             </div>
                                         @endif
+                                    </div>
+                                    @if (!$loop->last)
+                                        <hr>
+                                    @endif
+                                @endforeach
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-5">
+                    <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base">
+                        <div class="items-center p-5">
+                            <span class="badge bg-danger-500 text-dark-500 bg-opacity-30 capitalize">
+                                <iconify-icon icon="clarity:remove-solid" width="1.2em"
+                                    height="1.2em"></iconify-icon>&nbsp;
+                                Removed ({{ $order->removedProducts->count() }})
+                            </span>
+                            <div class="card-body flex flex-col justify-between border rounded-lg h-full menu-open p-0 mb-5 "
+                                style="border-color:rgb(224, 224, 224);">
+                                @foreach ($order->removedProducts as $removedProduct)
+                                    <div class="p-3">
+                                        <div class="flex justify-between">
+
+                                            <div>
+                                                <h6
+                                                    class="text-slate-600 dark:text-slate-300 overflow-hidden text-ellipsis whitespace-nowrap">
+                                                    {{ $removedProduct->product->name }}
+                                                </h6>
+                                            </div>
+                                            <div class="flex text-sm">
+                                                <p class="mr-3  text-slate-900 dark:text-white">
+                                                    {{ $removedProduct->price }}<small>&nbsp;EGP</small></p>
+                                                <p class="ml-3 mr-3  text-slate-900 dark:text-white">x
+                                                    {{ $removedProduct->quantity }}</p>
+                                                <p class="ml-3  text-slate-900 dark:text-white">
+                                                    {{ number_format($removedProduct->price * $removedProduct->quantity, 2) }}<small>&nbsp;EGP</small>
+                                                </p>
+                                            </div>
+
+                                        </div>
+                                        <div class=" flex text-sm justify-between">
+                                            <span
+                                                class="badge bg-secondary-500 bg-opacity-30 text-slate-900 dark:text-white rounded-3xl">Weight:
+                                                {{ $orderProduct->product->weight }} gm</span>
+
+                                        </div>
                                     </div>
                                     @if (!$loop->last)
                                         <hr>
@@ -209,6 +255,7 @@
                         </div>
                     </div>
                 </div>
+                
 
 
             </div>
@@ -216,12 +263,23 @@
                 <div class="card">
                     <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base">
                         <div class="items-center p-5">
+                            <div class="input-area w-full mb-5">
+                                <div class="flex justify-bewwteen">
+                                    <label for="phone" class="form-label"><b>Delivery date</b></label>
+                                    <button wire:click='openUpdateDdate' class="action-btn" type="button">
+                                        <iconify-icon icon="heroicons:pencil-square"></iconify-icon>
+                                    </button>
+                                </div>
+                                <p class="text-xs">
+                                    {{ $order->delivery_date ? $order->delivery_date->format('l, F j, Y') : 'No delivery date set for order' }}
+                                </p>
+                            </div>
                             <div class="input-area w-full">
                                 <div class="flex justify-bewwteen">
-                                <label for="phone" class="form-label"><b>Notes</b></label>
-                                <button wire:click='openUpdateNote' class="action-btn" type="button">
-                                    <iconify-icon icon="heroicons:pencil-square"></iconify-icon>
-                                </button>
+                                    <label for="phone" class="form-label"><b>Notes</b></label>
+                                    <button wire:click='openUpdateNote' class="action-btn" type="button">
+                                        <iconify-icon icon="heroicons:pencil-square"></iconify-icon>
+                                    </button>
                                 </div>
                                 <p class="text-xs">{{ $order->note ?? 'No notes for order' }}</p>
                             </div>
@@ -406,7 +464,7 @@
 
                             <!-- Modal body -->
                             <div class="p-6 space-y-4">
-                                
+
                                 <div class="from-group">
                                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
                                         <div class="input-area">
@@ -421,7 +479,7 @@
                                                 class="form-control @error('customerPhone') !border-danger-500 @enderror"
                                                 wire:model="customerPhone" autocomplete="off">
                                         </div>
-                                        
+
                                     </div>
                                     @error('customerName')
                                         <span
@@ -446,10 +504,11 @@
                                             @endforeach
                                         </select>
                                         <small class="text-gray-500">
-                                            Note: Any changes to the zone may affect the shipping rate for this order and total amount.
+                                            Note: Any changes to the zone may affect the shipping rate for this order and
+                                            total amount.
                                         </small>
                                     </div>
-                                    
+
                                     @error('zoneId')
                                         <span
                                             class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
@@ -517,13 +576,12 @@
 
                             <!-- Modal body -->
                             <div class="p-6 space-y-4">
-                        
+
                                 <div class="from-group">
                                     <div class="input-area">
                                         <label for="note" class="form-label">Note</label>
-                                        <textarea id="note" type="text"
-                                            class="form-control @error('note') !border-danger-500 @enderror" wire:model="note"
-                                            autocomplete="off"></textarea>
+                                        <textarea id="note" type="text" class="form-control @error('note') !border-danger-500 @enderror"
+                                            wire:model="note" autocomplete="off"></textarea>
                                     </div>
                                     @error('note')
                                         <span
@@ -540,6 +598,161 @@
                                     <span wire:loading.remove wire:target="updateNote">Submit</span>
                                     <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
                                         wire:loading wire:target="updateNote"
+                                        icon="line-md:loading-twotone-loop"></iconify-icon>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        @endif
+    @endcan
+
+    @can('update', $order)
+        @if ($ddateSection)
+            <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+                tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
+                style="display: block;">
+                <div class="modal-dialog relative w-auto pointer-events-none">
+                    <div
+                        class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
+                        <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
+                            <!-- Modal header -->
+                            <div
+                                class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
+                                <h3 class="text-xl font-medium text-white dark:text-white capitalize">
+                                    Edit delivery date
+                                </h3>
+                                <button wire:click="closeUpdateDdate" type="button"
+                                    class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
+                                    data-bs-dismiss="modal">
+                                    <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd"
+                                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                            clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span class="sr-only">Close modal</span>
+                                </button>
+                            </div>
+
+                            <!-- Modal body -->
+                            <div class="p-6 space-y-4">
+
+                                <div class="from-group">
+                                    <div class="input-area">
+                                        <label for="ddate" class="form-label">Delivery date</label>
+                                        <input id="ddate" type="date"
+                                            class="form-control @error('ddate') !border-danger-500 @enderror"
+                                            wire:model="ddate" autocomplete="off">
+                                    </div>
+                                    @error('ddate')
+                                        <span
+                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                            </div>
+
+                            <!-- Modal footer -->
+                            <div class="flex items-center justify-end p-6 border-t border-slate-200 rounded-b">
+                                <button wire:click="updateDeliveryDate" data-bs-dismiss="modal"
+                                    class="btn inline-flex justify-center text-white bg-black-500">
+                                    <span wire:loading.remove wire:target="updateDeliveryDate">Submit</span>
+                                    <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
+                                        wire:loading wire:target="updateDeliveryDate"
+                                        icon="line-md:loading-twotone-loop"></iconify-icon>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        @endif
+    @endcan
+
+    @can('returnProducts', $order)
+        @if ($returnSection)
+            <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+                tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
+                style="display: block;">
+                <div class="modal-dialog relative w-auto pointer-events-none">
+                    <div
+                        class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
+                        <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
+                            <!-- Modal header -->
+                            <div
+                                class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
+                                <h3 class="text-xl font-medium text-white dark:text-white capitalize">
+                                    Return products
+                                </h3>
+                                <button wire:click="closeReturnsSection" type="button"
+                                    class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
+                                    data-bs-dismiss="modal">
+                                    <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd"
+                                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                            clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span class="sr-only">Close modal</span>
+                                </button>
+                            </div>
+
+                            <!-- Modal body -->
+                            <div class="p-6 space-y-4">
+
+                                <table class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700">
+                                    <thead class="border-t border-slate-100 dark:border-slate-800">
+                                        <tr>
+                                            <th scope="col" class="table-th imp-p-2">Product</th>
+                                            <th scope="col" class="table-th imp-p-2">Return Quantity</th>
+                                            <th scope="col" class="table-th imp-p-2">Quantity</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody
+                                        class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
+                                        @foreach ($cancelledProducts as $index => $cancelledProduct)
+                                            <tr>
+                                                <!-- Product Name Column -->
+                                                <td class="table-td imp-p-2">
+                                                    <div class="flex-1 text-start">
+                                                        <div class="text-start overflow-hidden text-ellipsis whitespace-nowrap"
+                                                            style="max-width:200px;">
+                                                            <h6
+                                                                class="text-slate-600 dark:text-slate-300 overflow-hidden text-ellipsis whitespace-nowrap">
+                                                                {{ $cancelledProduct['name'] }}
+                                                            </h6>
+                                                        </div>
+                                                    </div>
+                                                </td>
+
+                                                <!-- Price Input Column -->
+                                                <td class="table-td imp-p-2">
+                                                    <input type="number"
+                                                        class="form-control @error('cancelledProducts.' . $index . '.return_quantity') !border-danger-500 @enderror"
+                                                        style="max-width: 100px;"
+                                                        wire:model='cancelledProducts.{{ $index }}.return_quantity'
+                                                        min="0" max="{{ $cancelledProduct['quantity'] }}">
+                                                </td>
+
+                                                <!-- Quantity Input Column -->
+                                                <td class="table-td imp-p-2">
+                                                    / {{ $cancelledProduct['quantity'] }}
+                                                </td>
+
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+
+                            </div>
+
+                            <!-- Modal footer -->
+                            <div class="flex items-center justify-end p-6 border-t border-slate-200 rounded-b">
+                                <button wire:click="returnProducts" data-bs-dismiss="modal"
+                                    class="btn inline-flex justify-center text-white bg-black-500">
+                                    <span wire:loading.remove wire:target="returnProducts">Submit</span>
+                                    <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
+                                        wire:loading wire:target="returnProducts"
                                         icon="line-md:loading-twotone-loop"></iconify-icon>
                                 </button>
                             </div>

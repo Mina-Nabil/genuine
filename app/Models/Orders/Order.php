@@ -23,6 +23,10 @@ class Order extends Model
 
     const MORPH_TYPE = 'order';
 
+    protected $casts = [
+        'delivery_date' => 'date',
+    ];
+
     protected $fillable = ['order_number', 'customer_id', 'customer_name', 'shipping_address', 'customer_phone', 'status', 'zone_id', 'driver_id', 'periodic_option', 'total_amount', 'delivery_amount', 'discount_amount', 'delivery_date', 'is_paid', 'note', 'created_by'];
 
     const PERIODIC_OPTIONS = [self::PERIODIC_WEEKLY, self::PERIODIC_BI_WEEKLY, self::PERIODIC_MONTHLY];
@@ -75,10 +79,10 @@ class Order extends Model
                     'quantity' => $product['quantity'],
                     'price' => $product['price'],
                 ]);
-                $orderProduct->product->inventory->commitQuantity($product['quantity'],'Order: #'.$order->order_number.' committed');
+                $orderProduct->product->inventory->commitQuantity($product['quantity'], 'Order: #' . $order->order_number . ' committed');
             }
 
-            AppLog::info("Order Created successfuly",loggable: $order);
+            AppLog::info('Order Created successfuly', loggable: $order);
             return $order;
         } catch (Exception $e) {
             report($e);
@@ -87,8 +91,95 @@ class Order extends Model
         }
     }
 
-    private function refreshTotalAmount(){
+    public function updateDeliveryDate(Carbon $deliveryDate = null): bool
+    {
+        /** @var User */
+        $loggedInUser = Auth::user();
+        if ($loggedInUser && !$loggedInUser->can('update', $this)) {
+            return false;
+        }
+
+        try {
+            $this->delivery_date = $deliveryDate;
+            $this->save();
+
+            AppLog::info('Delivery date updated', loggable: $this);
+            return true;
+        } catch (Exception $e) {
+            report($e);
+            AppLog::error('Failed to update delivery date for order', $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Cancel and remove given quantities of order products, and log removals.
+     *
+     * @param array $products Array of products with 'id' and 'quantity' to cancel.
+     * @param string|null $reason Reason for the removal (optional).
+     * @return bool True if successful, false otherwise.
+     */
+    public function cancelProducts(array $products, string $reason = null): bool
+    {
+        DB::beginTransaction();
+
+        try {
+            foreach ($products as $product) {
+                // Skip if return_quantity is 0 or invalid
+                if (empty($product['return_quantity']) || $product['return_quantity'] <= 0) {
+                    continue;
+                }
+
+                $orderProduct = $this->products()
+                    ->where('product_id', $product['product_id'])
+                    ->first();
+
+                if (!$orderProduct || $orderProduct->quantity < $product['quantity']) {
+                    throw new Exception('Insufficient quantity or invalid product ID.');
+                }
+
+                // Calculate the remaining quantity and update or delete the product from order
+                $remainingQuantity = $orderProduct->quantity - $product['return_quantity'];
+
+                if ($remainingQuantity > 0) {
+                    $orderProduct->quantity = $remainingQuantity;
+                    $orderProduct->save();
+                } else {
+                    $orderProduct->delete();
+                }
+
+                // Update the inventory quantity for the product
+                if ($orderProduct->inventory) {
+                    $orderProduct->inventory->commitQuantity(-$product['return_quantity'],'Removed from order #'.$this->order_number);
+                }
+
+                // Add entry to order_removed_products
+                OrderRemovedProduct::create([
+                    'order_id' => $this->id,
+                    'product_id' => $orderProduct->product_id,
+                    'quantity' => $product['return_quantity'],
+                    'price' => $orderProduct->price,
+                    'reason' => $reason,
+                ]);
+            }
+
+            DB::commit();
+            $this->refreshTotalAmount();
+
+            AppLog::info('Products returned', loggable: $this);
+            return true;
+        } catch (Exception $e) {
+            DB::rollBack();
+            report($e);
+            AppLog::error('Failed to return products for order', $e->getMessage());
+            return false;
+        }
+    }
+
+    private function refreshTotalAmount()
+    {
         $this->total_amount = $this->total_items_price + $this->delivery_amount - $this->discount_amount;
+        $this->save();
     }
 
     /**
@@ -109,7 +200,7 @@ class Order extends Model
             $this->note = empty($note) ? null : $note;
             $this->save();
 
-            AppLog::info("Note updated", loggable: $this);
+            AppLog::info('Note updated', loggable: $this);
             return true;
         } catch (Exception $e) {
             report($e);
@@ -145,9 +236,8 @@ class Order extends Model
             $this->save();
 
             $this->refreshTotalAmount();
-            $this->save();
 
-            AppLog::info("Shipping details updated.", loggable: $this);
+            AppLog::info('Shipping details updated.', loggable: $this);
             return true;
         } catch (Exception $e) {
             report($e);
@@ -201,6 +291,12 @@ class Order extends Model
     public function products()
     {
         return $this->hasMany(OrderProduct::class);
+    }
+
+    // relations
+    public function removedProducts()
+    {
+        return $this->hasMany(OrderRemovedProduct::class);
     }
 
     public function comments(): HasMany
