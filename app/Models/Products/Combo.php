@@ -186,7 +186,7 @@ class Combo extends Model
     public function getTotalPriceAttribute()
     {
         return $this->products->sum(function ($product) {
-            return $product->pivot->price;
+            return $product->pivot->price * $product->pivot->quantity;
         });
     }
 

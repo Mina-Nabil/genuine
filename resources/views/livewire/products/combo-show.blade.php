@@ -40,11 +40,15 @@
                         </th>
 
                         <th scope="col" class=" table-th ">
+                            Price/item
+                        </th>
+
+                        <th scope="col" class=" table-th ">
                             Quantity
                         </th>
 
                         <th scope="col" class=" table-th ">
-                            Price
+                            Total Price
                         </th>
 
                         <th scope="col" class=" table-th ">
@@ -71,17 +75,27 @@
                                 </div>
                             </td>
 
+                            <td class="table-td ">
+                                <div class="flex items-center">
+                                    <div class="flex-1 text-start">
+                                        <h6 class=" whitespace-nowrap mb-1">
+                                            {{ number_format($product->pivot->price,2) }} <span class="text-sm">EGP</span>
+                                        </h6>
+                                        <div class="text-xs font-normal text-slate-600 dark:text-slate-400">
+                                            Original Price: {{ number_format($product->price,2) }} EGP
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+
                             <td class="table-td">x {{ $product->pivot->quantity }}</td>
 
                             <td class="table-td ">
                                 <div class="flex items-center">
                                     <div class="flex-1 text-start">
                                         <h6 class=" whitespace-nowrap mb-1">
-                                            {{ number_format($product->pivot->price) }} <span class="text-sm">EGP</span>
+                                            {{ number_format($product->pivot->price * $product->pivot->quantity,2) }} <span class="text-sm">EGP</span>
                                         </h6>
-                                        <div class="text-xs font-normal text-slate-600 dark:text-slate-400">
-                                            Original Price: {{ number_format($product->price) }} EGP
-                                        </div>
                                     </div>
                                 </div>
                             </td>
@@ -103,6 +117,7 @@
                     <tr class="bg-slate-50 dark:bg-slate-700">
                         <td class="table-td">Total</td>
                         <td class="table-td"></td>
+                        <td class="table-td"></td>
 
                         <td class="table-td ">{{ $combo->total_items }} items</td>
 
@@ -110,7 +125,7 @@
                             <div class="flex items-center">
                                 <div class="flex-1 text-start">
                                     <h6 class=" whitespace-nowrap mb-1">
-                                        {{ number_format($combo->total_price) }} <span class="text-sm">EGP</span>
+                                        {{ number_format($combo->total_price,2) }} <span class="text-sm">EGP</span>
                                     </h6>
                                 </div>
                             </div>
@@ -257,7 +272,7 @@
 
                                 <div class="from-group">
                                     <div class="input-area">
-                                        <label for="productPrice" class="form-label">Price*</label>
+                                        <label for="productPrice" class="form-label">Price/item*</label>
                                         <input id="productPrice" type="number"
                                             class="form-control @error('productPrice') !border-danger-500 @enderror"
                                             wire:model="productPrice" autocomplete="off">
