@@ -41,6 +41,16 @@ class OrderPolicy
     }
 
     /**
+     * Determine whether the user can return products.
+     */
+    public function returnProducts(User $user, Order $order): bool
+    {
+        return true;
+    }
+
+    
+
+    /**
      * Determine whether the user can delete the model.
      */
     public function delete(User $user, Order $order): bool

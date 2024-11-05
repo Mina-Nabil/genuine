@@ -180,7 +180,7 @@
                                                     @if ($transaction->remarks)
                                                         <hr class="mt-1 mb-1">
                                                         <div class="text-xs font-normal text-slate-600 dark:text-slate-400 text-wrap flex item-center"
-                                                            style="max-width:150px;font-size:12px;">
+                                                            style="max-width:150px;font-size: 10px; font-weight: 600;">
                                                             {{ $transaction->remarks }}
                                                         </div>
                                                     @endif
