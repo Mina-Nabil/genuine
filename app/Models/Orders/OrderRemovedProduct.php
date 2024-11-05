@@ -20,6 +20,26 @@ class OrderRemovedProduct extends Model
         'reason',
     ];
 
+    const removeReasons = [
+        'Product damaged',
+        'Wrong item sent',
+        'Product not as described',
+        'Changed my mind',
+        'Order was canceled by the seller',
+        'Product arrived late',
+        'Quality not satisfactory',
+        'Defective product',
+        'Product not needed anymore',
+        'Incorrect quantity received',
+        'Better price found elsewhere',
+        'Item out of stock',
+        'Customer service issues',
+        'Payment issues',
+        'Shipping issues',
+        'Product expired',
+        'Other',
+    ];
+
 
 
     //relations

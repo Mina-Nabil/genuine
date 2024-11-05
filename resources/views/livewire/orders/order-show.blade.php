@@ -39,134 +39,141 @@
         <div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-6 md:gap-5 mb-5 text-wrap">
             <div class="col-span-4">
 
-                <div class="card mb-5">
-                    <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base">
-                        <div class="items-center p-5">
-                            @if ($order->status === App\Models\Orders\Order::STATUS_NEW || $order->status === App\Models\Orders\Order::STATUS_READY)
-                                <span class="badge bg-info-500 text-dark-500 bg-opacity-50 capitalize">
-                                    <iconify-icon icon="octicon:dot-16" width="1.2em" height="1.2em"></iconify-icon>
-                                    {{ ucwords(str_replace('_', ' ', $order->status)) }}
-                                </span>
-                            @elseif ($order->status === App\Models\Orders\Order::STATUS_IN_DELIVERY)
-                                <span class="badge bg-warning-500 text-dark-500 bg-opacity-50 capitalize">
-                                    <iconify-icon icon="octicon:dot-16" width="1.2em" height="1.2em"></iconify-icon>
-                                    {{ ucwords(str_replace('_', ' ', $order->status)) }}
-                                </span>
-                            @elseif (
-                                $order->status === App\Models\Orders\Order::STATUS_RETURNED ||
-                                    $order->status === App\Models\Orders\Order::STATUS_CANCELLED)
-                                <span class="badge bg-secondary-500 text-dark-500 bg-opacity-50 capitalize">
-                                    <iconify-icon icon="icon-park-outline:dot" width="1.2em"
-                                        height="1.2em"></iconify-icon>
-                                    {{ ucwords(str_replace('_', ' ', $order->status)) }}
-                                </span>
-                            @elseif ($order->status === App\Models\Orders\Order::STATUS_DONE)
-                                <span class="badge bg-success-500 text-dark-500 bg-opacity-50 capitalize">
-                                    <iconify-icon icon="icon-park-outline:dot" width="1.2em"
-                                        height="1.2em"></iconify-icon>
-                                    {{ ucwords(str_replace('_', ' ', $order->status)) }}
-                                </span>
-                            @else
-                                <span class="badge bg-secondary-500 text-dark-500 bg-opacity-50 capitalize">
-                                    <iconify-icon icon="octicon:dot-16" width="1.2em" height="1.2em"></iconify-icon>
-                                    {{ ucwords(str_replace('_', ' ', $order->status)) }}
-                                </span>
-                            @endif
-                            <div class="card-body flex flex-col justify-between border rounded-lg h-full menu-open p-0 mb-5 "
-                                style="border-color:rgb(224, 224, 224);">
-                                @foreach ($order->products as $orderProduct)
-                                    <div class="p-3">
-                                        <div class="flex justify-between">
+                @if (!$order->products->isEmpty())
+                    <div class="card mb-5">
+                        <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base">
+                            <div class="items-center p-5">
+                                @if ($order->status === App\Models\Orders\Order::STATUS_NEW || $order->status === App\Models\Orders\Order::STATUS_READY)
+                                    <span class="badge bg-info-500 text-dark-500 bg-opacity-50 capitalize">
+                                        <iconify-icon icon="octicon:dot-16" width="1.2em"
+                                            height="1.2em"></iconify-icon>
+                                        {{ ucwords(str_replace('_', ' ', $order->status)) }}
+                                    </span>
+                                @elseif ($order->status === App\Models\Orders\Order::STATUS_IN_DELIVERY)
+                                    <span class="badge bg-warning-500 text-dark-500 bg-opacity-50 capitalize">
+                                        <iconify-icon icon="octicon:dot-16" width="1.2em"
+                                            height="1.2em"></iconify-icon>
+                                        {{ ucwords(str_replace('_', ' ', $order->status)) }}
+                                    </span>
+                                @elseif (
+                                    $order->status === App\Models\Orders\Order::STATUS_RETURNED ||
+                                        $order->status === App\Models\Orders\Order::STATUS_CANCELLED)
+                                    <span class="badge bg-secondary-500 text-dark-500 bg-opacity-50 capitalize">
+                                        <iconify-icon icon="icon-park-outline:dot" width="1.2em"
+                                            height="1.2em"></iconify-icon>
+                                        {{ ucwords(str_replace('_', ' ', $order->status)) }}
+                                    </span>
+                                @elseif ($order->status === App\Models\Orders\Order::STATUS_DONE)
+                                    <span class="badge bg-success-500 text-dark-500 bg-opacity-50 capitalize">
+                                        <iconify-icon icon="icon-park-outline:dot" width="1.2em"
+                                            height="1.2em"></iconify-icon>
+                                        {{ ucwords(str_replace('_', ' ', $order->status)) }}
+                                    </span>
+                                @else
+                                    <span class="badge bg-secondary-500 text-dark-500 bg-opacity-50 capitalize">
+                                        <iconify-icon icon="octicon:dot-16" width="1.2em"
+                                            height="1.2em"></iconify-icon>
+                                        {{ ucwords(str_replace('_', ' ', $order->status)) }}
+                                    </span>
+                                @endif
+                                <div class="card-body flex flex-col justify-between border rounded-lg h-full menu-open p-0 mb-5 "
+                                    style="border-color:rgb(224, 224, 224);">
+                                    @foreach ($order->products as $orderProduct)
+                                        <div class="p-3">
+                                            <div class="flex justify-between">
 
-                                            <div>
-                                                <h6
-                                                    class="text-slate-600 dark:text-slate-300 overflow-hidden text-ellipsis whitespace-nowrap">
-                                                    {{ $orderProduct->product->name }}
-                                                </h6>
+                                                <div>
+                                                    <h6
+                                                        class="text-slate-600 dark:text-slate-300 overflow-hidden text-ellipsis whitespace-nowrap">
+                                                        {{ $orderProduct->product->name }}
+                                                    </h6>
+                                                </div>
+                                                <div class="flex text-sm">
+                                                    <p class="mr-3  text-slate-900 dark:text-white">
+                                                        {{ $orderProduct->price }}<small>&nbsp;EGP</small></p>
+                                                    <p class="ml-3 mr-3  text-slate-900 dark:text-white">x
+                                                        {{ $orderProduct->quantity }}</p>
+                                                    <p class="ml-3  text-slate-900 dark:text-white">
+                                                        {{ number_format($orderProduct->price * $orderProduct->quantity, 2) }}<small>&nbsp;EGP</small>
+                                                    </p>
+                                                </div>
+
                                             </div>
-                                            <div class="flex text-sm">
-                                                <p class="mr-3  text-slate-900 dark:text-white">
-                                                    {{ $orderProduct->price }}<small>&nbsp;EGP</small></p>
-                                                <p class="ml-3 mr-3  text-slate-900 dark:text-white">x
-                                                    {{ $orderProduct->quantity }}</p>
-                                                <p class="ml-3  text-slate-900 dark:text-white">
-                                                    {{ number_format($orderProduct->price * $orderProduct->quantity, 2) }}<small>&nbsp;EGP</small>
-                                                </p>
-                                            </div>
-
-                                        </div>
-                                        <div class=" flex text-sm justify-between">
-                                            <span
-                                                class="badge bg-secondary-500 bg-opacity-30 text-slate-900 dark:text-white rounded-3xl">Weight:
-                                                {{ $orderProduct->product->weight }} gm</span>
-
-                                        </div>
-                                        @if ($orderProduct->combo)
                                             <div class=" flex text-sm justify-between">
-                                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Combo:
-                                                    {{ $orderProduct->combo->name }}</p>
+                                                <span
+                                                    class="badge bg-secondary-500 bg-opacity-30 text-slate-900 dark:text-white rounded-3xl">Weight:
+                                                    {{ $orderProduct->product->weight }} gm</span>
+
                                             </div>
+                                            @if ($orderProduct->combo)
+                                                <div class=" flex text-sm justify-between">
+                                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Combo:
+                                                        {{ $orderProduct->combo->name }}</p>
+                                                </div>
+                                            @endif
+                                        </div>
+                                        @if (!$loop->last)
+                                            <hr>
                                         @endif
-                                    </div>
-                                    @if (!$loop->last)
-                                        <hr>
-                                    @endif
-                                @endforeach
+                                    @endforeach
+
+                                </div>
 
                             </div>
-
                         </div>
                     </div>
-                </div>
+                @endif
 
-                <div class="card mb-5">
-                    <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base">
-                        <div class="items-center p-5">
-                            <span class="badge bg-danger-500 text-dark-500 bg-opacity-30 capitalize">
-                                <iconify-icon icon="clarity:remove-solid" width="1.2em"
-                                    height="1.2em"></iconify-icon>&nbsp;
-                                Removed ({{ $order->removedProducts->count() }})
-                            </span>
-                            <div class="card-body flex flex-col justify-between border rounded-lg h-full menu-open p-0 mb-5 "
-                                style="border-color:rgb(224, 224, 224);">
-                                @foreach ($order->removedProducts as $removedProduct)
-                                    <div class="p-3">
-                                        <div class="flex justify-between">
+                @if (!$order->removedProducts->isEmpty())
+                    <div class="card mb-5">
+                        <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base">
+                            <div class="items-center p-5">
+                                <span class="badge bg-danger-500 text-dark-500 bg-opacity-30 capitalize">
+                                    <iconify-icon icon="clarity:remove-solid" width="1.2em"
+                                        height="1.2em"></iconify-icon>&nbsp;
+                                    Removed ({{ $order->removedProducts->count() }})
+                                </span>
+                                <div class="card-body flex flex-col justify-between border rounded-lg h-full menu-open p-0 mb-5 "
+                                    style="border-color:rgb(224, 224, 224);">
+                                    @foreach ($order->removedProducts as $removedProduct)
+                                        <div class="p-3">
+                                            <div class="flex justify-between">
 
-                                            <div>
-                                                <h6
-                                                    class="text-slate-600 dark:text-slate-300 overflow-hidden text-ellipsis whitespace-nowrap">
-                                                    {{ $removedProduct->product->name }}
-                                                </h6>
+                                                <div>
+                                                    <h6
+                                                        class="text-slate-600 dark:text-slate-300 overflow-hidden text-ellipsis whitespace-nowrap">
+                                                        {{ $removedProduct->product->name }}
+                                                    </h6>
+                                                </div>
+                                                <div class="flex text-sm">
+                                                    <p class="mr-3  text-slate-900 dark:text-white">
+                                                        {{ $removedProduct->price }}<small>&nbsp;EGP</small></p>
+                                                    <p class="ml-3 mr-3  text-slate-900 dark:text-white">x
+                                                        {{ $removedProduct->quantity }}</p>
+                                                    <p class="ml-3  text-slate-900 dark:text-white">
+                                                        {{ number_format($removedProduct->price * $removedProduct->quantity, 2) }}<small>&nbsp;EGP</small>
+                                                    </p>
+                                                </div>
+
                                             </div>
-                                            <div class="flex text-sm">
-                                                <p class="mr-3  text-slate-900 dark:text-white">
-                                                    {{ $removedProduct->price }}<small>&nbsp;EGP</small></p>
-                                                <p class="ml-3 mr-3  text-slate-900 dark:text-white">x
-                                                    {{ $removedProduct->quantity }}</p>
-                                                <p class="ml-3  text-slate-900 dark:text-white">
-                                                    {{ number_format($removedProduct->price * $removedProduct->quantity, 2) }}<small>&nbsp;EGP</small>
+                                            <div class=" flex text-sm justify-between">
+                                                <p class="text-xs">
+                                                    {{ $removedProduct->reason ?? 'No reason set for this return.' }}
                                                 </p>
+
                                             </div>
-
                                         </div>
-                                        <div class=" flex text-sm justify-between">
-                                            <span
-                                                class="badge bg-secondary-500 bg-opacity-30 text-slate-900 dark:text-white rounded-3xl">Weight:
-                                                {{ $orderProduct->product->weight }} gm</span>
+                                        @if (!$loop->last)
+                                            <hr>
+                                        @endif
+                                    @endforeach
 
-                                        </div>
-                                    </div>
-                                    @if (!$loop->last)
-                                        <hr>
-                                    @endif
-                                @endforeach
+                                </div>
 
                             </div>
-
                         </div>
                     </div>
-                </div>
+                @endif
 
                 <div class="card mb-5">
                     <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base">
@@ -255,7 +262,7 @@
                         </div>
                     </div>
                 </div>
-                
+
 
 
             </div>
@@ -699,6 +706,31 @@
 
                             <!-- Modal body -->
                             <div class="p-6 space-y-4">
+
+                                <div class="input-area mb-5">
+                                    <label for="reason" class="form-label">Return reason</label>
+                                    <select name="reason" id="reason"
+                                        class="form-control w-full @error('reason') !border-danger-500 @enderror"
+                                        wire:model.live="reason" autocomplete="off">
+                                        <option value="">None</option>
+                                        @foreach ($removeReasons as $removeReasons)
+                                            <option value="{{ $removeReasons }}">
+                                                {{ $removeReasons }}</option>
+                                        @endforeach
+                                    </select>
+
+                                    {{-- <small class="text-gray-500">
+                                        Note: Any changes to the zone may affect the shipping rate for this order and
+                                        total amount.
+                                    </small> --}}
+                                </div>
+                                @if ($reason === 'Other')
+                                    <div class="input-area">
+                                        <label for="otherReason" class="form-label">Describe reason</label>
+                                        <textarea id="otherReason" class="form-control @error('otherReason') !border-danger-500 @enderror"
+                                            wire:model="otherReason" autocomplete="off"> </textarea>
+                                    </div>
+                                @endif
 
                                 <table class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700">
                                     <thead class="border-t border-slate-100 dark:border-slate-800">

@@ -4,6 +4,7 @@ namespace App\Livewire\Orders;
 
 use App\Models\Customers\Zone;
 use App\Models\Orders\Order;
+use App\Models\Orders\OrderRemovedProduct;
 use App\Traits\AlertFrontEnd;
 use Carbon\Carbon;
 use Livewire\Component;
@@ -39,6 +40,9 @@ class OrderShow extends Component
     //returns
     public $returnSection;
     public $cancelledProducts = [];
+    public $removeReasons = [];
+    public $reason;
+    public $otherReason;
 
     public function openReturnsSection(){
 
@@ -52,6 +56,8 @@ class OrderShow extends Component
             ];
         }
 
+        $this->removeReasons = OrderRemovedProduct::removeReasons;
+
         $this->returnSection = true;
     }
 
@@ -62,7 +68,17 @@ class OrderShow extends Component
     public function returnProducts()
     {
         $this->authorize('returnProducts',$this->order);
-        $res = $this->order->cancelProducts($this->cancelledProducts);
+
+        $reason = null;
+        if ($this->reason === 'Other' && $this->otherReason) {
+            $reason = $this->otherReason;
+        }elseif($this->reason && $this->otherReason !== ''){
+            $reason = $this->reason;
+        }else{
+            $reason = null;
+        }
+
+        $res = $this->order->cancelProducts($this->cancelledProducts,$reason);
 
         if ($res) {
             $this->mount($this->order->id);

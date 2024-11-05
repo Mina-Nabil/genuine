@@ -150,17 +150,29 @@ class Order extends Model
 
                 // Update the inventory quantity for the product
                 if ($orderProduct->inventory) {
-                    $orderProduct->inventory->commitQuantity(-$product['return_quantity'],'Removed from order #'.$this->order_number);
+                    $orderProduct->inventory->commitQuantity(-$product['return_quantity'], 'Removed from order #' . $this->order_number);
                 }
 
-                // Add entry to order_removed_products
-                OrderRemovedProduct::create([
-                    'order_id' => $this->id,
-                    'product_id' => $orderProduct->product_id,
-                    'quantity' => $product['return_quantity'],
-                    'price' => $orderProduct->price,
-                    'reason' => $reason,
-                ]);
+                // Check if the product has already been cancelled and update the record if it exists
+                $existingRemovedProduct = OrderRemovedProduct::where('order_id', $this->id)
+                    ->where('product_id', $orderProduct->product_id)
+                    ->first();
+
+                if ($existingRemovedProduct) {
+                    // Update the existing record with the new return quantity and reason
+                    $existingRemovedProduct->quantity += $product['return_quantity'];
+                    $existingRemovedProduct->reason = $reason; // Update the reason if needed
+                    $existingRemovedProduct->save();
+                } else {
+                    // Add entry to order_removed_products
+                    OrderRemovedProduct::create([
+                        'order_id' => $this->id,
+                        'product_id' => $orderProduct->product_id,
+                        'quantity' => $product['return_quantity'],
+                        'price' => $orderProduct->price,
+                        'reason' => $reason,
+                    ]);
+                }
             }
 
             DB::commit();

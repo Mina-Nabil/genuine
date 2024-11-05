@@ -370,6 +370,7 @@ class OrderCreate extends Component
 
         if ($res) {
             $this->alertSuccess('order added!');
+            return redirect(route('orders.show',$res->id));
         } else {
             $this->alertFailed();
         }
