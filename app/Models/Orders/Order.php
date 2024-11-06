@@ -357,7 +357,6 @@ class Order extends Model
             }
             $this->refreshTotalAmount();
             DB::commit();
-            
 
             AppLog::info('All products canceled', loggable: $this);
             return true;
@@ -552,10 +551,36 @@ class Order extends Model
 
     public function getTotalItemsPriceAttribute()
     {
-
         return $this->products->sum(function ($product) {
             return $product->price * $product->quantity;
         });
+    }
+
+    public function scopeSearch(Builder $query, string $searchText = null, string $deliveryDate = null, string $status = null, int $zoneId = null, int $driverId = null, bool $isPaid = null): Builder
+    {
+        return $query
+            ->when($searchText, function ($query, $searchText) {
+                $query->where(function ($q) use ($searchText) {
+                    $q->where('order_number', 'like', '%' . $searchText . '%')
+                        ->orWhere('customer_name', 'like', '%' . $searchText . '%')
+                        ->orWhere('customer_phone', 'like', '%' . $searchText . '%');
+                });
+            })
+            ->when($deliveryDate, function ($query, $deliveryDate) {
+                $query->whereDate('delivery_date', $deliveryDate);
+            })
+            ->when($status, function ($query, $status) {
+                $query->where('status', $status);
+            })
+            ->when($zoneId, function ($query, $zoneId) {
+                $query->where('zone_id', $zoneId);
+            })
+            ->when($driverId, function ($query, $driverId) {
+                $query->where('driver_id', $driverId);
+            })
+            ->when(!is_null($isPaid), function ($query) use ($isPaid) {
+                $query->where('is_paid', $isPaid);
+            });
     }
 
     // relations

@@ -18,10 +18,10 @@
                     Set delivery date
                 </li>
                 @foreach ($availableBulkStatuses as $status)
-                        <li wire:click="setBulkStatus('{{ $status }}')"
-                            class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
-                            Set as {{ ucwords(str_replace('_',' ',$status)) }}
-                        </li>
+                    <li wire:click="setBulkStatus('{{ $status }}')"
+                        class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
+                        Set as {{ ucwords(str_replace('_', ' ', $status)) }}
+                    </li>
                 @endforeach
             </ul>
         </div>
@@ -34,6 +34,34 @@
             </h4>
         </div>
         <div class="flex sm:space-x-4 space-x-2 sm:justify-end items-center md:mb-6 mb-4 rtl:space-x-reverse">
+            <div class="dropdown relative">
+                <button class="btn inline-flex justify-center btn-dark items-center btn-sm" type="button"
+                    id="darkDropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                    Filter
+                    <iconify-icon class="text-xl ltr:ml-2 rtl:mr-2" icon="ic:round-keyboard-arrow-down"></iconify-icon>
+                </button>
+                <ul
+                    class=" dropdown-menu min-w-max absolute text-sm text-slate-700 dark:text-white hidden bg-white dark:bg-slate-700 shadow
+                            z-[2] float-left overflow-hidden list-none text-left rounded-lg mt-1 m-0 bg-clip-padding border-none">
+                    <li wire:click='openFilteryDeliveryDate'
+                        class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
+                        Delivery Date
+                    </li>
+                    <li wire:click='openFilteryStatus'
+                        class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
+                        Status
+                    </li>
+                    <li wire:click='openFilteryDriver'
+                        class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
+                        Driver
+                    </li>
+                    <li wire:click='openFilteryZone'
+                        class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
+                        Zone
+                    </li>
+                </ul>
+            </div>
+
             @can('create', App\Models\Orders\Order::class)
                 <a href="{{ route('orders.create') }}">
                     <button
@@ -52,6 +80,66 @@
                 icon="line-md:loading-twotone-loop"></iconify-icon>
             <input type="text" class="form-control !pl-9 mr-1 basis-1/4" placeholder="Search"
                 wire:model.live.debounce.400ms="search">
+        </header>
+
+        <header class="card-header cust-card-header noborder">
+            <div>
+                @if ($deliveryDate)
+                    <span class="badge bg-slate-900 text-white capitalize">
+                        <span class="cursor-pointer" wire:click='openFilteryDeliveryDate'>
+                            <span class="text-secondary-500 ">Delivery Date:</span>&nbsp;
+                            {{ $deliveryDate->isToday()
+                                ? 'Today'
+                                : ($deliveryDate->isYesterday()
+                                    ? 'Yesterday'
+                                    : ($deliveryDate->isTomorrow()
+                                        ? 'Tomorrow'
+                                        : $deliveryDate->format('l d-m-Y'))) }}
+
+                        </span>
+
+                        &nbsp;&nbsp;<iconify-icon wire:click="clearProperty('deliveryDate')"
+                            icon="material-symbols:close" class="cursor-pointer" width="1.2em"
+                            height="1.2em"></iconify-icon>
+                    </span>
+                @endif
+                @if ($status)
+                    <span class="badge bg-slate-900 text-white capitalize">
+                        <span class="cursor-pointer" wire:click='openFilteryStatus'>
+                            <span class="text-secondary-500 ">Status:</span>&nbsp;
+                            {{ ucwords(str_replace('_', ' ', $status)) }}
+
+                        </span>
+
+                        &nbsp;&nbsp;<iconify-icon wire:click="clearProperty('status')" icon="material-symbols:close"
+                            class="cursor-pointer" width="1.2em" height="1.2em"></iconify-icon>
+                    </span>
+                @endif
+                @if ($driver)
+                    <span class="badge bg-slate-900 text-white capitalize">
+                        <span class="cursor-pointer" wire:click='openFilteryDriver'>
+                            <span class="text-secondary-500 ">Driver:</span>&nbsp;
+                            {{ ucwords($driver->user->full_name) }}
+
+                        </span>
+
+                        &nbsp;&nbsp;<iconify-icon wire:click="clearProperty('driver')" icon="material-symbols:close"
+                            class="cursor-pointer" width="1.2em" height="1.2em"></iconify-icon>
+                    </span>
+                @endif
+                @if ($zone)
+                    <span class="badge bg-slate-900 text-white capitalize">
+                        <span class="cursor-pointer" wire:click='openFilteryZone'>
+                            <span class="text-secondary-500 ">Zone:</span>&nbsp;
+                            {{ ucwords($zone->name) }}
+
+                        </span>
+
+                        &nbsp;&nbsp;<iconify-icon wire:click="clearProperty('zone')" icon="material-symbols:close"
+                            class="cursor-pointer" width="1.2em" height="1.2em"></iconify-icon>
+                    </span>
+                @endif
+            </div>
         </header>
 
         <div class="card-body px-6 pb-6  overflow-x-auto">
@@ -114,7 +202,8 @@
                                                 value="{{ $order->id }}" class="hidden" id="select-all">
                                             <span
                                                 class="h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 bg-slate-100 dark:bg-slate-900">
-                                                <img src="{{ asset('assets/images/icon/ck-white.svg') }}" alt=""
+                                                <img src="{{ asset('assets/images/icon/ck-white.svg') }}"
+                                                    alt=""
                                                     class="h-[10px] w-[10px] block m-auto opacity-0"></span>
                                         </label>
                                     </div>
@@ -381,5 +470,267 @@
             </div>
     @endif
     {{-- @endcan --}}
+
+    @if ($Edited_deliveryDate_sec)
+        <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+            tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
+            style="display: block;">
+            <div class="modal-dialog relative w-auto pointer-events-none">
+                <div
+                    class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
+                    <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
+                        <!-- Modal header -->
+                        <div
+                            class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
+                            <h3 class="text-xl font-medium text-white dark:text-white capitalize">
+                                Filter delivery date
+                            </h3>
+                            <button wire:click="closeFilteryDeliveryDate" type="button"
+                                class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
+                                data-bs-dismiss="modal">
+                                <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd"
+                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                <span class="sr-only">Close modal</span>
+                            </button>
+                        </div>
+
+                        <!-- Modal body -->
+                        <div class="p-6 space-y-4">
+
+                            <div class="from-group">
+                                <div class="input-area">
+                                    <label for="Edited_deliveryDate" class="form-label">Delivery date*</label>
+                                    <input name="Edited_deliveryDate" id="Edited_deliveryDate" type="date"
+                                        class="form-control w-full mt-2 @error('Edited_deliveryDate') !border-danger-500 @enderror"
+                                        wire:model="Edited_deliveryDate" autocomplete="off">
+
+                                </div>
+                                @error('Edited_deliveryDate')
+                                    <span
+                                        class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                        </div>
+
+                        <!-- Modal footer -->
+                        <div class="flex items-center justify-end p-6 border-t border-slate-200 rounded-b">
+                            <button wire:click="setFilteryDeliveryDate" data-bs-dismiss="modal"
+                                class="btn inline-flex justify-center text-white bg-black-500">
+                                <span wire:loading.remove wire:target="setFilteryDeliveryDate">Submit</span>
+                                <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
+                                    wire:loading wire:target="setFilteryDeliveryDate"
+                                    icon="line-md:loading-twotone-loop"></iconify-icon>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    @endif
+
+    @if ($Edited_status_sec)
+        <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+            tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
+            style="display: block;">
+            <div class="modal-dialog relative w-auto pointer-events-none">
+                <div
+                    class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
+                    <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
+                        <!-- Modal header -->
+                        <div
+                            class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
+                            <h3 class="text-xl font-medium text-white dark:text-white capitalize">
+                                Filter Status
+                            </h3>
+                            <button wire:click="closeFilteryStatus" type="button"
+                                class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
+                                data-bs-dismiss="modal">
+                                <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd"
+                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                <span class="sr-only">Close modal</span>
+                            </button>
+                        </div>
+
+                        <!-- Modal body -->
+                        <div class="p-6 space-y-4">
+
+                            <div class="from-group">
+                                <div class="input-area">
+                                    <label for="Edited_status" class="form-label">Status*</label>
+                                    <select name="category_id" id="Edited_status"
+                                        class="form-control w-full mt-2 @error('Edited_status') !border-danger-500 @enderror"
+                                        wire:model="Edited_status" autocomplete="off">
+                                        <option value="">Select status</option>
+                                        @foreach ($STATUSES as $ONE_STATUSES)
+                                            <option value="{{ $ONE_STATUSES }}">
+                                                {{ ucwords(str_replace('_', ' ', $ONE_STATUSES)) }}</option>
+                                        @endforeach
+                                    </select>
+
+                                </div>
+                                @error('Edited_status')
+                                    <span
+                                        class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                        </div>
+
+                        <!-- Modal footer -->
+                        <div class="flex items-center justify-end p-6 border-t border-slate-200 rounded-b">
+                            <button wire:click="setFilterStatus" data-bs-dismiss="modal"
+                                class="btn inline-flex justify-center text-white bg-black-500">
+                                <span wire:loading.remove wire:target="setFilterStatus">Submit</span>
+                                <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
+                                    wire:loading wire:target="setFilterStatus"
+                                    icon="line-md:loading-twotone-loop"></iconify-icon>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    @endif
+
+    @if ($Edited_driverId_sec)
+        <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+            tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
+            style="display: block;">
+            <div class="modal-dialog relative w-auto pointer-events-none">
+                <div
+                    class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
+                    <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
+                        <!-- Modal header -->
+                        <div
+                            class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
+                            <h3 class="text-xl font-medium text-white dark:text-white capitalize">
+                                Filter Driver
+                            </h3>
+                            <button wire:click="closeFilteryDriver" type="button"
+                                class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
+                                data-bs-dismiss="modal">
+                                <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd"
+                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                <span class="sr-only">Close modal</span>
+                            </button>
+                        </div>
+
+                        <!-- Modal body -->
+                        <div class="p-6 space-y-4">
+
+                            <div class="from-group">
+                                <div class="input-area">
+                                    <label for="Edited_driverId" class="form-label">Driver*</label>
+                                    <select name="Edited_driverId" id="Edited_status"
+                                        class="form-control w-full mt-2 @error('Edited_driverId') !border-danger-500 @enderror"
+                                        wire:model="Edited_driverId" autocomplete="off">
+                                        <option value="">Select driver</option>
+                                        @foreach ($DRIVERS as $ONE_DRIVERS)
+                                            <option value="{{ $ONE_DRIVERS->id }}">
+                                                {{ $ONE_DRIVERS->user->full_name }}</option>
+                                        @endforeach
+                                    </select>
+
+                                </div>
+                                @error('Edited_driverId')
+                                    <span
+                                        class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                        </div>
+
+                        <!-- Modal footer -->
+                        <div class="flex items-center justify-end p-6 border-t border-slate-200 rounded-b">
+                            <button wire:click="setFilterDriver" data-bs-dismiss="modal"
+                                class="btn inline-flex justify-center text-white bg-black-500">
+                                <span wire:loading.remove wire:target="setFilterDriver">Submit</span>
+                                <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
+                                    wire:loading wire:target="setFilterDriver"
+                                    icon="line-md:loading-twotone-loop"></iconify-icon>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    @endif
+
+    @if ($Edited_zoneId_sec)
+        <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+            tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
+            style="display: block;">
+            <div class="modal-dialog relative w-auto pointer-events-none">
+                <div
+                    class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
+                    <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
+                        <!-- Modal header -->
+                        <div
+                            class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
+                            <h3 class="text-xl font-medium text-white dark:text-white capitalize">
+                                Filter Zone
+                            </h3>
+                            <button wire:click="closeFilteryZone" type="button"
+                                class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
+                                data-bs-dismiss="modal">
+                                <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd"
+                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                <span class="sr-only">Close modal</span>
+                            </button>
+                        </div>
+
+                        <!-- Modal body -->
+                        <div class="p-6 space-y-4">
+
+                            <div class="from-group">
+                                <div class="input-area">
+                                    <label for="Edited_zoneId" class="form-label">Zone*</label>
+                                    <select name="Edited_zoneId" id="Edited_status"
+                                        class="form-control w-full mt-2 @error('Edited_zoneId') !border-danger-500 @enderror"
+                                        wire:model="Edited_zoneId" autocomplete="off">
+                                        <option value="">Select zone</option>
+                                        @foreach ($ZONES as $ONE_ZONES)
+                                            <option value="{{ $ONE_ZONES->id }}">
+                                                {{ $ONE_ZONES->name }}</option>
+                                        @endforeach
+                                    </select>
+
+                                </div>
+                                @error('Edited_zoneId')
+                                    <span
+                                        class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                        </div>
+
+                        <!-- Modal footer -->
+                        <div class="flex items-center justify-end p-6 border-t border-slate-200 rounded-b">
+                            <button wire:click="setFilterZone" data-bs-dismiss="modal"
+                                class="btn inline-flex justify-center text-white bg-black-500">
+                                <span wire:loading.remove wire:target="setFilterZone">Submit</span>
+                                <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
+                                    wire:loading wire:target="setFilterZone"
+                                    icon="line-md:loading-twotone-loop"></iconify-icon>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    @endif
 
 </div>
