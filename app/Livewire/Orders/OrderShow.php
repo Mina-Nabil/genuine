@@ -44,8 +44,24 @@ class OrderShow extends Component
     public $reason;
     public $otherReason;
 
-    public function openReturnsSection(){
+    //add products
+    public $addProductsSection;
+    public $searchAddProducts; //search term
+    public $productsToAdd = [];
 
+    public function addProductRow()
+    {
+        $this->productsToAdd[] = ['product_id' => '', 'quantity' => 1, 'price' => 0, 'combo_id' => null];
+    }
+
+    public function removeProductRow($index)
+    {
+        unset($this->productsToAdd[$index]);
+        $this->productsToAdd = array_values($this->productsToAdd); 
+    }
+
+    public function openReturnsSection()
+    {
         foreach ($this->order->products as $product) {
             $this->cancelledProducts[] = [
                 'product_id' => $product->product_id,
@@ -61,24 +77,25 @@ class OrderShow extends Component
         $this->returnSection = true;
     }
 
-    public function closeReturnsSection(){
-        $this->reset(['returnSection','cancelledProducts']);
+    public function closeReturnsSection()
+    {
+        $this->reset(['returnSection', 'cancelledProducts']);
     }
 
     public function returnProducts()
     {
-        $this->authorize('returnProducts',$this->order);
+        $this->authorize('returnProducts', $this->order);
 
         $reason = null;
         if ($this->reason === 'Other' && $this->otherReason) {
             $reason = $this->otherReason;
-        }elseif($this->reason && $this->otherReason !== ''){
+        } elseif ($this->reason && $this->otherReason !== '') {
             $reason = $this->reason;
-        }else{
+        } else {
             $reason = null;
         }
 
-        $res = $this->order->cancelProducts($this->cancelledProducts,$reason);
+        $res = $this->order->cancelProducts($this->cancelledProducts, $reason);
 
         if ($res) {
             $this->mount($this->order->id);
@@ -100,12 +117,13 @@ class OrderShow extends Component
         $this->reset(['ddateSection', 'ddate']);
     }
 
-    public function updateDeliveryDate(){
+    public function updateDeliveryDate()
+    {
         $this->authorize('update', $this->order);
         $this->validate([
             'ddate' => 'nullable|date',
         ]);
-        $date = $this->ddate ? Carbon::parse($this->ddate) : null ;
+        $date = $this->ddate ? Carbon::parse($this->ddate) : null;
         $res = $this->order->updateDeliveryDate($date);
 
         if ($res) {
@@ -128,12 +146,13 @@ class OrderShow extends Component
         $this->reset(['updateNoteSec', 'note']);
     }
 
-    public function updateNote(){
+    public function updateNote()
+    {
         $this->authorize('update', $this->order);
         $this->validate([
-            'note' => 'nullable|string'
+            'note' => 'nullable|string',
         ]);
-        
+
         $res = $this->order->updateNote($this->note);
 
         if ($res) {
@@ -219,6 +238,7 @@ class OrderShow extends Component
         $this->authorize('view', $this->order);
         $this->page_title = '• Orders • #' . $this->order->order_number;
         $this->zones = Zone::select('id', 'name')->get();
+        $this->productsToAdd[] = ['product_id' => '', 'quantity' => 1, 'price' => 0, 'combo_id' => null];
     }
 
     public function render()

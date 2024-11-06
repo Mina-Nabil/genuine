@@ -32,6 +32,9 @@
                     <button
                         class="btn inline-flex justify-center  bg-secondary-500 bg-opacity-30 text-slate-900 dark:text-white btn-sm"
                         wire:click='openReturnsSection'>Return</button>
+                        <button
+                        class="btn inline-flex justify-center  bg-secondary-500 bg-opacity-30 text-slate-900 dark:text-white btn-sm"
+                        wire:click='openReturnsSection'>Add Products</button>
                 </div>
             @endcan
         </div>
@@ -218,7 +221,7 @@
 
                                         <tr>
                                             <td class=" text-xs text-slate-500 dark:text-slate-400">
-                                                @if ($order->discount_amount)
+                                                @if ($order->discount_amount != 0)
                                                     Discount &nbsp;
                                                     <span class="clickable-link" wire:click='openDiscountSection'>
                                                         edit
@@ -232,7 +235,7 @@
                                             </td>
                                             <td class=" text-xs text-slate-500 dark:text-slate-400"></td>
                                             <td class="float-right text-dark">
-                                                <b>{{ $order->discount_amount ? '-' . number_format($order->discount_amount, 2) : '-' }}<small>&nbsp;EGP</small></b>
+                                                <b>{{ $order->discount_amount != 0 ? '-' . number_format($order->discount_amount, 2) : '-' }}<small>&nbsp;EGP</small></b>
                                             </td>
                                         </tr>
 

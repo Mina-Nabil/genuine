@@ -17400,12 +17400,11 @@ ul.custom-list ul {
 
 .select-action-btns-container {
     position: fixed;
-    bottom: 30px;
-    left: 50%;
+    bottom: 90px;
+    right: 10px;
     transform: translateX(-50%);
     background-color: white;
-    padding: 14px;
-    border-radius: 5px;
+    border-radius: 50px;
     -webkit-box-shadow: 10px 10px 38px 5px rgba(0, 0, 0, 0.5);
     -moz-box-shadow: 10px 10px 38px 5px rgba(0, 0, 0, 0.5);
     box-shadow: 10px 10px 38px 5px rgba(0, 0, 0, 0.5);
