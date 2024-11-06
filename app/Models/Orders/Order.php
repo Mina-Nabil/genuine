@@ -4,6 +4,7 @@ namespace App\Models\Orders;
 
 use App\Models\Customers\Customer;
 use App\Models\Customers\Zone;
+use App\Models\Products\Product;
 use App\Models\Users\AppLog;
 use App\Models\Users\Driver;
 use Carbon\Carbon;
@@ -41,6 +42,64 @@ class Order extends Model
     const STATUS_RETURNED = 'returned';
     const STATUS_CANCELLED = 'cancelled';
     const STATUSES = [self::STATUS_NEW, self::STATUS_READY, self::STATUS_IN_DELIVERY, self::STATUS_DONE, self::STATUS_RETURNED, self::STATUS_CANCELLED];
+
+    public static function getNextStatuses(string $currentStatus): array
+    {
+        $statusLevels = [
+            self::STATUS_NEW => [self::STATUS_READY, self::STATUS_CANCELLED], // Level 1
+            self::STATUS_READY => [self::STATUS_IN_DELIVERY, self::STATUS_CANCELLED], // Level 2
+            self::STATUS_IN_DELIVERY => [self::STATUS_DONE, self::STATUS_RETURNED], // Level 3
+            self::STATUS_DONE => [], // Level 4 Final status with no further transitions
+            self::STATUS_RETURNED => [],
+            self::STATUS_CANCELLED => [],
+        ];
+
+        // Return the next possible statuses or an empty array if no transitions exist
+        return $statusLevels[$currentStatus] ?? [];
+    }
+
+    /**
+     * Set a bulk status on multiple orders.
+     *
+     * @param array $orderIds Array of order IDs.
+     * @param string $newStatus The new status to set.
+     * @return bool True if all statuses were updated successfully, false otherwise.
+     * @throws Exception
+     */
+    public static function setBulkStatus(array $orderIds, string $newStatus): bool
+    {
+        DB::beginTransaction();
+
+        try {
+            $orders = self::whereIn('id', $orderIds)->get();
+
+            foreach ($orders as $order) {
+                // Get the current status and check the allowed next statuses
+                $currentStatus = $order->status;
+                $allowedNextStatuses = self::getNextStatuses($currentStatus);
+
+                // If the new status is not allowed, throw an exception
+                if (!in_array($newStatus, $allowedNextStatuses, true)) {
+                    throw new Exception("Order ID {$order->id} cannot transition from {$currentStatus} to {$newStatus}");
+                }
+
+                if ($newStatus === self::STATUS_RETURNED || $newStatus === self::STATUS_CANCELLED) {
+                    $order->cancelAllProducts();
+                }
+
+                // Update the status
+                $order->status = $newStatus;
+                $order->save();
+            }
+            DB::commit();
+            return true;
+        } catch (Exception $e) {
+            DB::rollBack();
+            report($e);
+            AppLog::error('Failed to changes bulk status for orders', $e->getMessage());
+            return false;
+        }
+    }
 
     // Function to create a new order
     public static function newOrder(int $customerId, string $customerName, string $shippingAddress, string $customerPhone, int $zoneId, int $driverId = null, string $periodicOption = null, float $totalAmount = 0, float $deliveryAmount = 0, float $discountAmount = 0, Carbon $deliveryDate = null, string $note = null, array $products): Order|bool
@@ -91,6 +150,73 @@ class Order extends Model
         }
     }
 
+    /**
+     * Bulk assign a driver to multiple orders.
+     *
+     * @param array $orderIds Array of order IDs.
+     * @param int $driverId Driver ID to assign to the orders.
+     * @return bool True if successful, false otherwise.
+     */
+    public static function assignDriverToOrders(array $orderIds, int $driverId): bool
+    {
+        DB::beginTransaction();
+
+        try {
+            // Update the driver_id for each order in the array
+            foreach ($orderIds as $orderId) {
+                $order = self::find($orderId);
+
+                // Proceed if the order exists
+                if ($order) {
+                    $order->driver_id = $driverId;
+                    $order->save();
+                    AppLog::info('Order Assigned to driver', loggable: $order);
+                }
+            }
+            DB::commit();
+            return true;
+        } catch (Exception $e) {
+            DB::rollBack();
+            report($e);
+            AppLog::error('Failed to assign orders to driver', $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Bulk set a delivery date for multiple orders.
+     *
+     * @param array $orderIds Array of order IDs.
+     * @param string $deliveryDate Delivery date to set for the orders.
+     * @return bool True if successful, false otherwise.
+     */
+    public static function setDeliveryDateForOrders(array $orderIds, Carbon $deliveryDate): bool
+    {
+        DB::beginTransaction();
+
+        try {
+            // Update the delivery_date for each order in the array
+            foreach ($orderIds as $orderId) {
+                $order = self::find($orderId);
+
+                // Proceed if the order exists
+                if ($order) {
+                    $order->delivery_date = $deliveryDate;
+                    $order->save();
+                    AppLog::info('Delivery date set for order', loggable: $order);
+                }
+            }
+
+            DB::commit();
+            return true;
+        } catch (Exception $e) {
+            DB::rollBack();
+            report($e); // Log the exception
+            AppLog::error('Failed to set delivery date to orders', $e->getMessage());
+            return false;
+        }
+    }
+
     public function updateDeliveryDate(Carbon $deliveryDate = null): bool
     {
         /** @var User */
@@ -108,6 +234,137 @@ class Order extends Model
         } catch (Exception $e) {
             report($e);
             AppLog::error('Failed to update delivery date for order', $e->getMessage());
+            return false;
+        }
+    }
+
+    public static function checkStatusConsistency(array $orderIds)
+    {
+        $result = DB::table('orders')
+            ->selectRaw(
+                "
+                GROUP_CONCAT(DISTINCT status) AS statuses,
+                COUNT(DISTINCT status) AS status_count
+            ",
+            )
+            ->whereIn('id', $orderIds)
+            ->first();
+
+        // Check if there is only one unique status
+        if ($result->status_count == 1) {
+            return $result->statuses; // Return the single status
+        } else {
+            return false; // Return false if statuses are different
+        }
+    }
+
+    /**
+     * Add given quantities of products to the order, with optional combo ID.
+     *
+     * @param array $products Array of products with 'product_id', 'quantity', 'price', and optional 'combo_id'.
+     * @param string|null $note Optional note for adding products.
+     * @return bool True if successful, false otherwise.
+     */
+    public function addProducts(array $products, string $note = null): bool
+    {
+        DB::beginTransaction();
+
+        try {
+            foreach ($products as $product) {
+                // Skip if quantity is invalid
+                if (empty($product['quantity']) || $product['quantity'] <= 0) {
+                    continue;
+                }
+
+                $orderProduct = $this->products()
+                    ->where('product_id', $product['product_id'])
+                    ->first();
+
+                if ($orderProduct) {
+                    // Update the existing order product with the additional quantity and updated
+                    $orderProduct->quantity += $product['quantity'];
+                    $orderProduct->price = $product['price']; // Update price if provided
+                    $orderProduct->combo_id = $product['combo_id'] ?? $orderProduct->combo_id; // Only update if combo_id is provided
+                    $orderProduct->save();
+                } else {
+                    // Add new product entry to the order_products table
+                    OrderProduct::create([
+                        'order_id' => $this->id,
+                        'product_id' => $product['product_id'],
+                        'quantity' => $product['quantity'],
+                        'price' => $product['price'],
+                        'combo_id' => $product['combo_id'] ?? null,
+                        'note' => $note,
+                    ]);
+                }
+
+                // Update the inventory quantity for the product if an inventory record exists
+                $inventory = Product::find($product['product_id'])->inventory;
+                if ($inventory) {
+                    $inventory->commitQuantity($product['quantity'], 'Added to order #' . $this->order_number);
+                }
+            }
+
+            DB::commit();
+            $this->refreshTotalAmount();
+
+            AppLog::info('Products added', loggable: $this);
+            return true;
+        } catch (Exception $e) {
+            DB::rollBack();
+            report($e);
+            AppLog::error('Failed to add products to order', $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Cancel and remove all products from the order, adjusting inventory and logging each removal.
+     *
+     * @param string|null $reason Optional reason for the cancellation.
+     * @return bool True if all products were canceled successfully, false otherwise.
+     */
+    public function cancelAllProducts(string $reason = null): bool
+    {
+        DB::beginTransaction();
+
+        try {
+            foreach ($this->products as $orderProduct) {
+                $productId = $orderProduct->product_id;
+                $quantityToRemove = $orderProduct->quantity;
+
+                // Remove or delete the product from the order
+                $orderProduct->delete();
+
+                // Update the inventory quantity for the product
+                $inventory = $orderProduct->product->inventory;
+                if ($inventory) {
+                    $inventory->commitQuantity(-$quantityToRemove, 'Canceled from order #' . $this->order_number);
+                }
+
+                // Log the removal in the order_removed_products table
+                OrderRemovedProduct::updateOrCreate(
+                    [
+                        'order_id' => $this->id,
+                        'product_id' => $productId,
+                    ],
+                    [
+                        'quantity' => $quantityToRemove,
+                        'price' => $orderProduct->price,
+                        'reason' => $reason,
+                    ],
+                );
+            }
+            $this->refreshTotalAmount();
+            DB::commit();
+            
+
+            AppLog::info('All products canceled', loggable: $this);
+            return true;
+        } catch (Exception $e) {
+            DB::rollBack();
+            report($e);
+            AppLog::error('Failed to cancel all products for order', $e->getMessage());
             return false;
         }
     }
@@ -190,6 +447,7 @@ class Order extends Model
 
     private function refreshTotalAmount()
     {
+        $this->load('products');
         $this->total_amount = $this->total_items_price + $this->delivery_amount - $this->discount_amount;
         $this->save();
     }
@@ -294,6 +552,7 @@ class Order extends Model
 
     public function getTotalItemsPriceAttribute()
     {
+
         return $this->products->sum(function ($product) {
             return $product->price * $product->quantity;
         });
@@ -305,7 +564,6 @@ class Order extends Model
         return $this->hasMany(OrderProduct::class);
     }
 
-    // relations
     public function removedProducts()
     {
         return $this->hasMany(OrderRemovedProduct::class);
