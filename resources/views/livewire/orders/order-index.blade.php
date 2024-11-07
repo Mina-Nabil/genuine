@@ -17,10 +17,10 @@
                     class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
                     Set delivery date
                 </li>
-                @foreach ($availableBulkStatuses as $status)
-                    <li wire:click="setBulkStatus('{{ $status }}')"
+                @foreach ($availableBulkStatuses as $availableBulkStatus)
+                    <li wire:click="setBulkStatus('{{ $availableBulkStatus }}')"
                         class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
-                        Set as {{ ucwords(str_replace('_', ' ', $status)) }}
+                        Set as {{ ucwords(str_replace('_', ' ', $availableBulkStatus)) }}
                     </li>
                 @endforeach
             </ul>
@@ -145,14 +145,6 @@
                     </h4>
                     <div class="text-sm font-medium text-white dark:text-slate-900">
                         {{ $totalZones }}
-                    </div>
-                </div>
-                <div class="space-y-1">
-                    <h4 class="text-slate-400 dark:text-slate-200 text-xs font-normal">
-                        Invested amount
-                    </h4>
-                    <div class="text-sm font-medium text-white dark:text-slate-900">
-                        $8264.35
                     </div>
                 </div>
             </header>
