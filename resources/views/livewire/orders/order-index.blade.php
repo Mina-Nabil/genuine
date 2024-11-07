@@ -82,6 +82,82 @@
                 wire:model.live.debounce.400ms="search">
         </header>
 
+        @if ($driver)
+            <header class="dark-card-header noborder bg-dark">
+                <div class="space-y-1">
+                    <h4 class="text-slate-400 dark:text-slate-200 text-xs font-normal">
+                        Driver Weight Limit
+                    </h4>
+                    <div class="text-sm font-medium text-white dark:text-slate-900">
+                        {{ $totalWeight > 0 ? number_format($totalWeight / 1000, 3) : 0 }} /
+                        {{ number_format($driver->weight_limit / 1000, 3) }} KG
+                    </div>
+                    <div class=" text-xs font-normal">
+                        @if (($totalWeight / $driver->weight_limit) * 100 <= 50)
+                            <span
+                                class="text-danger-500">({{ number_format(($totalWeight / $driver->weight_limit) * 100, 0) }}%)
+                                In-sufficient</span>
+                        @elseif (($totalWeight / $driver->weight_limit) * 100 > 50 && ($totalWeight / $driver->weight_limit) * 100 <= 70)
+                            <span class="text-warning-500">
+                                ({{ number_format(($totalWeight / $driver->weight_limit) * 100, 0) }}%) Nearly
+                                Sufficient</span>
+                        @elseif (($totalWeight / $driver->weight_limit) * 100 > 70 && ($totalWeight / $driver->weight_limit) * 100 <= 100)
+                            <span
+                                class="text-success-500">({{ number_format(($totalWeight / $driver->weight_limit) * 100, 0) }}%)
+                                Sufficient</span>
+                        @elseif (($totalWeight / $driver->weight_limit) * 100 > 100)
+                            <span
+                                class="text-danger-500">({{ number_format(($totalWeight / $driver->weight_limit) * 100, 0) }}%)
+                                Overload</span>
+                        @endif
+                    </div>
+                </div>
+                <div class="space-y-1">
+                    <h4 class="text-slate-400 dark:text-slate-200 text-xs font-normal">
+                        Total Orders Limit
+                    </h4>
+                    <div class="text-sm font-medium text-white dark:text-slate-900">
+                        {{ $ordersCount ?? 0 }} / {{ $driver->order_quantity_limit }} Orders
+                    </div>
+                    <div class=" text-xs font-normal">
+                        @if (($ordersCount / $driver->order_quantity_limit) * 100 <= 50)
+                            <span
+                                class="text-danger-500">({{ number_format(($ordersCount / $driver->order_quantity_limit) * 100, 0) }}%)
+                                In-sufficient</span>
+                        @elseif (($ordersCount / $driver->order_quantity_limit) * 100 > 50 && ($ordersCount / $driver->order_quantity_limit) * 100 <= 70)
+                            <span class="text-warning-500">
+                                ({{ number_format(($ordersCount / $driver->order_quantity_limit) * 100, 0) }}%) Nearly
+                                Sufficient</span>
+                        @elseif (($ordersCount / $driver->order_quantity_limit) * 100 > 70 && ($ordersCount / $driver->order_quantity_limit) * 100 <= 100)
+                            <span
+                                class="text-success-500">({{ number_format(($ordersCount / $driver->order_quantity_limit) * 100, 0) }}%)
+                                Sufficient</span>
+                        @elseif (($ordersCount / $driver->order_quantity_limit) * 100 > 100)
+                            <span
+                                class="text-danger-500">({{ number_format(($ordersCount / $driver->weight_limit) * 100, 0) }}%)
+                                Overload</span>
+                        @endif
+                    </div>
+                </div>
+                <div class="space-y-1">
+                    <h4 class="text-slate-400 dark:text-slate-200 text-xs font-normal">
+                        Total Zones
+                    </h4>
+                    <div class="text-sm font-medium text-white dark:text-slate-900">
+                        {{ $totalZones }}
+                    </div>
+                </div>
+                <div class="space-y-1">
+                    <h4 class="text-slate-400 dark:text-slate-200 text-xs font-normal">
+                        Invested amount
+                    </h4>
+                    <div class="text-sm font-medium text-white dark:text-slate-900">
+                        $8264.35
+                    </div>
+                </div>
+            </header>
+        @endif
+
         <header class="card-header cust-card-header noborder">
             <div>
                 @if ($deliveryDate)
