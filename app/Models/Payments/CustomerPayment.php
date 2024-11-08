@@ -21,11 +21,8 @@ class CustomerPayment extends Model
         'amount',
         'payment_method',
         'payment_date',
-        'reference',
         'note',
-        'status',
         'created_by',
-        'closed_by',
     ];
     
     const PYMT_CASH = 'cash';
@@ -36,11 +33,6 @@ class CustomerPayment extends Model
     const PAYMENT_METHODS = [self::PYMT_CASH, self::PYMT_CREDIT_CARD,self::PYMT_BANK_TRANSFER,self::PYMT_INSTAPAY,self::PYMT_WALLET];
 
     
-    const STATUS_NEW = 'new';
-    const STATUS_PAID = 'paid';
-    const STATUS_CANCELLED = 'cancelled';
-    const STATUSES = [self::STATUS_NEW, self::STATUS_PAID, self::STATUS_CANCELLED];
-
 
     public function customer()
     {
@@ -63,11 +55,4 @@ class CustomerPayment extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    /**
-     * Define relationship with the User model for the closed_by user.
-     */
-    public function closedBy()
-    {
-        return $this->belongsTo(User::class, 'closed_by');
-    }
 }

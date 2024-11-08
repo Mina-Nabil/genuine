@@ -23,6 +23,11 @@ class CustomerPolicy
     {
         return true;
     }
+    
+    public function updateCustomerBalance(User $user, Customer $customer): bool
+    {
+        return true;
+    }
 
     /**
      * Determine whether the user can create models.

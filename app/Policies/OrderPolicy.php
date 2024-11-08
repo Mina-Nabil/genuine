@@ -24,6 +24,11 @@ class OrderPolicy
         return true;
     }
 
+    public function pay(User $user, Order $order): bool
+    {
+        return true;
+    }
+
     /**
      * Determine whether the user can create models.
      */

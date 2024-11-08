@@ -17,27 +17,11 @@ class BalanceTransaction extends Model
         'customer_id',
         'payment_id',
         'order_id',
-        'amount',
-        'type',
+        'amount', //can be negative or positive
         'description',
         'created_by',
     ];
 
-
-    const TYPES = [ self::TYPE_IN, self::TYPE_OUT ];
-    const TYPE_IN = 'in';
-    const TYPE_OUT  = 'out';
-
-    //scopes
-    public function scopeInflow($query)
-    {
-        return $query->where('type', 'in');
-    }
-
-    public function scopeOutflow($query)
-    {
-        return $query->where('type', 'out');
-    }
 
     // relations
     public function customer()
