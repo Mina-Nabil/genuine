@@ -3,6 +3,8 @@
 namespace App\Models\Customers;
 
 use App\Models\Orders\Order;
+use App\Models\Payments\BalanceTransaction;
+use App\Models\Payments\CustomerPayment;
 use App\Models\Pets\Pet;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,13 +13,14 @@ use App\Models\Users\AppLog;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class Customer extends Model
 {
     use HasFactory;
-    
+
     const MORPH_TYPE = 'customer';
 
     protected $fillable = ['name', 'address', 'phone', 'location_url', 'zone_id'];
@@ -70,19 +73,19 @@ class Customer extends Model
     }
 
     // Method to add a new pet for this customer
-    public function addPet($name,$category ,$type, $bdate , $note = null)
+    public function addPet($name, $category, $type, $bdate, $note = null)
     {
         try {
             $pet = new Pet();
             $pet->name = $name;
-            $pet->category =  $category;
+            $pet->category = $category;
             $pet->type = $type;
             $pet->bdate = $bdate;
             $pet->note = $note;
 
             // Associate the pet with the current customer
             if ($this->pets()->save($pet)) {
-                AppLog::info('Pet added', "Pet $name added for customer {$this->name}.",loggable:$this);
+                AppLog::info('Pet added', "Pet $name added for customer {$this->name}.", loggable: $this);
                 return true;
             } else {
                 return false;
@@ -98,12 +101,12 @@ class Customer extends Model
     {
         try {
             $res = $this->followups()->create([
-                "creator_id" =>  Auth::id(),
-                "title"     =>  $title,
-                "call_time" =>  Carbon::parse($call_time),
-                "desc"      =>  $desc
+                'creator_id' => Auth::id(),
+                'title' => $title,
+                'call_time' => Carbon::parse($call_time),
+                'desc' => $desc,
             ]);
-            AppLog::info("Follow-up created", loggable: $res);
+            AppLog::info('Follow-up created', loggable: $res);
             return $res;
         } catch (Exception $e) {
             AppLog::error("Can't create followup", desc: $e->getMessage());
@@ -132,6 +135,66 @@ class Customer extends Model
             report($e);
             return false;
         }
+    }
+
+    public function addToBalanceWithPayment($amount, $paymentMethod, $paymentDate, $note = 'Balance update')
+    {
+        return DB::transaction(function () use ($amount, $paymentMethod, $paymentDate, $note) {
+            try {
+                /** @var User */
+                $loggedInUser = Auth::user();
+                if ($loggedInUser && !$loggedInUser->can('updateCustomerBalance', $this)) {
+                    return false;
+                }
+
+                // Ensure the amount is positive (to add to balance)
+                if ($amount <= 0) {
+                    throw new Exception('Amount to be added must be positive.');
+                }
+
+                // Step 1: Increase the customer balance
+                $this->balance += $amount;
+                $this->save();
+
+                // Step 2: Create a positive balance transaction
+                BalanceTransaction::create([
+                    'customer_id' => $this->id,
+                    'amount' => $amount, // Positive amount added to the balance
+                    'description' => $note ?? 'Add to balance',
+                    'created_by' => $loggedInUser->id,
+                ]);
+
+                // Step 3: Create the payment record for the added amount
+                CustomerPayment::create([
+                    'customer_id' => $this->id,
+                    'amount' => $amount, // Payment amount (same as the added balance)
+                    'payment_method' => $paymentMethod,
+                    'payment_date' => $paymentDate,
+                    'note' => $note ?? 'Add to balance',
+                    'created_by' => $loggedInUser->id,
+                ]);
+
+                // Step 4: Log the action (optional)
+                AppLog::info("Added {$amount} to {$this->name}'s balance and created payment", loggable: $this);
+
+                return true; // Indicate success
+            } catch (Exception $e) {
+                // Rollback the transaction in case of an error
+                report($e);
+                AppLog::error('Failed to add to balance and create payment', $e->getMessage(), loggable: $this);
+                return false; // Indicate failure
+            }
+        });
+    }
+
+    public function canDeductFromBalance($amount)
+    {
+        // Check if the customer has enough balance
+        if ($this->balance >= $amount) {
+            return true; // Sufficient balance
+        }
+
+        return false; // Insufficient balance
     }
 
     public function countPets(): int

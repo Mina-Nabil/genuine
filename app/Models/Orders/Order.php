@@ -4,6 +4,8 @@ namespace App\Models\Orders;
 
 use App\Models\Customers\Customer;
 use App\Models\Customers\Zone;
+use App\Models\Payments\BalanceTransaction;
+use App\Models\Payments\CustomerPayment;
 use App\Models\Products\Product;
 use App\Models\Users\AppLog;
 use App\Models\Users\Driver;
@@ -15,6 +17,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -255,6 +258,227 @@ class Order extends Model
             return $result->statuses; // Return the single status
         } else {
             return false; // Return false if statuses are different
+        }
+    }
+
+    public function createPayment($amount, $paymentMethod, $paymentDate, $isTakeFromBalance = false)
+    {
+        return DB::transaction(function () use ($amount, $paymentMethod, $paymentDate, $isTakeFromBalance) {
+            try {
+                /** @var User */
+                $loggedInUser = Auth::user();
+                if ($loggedInUser && !$loggedInUser->can('pay', $this)) {
+                    return false;
+                }
+
+                // Check if customer exists for the order
+                $customer = $this->customer;
+                if (!$customer) {
+                    throw new Exception('Order does not have an associated customer.');
+                }
+
+                // Step 1: Adjust customer balance if specified
+                if ($isTakeFromBalance) {
+                    if ($customer->balance < $amount) {
+                        throw new Exception('Insufficient balance.');
+                    }
+                    $customer->balance -= $amount;
+                    $customer->save();
+                }
+
+                // Step 2: Create the payment record
+                $payment = CustomerPayment::create([
+                    'customer_id' => $customer->id,
+                    'order_id' => $this->id,
+                    'amount' => $amount,
+                    'payment_method' => $paymentMethod,
+                    'payment_date' => $paymentDate,
+                    'created_by' => $loggedInUser->id,
+                ]);
+
+                // Step 3: Conditionally create a balance transaction log
+                if ($isTakeFromBalance) {
+                    BalanceTransaction::create([
+                        'customer_id' => $customer->id,
+                        'customer_payment_id' => $payment->id,
+                        'order_id' => $this->id,
+                        'amount' => $amount,
+                        'description' => 'Deducted from balance',
+                        'created_by' => $loggedInUser->id,
+                    ]);
+                }
+
+                // Step 4: Check if the payment amount matches the order total and mark as paid if so
+                if ($amount == $this->total_amount) {
+                    $this->is_paid = true;
+                    $this->save();
+                }
+
+                // Logging the successful payment creation
+                AppLog::info('Payment created for order', loggable: $this);
+                return $payment;
+            } catch (QueryException $e) {
+                if ($e->getCode() === '40001') {
+                    // Deadlock error code in MySQL
+                    AppLog::error('Deadlock encountered', loggable: $this);
+                }
+                // Log the error
+                report($e);
+                AppLog::error('Failed creating payment for order', $e->getMessage(), loggable: $this);
+                return false;
+            }
+        });
+    }
+
+    public function setAsPaid($paymentMethod, $paymentDate)
+    {
+        return DB::transaction(function () use ($paymentMethod, $paymentDate) {
+            try {
+                /** @var User */
+                $loggedInUser = Auth::user();
+                if ($loggedInUser && !$loggedInUser->can('pay', $this)) {
+                    return false;
+                }
+
+                // Check if customer exists for the order
+                $customer = $this->customer;
+                if (!$customer) {
+                    throw new Exception('Order does not have an associated customer.');
+                }
+
+                // Step 1: Check if customer has sufficient balance and deduct if necessary
+                if ($customer->balance >= $this->total_amount) {
+                    // Deduct the balance if sufficient
+                    $customer->balance -= $this->total_amount;
+                    $customer->save();
+
+                    // Step 2: Log the balance transaction (negative deduction)
+                    BalanceTransaction::create([
+                        'customer_id' => $customer->id,
+                        'amount' => -$this->total_amount, // Deducting from the balance
+                        'description' => 'Payment for order #' . $this->id,
+                        'created_by' => $loggedInUser->id,
+                    ]);
+                } else {
+                    // Log the message if there's insufficient balance but don't deduct
+                    AppLog::warning("Customer {$customer->name} has insufficient balance for order #{$this->id}");
+                }
+
+                // Step 3: Mark order as paid
+                $this->is_paid = true;
+                $this->save();
+
+                // Step 4: Create a payment record to log the transaction
+                $payment = CustomerPayment::create([
+                    'customer_id' => $customer->id,
+                    'order_id' => $this->id,
+                    'amount' => $this->total_amount, // Log the full amount as paid
+                    'payment_method' => $paymentMethod,
+                    'payment_date' => $paymentDate,
+                    'created_by' => $loggedInUser->id,
+                ]);
+
+                // Step 5: Log the action
+                AppLog::info('Order marked as paid', loggable: $this);
+
+                return $payment;
+            } catch (QueryException $e) {
+                if ($e->getCode() === '40001') {
+                    AppLog::error('Deadlock encountered', loggable: $this);
+                }
+                // Log the error
+                report($e);
+                AppLog::error('Failed to set order as paid', $e->getMessage(), loggable: $this);
+                return false;
+            }
+        });
+    }
+
+    public function bulkSetAsPaid(array $orderIds, $paymentMethod, $paymentDate, $deductFromBalance = false)
+    {
+        $errorMessages = [];
+
+        try {
+            DB::transaction(function () use ($orderIds, $paymentMethod, $paymentDate, $deductFromBalance, &$errorMessages) {
+                /** @var User */
+                $loggedInUser = Auth::user();
+                if ($loggedInUser && !$loggedInUser->can('pay', $this)) {
+                    return false;
+                }
+
+                foreach ($orderIds as $orderId) {
+                    // Retrieve the order
+                    $order = Order::find($orderId);
+
+                    // Validate order existence and status
+                    if (!$order) {
+                        $errorMessages[] = "Order ID {$orderId} not found.";
+                        continue; // Skip to the next order if the current one is invalid
+                    }
+
+                    if ($order->is_paid) {
+                        $errorMessages[] = "Order ID {$orderId} is already marked as paid.";
+                        continue; // Skip to the next order if it is already paid
+                    }
+
+                    // Check if there’s an associated customer
+                    $customer = $order->customer;
+                    if (!$customer) {
+                        $errorMessages[] = "Order ID {$orderId} does not have an associated customer.";
+                        continue; // Skip to the next order if there’s no customer
+                    }
+
+                    // Check if the customer has sufficient balance and optionally deduct from it
+                    if ($deductFromBalance) {
+                        if ($customer->balance < $order->total_amount) {
+                            $errorMessages[] = "Customer {$customer->name} has insufficient balance. Balance: {$customer->balance}, Order Total: {$order->total_amount}";
+                            continue; // Skip to the next order if insufficient balance
+                        }
+                        // Deduct balance if sufficient
+                        $customer->balance -= $order->total_amount;
+                        $customer->save();
+
+                        // Log the balance deduction
+                        BalanceTransaction::create([
+                            'customer_id' => $customer->id,
+                            'order_id' => $order->id,
+                            'amount' => $order->total_amount,
+                            'description' => 'Bulk payment deducted from balance',
+                            'created_by' => $loggedInUser->id,
+                        ]);
+                    }
+
+                    // Mark the order as paid
+                    $order->is_paid = true;
+                    $order->save();
+
+                    // Create a payment record
+                    CustomerPayment::create([
+                        'customer_id' => $customer->id,
+                        'order_id' => $order->id,
+                        'amount' => $order->total_amount,
+                        'payment_method' => $paymentMethod,
+                        'payment_date' => $paymentDate,
+                        'created_by' => $loggedInUser->id,
+                    ]);
+
+                    // Log successful payment
+                    AppLog::info("Order ID {$orderId} marked as paid in bulk process", loggable: $order);
+                }
+            });
+
+            // If there are no error messages, return true
+            if (!empty($errorMessages)) {
+                throw new Exception(implode(', ', $errorMessages));
+                return $errorMessages;
+            }
+
+            // Return all error messages if there are any
+            return true;
+        } catch (Exception $e) {
+            report($e);
+            AppLog::error('Failed to set orders as paid in bulk process: ', $e->getMessage());
+            return false;
         }
     }
 
