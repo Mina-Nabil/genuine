@@ -2,10 +2,10 @@
     <div class="space-y-5 profile-page mx-auto" style="max-width: 1000px">
 
         <div class="flex justify-between">
-            <div>
+            <h4>
                 <b>{{ $customer->name }}</b><iconify-icon class="ml-3" style="position: absolute" wire:loading
                     wire:target="changeSection" icon="svg-spinners:180-ring"></iconify-icon>
-            </div>
+            </h4>
             <div class="float-right grid-col-2">
                 <button wire:click='showEditCustomerSection'
                     class="btn inline-flex justify-center btn-outline-light btn-sm">Edit
@@ -51,6 +51,7 @@
 
 
         <div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-5 mb-5 text-wrap">
+
             @if ($section === 'profile')
                 <div class="md:flex-1 rounded-md overlay min-w-\[var\(500px\)\] sm:col-span-2"
                     style="min-width: 400px;">
@@ -92,6 +93,113 @@
                     </div>
 
 
+
+                </div>
+
+                <div>
+                    <div class="card no-wrap">
+                        <div class="card-body px-6 p-6">
+                            <div class="flex justify-between">
+                                <div>
+                                    <span class="text-xs text-slate-500 dark:text-slate-400 block mb-1">
+                                        Balance
+                                    </span>
+                                    <span class="text-lg font-medium text-slate-900 dark:text-white block">
+                                        <small class="text-light">EGP</small>{{ number_format($customer->balance, 2) }}
+                                    </span>
+                                </div>
+                                @can('updateCustomerBalance', $customer)
+                                    <div>
+                                        <button wire:click='openAddToBalanceSection' type="button"
+                                            class="btn btn-dark btn-sm">
+                                            Add Balance
+                                        </button>
+                                    </div>
+                                @endcan
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="card no-wrap mt-5">
+                        <header class="card-header noborder mb-6">
+                            <h4 class="card-title">All Payments
+                            </h4>
+                        </header>
+                        <div class="card-body px-6 pb-6">
+                            <div class="overflow-x-auto -mx-6 ">
+                                <span class=" col-span-8  hidden"></span>
+                                <span class="  col-span-4 hidden"></span>
+                                <div class="inline-block min-w-full align-middle">
+                                    <div class="overflow-hidden ">
+                                        <table
+                                            class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700">
+                                            <thead class=" border-t border-slate-100 dark:border-slate-800">
+                                                <tr>
+
+                                                    <th scope="col" class=" table-th ">
+                                                        Date
+                                                    </th>
+
+                                                    <th scope="col" class=" table-th ">
+                                                        HISTORY
+                                                    </th>
+
+                                                    <th scope="col" class=" table-th ">
+                                                        Amount
+                                                    </th>
+
+                                                </tr>
+                                            </thead>
+                                            <tbody
+                                                class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
+
+                                                @forelse ($customer->payments as $payment)
+                                                    <tr>
+                                                        <td class="table-td ">
+                                                            {{ \Carbon\Carbon::parse($payment->payment_date)->format('Y-m-d') }}
+                                                            <span
+                                                                class="block text-slate-500 text-xs">{{ $payment->createdBy->full_name }}</span>
+                                                        </td>
+                                                        <td class="table-td ">
+                                                            <div class="min-w-[100px]">
+                                                                <span class="text-slate-500 dark:text-slate-400">
+                                                                    <span
+                                                                        class="block text-slate-600 dark:text-slate-300">{{ ucwords(str_replace('_', ' ', $payment->payment_method)) }}</span>
+                                                                    @if ($payment->order)
+                                                                        <span
+                                                                            class="block text-slate-500 text-xs">Order:
+                                                                            #{{ $payment->order_number }}</span>
+                                                                    @endif
+
+                                                                </span>
+                                                            </div>
+                                                        </td>
+                                                        <td class="table-td ">
+
+                                                            <div class=" text-success-500">
+                                                                +<small>EGP</small> {{ $payment->amount }}
+                                                            </div>
+
+                                                        </td>
+                                                    </tr>
+                                                @empty
+                                                    <tr>
+                                                        <td class="table-td " colspan="3">
+                                                            <p class="text-center text-slate-500 p-5">
+                                                                No payments for this customer.
+                                                            </p>
+                                                        </td>
+                                                    </tr>
+                                                @endforelse
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
 
@@ -139,7 +247,8 @@
                                                 <button class="text-xl text-center block w-full " type="button"
                                                     id="tableDropdownMenuButton1" data-bs-toggle="dropdown"
                                                     aria-expanded="false">
-                                                    <iconify-icon icon="heroicons-outline:dots-vertical"></iconify-icon>
+                                                    <iconify-icon
+                                                        icon="heroicons-outline:dots-vertical"></iconify-icon>
                                                 </button>
                                                 <ul
                                                     class=" dropdown-menu min-w-[120px] absolute text-sm text-slate-700 dark:text-white hidden bg-white dark:bg-slate-700 shadow z-[2] float-left overflow-hidden list-none text-left rounded-lg mt-1 m-0 bg-clip-padding border-none">
@@ -253,35 +362,35 @@
                                                 <div class="ml-5">
                                                     <p class="mr-2"><b>Age </b></p>
                                                     <p>
-                                                    @php
-                                                        $years = \Carbon\Carbon::parse($pet->bdate)
-                                                            ->diff(\Carbon\Carbon::now())
-                                                            ->format('%y');
-                                                        $months = \Carbon\Carbon::parse($pet->bdate)
-                                                            ->diff(\Carbon\Carbon::now())
-                                                            ->format('%m');
-                                                        $days = \Carbon\Carbon::parse($pet->bdate)
-                                                            ->diff(\Carbon\Carbon::now())
-                                                            ->format('%d');
-                                                    @endphp
+                                                        @php
+                                                            $years = \Carbon\Carbon::parse($pet->bdate)
+                                                                ->diff(\Carbon\Carbon::now())
+                                                                ->format('%y');
+                                                            $months = \Carbon\Carbon::parse($pet->bdate)
+                                                                ->diff(\Carbon\Carbon::now())
+                                                                ->format('%m');
+                                                            $days = \Carbon\Carbon::parse($pet->bdate)
+                                                                ->diff(\Carbon\Carbon::now())
+                                                                ->format('%d');
+                                                        @endphp
 
-                                                    @if ($years > 0)
-                                                        <span
-                                                            class="text-success-500"><b>{{ $years }}</b></span>
-                                                        YEAR
-                                                    @endif
+                                                        @if ($years > 0)
+                                                            <span
+                                                                class="text-success-500"><b>{{ $years }}</b></span>
+                                                            YEAR
+                                                        @endif
 
-                                                    @if ($months > 0)
-                                                        <span
-                                                            class="text-success-500"><b>{{ $months }}</b></span>
-                                                        MONTH
-                                                    @endif
+                                                        @if ($months > 0)
+                                                            <span
+                                                                class="text-success-500"><b>{{ $months }}</b></span>
+                                                            MONTH
+                                                        @endif
 
-                                                    @if ($days > 0)
-                                                        <span
-                                                            class="text-success-500"><b>{{ $days }}</b></span>
-                                                        DAY
-                                                    @endif
+                                                        @if ($days > 0)
+                                                            <span
+                                                                class="text-success-500"><b>{{ $days }}</b></span>
+                                                            DAY
+                                                        @endif
                                                     </p>
                                                 </div>
                                             </div>
@@ -541,6 +650,124 @@
         @endif
     @endcan
 
+    @can('updateCustomerBalance', $customer)
+        @if ($isOpenAddToBalance)
+            <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+                style="display: block" style="z-index: 999999999999999;" tabindex="-1"
+                aria-labelledby="vertically_center" aria-modal="true" role="dialog" style="display: block;">
+                <div class="modal-dialog relative w-auto pointer-events-none">
+                    <div
+                        class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
+                        <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
+                            <!-- Modal header -->
+                            <div
+                                class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
+                                <h3 class="text-xl font-medium text-white dark:text-white capitalize">
+                                    Add Balance Payment
+                                </h3>
+                                <button wire:click="closeAddToBalanceSection" type="button"
+                                    class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
+                                    data-bs-dismiss="modal">
+                                    <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd"
+                                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                            clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span class="sr-only">Close modal</span>
+                                </button>
+                            </div>
+                            <!-- Modal body -->
+                            <div class="p-6 space-y-4">
+                                <div class="from-group">
+                                    <div class="input-area">
+                                        <label for="AddedAmount" class="form-label">Amount*</label>
+                                        <input id="AddedAmount" type="number" min="0"
+                                            class="form-control @error('AddedAmount') !border-danger-500 @enderror"
+                                            wire:model="AddedAmount" autocomplete="off">
+                                    </div>
+                                    @error('AddedAmount')
+                                        <span
+                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                                <div class="from-group">
+
+                                    <div class="checkbox-area">
+                                        <label class="inline-flex items-center cursor-pointer">
+                                            <input wire:model.live='AddedIsNowPaymentDate' type="checkbox" class="hidden"
+                                                name="checkbox" checked="checked">
+                                            <span
+                                                class="h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 bg-slate-100 dark:bg-slate-900">
+                                                <img src="{{ asset('assets/images/icon/ck-white.svg') }}" alt=""
+                                                    class="h-[10px] w-[10px] block m-auto opacity-0"></span>
+                                            <span class="text-slate-500 dark:text-slate-400 text-sm leading-6">is paid
+                                                today ?</span>
+                                        </label>
+                                    </div>
+                                    @if (!$AddedIsNowPaymentDate)
+                                        <div class="input-area mt-3">
+                                            <label for="AddedPaymentDate" class="form-label">Payment Date*</label>
+                                            <input id="AddedPaymentDate" type="date"
+                                                class="form-control @error('AddedPaymentDate') !border-danger-500 @enderror"
+                                                wire:model="AddedPaymentDate" autocomplete="off">
+                                        </div>
+                                    @endif
+
+                                </div>
+
+
+                                <div class="from-group">
+                                    <div class="input-area">
+                                        <label for="AddedPaymentMethod" class="form-label">Payment method*</label>
+                                        <select name="AddedPaymentMethod" id="AddedPaymentMethod"
+                                            class="form-control w-full mt-2 @error('AddedPaymentMethod') !border-danger-500 @enderror"
+                                            wire:model="AddedPaymentMethod" autocomplete="off">
+                                            <option value="">Select method</option>
+                                            @foreach ($PAYMENT_METHODS as $PAYMENT_METHOD)
+                                                <option value="{{ $PAYMENT_METHOD }}">
+                                                    {{ ucwords(str_replace('_', ' ', $PAYMENT_METHOD)) }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    @error('AddedPaymentMethod')
+                                        <span
+                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <div class="from-group">
+                                    <div class="input-area">
+                                        <label for="AddedPaymentNote" class="form-label">Note</label>
+                                        <textarea id="AddedPaymentNote" type="text"
+                                            class="form-control @error('AddedPaymentNote') !border-danger-500 @enderror" wire:model="AddedPaymentNote"
+                                            autocomplete="off"></textarea>
+                                    </div>
+                                    @error('AddedPaymentNote')
+                                        <span
+                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                            </div>
+                            <!-- Modal footer -->
+                            <div
+                                class="flex items-center justify-end p-6 space-x-2 border-t border-slate-200 rounded-b dark:border-slate-600">
+                                <button wire:click="addToBalance" data-bs-dismiss="modal"
+                                    class="btn inline-flex justify-center text-white bg-black-500">
+                                    <span wire:loading.remove wire:target="addToBalance">Submit</span>
+                                    <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
+                                        wire:loading wire:target="addToBalance"
+                                        icon="line-md:loading-twotone-loop"></iconify-icon>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+    @endcan
+
     @if ($deleteFollowupId)
         <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
             tabindex="-1" aria-labelledby="dangerModalLabel" aria-modal="true" role="dialog"
@@ -562,8 +789,9 @@
                                 data-bs-dismiss="modal">
                                 <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
                                     xmlns="http://www.w3.org/2000/svg">
-                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10
-11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                    <path fill-rule="evenodd"
+                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                        clip-rule="evenodd"></path>
                                 </svg>
                                 <span class="sr-only">Close modal</span>
                             </button>
@@ -606,8 +834,9 @@
                                 data-bs-dismiss="modal">
                                 <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
                                     xmlns="http://www.w3.org/2000/svg">
-                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10
-11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                    <path fill-rule="evenodd"
+                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                        clip-rule="evenodd"></path>
                                 </svg>
                                 <span class="sr-only">Close modal</span>
                             </button>
@@ -696,8 +925,9 @@
                                 data-bs-dismiss="modal">
                                 <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
                                     xmlns="http://www.w3.org/2000/svg">
-                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10
-11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                    <path fill-rule="evenodd"
+                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                        clip-rule="evenodd"></path>
                                 </svg>
                                 <span class="sr-only">Close modal</span>
                             </button>
@@ -765,6 +995,7 @@
             </div>
         </div>
     @endif
+
     @if ($callerNoteSec)
         <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
             tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
@@ -784,8 +1015,9 @@
                                 data-bs-dismiss="modal">
                                 <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
                                     xmlns="http://www.w3.org/2000/svg">
-                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10
-11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                    <path fill-rule="evenodd"
+                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                        clip-rule="evenodd"></path>
                                 </svg>
                                 <span class="sr-only">Close modal</span>
                             </button>

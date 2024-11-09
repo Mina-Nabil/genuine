@@ -5,10 +5,12 @@ namespace App\Livewire\Customers;
 use App\Models\Customers\Customer;
 use App\Models\Customers\Followup;
 use App\Models\Customers\Zone;
+use App\Models\Payments\CustomerPayment;
 use App\Models\Pets\Pet;
 use Livewire\Component;
 use App\Traits\AlertFrontEnd;
 use App\Traits\ToggleSectionLivewire;
+use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
@@ -48,8 +50,55 @@ class CustomerShow extends Component
     public $address;
     public $EditCustomerSection = false;
 
+    //balance
+    public $isOpenAddToBalance;
+    public $AddedAmount;
+    public $AddedPaymentMethod;
+    public $AddedPaymentDate;
+    public $AddedIsNowPaymentDate = true;
+    public $AddedPaymentNote;
+
+
     protected $queryString = ['section'];
     protected $listeners = ['removePet'];
+
+    public function openAddToBalanceSection(){
+        $this->isOpenAddToBalance = true;
+    }
+
+    public function closeAddToBalanceSection(){
+        $this->reset(['isOpenAddToBalance','AddedAmount','AddedPaymentMethod','AddedPaymentDate','AddedIsNowPaymentDate','AddedPaymentNote']);
+    }
+
+    public function addToBalance(){
+        $this->authorize('updateCustomerBalance',$this->customer);
+
+        $paymentDate = null;
+        if ($this->AddedIsNowPaymentDate) {
+            $paymentDate = now();
+        }else{
+            $this->validate([
+                'AddedPaymentDate' => 'required|date'
+            ]);
+            $paymentDate = $this->AddedPaymentDate;
+        }
+
+        $this->validate([
+            'AddedAmount' => 'required|numeric|min:1',
+            'AddedPaymentMethod' => 'required|in:' . implode(',', CustomerPayment::PAYMENT_METHODS),
+            'AddedPaymentNote' => 'nullable|string'
+        ]);
+
+        $res = $this->customer->addToBalanceWithPayment($this->AddedAmount,$this->AddedPaymentMethod,Carbon::parse($paymentDate),$this->AddedPaymentNote);
+
+        if ($res) {
+            $this->closeAddToBalanceSection();
+            $this->mount($this->customer->id);
+            $this->alertSuccess('Balance updated!');
+        } else {
+            $this->alertFailed();
+        }
+    }
 
     public function showEditCustomerSection()
     {
@@ -295,12 +344,14 @@ class CustomerShow extends Component
     {
         $ZONES = Zone::select('id', 'name')->get();
         $PET_CATEGORIES = Pet::CATEGORIES;
+        $PAYMENT_METHODS = CustomerPayment::PAYMENT_METHODS;
 
         $PET_TYPES = Pet::getDistinctPetTypes($this->petCategory);
         return view('livewire.customers.customer-show', [
             'ZONES' => $ZONES,
             'PET_CATEGORIES' => $PET_CATEGORIES,
             'PET_TYPES' => $PET_TYPES,
+            'PAYMENT_METHODS' => $PAYMENT_METHODS
         ])->layout('layouts.app', ['page_title' => $this->page_title, 'customers' => 'active']);
     }
 }

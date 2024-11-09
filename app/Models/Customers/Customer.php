@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Exception;
 use App\Models\Users\AppLog;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -215,6 +216,16 @@ class Customer extends Model
     }
 
     // Relations
+    public function payments():HasMany
+    {
+        return $this->hasMany(CustomerPayment::class);
+    }
+
+    public function transactions(): HasMany
+    {
+        return $this->hasMany(BalanceTransaction::class);
+    }
+
     public function zone()
     {
         return $this->belongsTo(Zone::class);
