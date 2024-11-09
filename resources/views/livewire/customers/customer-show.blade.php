@@ -142,7 +142,7 @@
                                                     </th>
 
                                                     <th scope="col" class=" table-th ">
-                                                        HISTORY
+                                                        Method
                                                     </th>
 
                                                     <th scope="col" class=" table-th ">

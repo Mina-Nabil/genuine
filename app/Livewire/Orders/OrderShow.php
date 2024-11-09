@@ -49,6 +49,29 @@ class OrderShow extends Component
     public $searchAddProducts; //search term
     public $productsToAdd = [];
 
+    //pay from balance
+    public $isOpenPayFromBalanceSec;
+
+    public function openPayFromBalance(){
+        $this->isOpenPayFromBalanceSec = true;
+    }
+
+    public function closePayFromBalance(){
+        $this->isOpenPayFromBalanceSec = false;
+    }
+
+    public function PayFromBalance(){
+        $this->authorize('pay',$this->order);
+        $res = $this->order->setAsPaidFromBalance();
+        if ($res) {
+            $this->mount($this->order->id);
+            $this->closePayFromBalance();
+            $this->alertSuccess('Order Payed');
+        } else {
+            $this->alertFailed();
+        }
+    }
+
     public function addProductRow()
     {
         $this->productsToAdd[] = ['product_id' => '', 'quantity' => 1, 'price' => 0, 'combo_id' => null];

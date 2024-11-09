@@ -394,6 +394,61 @@ class Order extends Model
         });
     }
 
+    public function setAsPaidFromBalance()
+    {
+        return DB::transaction(function () {
+            try {
+                /** @var User */
+                $loggedInUser = Auth::user();
+                if ($loggedInUser && !$loggedInUser->can('pay', $this)) {
+                    return false;
+                }
+
+                // Check if customer exists for the order
+                $customer = $this->customer;
+                if (!$customer) {
+                    throw new Exception('Order does not have an associated customer.');
+                }
+
+                // Step 1: Check if customer has sufficient balance and deduct if necessary
+                if ($customer->balance >= $this->total_amount) {
+                    // Deduct the balance if sufficient
+                    $customer->balance -= $this->total_amount;
+                    $customer->save();
+
+                    // Step 2: Log the balance transaction (negative deduction)
+                    BalanceTransaction::create([
+                        'customer_id' => $customer->id,
+                        'amount' => -$this->total_amount, // Deducting from the balance
+                        'description' => 'Payment for order #' . $this->id . ' from balance',
+                        'created_by' => $loggedInUser->id,
+                    ]);
+
+                    // Step 3: Mark order as paid
+                    $this->is_paid = true;
+                    $this->save();
+
+                    // Step 4: Log the action
+                    AppLog::info('Order marked as paid from balance', loggable: $this);
+
+                    return true;
+                } else {
+                    // Log the message if there's insufficient balance but don't deduct
+                    AppLog::warning("Customer {$customer->name} has insufficient balance for order #{$this->id}");
+                    return false;
+                }
+            } catch (QueryException $e) {
+                if ($e->getCode() === '40001') {
+                    AppLog::error('Deadlock encountered', loggable: $this);
+                }
+                // Log the error
+                report($e);
+                AppLog::error('Failed to set order as paid from balance', $e->getMessage(), loggable: $this);
+                return false;
+            }
+        });
+    }
+
     public function bulkSetAsPaid(array $orderIds, $paymentMethod, $paymentDate, $deductFromBalance = false)
     {
         $errorMessages = [];

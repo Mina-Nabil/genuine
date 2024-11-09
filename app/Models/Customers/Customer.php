@@ -178,12 +178,12 @@ class Customer extends Model
                 // Step 4: Log the action (optional)
                 AppLog::info("Added {$amount} to {$this->name}'s balance and created payment", loggable: $this);
 
-                return true; // Indicate success
+                return true;
             } catch (Exception $e) {
                 // Rollback the transaction in case of an error
                 report($e);
                 AppLog::error('Failed to add to balance and create payment', $e->getMessage(), loggable: $this);
-                return false; // Indicate failure
+                return false;
             }
         });
     }
@@ -192,10 +192,10 @@ class Customer extends Model
     {
         // Check if the customer has enough balance
         if ($this->balance >= $amount) {
-            return true; // Sufficient balance
+            return true;
         }
 
-        return false; // Insufficient balance
+        return false;
     }
 
     public function countPets(): int

@@ -32,7 +32,7 @@
                     <button
                         class="btn inline-flex justify-center  bg-secondary-500 bg-opacity-30 text-slate-900 dark:text-white btn-sm"
                         wire:click='openReturnsSection'>Return</button>
-                        <button
+                    <button
                         class="btn inline-flex justify-center  bg-secondary-500 bg-opacity-30 text-slate-900 dark:text-white btn-sm"
                         wire:click='openReturnsSection'>Add Products</button>
                 </div>
@@ -188,10 +188,22 @@
                                     Paid
                                 </span>
                             @else
-                                <span class="badge bg-warning-500 text-dark-500 bg-opacity-50 capitalize">
-                                    <iconify-icon icon="octicon:dot-16" width="1.2em" height="1.2em"></iconify-icon>
-                                    Payment pending
-                                </span>
+                                <div class="flex justify-between mb-2">
+                                    <div>
+                                        <span class="badge bg-warning-500 text-dark-500 bg-opacity-50 capitalize">
+                                            <iconify-icon icon="octicon:dot-16" width="1.2em"
+                                                height="1.2em"></iconify-icon>
+                                            Payment pending
+                                        </span>
+                                    </div>
+                                    <div>
+                                        @if ($order->customer->canDeductFromBalance($order->total_amount))
+                                            <button wire:click='openPayFromBalance' class="btn inline-flex justify-center btn-outline-light btn-sm">Pay
+                                                from
+                                                balance</button>
+                                        @endif
+                                    </div>
+                                </div>
                             @endif
 
                             <div class="card-body flex flex-col justify-between border rounded-lg h-full menu-open p-0 mb-5 p-2 px-6"
@@ -608,6 +620,58 @@
                                     <span wire:loading.remove wire:target="updateNote">Submit</span>
                                     <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
                                         wire:loading wire:target="updateNote"
+                                        icon="line-md:loading-twotone-loop"></iconify-icon>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        @endif
+    @endcan
+
+    @can('pay', $order)
+        @if ($isOpenPayFromBalanceSec)
+            <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+                tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
+                style="display: block;">
+                <div class="modal-dialog relative w-auto pointer-events-none">
+                    <div
+                        class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
+                        <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
+                            <!-- Modal header -->
+                            <div
+                                class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-warning-500">
+                                <h3 class="text-xl font-medium text-black dark:text-white capitalize">
+                                    Warning 
+                                </h3>
+                                <button wire:click="closePayFromBalance" type="button"
+                                    class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
+                                    data-bs-dismiss="modal">
+                                    <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd"
+                                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                            clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span class="sr-only">Close modal</span>
+                                </button>
+                            </div>
+
+                            <!-- Modal body -->
+                            <div class="p-6 space-y-4">
+
+                                Are you sure you want to pay <small>EGP </small><b>{{ number_format($order->total_amount,2) }} </b> from customer balance which is <small>EGP </small><b>{{ number_format($order->customer->balance,2) }}</b> ?
+                                while be remaining <small>EGP </small><b>{{ number_format(($order->customer->balance - $order->total_amount),2) }} </b>
+
+                            </div>
+
+                            <!-- Modal footer -->
+                            <div class="flex items-center justify-end p-6 border-t border-slate-200 rounded-b">
+                                <button wire:click="PayFromBalance" data-bs-dismiss="modal"
+                                    class="btn inline-flex justify-center text-white bg-black-500">
+                                    <span wire:loading.remove wire:target="PayFromBalance">Procceed Transaction</span>
+                                    <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
+                                        wire:loading wire:target="PayFromBalance"
                                         icon="line-md:loading-twotone-loop"></iconify-icon>
                                 </button>
                             </div>
