@@ -17,6 +17,15 @@
                     class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
                     Set delivery date
                 </li>
+                @if ($AvailableToPay)
+                @foreach ($PAYMENT_METHODS as $PAYMENT_METHOD)
+                <li wire:click='openPayOrders("{{ $PAYMENT_METHOD }}")'
+                class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
+                Pay {{ ucwords(str_replace('_',' ',$PAYMENT_METHOD)) }}
+            </li>
+                @endforeach
+                    
+                @endif
                 @foreach ($availableBulkStatuses as $availableBulkStatus)
                     <li wire:click="setBulkStatus('{{ $availableBulkStatus }}')"
                         class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
@@ -124,11 +133,15 @@
                             <span
                                 class="text-danger-500">({{ number_format(($ordersCount / $driver->order_quantity_limit) * 100, 0) }}%)
                                 In-sufficient</span>
-                        @elseif (($ordersCount / $driver->order_quantity_limit) * 100 > 50 && ($ordersCount / $driver->order_quantity_limit) * 100 <= 70)
+                        @elseif (
+                            ($ordersCount / $driver->order_quantity_limit) * 100 > 50 &&
+                                ($ordersCount / $driver->order_quantity_limit) * 100 <= 70)
                             <span class="text-warning-500">
                                 ({{ number_format(($ordersCount / $driver->order_quantity_limit) * 100, 0) }}%) Nearly
                                 Sufficient</span>
-                        @elseif (($ordersCount / $driver->order_quantity_limit) * 100 > 70 && ($ordersCount / $driver->order_quantity_limit) * 100 <= 100)
+                        @elseif (
+                            ($ordersCount / $driver->order_quantity_limit) * 100 > 70 &&
+                                ($ordersCount / $driver->order_quantity_limit) * 100 <= 100)
                             <span
                                 class="text-success-500">({{ number_format(($ordersCount / $driver->order_quantity_limit) * 100, 0) }}%)
                                 Sufficient</span>
@@ -145,6 +158,14 @@
                     </h4>
                     <div class="text-sm font-medium text-white dark:text-slate-900">
                         {{ $totalZones }}
+                    </div>
+                </div>
+                <div class="space-y-1">
+                    <h4 class="text-slate-400 dark:text-slate-200 text-xs font-normal">
+                        Amount to Collect
+                    </h4>
+                    <div class="text-sm font-medium text-white dark:text-slate-900">
+                        {{ number_format($orders->sum('remaining_to_pay'), 2) }}<small>&nbsp;EGP</small>
                     </div>
                 </div>
             </header>
@@ -246,10 +267,10 @@
                                 @endif
                             @else
                                 <th scope="col" class="table-th">Customer</th>
-                                <th scope="col" class="table-th">Date</th>
                                 <th scope="col" class="table-th">Delivery Date</th>
                                 <th scope="col" class="table-th">Total</th>
                                 <th scope="col" class="table-th">Status</th>
+                                <th scope="col" class="table-th">Payment Status</th>
                                 <th scope="col" class="table-th">Items</th>
                                 <th scope="col" class="table-th">Phone</th>
                                 <th scope="col" class="table-th">Zone</th>
@@ -287,10 +308,6 @@
 
                                 <td class="table-td">
                                     {{ $order->customer->name }}
-                                </td>
-
-                                <td class="table-td">
-                                    {{ $order->created_at->isToday() ? 'Today at ' . $order->created_at->format('g:i a') : ($order->created_at->isYesterday() ? 'Yesterday at ' . $order->created_at->format('g:i a') : $order->created_at->format('Y-m-d g:i a')) }}
                                 </td>
 
                                 <td class="table-td">
@@ -336,11 +353,20 @@
                                             {{ ucwords(str_replace('_', ' ', $order->status)) }}
                                         </span>
                                     @endif
+
+                                </td>
+
+                                <td class="table-td">
                                     @if ($order->is_paid)
                                         <span class="badge bg-success-500 text-dark-500 bg-opacity-50 capitalize">
                                             <iconify-icon icon="icon-park-outline:dot" width="1.2em"
                                                 height="1.2em"></iconify-icon>
                                             Paid
+                                        </span>
+                                    @elseif ($order->isPartlyPaid())
+                                        <span class="badge bg-warning-500 text-dark-500 bg-opacity-50 capitalize">
+                                            Remaining:
+                                            {{ number_format($order->remaining_to_pay, 2) }}<small>&nbsp;EGP</small>
                                         </span>
                                     @else
                                         <span class="badge bg-warning-500 text-dark-500 bg-opacity-50 capitalize">
@@ -538,6 +564,58 @@
             </div>
     @endif
     {{-- @endcan --}}
+
+
+        @if ($isOpenPayAlert)
+            <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+                tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
+                style="display: block;">
+                <div class="modal-dialog relative w-auto pointer-events-none">
+                    <div
+                        class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
+                        <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
+                            <!-- Modal header -->
+                            <div
+                                class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-warning-500">
+                                <h3 class="text-xl font-medium text-black dark:text-white capitalize">
+                                    Payment Warning
+                                </h3>
+                                <button wire:click="closePayFromBalance" type="button"
+                                    class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
+                                    data-bs-dismiss="modal">
+                                    <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd"
+                                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                            clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span class="sr-only">Close modal</span>
+                                </button>
+                            </div>
+
+                            <!-- Modal body -->
+                            <div class="p-6 space-y-4">
+
+                                Are you sure you want to pay 
+                                {{-- <b>{{ number_format($order->total_amount, 2) }}<small>EGP  </small> </b>  --}}
+                                {{ ucwords(str_replace('_',' ',$isOpenPayAlert)) }}
+
+                            </div>
+
+                            <!-- Modal footer -->
+                            <div class="flex items-center justify-end p-6 border-t border-slate-200 rounded-b">
+                                <button wire:click="ProcceedBulkPayment" data-bs-dismiss="modal"
+                                    class="btn inline-flex justify-center text-white bg-black-500">
+                                    <span wire:loading.remove wire:target="ProcceedBulkPayment">Procceed Payment</span>
+                                    <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
+                                        wire:loading wire:target="ProcceedBulkPayment"
+                                        icon="line-md:loading-twotone-loop"></iconify-icon>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        @endif
 
     @if ($Edited_deliveryDate_sec)
         <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"

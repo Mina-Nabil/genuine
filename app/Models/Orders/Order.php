@@ -261,6 +261,21 @@ class Order extends Model
         }
     }
 
+    public static function checkRemainingToPayConsistency(array $orderIds)
+    {
+        
+        $orders = Order::whereIn('id', $orderIds)->get();
+
+        // Check if all orders have remaining_to_pay greater than zero
+        $allHaveRemainingToPay = $orders->every(function ($order) {
+            if ($order->isOpenToPay()) {
+                return $order->remaining_to_pay > 0;
+            }
+        });
+
+        return $allHaveRemainingToPay;
+    }
+
     public function createPayment($amount, $paymentMethod, $paymentDate, $isTakeFromBalance = false)
     {
         return DB::transaction(function () use ($amount, $paymentMethod, $paymentDate, $isTakeFromBalance) {
@@ -385,7 +400,7 @@ class Order extends Model
         });
     }
 
-    public function bulkSetAsPaid(array $orderIds, $paymentDate, $paymentMethod = null, $deductFromBalance = false)
+    public static function bulkSetAsPaid(array $orderIds, $paymentDate, $paymentMethod = null, $deductFromBalance = false)
     {
         $errorMessages = [];
 
@@ -801,6 +816,14 @@ class Order extends Model
     {
         $openStatuses = [self::STATUS_NEW, self::STATUS_READY, self::STATUS_IN_DELIVERY];
         return !$this->is_paid && in_array($this->status, $openStatuses);
+    }
+
+    public function isPartlyPaid()
+    {
+        $hasPayments = $this->payments()->exists();
+        $hasBalanceTransactions = $this->balanceTransactions()->exists();
+
+        return ($hasPayments || $hasBalanceTransactions) && ($this->remaining_to_pay > 0 && $this->remaining_to_pay < $this->total_amount);
     }
 
     public function scopeSearch(Builder $query, string $searchText = null, string $deliveryDate = null, string $status = null, int $zoneId = null, int $driverId = null, bool $isPaid = null): Builder

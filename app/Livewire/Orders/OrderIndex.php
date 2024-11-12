@@ -4,6 +4,7 @@ namespace App\Livewire\Orders;
 
 use App\Models\Customers\Zone;
 use App\Models\Orders\Order;
+use App\Models\Payments\CustomerPayment;
 use App\Models\Users\Driver;
 use App\Traits\AlertFrontEnd;
 use Carbon\Carbon;
@@ -38,6 +39,7 @@ class OrderIndex extends Component
 
     #[Url]
     public $driver;
+    public $AmountToCollect;
     public $Edited_driverId;
     public $Edited_driverId_sec;
 
@@ -50,6 +52,25 @@ class OrderIndex extends Component
     public $deliveryDate;
     public $Edited_deliveryDate;
     public $Edited_deliveryDate_sec;
+
+    public $AvailableToPay = false;
+    public $isOpenPayAlert = null; //carry payment method
+    public $errorMessages = []; 
+
+    public function openPayOrders($paymentMethod){
+        $this->isOpenPayAlert = $paymentMethod;
+    }
+
+    public function ProcceedBulkPayment(){
+        $res = Order::bulkSetAsPaid($this->selectedOrders,Carbon::now(),$this->isOpenPayAlert,false);
+        if ($res === true) {
+            $this->errorMessages = [];
+            $this->reset('AvailableToPay','isOpenPayAlert');
+            $this->alertSuccess('Paid Successfuly!');
+        }else{
+            $this->errorMessages = $res;
+        }
+    }
 
     public function openFilteryDeliveryDate(){
         $this->Edited_deliveryDate_sec = true;
@@ -146,6 +167,7 @@ class OrderIndex extends Component
     public function updatedSelectedOrders()
     {
         $res = Order::checkStatusConsistency($this->selectedOrders);
+        $this->AvailableToPay = Order::checkRemainingToPayConsistency($this->selectedOrders);
         if ($res) {
             $this->availableBulkStatuses = Order::getNextStatuses($res);
         } else {
@@ -238,6 +260,8 @@ class OrderIndex extends Component
         $ZONES = Zone::all();
         $STATUSES = Order::STATUSES; 
         $drivers = Driver::all();
+        $PAYMENT_METHODS = CustomerPayment::PAYMENT_METHODS;
+
         
         $this->fetched_orders_IDs = $orders->pluck('id')->toArray();
         return view('livewire.orders.order-index', [
@@ -248,7 +272,8 @@ class OrderIndex extends Component
             'ZONES' => $ZONES,
             'totalWeight' => $totalWeight,
             'totalZones' => $totalZones,
-            'ordersCount' => $ordersCount
+            'ordersCount' => $ordersCount,
+            'PAYMENT_METHODS' => $PAYMENT_METHODS,
         ])->layout('layouts.app', ['page_title' => $this->page_title, 'orders' => 'active']);
     }
 }
