@@ -136,7 +136,7 @@
                                         height="1.2em"></iconify-icon>&nbsp;
                                     Removed ({{ $order->removedProducts->count() }})
                                 </span>
-                                <div class="card-body flex flex-col justify-between border rounded-lg h-full menu-open p-0 mb-5 "
+                                <div class="card-body flex flex-col justify-between border rounded-lg h-full menu-open p-0 mb-5  overflow-x-auto no-wrap"
                                     style="border-color:rgb(224, 224, 224);">
                                     @foreach ($order->removedProducts as $removedProduct)
                                         <div class="p-3">
@@ -196,17 +196,26 @@
                                             Payment pending
                                         </span>
                                     </div>
-                                    <div>
-                                        @if ($order->customer->canDeductFromBalance($order->total_amount))
-                                            <button wire:click='openPayFromBalance' class="btn inline-flex justify-center btn-outline-light btn-sm">Pay
-                                                from
-                                                balance</button>
-                                        @endif
-                                    </div>
+                                    @if ($order->isOpenToPay())
+                                        <div>
+                                            @if ($order->remaining_to_pay && $order->customer->balance > 0)
+                                                <button wire:click='openPayFromBalance'
+                                                    class="btn inline-flex justify-center btn-outline-light btn-sm">
+                                                    Pay from balance
+                                                </button>
+                                            @endif
+                                            @if ($order->remaining_to_pay > 0)
+                                                <button wire:click='PayCash'
+                                                    class="btn inline-flex justify-center btn-outline-light btn-sm">
+                                                    Pay remaining cash
+                                                </button>
+                                            @endif
+                                        </div>
+                                    @endif
                                 </div>
                             @endif
 
-                            <div class="card-body flex flex-col justify-between border rounded-lg h-full menu-open p-0 mb-5 p-2 px-6"
+                            <div class="card-body flex flex-col justify-between border rounded-lg h-full menu-open p-0 mb-5 p-2 px-6 overflow-x-auto no-wrap"
                                 style="border-color:rgb(224, 224, 224);">
 
                                 <table class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700">
@@ -214,7 +223,7 @@
 
                                         <tr>
                                             <td class=" text-xs text-slate-500 dark:text-slate-400">Subtotal</td>
-                                            <td class=" text-xs text-slate-500 dark:text-slate-400">
+                                            <td class="hidden md:table-cell text-xs text-slate-500 dark:text-slate-400">
                                                 {{ $order->total_items . ' items' }}</td>
                                             <td class="float-right text-dark">
                                                 <b>{{ $order->total_items_price ? number_format($order->total_items_price, 2) : '-' }}<small>&nbsp;EGP</small></b>
@@ -224,7 +233,8 @@
                                         <tr>
                                             <td class=" text-xs text-slate-500 dark:text-slate-400">Shipping &
                                                 Delivery</td>
-                                            <td class=" text-xs text-slate-500 dark:text-slate-400">
+                                            <td
+                                                class="hidden md:table-cell text-xs text-slate-500 dark:text-slate-400">
                                                 {{ ucwords($order->zone->name) }}</td>
                                             <td class="float-right text-dark">
                                                 <b>{{ $order->delivery_amount ? number_format($order->delivery_amount, 2) : 'Free' }}<small>&nbsp;EGP</small></b>
@@ -245,7 +255,9 @@
                                                 @endif
 
                                             </td>
-                                            <td class=" text-xs text-slate-500 dark:text-slate-400"></td>
+                                            <td
+                                                class="hidden md:table-cell text-xs text-slate-500 dark:text-slate-400">
+                                            </td>
                                             <td class="float-right text-dark">
                                                 <b>{{ $order->discount_amount != 0 ? '-' . number_format($order->discount_amount, 2) : '-' }}<small>&nbsp;EGP</small></b>
                                             </td>
@@ -253,18 +265,24 @@
 
                                         <tr>
                                             <td class=" text-xs text-slate-500 dark:text-slate-400"></td>
-                                            <td class=" text-xs text-slate-500 dark:text-slate-400"></td>
+                                            <td
+                                                class="hidden md:table-cell text-xs text-slate-500 dark:text-slate-400">
+                                            </td>
                                             <td class="float-right text-dark"></td>
                                         </tr>
                                         <tr>
                                             <td class=" text-xs text-slate-500 dark:text-slate-400"></td>
-                                            <td class=" text-xs text-slate-500 dark:text-slate-400"></td>
+                                            <td
+                                                class="hidden md:table-cell text-xs text-slate-500 dark:text-slate-400">
+                                            </td>
                                             <td class="float-right text-dark"></td>
                                         </tr>
 
                                         <tr class="!pt-5">
                                             <td class=" text-xs text-slate-500 dark:text-slate-400">Total</td>
-                                            <td class=" text-xs text-slate-500 dark:text-slate-400"></td>
+                                            <td
+                                                class="hidden md:table-cell text-xs text-slate-500 dark:text-slate-400">
+                                            </td>
                                             <td class="float-right text-dark" style="color: black">
                                                 <b>{{ $order->total_amount ? number_format($order->total_amount, 2) : '-' }}<small>&nbsp;EGP</small></b>
                                             </td>
@@ -274,10 +292,123 @@
                                 </table>
 
                             </div>
+
+                            @if ($order->remaining_to_pay != $order->total_amount)
+                                <div class="card-body flex flex-col justify-between border rounded-lg h-full menu-open p-0 mb-5 p-2 px-6 overflow-x-auto no-wrap"
+                                    style="border-color:rgb(224, 224, 224);">
+                                    <table
+                                        class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700">
+                                        <tbody class="bg-white dark:bg-slate-800 ">
+                                            <tr>
+                                                <td class=" text-xs text-slate-500 dark:text-slate-400">Remaining to
+                                                    pay
+                                                </td>
+                                                <td
+                                                    class="hidden md:table-cell text-xs text-slate-500 dark:text-slate-400">
+                                                </td>
+                                                <td class="float-right text-dark">
+                                                    <b>{{ number_format($order->remaining_to_pay, 2) }}<small>&nbsp;EGP</small></b>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
 
+                @if (!$order->balanceTransactions->isEmpty() || !$order->payments->isEmpty())
+                    <div class="card no-wrap mb-5">
+                        <div class="card-body px-6 pb-2">
+                            <div class="overflow-x-auto -mx-6 ">
+                                <span class=" col-span-8  hidden"></span>
+                                <span class="  col-span-4 hidden"></span>
+                                <div class="inline-block min-w-full align-middle">
+                                    <div class="overflow-hidden ">
+                                        <table
+                                            class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700">
+                                            <tbody
+                                                class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
+                                                @if (!$order->balanceTransactions->isEmpty())
+                                                    <tr>
+                                                        <td class="table-td  bg-slate-800" colspan="3">
+                                                            <span
+                                                                class="text-slate-100 flex items-center"><iconify-icon
+                                                                    icon="material-symbols:currency-exchange"
+                                                                    width="1.2em"
+                                                                    height="1.2em"></iconify-icon>&nbsp; Balance
+                                                                Transactions</span>
+
+                                                        </td>
+                                                    </tr>
+                                                    @foreach ($order->balanceTransactions as $balanceTransaction)
+                                                        <tr>
+                                                            <td class="table-td ">
+                                                                {{ \Carbon\Carbon::parse($balanceTransaction->payment_date)->format('l Y-m-d') }}
+                                                                <span
+                                                                    class="block text-slate-500 text-xs">{{ $balanceTransaction->description }}</span>
+                                                            </td>
+                                                            <td class="table-td ">
+
+                                                                <div class=" text-success-500">
+                                                                    {{ $balanceTransaction->amount }}
+                                                                    <small>EGP</small>
+                                                                </div>
+
+                                                            </td>
+                                                            <td class="table-td ">
+                                                                <span
+                                                                    class="block text-slate-500 text-xs">{{ $balanceTransaction->createdBy->full_name }}</span>
+                                                            </td>
+
+                                                        </tr>
+                                                    @endforeach
+                                                @endif
+                                                @if (!$order->payments->isEmpty())
+                                                    <tr>
+                                                        <td class="table-td  bg-slate-800" colspan="3">
+                                                            <span
+                                                                class="text-slate-100 flex items-center"><iconify-icon
+                                                                    icon="material-symbols-light:payments-rounded"
+                                                                    width="1.2em"
+                                                                    height="1.2em"></iconify-icon>&nbsp;
+                                                                Payments</span>
+
+                                                        </td>
+                                                    </tr>
+                                                    @foreach ($order->payments as $payment)
+                                                        <tr>
+                                                            <td class="table-td ">
+                                                                {{ \Carbon\Carbon::parse($payment->payment_date)->format('l Y-m-d') }}
+                                                                <span
+                                                                    class="block text-slate-500 text-xs">{{ $payment->note }}</span>
+                                                            </td>
+                                                            <td class="table-td ">
+
+                                                                <div class=" text-success-500">
+                                                                    {{ $payment->amount }} <small>EGP</small>
+                                                                    <span
+                                                                        class="block text-slate-500 text-xs">{{ ucwords(str_replace('_', ' ', $payment->payment_method)) }}</span>
+                                                                </div>
+
+                                                            </td>
+                                                            <td class="table-td ">
+                                                                <span
+                                                                    class="block text-slate-500 text-xs">{{ $payment->createdBy->full_name }}</span>
+                                                            </td>
+
+                                                        </tr>
+                                                    @endforeach
+                                                @endif
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
 
 
             </div>
@@ -642,7 +773,7 @@
                             <div
                                 class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-warning-500">
                                 <h3 class="text-xl font-medium text-black dark:text-white capitalize">
-                                    Warning 
+                                    Warning
                                 </h3>
                                 <button wire:click="closePayFromBalance" type="button"
                                     class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
@@ -660,8 +791,12 @@
                             <!-- Modal body -->
                             <div class="p-6 space-y-4">
 
-                                Are you sure you want to pay <small>EGP </small><b>{{ number_format($order->total_amount,2) }} </b> from customer balance which is <small>EGP </small><b>{{ number_format($order->customer->balance,2) }}</b> ?
-                                while be remaining <small>EGP </small><b>{{ number_format(($order->customer->balance - $order->total_amount),2) }} </b>
+                                Are you sure you want to deduct <b>{{ number_format($order->total_amount, 2) }}<small>EGP
+                                    </small> </b> from the customer's balance of
+                                <b>{{ number_format($order->customer->balance, 2) }}<small>EGP </small></b>?
+                                The remaining balance will be
+                                <b>{{ number_format($order->customer->balance - $order->total_amount, 2) }}<small>EGP
+                                    </small> </b>
 
                             </div>
 

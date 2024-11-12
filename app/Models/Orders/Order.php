@@ -330,70 +330,6 @@ class Order extends Model
         });
     }
 
-    public function setAsPaid($paymentMethod, $paymentDate)
-    {
-        return DB::transaction(function () use ($paymentMethod, $paymentDate) {
-            try {
-                /** @var User */
-                $loggedInUser = Auth::user();
-                if ($loggedInUser && !$loggedInUser->can('pay', $this)) {
-                    return false;
-                }
-
-                // Check if customer exists for the order
-                $customer = $this->customer;
-                if (!$customer) {
-                    throw new Exception('Order does not have an associated customer.');
-                }
-
-                // Step 1: Check if customer has sufficient balance and deduct if necessary
-                if ($customer->balance >= $this->total_amount) {
-                    // Deduct the balance if sufficient
-                    $customer->balance -= $this->total_amount;
-                    $customer->save();
-
-                    // Step 2: Log the balance transaction (negative deduction)
-                    BalanceTransaction::create([
-                        'customer_id' => $customer->id,
-                        'amount' => -$this->total_amount, // Deducting from the balance
-                        'description' => 'Payment for order #' . $this->id,
-                        'created_by' => $loggedInUser->id,
-                    ]);
-                } else {
-                    // Log the message if there's insufficient balance but don't deduct
-                    AppLog::warning("Customer {$customer->name} has insufficient balance for order #{$this->id}");
-                }
-
-                // Step 3: Mark order as paid
-                $this->is_paid = true;
-                $this->save();
-
-                // Step 4: Create a payment record to log the transaction
-                $payment = CustomerPayment::create([
-                    'customer_id' => $customer->id,
-                    'order_id' => $this->id,
-                    'amount' => $this->total_amount, // Log the full amount as paid
-                    'payment_method' => $paymentMethod,
-                    'payment_date' => $paymentDate,
-                    'created_by' => $loggedInUser->id,
-                ]);
-
-                // Step 5: Log the action
-                AppLog::info('Order marked as paid', loggable: $this);
-
-                return $payment;
-            } catch (QueryException $e) {
-                if ($e->getCode() === '40001') {
-                    AppLog::error('Deadlock encountered', loggable: $this);
-                }
-                // Log the error
-                report($e);
-                AppLog::error('Failed to set order as paid', $e->getMessage(), loggable: $this);
-                return false;
-            }
-        });
-    }
-
     public function setAsPaidFromBalance()
     {
         return DB::transaction(function () {
@@ -449,92 +385,104 @@ class Order extends Model
         });
     }
 
-    public function bulkSetAsPaid(array $orderIds, $paymentMethod, $paymentDate, $deductFromBalance = false)
+    public function bulkSetAsPaid(array $orderIds, $paymentDate, $paymentMethod = null, $deductFromBalance = false)
     {
         $errorMessages = [];
 
         try {
             DB::transaction(function () use ($orderIds, $paymentMethod, $paymentDate, $deductFromBalance, &$errorMessages) {
-                /** @var User */
-                $loggedInUser = Auth::user();
-                if ($loggedInUser && !$loggedInUser->can('pay', $this)) {
-                    return false;
-                }
-
                 foreach ($orderIds as $orderId) {
-                    // Retrieve the order
                     $order = Order::find($orderId);
 
-                    // Validate order existence and status
                     if (!$order) {
                         $errorMessages[] = "Order ID {$orderId} not found.";
-                        continue; // Skip to the next order if the current one is invalid
+                        continue;
                     }
 
-                    if ($order->is_paid) {
-                        $errorMessages[] = "Order ID {$orderId} is already marked as paid.";
-                        continue; // Skip to the next order if it is already paid
+                    $result = $order->setAsPaid($paymentDate, $paymentMethod, $deductFromBalance);
+
+                    if ($result === false) {
+                        $errorMessages[] = "Failed to mark Order ID {$orderId} as paid.";
                     }
+                }
 
-                    // Check if there’s an associated customer
-                    $customer = $order->customer;
-                    if (!$customer) {
-                        $errorMessages[] = "Order ID {$orderId} does not have an associated customer.";
-                        continue; // Skip to the next order if there’s no customer
-                    }
-
-                    // Check if the customer has sufficient balance and optionally deduct from it
-                    if ($deductFromBalance) {
-                        if ($customer->balance < $order->total_amount) {
-                            $errorMessages[] = "Customer {$customer->name} has insufficient balance. Balance: {$customer->balance}, Order Total: {$order->total_amount}";
-                            continue; // Skip to the next order if insufficient balance
-                        }
-                        // Deduct balance if sufficient
-                        $customer->balance -= $order->total_amount;
-                        $customer->save();
-
-                        // Log the balance deduction
-                        BalanceTransaction::create([
-                            'customer_id' => $customer->id,
-                            'order_id' => $order->id,
-                            'amount' => $order->total_amount,
-                            'description' => 'Bulk payment deducted from balance',
-                            'created_by' => $loggedInUser->id,
-                        ]);
-                    }
-
-                    // Mark the order as paid
-                    $order->is_paid = true;
-                    $order->save();
-
-                    // Create a payment record
-                    CustomerPayment::create([
-                        'customer_id' => $customer->id,
-                        'order_id' => $order->id,
-                        'amount' => $order->total_amount,
-                        'payment_method' => $paymentMethod,
-                        'payment_date' => $paymentDate,
-                        'created_by' => $loggedInUser->id,
-                    ]);
-
-                    // Log successful payment
-                    AppLog::info("Order ID {$orderId} marked as paid in bulk process", loggable: $order);
+                if (!empty($errorMessages)) {
+                    throw new Exception(implode(', ', $errorMessages));
                 }
             });
 
-            // If there are no error messages, return true
-            if (!empty($errorMessages)) {
-                throw new Exception(implode(', ', $errorMessages));
-                return $errorMessages;
-            }
-
-            // Return all error messages if there are any
+            // If no errors, return true
             return true;
         } catch (Exception $e) {
             report($e);
-            AppLog::error('Failed to set orders as paid in bulk process: ', $e->getMessage());
-            return false;
+            AppLog::error('Failed to set orders as paid in bulk process: ' . $e->getMessage());
+            return $errorMessages;
         }
+    }
+
+    public function setAsPaid($paymentDate, $paymentMethod = null, $deductFromBalance = false)
+    {
+        return DB::transaction(function () use ($paymentMethod, $paymentDate, $deductFromBalance) {
+            try {
+                /** @var User */
+                $loggedInUser = Auth::user();
+                if ($loggedInUser && !$loggedInUser->can('pay', $this)) {
+                    throw new Exception('User does not have permission to mark this order as paid.');
+                }
+
+                if ($this->is_paid) {
+                    throw new Exception("Order ID {$this->id} is already marked as paid.");
+                }
+
+                $customer = $this->customer;
+                if (!$customer) {
+                    throw new Exception("Order ID {$this->id} does not have an associated customer.");
+                }
+
+                if ($deductFromBalance) {
+                    $deductedAmount = min($customer->balance, $this->remaining_to_pay);
+                    if ($deductedAmount !== 0) {
+                        // Log the balance deduction
+                        BalanceTransaction::create([
+                            'customer_id' => $customer->id,
+                            'order_id' => $this->id,
+                            'amount' => -$deductedAmount,
+                            'description' => 'Payment deducted from balance',
+                            'created_by' => $loggedInUser->id,
+                        ]);
+                        $customer->balance -= $deductedAmount;
+                        $customer->save();
+                    }
+                } else {
+                    $remainingAmount = $this->remaining_to_pay;
+                    if ($remainingAmount > 0) {
+                        CustomerPayment::create([
+                            'customer_id' => $customer->id,
+                            'order_id' => $this->id,
+                            'amount' => $remainingAmount,
+                            'payment_method' => $paymentMethod,
+                            'payment_date' => $paymentDate,
+                            'created_by' => $loggedInUser->id,
+                        ]);
+                    }
+                }
+                $this->refresh();
+                // Mark the order as paid if fully settled
+                if ($this->remaining_to_pay == 0) {
+                    $this->is_paid = true;
+                    $this->save();
+                }
+
+                // Log successful payment
+                AppLog::info("Order {$this->order_number} marked as paid", loggable: $this);
+
+                return true;
+            } catch (Exception $e) {
+                report($e);
+                AppLog::error('Failed to set order as paid: ' . $e->getMessage(), loggable: $this);
+                return false;
+            }
+        });
     }
 
     /**
@@ -835,6 +783,26 @@ class Order extends Model
         });
     }
 
+    public function getRemainingToPayAttribute()
+    {
+        $this->loadMissing(['payments', 'balanceTransactions']);
+        $totalPayments = $this->payments->sum('amount');
+        $totalBalanceTransactions = $this->balanceTransactions->sum(function ($transaction) {
+            return abs($transaction->amount);
+        });
+
+        // Step 3: Calculate the remaining amount by subtracting from total_amount
+        $remainingAmount = $this->total_amount - ($totalPayments + $totalBalanceTransactions);
+
+        return $remainingAmount > 0 ? $remainingAmount : 0;
+    }
+
+    public function isOpenToPay()
+    {
+        $openStatuses = [self::STATUS_NEW, self::STATUS_READY, self::STATUS_IN_DELIVERY];
+        return !$this->is_paid && in_array($this->status, $openStatuses);
+    }
+
     public function scopeSearch(Builder $query, string $searchText = null, string $deliveryDate = null, string $status = null, int $zoneId = null, int $driverId = null, bool $isPaid = null): Builder
     {
         return $query
@@ -873,12 +841,22 @@ class Order extends Model
     }
 
     // relations
-    public function products()
+    public function products(): HasMany
     {
         return $this->hasMany(OrderProduct::class);
     }
 
-    public function removedProducts()
+    public function payments(): HasMany
+    {
+        return $this->hasMany(CustomerPayment::class);
+    }
+
+    public function balanceTransactions(): HasMany
+    {
+        return $this->hasMany(BalanceTransaction::class);
+    }
+
+    public function removedProducts(): HasMany
     {
         return $this->hasMany(OrderRemovedProduct::class);
     }

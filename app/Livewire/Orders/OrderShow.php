@@ -5,6 +5,7 @@ namespace App\Livewire\Orders;
 use App\Models\Customers\Zone;
 use App\Models\Orders\Order;
 use App\Models\Orders\OrderRemovedProduct;
+use App\Models\Payments\CustomerPayment;
 use App\Traits\AlertFrontEnd;
 use Carbon\Carbon;
 use Livewire\Component;
@@ -62,7 +63,19 @@ class OrderShow extends Component
 
     public function PayFromBalance(){
         $this->authorize('pay',$this->order);
-        $res = $this->order->setAsPaidFromBalance();
+        $res = $this->order->setAsPaid(Carbon::now(), deductFromBalance:true);
+        if ($res) {
+            $this->mount($this->order->id);
+            $this->closePayFromBalance();
+            $this->alertSuccess('Order Payed');
+        } else {
+            $this->alertFailed();
+        }
+    }
+
+    public function PayCash(){
+        $this->authorize('pay',$this->order);
+        $res = $this->order->setAsPaid(Carbon::now(), paymentMethod:CustomerPayment::PYMT_CASH ,deductFromBalance:false);
         if ($res) {
             $this->mount($this->order->id);
             $this->closePayFromBalance();

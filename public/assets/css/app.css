@@ -16604,8 +16604,14 @@ ul.custom-list ul {
     .md\:mr-2 {
         margin-right: 0.5rem;
     }
+    .sm\:hidden {
+        display: none;
+    }
     .md\:block {
         display: block;
+    }
+    .md\:table-cell {
+        display: table-cell;
     }
     .md\:inline-block {
         display: inline-block;
@@ -16613,9 +16619,11 @@ ul.custom-list ul {
     .md\:flex {
         display: flex;
     }
+    
     .md\:hidden {
         display: none;
     }
+    
     .md\:h-full {
         height: 100%;
     }

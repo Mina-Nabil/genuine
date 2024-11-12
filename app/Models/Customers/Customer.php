@@ -140,8 +140,8 @@ class Customer extends Model
 
     public function addToBalanceWithPayment($amount, $paymentMethod, $paymentDate, $note = 'Balance update')
     {
-        return DB::transaction(function () use ($amount, $paymentMethod, $paymentDate, $note) {
-            try {
+        try {
+            DB::transaction(function () use ($amount, $paymentMethod, $paymentDate, $note) {
                 /** @var User */
                 $loggedInUser = Auth::user();
                 if ($loggedInUser && !$loggedInUser->can('updateCustomerBalance', $this)) {
@@ -163,6 +163,7 @@ class Customer extends Model
                     'amount' => $amount, // Positive amount added to the balance
                     'description' => $note ?? 'Add to balance',
                     'created_by' => $loggedInUser->id,
+                    // 'balance' => $this->balance,
                 ]);
 
                 // Step 3: Create the payment record for the added amount
@@ -178,14 +179,14 @@ class Customer extends Model
                 // Step 4: Log the action (optional)
                 AppLog::info("Added {$amount} to {$this->name}'s balance and created payment", loggable: $this);
 
-                return true;
-            } catch (Exception $e) {
-                // Rollback the transaction in case of an error
-                report($e);
-                AppLog::error('Failed to add to balance and create payment', $e->getMessage(), loggable: $this);
-                return false;
-            }
-        });
+            });
+            return true;
+        } catch (Exception $e) {
+            // Rollback the transaction in case of an error
+            report($e);
+            AppLog::error('Failed to add to balance and create payment', $e->getMessage(), loggable: $this);
+            return false;
+        }
     }
 
     public function canDeductFromBalance($amount)
@@ -216,7 +217,7 @@ class Customer extends Model
     }
 
     // Relations
-    public function payments():HasMany
+    public function payments(): HasMany
     {
         return $this->hasMany(CustomerPayment::class);
     }

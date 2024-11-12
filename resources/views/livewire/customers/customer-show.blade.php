@@ -167,9 +167,12 @@
                                                                     <span
                                                                         class="block text-slate-600 dark:text-slate-300">{{ ucwords(str_replace('_', ' ', $payment->payment_method)) }}</span>
                                                                     @if ($payment->order)
-                                                                        <span
-                                                                            class="block text-slate-500 text-xs">Order:
-                                                                            #{{ $payment->order_number }}</span>
+                                                                        <a
+                                                                            href="{{ route('orders.show', $payment->order->id) }}">
+                                                                            <span
+                                                                                class="block text-slate-500 text-xs clickable-link">Order:
+                                                                                #{{ $payment->order->order_number }}</span>
+                                                                        </a>
                                                                     @endif
 
                                                                 </span>
@@ -188,6 +191,89 @@
                                                         <td class="table-td " colspan="3">
                                                             <p class="text-center text-slate-500 p-5">
                                                                 No payments for this customer.
+                                                            </p>
+                                                        </td>
+                                                    </tr>
+                                                @endforelse
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card no-wrap mt-5">
+                        <header class="card-header noborder mb-6">
+                            <h4 class="card-title">Balance Transactions
+                            </h4>
+                        </header>
+                        <div class="card-body px-6 pb-6">
+                            <div class="overflow-x-auto -mx-6 ">
+                                <span class=" col-span-8  hidden"></span>
+                                <span class="  col-span-4 hidden"></span>
+                                <div class="inline-block min-w-full align-middle">
+                                    <div class="overflow-hidden ">
+                                        <table
+                                            class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700">
+                                            <thead class=" border-t border-slate-100 dark:border-slate-800">
+                                                <tr>
+
+                                                    <th scope="col" class=" table-th ">
+                                                        Date
+                                                    </th>
+
+                                                    <th scope="col" class=" table-th ">
+                                                        Method
+                                                    </th>
+
+                                                    <th scope="col" class=" table-th ">
+                                                        Amount
+                                                    </th>
+
+                                                </tr>
+                                            </thead>
+                                            <tbody
+                                                class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
+
+                                                @forelse ($customer->transactions as $transaction)
+                                                    <tr>
+                                                        <td class="table-td ">
+                                                            {{ \Carbon\Carbon::parse($transaction->payment_date)->format('Y-m-d') }}
+                                                            <span
+                                                                class="block text-slate-500 text-xs">{{ $transaction->createdBy->full_name }}</span>
+                                                        </td>
+                                                        <td class="table-td ">
+                                                            <div class="min-w-[100px]">
+                                                                <span class="text-slate-500 dark:text-slate-400">
+                                                                    <span
+                                                                        class="block text-slate-600 dark:text-slate-300">{{  $transaction->description }}</span>
+                                                                    @if ($transaction->order)
+                                                                        <a
+                                                                            href="{{ route('orders.show', $transaction->order->id) }}">
+                                                                            <span
+                                                                                class="block text-slate-500 text-xs clickable-link">Order:
+                                                                                #{{ $transaction->order->order_number }}</span>
+                                                                        </a>
+                                                                    @endif
+
+                                                                </span>
+                                                            </div>
+                                                        </td>
+                                                        <td class="table-td ">
+
+                                                            <div class=" text-success-500">
+                                                                <small>EGP</small> {{ $transaction->amount }}
+                                                            </div>
+
+                                                        </td>
+                                                    </tr>
+                                                @empty
+                                                    <tr>
+                                                        <td class="table-td " colspan="3">
+                                                            <p class="text-center text-slate-500 p-5">
+                                                                No balance transactions for this customer.
                                                             </p>
                                                         </td>
                                                     </tr>
