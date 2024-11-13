@@ -24,6 +24,7 @@ return new class extends Migration
             $table->foreignIdFor(Customer::class)->constrained();
             $table->string('customer_name');
             $table->string('shipping_address');
+            $table->string('location_url');
             $table->string('customer_phone');
             $table->foreignIdFor(Zone::class)->constrained();
             $table->foreignIdFor(Driver::class)->nullable()->constrained();

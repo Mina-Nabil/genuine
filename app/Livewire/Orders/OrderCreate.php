@@ -42,6 +42,7 @@ class OrderCreate extends Component
     public $detuctFromBalance;
     public $customerName;
     public $shippingAddress;
+    public $locationURL;
     public $customerPhone;
     public $zoneId;
     public $initiateDiscountAmount;
@@ -126,7 +127,7 @@ class OrderCreate extends Component
 
     public function clearCustomer()
     {
-        $this->reset(['customerIsNew', 'customerId', 'customerName', 'shippingAddress', 'customerPhone', 'zoneId','detuctFromBalance']);
+        $this->reset(['customerIsNew', 'customerId', 'customerName', 'shippingAddress','locationURL', 'customerPhone', 'zoneId','detuctFromBalance']);
         $this->refreshPayments();
     }
 
@@ -148,6 +149,7 @@ class OrderCreate extends Component
         $this->customerBalance = $customer->balance;
         $this->customerName = $customer->name;
         $this->shippingAddress = $customer->address;
+        $this->locationURL = $customer->location_url;
         $this->customerPhone = $customer->phone;
         $this->zoneId = $customer->zone?->id;
 
@@ -337,6 +339,7 @@ class OrderCreate extends Component
                 'customerId' => 'required|exists:customers,id',
                 'customerName' => 'required|string|max:255',
                 'shippingAddress' => 'required|string|max:255',
+                'locationURL' => 'required|string|max:255',
                 'customerPhone' => 'required|string|max:15',
                 'zoneId' => 'required|exists:zones,id',
             ],attributes:[
@@ -350,12 +353,13 @@ class OrderCreate extends Component
                 
                 'customerName' => 'required|string|max:255',
                 'shippingAddress' => 'required|string|max:255',
+                'locationURL' => 'required|string|max:255',
                 'customerPhone' => 'required|string|max:15',
                 'zoneId' => 'required|exists:zones,id',
             ],attributes:[
                 'zoneId' => 'zone',
             ]);
-            $res = Customer::newCustomer($this->customerName, $this->shippingAddress, $this->customerPhone, zone_id: $this->zoneId);
+            $res = Customer::newCustomer($this->customerName, $this->shippingAddress, $this->customerPhone,location_url:$this->locationURL, zone_id: $this->zoneId);
             $customerId = $res->id;
         }
 
@@ -380,11 +384,12 @@ class OrderCreate extends Component
         $driverID = null;
         $this->driver ? $driverID = $this->driver->id : null;
 
-        $res = Order::newOrder($customerId, $this->customerName, $this->shippingAddress, $this->customerPhone, $this->zoneId, $driverID, $this->periodicOption , $this->total, $this->shippingFee, $this->discountAmount, $this->ddate ? Carbon::parse($this->ddate) : null, $this->note, $this->fetchedProducts , $detuctFromBalance);
+        $res = Order::newOrder($customerId, $this->customerName, $this->shippingAddress, $this->customerPhone, $this->zoneId, $this->locationURL,$driverID, $this->periodicOption , $this->total, $this->shippingFee, $this->discountAmount, $this->ddate ? Carbon::parse($this->ddate) : null, $this->note, $this->fetchedProducts , $detuctFromBalance);
 
         if ($res) {
             $this->alertSuccess('order added!');
-            return redirect(route('orders.show',$res->id));
+            sleep(2);
+            return redirect(route('orders.create'));
         } else {
             $this->alertFailed();
         }

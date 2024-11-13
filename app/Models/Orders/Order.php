@@ -9,6 +9,7 @@ use App\Models\Payments\CustomerPayment;
 use App\Models\Products\Product;
 use App\Models\Users\AppLog;
 use App\Models\Users\Driver;
+use App\Models\Users\User;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
@@ -31,7 +32,7 @@ class Order extends Model
         'delivery_date' => 'date',
     ];
 
-    protected $fillable = ['order_number', 'customer_id', 'customer_name', 'shipping_address', 'customer_phone', 'status', 'zone_id', 'driver_id', 'periodic_option', 'total_amount', 'delivery_amount', 'discount_amount', 'delivery_date', 'is_paid', 'note', 'created_by'];
+    protected $fillable = ['order_number', 'customer_id', 'customer_name', 'shipping_address','location_url', 'customer_phone', 'status', 'zone_id', 'driver_id', 'periodic_option', 'total_amount', 'delivery_amount', 'discount_amount', 'delivery_date', 'is_paid', 'note', 'created_by'];
 
     const PERIODIC_OPTIONS = [self::PERIODIC_WEEKLY, self::PERIODIC_BI_WEEKLY, self::PERIODIC_MONTHLY];
     const PERIODIC_WEEKLY = 'weekly';
@@ -105,7 +106,7 @@ class Order extends Model
     }
 
     // Function to create a new order
-    public static function newOrder(int $customerId, string $customerName, string $shippingAddress, string $customerPhone, int $zoneId, int $driverId = null, string $periodicOption = null, float $totalAmount = 0, float $deliveryAmount = 0, float $discountAmount = 0, Carbon $deliveryDate = null, string $note = null, array $products , $detuctFromBalance = false): Order|bool
+    public static function newOrder(int $customerId, string $customerName, string $shippingAddress, string $customerPhone, int $zoneId, $locationURL = null, int $driverId = null, string $periodicOption = null, float $totalAmount = 0, float $deliveryAmount = 0, float $discountAmount = 0, Carbon $deliveryDate = null, string $note = null, array $products , $detuctFromBalance = false): Order|bool
     {
         /** @var User */
         $loggedInUser = Auth::user();
@@ -120,6 +121,7 @@ class Order extends Model
             $order->status = self::STATUS_NEW;
             $order->customer_name = $customerName;
             $order->shipping_address = $shippingAddress;
+            $order->location_url = $locationURL;
             $order->customer_phone = $customerPhone;
             $order->zone_id = $zoneId;
             $order->driver_id = $driverId;
@@ -905,6 +907,11 @@ class Order extends Model
     public function zone(): BelongsTo
     {
         return $this->belongsTo(Zone::class);
+    }
+
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class,'created_by');
     }
 
     public function driver(): BelongsTo

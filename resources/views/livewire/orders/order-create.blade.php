@@ -284,6 +284,18 @@
                                         @enderror
                                     </div>
 
+                                    <div class="mb-2 mt-3">
+                                        <label for="locationURL" class="form-label !m-0">
+                                            Location URL
+                                        </label>
+                                        <textarea name="locationURL" wire:model="locationURL"
+                                            class="form-control  @error('locationURL') !border-danger-500 @enderror"></textarea>
+                                        @error('locationURL')
+                                            <span
+                                                class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+
                                     <div class="mb-2">
                                         <label for="customerPhone" class="form-label !m-0">Phone</label>
                                         <input wire:model='customerPhone' type="text" name="customerPhone"
@@ -956,5 +968,19 @@
                 </div>
             </div>
     @endif
+
+    <div wire:loading wire:target="createOrder" class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+        tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog">
+        <div class="modal-dialog relative w-auto pointer-events-none">
+            <div class="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-75" role="dialog"
+                aria-labelledby="vertically_center" aria-modal="true" style="z-index: 500">
+
+                <div class="text-slate-800">
+                    <iconify-icon icon="svg-spinners:180-ring" style="font-size: 5rem;"></iconify-icon>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
 </div>
