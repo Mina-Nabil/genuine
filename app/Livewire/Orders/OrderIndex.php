@@ -153,6 +153,7 @@ class OrderIndex extends Component
         $res = Order::setBulkStatus($this->selectedOrders, $status);
         if ($res) {
             $this->resetPage();
+            $this->selectedOrders = [];
             $this->alertSuccess('Status changed!');
         } else {
             $this->alertFailed();

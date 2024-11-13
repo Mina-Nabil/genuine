@@ -38,6 +38,8 @@ class OrderCreate extends Component
 
     public $customerIsNew = false;
     public $customerId;
+    public $customerBalance;
+    public $detuctFromBalance;
     public $customerName;
     public $shippingAddress;
     public $customerPhone;
@@ -124,7 +126,7 @@ class OrderCreate extends Component
 
     public function clearCustomer()
     {
-        $this->reset(['customerIsNew', 'customerId', 'customerName', 'shippingAddress', 'customerPhone', 'zoneId']);
+        $this->reset(['customerIsNew', 'customerId', 'customerName', 'shippingAddress', 'customerPhone', 'zoneId','detuctFromBalance']);
         $this->refreshPayments();
     }
 
@@ -143,12 +145,22 @@ class OrderCreate extends Component
     {
         $customer = Customer::findOrFail($id);
         $this->customerId = $customer->id;
+        $this->customerBalance = $customer->balance;
         $this->customerName = $customer->name;
         $this->shippingAddress = $customer->address;
         $this->customerPhone = $customer->phone;
         $this->zoneId = $customer->zone?->id;
+
+        if ($customer->balance > 0) {
+            $this->detuctFromBalance = true;
+        }else{
+            $this->detuctFromBalance = false;
+        }
+
         $this->closeCustomerSection();
         $this->refreshPayments();
+
+        
     }
 
     public function openDriverSection()
@@ -319,6 +331,7 @@ class OrderCreate extends Component
 
     public function createOrder()
     {
+        $detuctFromBalance = false;
         if ($this->customerId) {
             $this->validate([
                 'customerId' => 'required|exists:customers,id',
@@ -331,6 +344,7 @@ class OrderCreate extends Component
                 'zoneId' => 'zone',
             ]);
             $customerId = $this->customerId;
+            $detuctFromBalance = $this->detuctFromBalance;
         } else {
             $this->validate([
                 
@@ -366,7 +380,7 @@ class OrderCreate extends Component
         $driverID = null;
         $this->driver ? $driverID = $this->driver->id : null;
 
-        $res = Order::newOrder($customerId, $this->customerName, $this->shippingAddress, $this->customerPhone, $this->zoneId, $driverID, $this->periodicOption , $this->total, $this->shippingFee, $this->discountAmount, $this->ddate ? Carbon::parse($this->ddate) : null, $this->note, $this->fetchedProducts);
+        $res = Order::newOrder($customerId, $this->customerName, $this->shippingAddress, $this->customerPhone, $this->zoneId, $driverID, $this->periodicOption , $this->total, $this->shippingFee, $this->discountAmount, $this->ddate ? Carbon::parse($this->ddate) : null, $this->note, $this->fetchedProducts , $detuctFromBalance);
 
         if ($res) {
             $this->alertSuccess('order added!');

@@ -21,7 +21,7 @@ return new class extends Migration {
             $table->foreignIdFor(CustomerPayment::class)->nullable()->constrained('customer_payments'); // Inflow
             $table->foreignIdFor(Order::class)->nullable()->constrained(); // Outflow
             $table->decimal('amount', 10, 2); //double 
-            // $table->decimal('balance', 10, 2); //double 
+            $table->decimal('balance', 10, 2); //double 
             $table->string('description')->nullable(); // Explanation of the transaction
             $table->foreignIdFor(User::class, 'created_by')->constrained('users'); // User who recorded the transaction
             $table->timestamps();

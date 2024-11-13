@@ -231,6 +231,35 @@
                                                     icon="material-symbols:close" width="1.2em"
                                                     height="1.2em"></iconify-icon></span>
                                         </div>
+
+                                        @if ($customerBalance > 0)
+                                            <div
+                                                class="bg-slate-50 dark:bg-slate-900 rounded p-4 mt-2 flex justify-between flex-wrap">
+                                                <div class="space-y-1">
+                                                    <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
+                                                        Balance
+                                                    </h4>
+                                                    <div class="text-sm font-medium text-slate-900 dark:text-white">
+                                                        <b>{{ number_format($customerBalance, 2) }}</b><small>&nbsp;EGP</small>
+                                                    </div>
+                                                    <div class="checkbox-area">
+                                                        <label class="inline-flex items-center cursor-pointer">
+                                                            <input wire:model.live='detuctFromBalance' type="checkbox"
+                                                                class="hidden" name="checkbox" checked="checked">
+                                                            <span
+                                                                class="h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 bg-slate-100 dark:bg-slate-900">
+                                                                <img src="{{ asset('assets/images/icon/ck-white.svg') }}"
+                                                                    alt=""
+                                                                    class="h-[10px] w-[10px] block m-auto opacity-0"></span>
+                                                            <span
+                                                                class="text-slate-500 dark:text-slate-400 text-sm leading-6">
+                                                                Detuct from balance ?</span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        @endif
                                     @elseif($customerIsNew)
                                         <div class="mb-2">
                                             <label for="customerName" class="form-label !m-0">Name</label>
@@ -245,7 +274,8 @@
 
 
                                     <div class="mb-2 mt-3">
-                                        <label for="shippingAddress" class="form-label !m-0">Shipping Address</label>
+                                        <label for="shippingAddress" class="form-label !m-0">Shipping
+                                            Address</label>
                                         <textarea name="shippingAddress" wire:model="shippingAddress"
                                             class="form-control  @error('shippingAddress') !border-danger-500 @enderror"></textarea>
                                         @error('shippingAddress')
@@ -272,7 +302,8 @@
                                             <option value="">None</option>
                                             @foreach ($zones as $SINGLE_ZONE)
                                                 <option value="{{ $SINGLE_ZONE->id }}">
-                                                    {{ ucwords(str_replace('_', ' ', $SINGLE_ZONE->name)) }}</option>
+                                                    {{ ucwords(str_replace('_', ' ', $SINGLE_ZONE->name)) }}
+                                                </option>
                                             @endforeach
                                         </select>
                                         @error('zoneId')
@@ -318,14 +349,14 @@
                                 <div class="input-area w-full mt-5">
                                     <label for="ddate" class="form-label"><b>Periodic option</b></label>
                                     <select name="periodicOption" id="periodicOption"
-                                            class="form-control w-full @error('periodicOption') !border-danger-500 @enderror"
-                                            wire:model.live="periodicOption" autocomplete="off">
-                                            <option value="">None</option>
-                                            @foreach ($PERIODIC_OPTIONS as $PERIODIC_OPTION)
-                                                <option value="{{ $PERIODIC_OPTION }}">
-                                                    {{ ucwords(str_replace('_', ' ', $PERIODIC_OPTION)) }}</option>
-                                            @endforeach
-                                        </select>
+                                        class="form-control w-full @error('periodicOption') !border-danger-500 @enderror"
+                                        wire:model.live="periodicOption" autocomplete="off">
+                                        <option value="">None</option>
+                                        @foreach ($PERIODIC_OPTIONS as $PERIODIC_OPTION)
+                                            <option value="{{ $PERIODIC_OPTION }}">
+                                                {{ ucwords(str_replace('_', ' ', $PERIODIC_OPTION)) }}</option>
+                                        @endforeach
+                                    </select>
                                     @error('periodicOption')
                                         <span
                                             class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>

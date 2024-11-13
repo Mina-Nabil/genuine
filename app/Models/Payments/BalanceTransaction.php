@@ -18,6 +18,7 @@ class BalanceTransaction extends Model
         'payment_id',
         'order_id',
         'amount', //can be negative or positive
+        'balance',
         'description',
         'created_by',
     ];

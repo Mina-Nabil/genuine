@@ -293,7 +293,7 @@
 
                             </div>
 
-                            @if ($order->remaining_to_pay != $order->total_amount)
+                            @if ($order->isPartlyPaid())
                                 <div class="card-body flex flex-col justify-between border rounded-lg h-full menu-open p-0 mb-5 p-2 px-6 overflow-x-auto no-wrap"
                                     style="border-color:rgb(224, 224, 224);">
                                     <table

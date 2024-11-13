@@ -161,6 +161,7 @@ class Customer extends Model
                 BalanceTransaction::create([
                     'customer_id' => $this->id,
                     'amount' => $amount, // Positive amount added to the balance
+                    'balance' => $this->balance,
                     'description' => $note ?? 'Add to balance',
                     'created_by' => $loggedInUser->id,
                     // 'balance' => $this->balance,

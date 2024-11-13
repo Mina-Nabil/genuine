@@ -105,7 +105,7 @@ class Order extends Model
     }
 
     // Function to create a new order
-    public static function newOrder(int $customerId, string $customerName, string $shippingAddress, string $customerPhone, int $zoneId, int $driverId = null, string $periodicOption = null, float $totalAmount = 0, float $deliveryAmount = 0, float $discountAmount = 0, Carbon $deliveryDate = null, string $note = null, array $products): Order|bool
+    public static function newOrder(int $customerId, string $customerName, string $shippingAddress, string $customerPhone, int $zoneId, int $driverId = null, string $periodicOption = null, float $totalAmount = 0, float $deliveryAmount = 0, float $discountAmount = 0, Carbon $deliveryDate = null, string $note = null, array $products , $detuctFromBalance = false): Order|bool
     {
         /** @var User */
         $loggedInUser = Auth::user();
@@ -142,6 +142,10 @@ class Order extends Model
                     'price' => $product['price'],
                 ]);
                 $orderProduct->product->inventory->commitQuantity($product['quantity'], 'Order: #' . $order->order_number . ' committed');
+            }
+
+            if ($detuctFromBalance) {
+                $order->setAsPaid(Carbon::now(),deductFromBalance:true);
             }
 
             AppLog::info('Order Created successfuly', loggable: $order);
@@ -318,6 +322,7 @@ class Order extends Model
                         'customer_payment_id' => $payment->id,
                         'order_id' => $this->id,
                         'amount' => $amount,
+                        'balance' => $customer->balance,
                         'description' => 'Deducted from balance',
                         'created_by' => $loggedInUser->id,
                     ]);
@@ -371,6 +376,7 @@ class Order extends Model
                     BalanceTransaction::create([
                         'customer_id' => $customer->id,
                         'amount' => -$this->total_amount, // Deducting from the balance
+                        'balance' => -$customer->balance, 
                         'description' => 'Payment for order #' . $this->id . ' from balance',
                         'created_by' => $loggedInUser->id,
                     ]);
@@ -457,16 +463,18 @@ class Order extends Model
                 if ($deductFromBalance) {
                     $deductedAmount = min($customer->balance, $this->remaining_to_pay);
                     if ($deductedAmount !== 0) {
+                        $customer->balance -= $deductedAmount;
+                        $customer->save();
                         // Log the balance deduction
                         BalanceTransaction::create([
                             'customer_id' => $customer->id,
                             'order_id' => $this->id,
                             'amount' => -$deductedAmount,
+                            'balance' => $customer->balance,
                             'description' => 'Payment deducted from balance',
                             'created_by' => $loggedInUser->id,
                         ]);
-                        $customer->balance -= $deductedAmount;
-                        $customer->save();
+                        
                     }
                 } else {
                     $remainingAmount = $this->remaining_to_pay;
