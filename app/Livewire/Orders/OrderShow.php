@@ -44,6 +44,7 @@ class OrderShow extends Component
     public $cancelledProductsTotalAmount;
     public $returnPaymentMehod;
     public $removeReasons = [];
+    public $isReturnShippingAmount = false;
     public $reason;
     public $otherReason;
 
@@ -108,6 +109,13 @@ class OrderShow extends Component
         foreach ($this->cancelledProducts as $cancelledProducts) {
             $this->cancelledProductsTotalAmount += ($cancelledProducts['return_quantity'] * $cancelledProducts['price']);
         }
+        if ($this->isReturnShippingAmount) {
+            $this->cancelledProductsTotalAmount += $this->order->delivery_amount;
+        }
+    }
+
+    public function updatedIsReturnShippingAmount(){
+        $this->updatedCancelledProducts();
     }
 
     public function openReturnsSection()
@@ -118,6 +126,7 @@ class OrderShow extends Component
                 'name' => $product->product->name,
                 'quantity' => $product->quantity,
                 'price' => $product->price,
+                'isReturnToStock' => true,
                 'return_quantity' => 0,
             ];
         }
@@ -153,7 +162,7 @@ class OrderShow extends Component
         }
 
 
-        $res = $this->order->cancelProducts($this->cancelledProducts, $reason , $returnPaymentMethod);
+        $res = $this->order->cancelProducts($this->cancelledProducts, $reason , $returnPaymentMethod,$this->isReturnShippingAmount);
 
         if ($res) {
             $this->mount($this->order->id);

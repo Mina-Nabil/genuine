@@ -83,6 +83,72 @@ class Inventory extends Model
     }
 
     /**
+     * Permanently remove committed quantity, reducing both committed and on_hand stock.
+     *
+     * @param int $quantity The amount to reduce from committed and on_hand stock.
+     * @param string|null $remarks Optional remarks for the transaction.
+     * @return \App\Models\Transaction|bool Transaction object on success, false on failure.
+     * @throws \Exception
+     */
+    public function removeCommit($quantity, $remarks = null)
+    {
+        /** @var User */
+        $user = Auth::user();
+        if (!$user->can('update', $this)) {
+            return false;
+        }
+
+        try {
+            // Ensure quantity is positive for removing from committed and on_hand
+            if ($quantity <= 0) {
+                throw new \Exception('Quantity must be a positive number.');
+            }
+
+            // Check if sufficient committed stock is available to remove
+            if ($quantity > $this->committed) {
+                throw new \Exception('Not enough committed stock to remove.');
+            }
+
+            // Record before quantities for committed and on_hand
+            $beforeCommitted = $this->committed;
+            $beforeOnHand = $this->on_hand;
+
+            // Decrease the committed quantity and the on_hand quantity
+            $this->committed -= $quantity;
+            $this->on_hand -= $quantity;
+
+            // Update available stock
+            $this->available = $this->on_hand - $this->committed;
+
+            // Save the updated stock values
+            $this->save();
+
+            // Record after values for committed and on_hand
+            $afterCommitted = $this->committed;
+            $afterOnHand = $this->on_hand;
+
+            // Log the transaction
+            $transaction = Transaction::create([
+                'inventory_id' => $this->id,
+                'quantity' => -$quantity,
+                'before' => $this->available,
+                'after' => $this->available,
+                'remarks' => $remarks,
+                'user_id' => Auth::user()->id,
+            ]);
+
+            // Log the action in AppLog
+            AppLog::info('Inventory remove commit transaction created.', loggable: $this->inventoryable);
+
+            return $transaction;
+        } catch (Exception $e) {
+            // Log error to AppLog
+            AppLog::error('Inventory Remove Commit Failed', $e->getMessage(), loggable: $this->inventoryable);
+            return false;
+        }
+    }
+
+    /**
      * Commit or uncommit inventory and update available stock.
      *
      * @param int $quantity (positive to commit, negative to uncommit)

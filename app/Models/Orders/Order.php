@@ -630,12 +630,20 @@ class Order extends Model
      * @param string|null $reason Reason for the removal (optional).
      * @return bool True if successful, false otherwise.
      */
-    public function cancelProducts(array $products, string $reason = null, string $returnPaymentMethod = null): bool
+    public function cancelProducts(array $products, string $reason = null, string $returnPaymentMethod = null, bool $returnShippingAmount = false): bool
     {
         DB::beginTransaction();
 
         try {
-            $cancelledProductsTotalAmount = 0;
+
+            if ($returnShippingAmount) {
+                $cancelledProductsTotalAmount = $this->delivery_amount;
+                $this->delivery_amount = 0;
+                $this->save();
+            }else{
+                $cancelledProductsTotalAmount = 0;
+            }
+            
             foreach ($products as $product) {
                 // Skip if return_quantity is 0 or invalid
                 if (empty($product['return_quantity']) || $product['return_quantity'] <= 0) {
@@ -661,9 +669,16 @@ class Order extends Model
                 }
 
                 // Update the inventory quantity for the product
-                if ($orderProduct->inventory) {
-                    $orderProduct->inventory->commitQuantity(-$product['return_quantity'], 'Removed from order #' . $this->order_number);
+                if ($product['isReturnToStock']) {
+                    if ($orderProduct->inventory) {
+                        $orderProduct->inventory->commitQuantity(-$product['return_quantity'], 'Removed from order #' . $this->order_number);
+                    }
+                }else{
+                    if ($orderProduct->inventory) {
+                        $orderProduct->inventory->removeCommit($product['return_quantity'], 'Removed from order #' . $this->order_number.'. Not returned to stock');
+                    }
                 }
+                
 
                 // Check if the product has already been cancelled and update the record if it exists
                 $existingRemovedProduct = OrderRemovedProduct::where('order_id', $this->id)
@@ -689,27 +704,34 @@ class Order extends Model
                 $cancelledProductsTotalAmount += $product['return_quantity'] * $product['price'];
             }
 
-            if ($returnPaymentMethod) {
-                $new_type_balance = CustomerPayment::calculateNewBalance(-$cancelledProductsTotalAmount, $returnPaymentMethod);
-                CustomerPayment::create([
-                    'customer_id' => $this->customer->id,
-                    'order_id' => $this->id,
-                    'amount' => -$cancelledProductsTotalAmount,
-                    'type_balance' => $new_type_balance,
-                    'payment_method' => $returnPaymentMethod,
-                    'payment_date' => Carbon::now(),
-                    'created_by' => Auth::id(),
-                ]);
-            } else {
-                BalanceTransaction::create([
-                    'customer_id' => $this->customer->id,
-                    'order_id' => $this->id,
-                    'amount' => $cancelledProductsTotalAmount,
-                    'balance' => $this->customer->balance + $cancelledProductsTotalAmount,
-                    'description' => 'Payment returned to balance',
-                    'created_by' => Auth::id(),
-                ]);
+
+
+            $totalReturnedAmount = min($cancelledProductsTotalAmount , $this->total_paid);
+
+            if($totalReturnedAmount > 0){
+                if ($returnPaymentMethod) {
+                    $new_type_balance = CustomerPayment::calculateNewBalance(-$totalReturnedAmount, $returnPaymentMethod);
+                    CustomerPayment::create([
+                        'customer_id' => $this->customer->id,
+                        'order_id' => $this->id,
+                        'amount' => -$totalReturnedAmount,
+                        'type_balance' => $new_type_balance,
+                        'payment_method' => $returnPaymentMethod,
+                        'payment_date' => Carbon::now(),
+                        'created_by' => Auth::id(),
+                    ]);
+                } else {
+                    BalanceTransaction::create([
+                        'customer_id' => $this->customer->id,
+                        'order_id' => $this->id,
+                        'amount' => $totalReturnedAmount,
+                        'balance' => $this->customer->balance + $totalReturnedAmount,
+                        'description' => 'Payment returned to balance',
+                        'created_by' => Auth::id(),
+                    ]);
+                }
             }
+            
 
             DB::commit();
             $this->refreshTotalAmount();

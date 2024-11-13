@@ -352,7 +352,7 @@
                                                             <td class="table-td ">
 
                                                                 <div class=" text-success-500">
-                                                                    {{ $balanceTransaction->amount }}
+                                                                    {{ -$balanceTransaction->amount }}
                                                                     <small>EGP</small>
                                                                 </div>
 
@@ -973,6 +973,21 @@
                                                     / {{ $cancelledProduct['quantity'] }}
                                                 </td>
 
+                                                <td class="table-td imp-p-2">
+                                                    <div class="checkbox-area">
+                                                        <label class="inline-flex items-center cursor-pointer">
+                                                            <input wire:model='cancelledProducts.{{ $index }}.isReturnToStock' type="checkbox"
+                                                                class="hidden" name="checkbox" checked="checked">
+                                                            <span
+                                                                class="h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 bg-slate-100 dark:bg-slate-900">
+                                                                <img src="{{ asset('assets/images/icon/ck-white.svg') }}" alt=""
+                                                                    class="h-[10px] w-[10px] block m-auto opacity-0"></span>
+                                                            <span class="text-slate-500 dark:text-slate-400 text-sm leading-6">
+                                                                Return to stock ?</span>
+                                                        </label>
+                                                    </div>
+                                                </td>
+
                                             </tr>
                                         @endforeach
 
@@ -981,28 +996,69 @@
                                     </tbody>
                                 </table>
 
-                                <p class="text-slate-500 dark:text-slate-400">Total Return Amount:
-                                    <b>{{ number_format($cancelledProductsTotalAmount, 2) }}</b><small>EGP</small>
-                                </p>
+                                @if ($order->total_paid > 0)
+                                    <table class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700">
+                                        <tbody
+                                            class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
+                                            <tr>
+                                                <td class="table-td  bg-slate-800" colspan="3">
+                                                    <span class="text-slate-100 flex items-center"><iconify-icon
+                                                            icon="material-symbols:currency-exchange" width="1.2em"
+                                                            height="1.2em"></iconify-icon>&nbsp; Payments Changes</span>
 
-                                <p class="text-slate-500 dark:text-slate-400">Total Paid:
-                                    <b>{{ number_format($order->total_paid, 2) }}</b><small>EGP</small>
-                                </p>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="table-td ">
+                                                    <b>{{ number_format($cancelledProductsTotalAmount, 2) }}</b><small>EGP</small>
+                                                    <span
+                                                        class="block text-slate-500 text-xs">Amount of retunrs</span>
+                                                </td>
 
-                                <div class="input-area mb-5">
-                                    <label for="returnPaymentMehod" class="form-label">Payment return method</label>
-                                    <select name="returnPaymentMehod" id="returnPaymentMehod"
-                                        class="form-control w-full @error('returnPaymentMehod') !border-danger-500 @enderror"
-                                        wire:model.live="returnPaymentMehod" autocomplete="off">
-                                        <option value="">Return to customer balance</option>
-                                        @foreach ($PAYMENT_METHODS as $PAYMENT_METHOD)
-                                            <option value="{{ $PAYMENT_METHOD }}">
-                                                Returned {{ ucwords(str_replace('_', ' ', $PAYMENT_METHOD)) }}</option>
-                                        @endforeach
+                                                <td class="table-td ">
+                                                    <b>{{ number_format($order->total_paid, 2) }}</b><small>EGP</small>
+                                                    <span
+                                                        class="block text-slate-500 text-xs">Total Paid</span>
+                                                </td>
 
-                                    </select>
-                                </div>
+                                                <td class="table-td ">
+                                                    <b>{{ number_format(min($cancelledProductsTotalAmount,$order->total_paid), 2) }}</b><small>EGP</small>
+                                                    <span
+                                                        class="block text-slate-500 text-xs">Return Amount</span>
+                                                </td>
 
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                    <div class="input-area mb-5">
+                                        <label for="returnPaymentMehod" class="form-label">Payment return method</label>
+                                        <select name="returnPaymentMehod" id="returnPaymentMehod"
+                                            class="form-control w-full @error('returnPaymentMehod') !border-danger-500 @enderror"
+                                            wire:model.live="returnPaymentMehod" autocomplete="off">
+                                            <option value="">Return to customer balance</option>
+                                            @foreach ($PAYMENT_METHODS as $PAYMENT_METHOD)
+                                                <option value="{{ $PAYMENT_METHOD }}">
+                                                    Returned {{ ucwords(str_replace('_', ' ', $PAYMENT_METHOD)) }}</option>
+                                            @endforeach
+
+                                        </select>
+                                    </div>
+
+                                    <div class="checkbox-area">
+                                        <label class="inline-flex items-center cursor-pointer">
+                                            <input wire:model.live='isReturnShippingAmount' type="checkbox"
+                                                class="hidden" name="checkbox" checked="checked">
+                                            <span
+                                                class="h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 bg-slate-100 dark:bg-slate-900">
+                                                <img src="{{ asset('assets/images/icon/ck-white.svg') }}" alt=""
+                                                    class="h-[10px] w-[10px] block m-auto opacity-0"></span>
+                                            <span class="text-slate-500 dark:text-slate-400 text-sm leading-6">
+                                                Return Shipping Amount ?</span>
+                                        </label>
+                                    </div>
+
+                                @endif
                             </div>
 
                             <!-- Modal footer -->
