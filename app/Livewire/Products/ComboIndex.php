@@ -52,7 +52,7 @@ class ComboIndex extends Component
                 'comboName' => 'required|string|max:255',
                 'productQuantities.*.product_id' => 'required|exists:products,id',
                 'productQuantities.*.quantity' => 'required|integer|min:0', // Ensure each quantity is a positive integer
-                'productQuantities.*.price' => 'required|integer|min:0', // Ensure each quantity is a positive integer
+                'productQuantities.*.price' => ['required', 'numeric', 'regex:/^\d{1,5}(\.\d{1,2})?$/', 'min:0'],
             ],
             attributes: [
                 'comboName' => 'name',

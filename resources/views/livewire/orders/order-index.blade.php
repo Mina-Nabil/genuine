@@ -275,6 +275,7 @@
                                 <th scope="col" class="table-th">Phone</th>
                                 <th scope="col" class="table-th">Zone</th>
                                 <th scope="col" class="table-th">Driver</th>
+                                <th scope="col" class="table-th">Creator</th>
                             @endif
 
                         </tr>
@@ -391,6 +392,10 @@
 
                                 <td class="table-td text-start overflow-hidden text-ellipsis whitespace-nowrap">
                                     {{ $order->driver ? $order->driver->user->full_name : '-' }}
+                                </td>
+
+                                <td class="table-td text-start overflow-hidden text-ellipsis whitespace-nowrap">
+                                    {{ $order->creator->full_name }}
                                 </td>
 
 

@@ -26,11 +26,9 @@ class CustomerPayment extends Model
     ];
     
     const PYMT_CASH = 'cash';
-    const PYMT_CREDIT_CARD = 'credit_card';
     const PYMT_BANK_TRANSFER = 'bank_transfer';
-    const PYMT_INSTAPAY = 'instapay';
     const PYMT_WALLET = 'wallet';
-    const PAYMENT_METHODS = [self::PYMT_CASH, self::PYMT_CREDIT_CARD,self::PYMT_BANK_TRANSFER,self::PYMT_INSTAPAY,self::PYMT_WALLET];
+    const PAYMENT_METHODS = [self::PYMT_CASH,self::PYMT_BANK_TRANSFER,self::PYMT_WALLET];
 
     
 
