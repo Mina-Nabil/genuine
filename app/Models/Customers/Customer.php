@@ -167,11 +167,14 @@ class Customer extends Model
                     // 'balance' => $this->balance,
                 ]);
 
+                $new_type_balance = CustomerPayment::calculateNewBalance($amount,$paymentMethod);
+
                 // Step 3: Create the payment record for the added amount
                 CustomerPayment::create([
                     'customer_id' => $this->id,
                     'amount' => $amount, // Payment amount (same as the added balance)
                     'payment_method' => $paymentMethod,
+                    'type_balance' => $new_type_balance,
                     'payment_date' => $paymentDate,
                     'note' => $note ?? 'Add to balance',
                     'created_by' => $loggedInUser->id,
@@ -179,7 +182,6 @@ class Customer extends Model
 
                 // Step 4: Log the action (optional)
                 AppLog::info("Added {$amount} to {$this->name}'s balance and created payment", loggable: $this);
-
             });
             return true;
         } catch (Exception $e) {

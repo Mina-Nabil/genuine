@@ -19,6 +19,7 @@ return new class extends Migration {
             $table->foreignIdFor(Order::class)->nullable()->constrained();
             $table->decimal('amount', 10, 2);
             $table->enum('payment_method', CustomerPayment::PAYMENT_METHODS);
+            $table->decimal('type_balance', 10,2);
             $table->date('payment_date');
             $table->string('note')->nullable();
             $table->foreignId('created_by')->constrained('users');

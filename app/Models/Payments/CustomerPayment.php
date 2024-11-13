@@ -15,22 +15,20 @@ class CustomerPayment extends Model
 
     protected $table = 'customer_payments';
 
-    protected $fillable = [
-        'customer_id',
-        'order_id',
-        'amount',
-        'payment_method',
-        'payment_date',
-        'note',
-        'created_by',
-    ];
-    
+    protected $fillable = ['customer_id', 'order_id', 'amount', 'payment_method', 'type_balance', 'payment_date', 'note', 'created_by'];
+
     const PYMT_CASH = 'cash';
     const PYMT_BANK_TRANSFER = 'bank_transfer';
     const PYMT_WALLET = 'wallet';
-    const PAYMENT_METHODS = [self::PYMT_CASH,self::PYMT_BANK_TRANSFER,self::PYMT_WALLET];
+    const PAYMENT_METHODS = [self::PYMT_CASH, self::PYMT_BANK_TRANSFER, self::PYMT_WALLET];
 
-    
+    public static function calculateNewBalance(float $amount, string $paymentMethod): float
+    {
+        $old_payment_type_balance = CustomerPayment::where('payment_method', $paymentMethod)->latest('id')->value('type_balance');
+        $new_payment_type_balance = ($old_payment_type_balance ?? 0) + $amount;
+
+        return $new_payment_type_balance;
+    }
 
     public function customer()
     {
@@ -52,5 +50,4 @@ class CustomerPayment extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
-
 }

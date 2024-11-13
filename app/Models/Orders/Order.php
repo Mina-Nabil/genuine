@@ -32,7 +32,7 @@ class Order extends Model
         'delivery_date' => 'date',
     ];
 
-    protected $fillable = ['order_number', 'customer_id', 'customer_name', 'shipping_address','location_url', 'customer_phone', 'status', 'zone_id', 'driver_id', 'periodic_option', 'total_amount', 'delivery_amount', 'discount_amount', 'delivery_date', 'is_paid', 'note', 'created_by'];
+    protected $fillable = ['order_number', 'customer_id', 'customer_name', 'shipping_address', 'location_url', 'customer_phone', 'status', 'zone_id', 'driver_id', 'periodic_option', 'total_amount', 'delivery_amount', 'discount_amount', 'delivery_date', 'is_paid', 'note', 'created_by'];
 
     const PERIODIC_OPTIONS = [self::PERIODIC_WEEKLY, self::PERIODIC_BI_WEEKLY, self::PERIODIC_MONTHLY];
     const PERIODIC_WEEKLY = 'weekly';
@@ -106,7 +106,7 @@ class Order extends Model
     }
 
     // Function to create a new order
-    public static function newOrder(int $customerId, string $customerName, string $shippingAddress, string $customerPhone, int $zoneId, $locationURL = null, int $driverId = null, string $periodicOption = null, float $totalAmount = 0, float $deliveryAmount = 0, float $discountAmount = 0, Carbon $deliveryDate = null, string $note = null, array $products , $detuctFromBalance = false): Order|bool
+    public static function newOrder(int $customerId, string $customerName, string $shippingAddress, string $customerPhone, int $zoneId, $locationURL = null, int $driverId = null, string $periodicOption = null, float $totalAmount = 0, float $deliveryAmount = 0, float $discountAmount = 0, Carbon $deliveryDate = null, string $note = null, array $products, $detuctFromBalance = false): Order|bool
     {
         /** @var User */
         $loggedInUser = Auth::user();
@@ -147,7 +147,7 @@ class Order extends Model
             }
 
             if ($detuctFromBalance) {
-                $order->setAsPaid(Carbon::now(),deductFromBalance:true);
+                $order->setAsPaid(Carbon::now(), deductFromBalance: true);
             }
 
             AppLog::info('Order Created successfuly', loggable: $order);
@@ -269,7 +269,6 @@ class Order extends Model
 
     public static function checkRemainingToPayConsistency(array $orderIds)
     {
-        
         $orders = Order::whereIn('id', $orderIds)->get();
 
         // Check if all orders have remaining_to_pay greater than zero
@@ -307,12 +306,15 @@ class Order extends Model
                     $customer->save();
                 }
 
+                $new_type_balance = CustomerPayment::calculateNewBalance($amount, $paymentMethod);
+
                 // Step 2: Create the payment record
                 $payment = CustomerPayment::create([
                     'customer_id' => $customer->id,
                     'order_id' => $this->id,
                     'amount' => $amount,
                     'payment_method' => $paymentMethod,
+                    'type_balance' => $new_type_balance,
                     'payment_date' => $paymentDate,
                     'created_by' => $loggedInUser->id,
                 ]);
@@ -378,7 +380,7 @@ class Order extends Model
                     BalanceTransaction::create([
                         'customer_id' => $customer->id,
                         'amount' => -$this->total_amount, // Deducting from the balance
-                        'balance' => -$customer->balance, 
+                        'balance' => -$customer->balance,
                         'description' => 'Payment for order #' . $this->id . ' from balance',
                         'created_by' => $loggedInUser->id,
                     ]);
@@ -476,15 +478,16 @@ class Order extends Model
                             'description' => 'Payment deducted from balance',
                             'created_by' => $loggedInUser->id,
                         ]);
-                        
                     }
                 } else {
                     $remainingAmount = $this->remaining_to_pay;
+                    $new_type_balance = CustomerPayment::calculateNewBalance($remainingAmount, $paymentMethod);
                     if ($remainingAmount > 0) {
                         CustomerPayment::create([
                             'customer_id' => $customer->id,
                             'order_id' => $this->id,
                             'amount' => $remainingAmount,
+                            'type_balance' => $new_type_balance,
                             'payment_method' => $paymentMethod,
                             'payment_date' => $paymentDate,
                             'created_by' => $loggedInUser->id,
@@ -627,11 +630,12 @@ class Order extends Model
      * @param string|null $reason Reason for the removal (optional).
      * @return bool True if successful, false otherwise.
      */
-    public function cancelProducts(array $products, string $reason = null): bool
+    public function cancelProducts(array $products, string $reason = null, string $returnPaymentMethod = null): bool
     {
         DB::beginTransaction();
 
         try {
+            $cancelledProductsTotalAmount = 0;
             foreach ($products as $product) {
                 // Skip if return_quantity is 0 or invalid
                 if (empty($product['return_quantity']) || $product['return_quantity'] <= 0) {
@@ -681,6 +685,30 @@ class Order extends Model
                         'reason' => $reason,
                     ]);
                 }
+
+                $cancelledProductsTotalAmount += $product['return_quantity'] * $product['price'];
+            }
+
+            if ($returnPaymentMethod) {
+                $new_type_balance = CustomerPayment::calculateNewBalance(-$cancelledProductsTotalAmount, $returnPaymentMethod);
+                CustomerPayment::create([
+                    'customer_id' => $this->customer->id,
+                    'order_id' => $this->id,
+                    'amount' => -$cancelledProductsTotalAmount,
+                    'type_balance' => $new_type_balance,
+                    'payment_method' => $returnPaymentMethod,
+                    'payment_date' => Carbon::now(),
+                    'created_by' => Auth::id(),
+                ]);
+            } else {
+                BalanceTransaction::create([
+                    'customer_id' => $this->customer->id,
+                    'order_id' => $this->id,
+                    'amount' => $cancelledProductsTotalAmount,
+                    'balance' => $this->customer->balance + $cancelledProductsTotalAmount,
+                    'description' => 'Payment returned to balance',
+                    'created_by' => Auth::id(),
+                ]);
             }
 
             DB::commit();
@@ -822,6 +850,21 @@ class Order extends Model
         return $remainingAmount > 0 ? $remainingAmount : 0;
     }
 
+    public function getTotalPaidAttribute()
+    {
+        $this->loadMissing(['payments', 'balanceTransactions']);
+
+        $totalPayments = $this->payments->sum('amount');
+        $totalBalanceTransactions = $this->balanceTransactions->sum(function ($transaction) {
+            return abs($transaction->amount);
+        });
+
+        // Return the total amount paid
+        $totalPaid = $totalPayments + $totalBalanceTransactions;
+
+        return $totalPaid;
+    }
+
     public function isOpenToPay()
     {
         $openStatuses = [self::STATUS_NEW, self::STATUS_READY, self::STATUS_IN_DELIVERY];
@@ -911,7 +954,7 @@ class Order extends Model
 
     public function creator(): BelongsTo
     {
-        return $this->belongsTo(User::class,'created_by');
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     public function driver(): BelongsTo

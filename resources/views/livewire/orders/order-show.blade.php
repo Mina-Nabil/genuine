@@ -964,7 +964,7 @@
                                                     <input type="number"
                                                         class="form-control @error('cancelledProducts.' . $index . '.return_quantity') !border-danger-500 @enderror"
                                                         style="max-width: 100px;"
-                                                        wire:model='cancelledProducts.{{ $index }}.return_quantity'
+                                                        wire:model.live='cancelledProducts.{{ $index }}.return_quantity'
                                                         min="0" max="{{ $cancelledProduct['quantity'] }}">
                                                 </td>
 
@@ -975,8 +975,33 @@
 
                                             </tr>
                                         @endforeach
+
+
+
                                     </tbody>
                                 </table>
+
+                                <p class="text-slate-500 dark:text-slate-400">Total Return Amount:
+                                    <b>{{ number_format($cancelledProductsTotalAmount, 2) }}</b><small>EGP</small>
+                                </p>
+
+                                <p class="text-slate-500 dark:text-slate-400">Total Paid:
+                                    <b>{{ number_format($order->total_paid, 2) }}</b><small>EGP</small>
+                                </p>
+
+                                <div class="input-area mb-5">
+                                    <label for="returnPaymentMehod" class="form-label">Payment return method</label>
+                                    <select name="returnPaymentMehod" id="returnPaymentMehod"
+                                        class="form-control w-full @error('returnPaymentMehod') !border-danger-500 @enderror"
+                                        wire:model.live="returnPaymentMehod" autocomplete="off">
+                                        <option value="">Return to customer balance</option>
+                                        @foreach ($PAYMENT_METHODS as $PAYMENT_METHOD)
+                                            <option value="{{ $PAYMENT_METHOD }}">
+                                                Returned {{ ucwords(str_replace('_', ' ', $PAYMENT_METHOD)) }}</option>
+                                        @endforeach
+
+                                    </select>
+                                </div>
 
                             </div>
 

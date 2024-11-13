@@ -41,6 +41,8 @@ class OrderShow extends Component
     //returns
     public $returnSection;
     public $cancelledProducts = [];
+    public $cancelledProductsTotalAmount;
+    public $returnPaymentMehod;
     public $removeReasons = [];
     public $reason;
     public $otherReason;
@@ -53,17 +55,20 @@ class OrderShow extends Component
     //pay from balance
     public $isOpenPayFromBalanceSec;
 
-    public function openPayFromBalance(){
+    public function openPayFromBalance()
+    {
         $this->isOpenPayFromBalanceSec = true;
     }
 
-    public function closePayFromBalance(){
+    public function closePayFromBalance()
+    {
         $this->isOpenPayFromBalanceSec = false;
     }
 
-    public function PayFromBalance(){
-        $this->authorize('pay',$this->order);
-        $res = $this->order->setAsPaid(Carbon::now(), deductFromBalance:true);
+    public function PayFromBalance()
+    {
+        $this->authorize('pay', $this->order);
+        $res = $this->order->setAsPaid(Carbon::now(), deductFromBalance: true);
         if ($res) {
             $this->mount($this->order->id);
             $this->closePayFromBalance();
@@ -73,9 +78,10 @@ class OrderShow extends Component
         }
     }
 
-    public function PayCash(){
-        $this->authorize('pay',$this->order);
-        $res = $this->order->setAsPaid(Carbon::now(), paymentMethod:CustomerPayment::PYMT_CASH ,deductFromBalance:false);
+    public function PayCash()
+    {
+        $this->authorize('pay', $this->order);
+        $res = $this->order->setAsPaid(Carbon::now(), paymentMethod: CustomerPayment::PYMT_CASH, deductFromBalance: false);
         if ($res) {
             $this->mount($this->order->id);
             $this->closePayFromBalance();
@@ -93,7 +99,15 @@ class OrderShow extends Component
     public function removeProductRow($index)
     {
         unset($this->productsToAdd[$index]);
-        $this->productsToAdd = array_values($this->productsToAdd); 
+        $this->productsToAdd = array_values($this->productsToAdd);
+    }
+
+    public function updatedCancelledProducts()
+    {
+        $this->cancelledProductsTotalAmount = 0 ;
+        foreach ($this->cancelledProducts as $cancelledProducts) {
+            $this->cancelledProductsTotalAmount += ($cancelledProducts['return_quantity'] * $cancelledProducts['price']);
+        }
     }
 
     public function openReturnsSection()
@@ -107,6 +121,8 @@ class OrderShow extends Component
                 'return_quantity' => 0,
             ];
         }
+
+        $this->updatedCancelledProducts();
 
         $this->removeReasons = OrderRemovedProduct::removeReasons;
 
@@ -131,7 +147,13 @@ class OrderShow extends Component
             $reason = null;
         }
 
-        $res = $this->order->cancelProducts($this->cancelledProducts, $reason);
+        $returnPaymentMethod = null;
+        if ($this->returnPaymentMehod !== "" || $this->returnPaymentMehod !== null) {
+            $returnPaymentMethod = $this->returnPaymentMehod;
+        }
+
+
+        $res = $this->order->cancelProducts($this->cancelledProducts, $reason , $returnPaymentMethod);
 
         if ($res) {
             $this->mount($this->order->id);
@@ -279,11 +301,14 @@ class OrderShow extends Component
 
     public function render()
     {
+        $PAYMENT_METHODS = CustomerPayment::PAYMENT_METHODS;
         $this->comments = $this->order
             ->comments()
             ->latest()
             ->take($this->visibleCommentsCount)
             ->get();
-        return view('livewire.orders.order-show')->layout('layouts.app', ['page_title' => $this->page_title, 'orders' => 'active']);
+        return view('livewire.orders.order-show',[
+            'PAYMENT_METHODS' => $PAYMENT_METHODS
+        ])->layout('layouts.app', ['page_title' => $this->page_title, 'orders' => 'active']);
     }
 }
