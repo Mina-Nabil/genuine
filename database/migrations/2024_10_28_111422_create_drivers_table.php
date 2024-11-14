@@ -15,6 +15,7 @@ return new class extends Migration
     {
         Schema::create('drivers', function (Blueprint $table) {
             $table->id();
+            $table->string('shift_title');
             $table->foreignIdFor(User::class)->constrained()->onDelete('cascade')->unique();
             $table->integer('weight_limit')->nullable(); 
             $table->integer('order_quantity_limit')->nullable(); 

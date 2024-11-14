@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Users;
 
+use App\Models\Users\Driver;
 use App\Models\Users\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -15,6 +16,8 @@ class Profile extends Component
 {
     use WithFileUploads, AlertFrontEnd;
     public $page_title = '• Profile';
+
+    public $user;
 
     public $username;
     public $firstName;
@@ -34,10 +37,112 @@ class Profile extends Component
     public $uploadLicFile;
     public $uploadCarLicFile;
 
+    //Drivers
+    public $isOpenNewDriverSec = false;
+    public $isEditDriverSec = false;
+    public $shift_title;
+    public $weight_limit;
+    public $order_quantity_limit;
+    public $car_type = Driver::CAR_TYPE_SEDAN;
+    public $car_model;
+    public $is_available;
+    
+    public $deleteDriverShiftId;
+
     public $changes;
 
     public $oldPass, $password, $newPasswordConfirm;
     public $passwordsMatch = true; // Used to track if the passwords match
+
+    public function openDeleteDriverConfirmation($id){
+        $this->deleteDriverShiftId = $id;
+    }
+
+    public function closeDeleteDriverConfirmation(){
+        $this->deleteDriverShiftId = null;
+    }
+
+    public function deleteDriverShift(){
+        $res =Driver::findOrFail($this->deleteDriverShiftId)->deleteDriver();
+
+        if ($res) {
+            $this->closeDeleteDriverConfirmation();
+            $this->alertSuccess('Driver shift added');
+        } else {
+            $this->alertFailed('Server error');
+        }
+    }
+
+    public function openNewDriverSec()
+    {
+        if ($this->user->type === User::TYPE_DRIVER) {
+            $this->isOpenNewDriverSec = true;
+        }
+    }
+
+    public function addDriver()
+    {
+        $this->validate([
+            'shift_title' => 'required|string|max:255',
+            'weight_limit' => 'nullable|integer|min:0',
+            'order_quantity_limit' => 'nullable|integer|min:0',
+            'car_type' => 'nullable|in:' . implode(',', Driver::CAR_TYPES),
+            'car_model' => 'nullable|string|max:255',
+        ]);
+        $res = Driver::createDriver($this->shift_title, $this->user->id, $this->weight_limit ? $this->weight_limit * 1000 : null , $this->order_quantity_limit, $this->car_type, $this->car_model);
+
+        if ($res) {
+            $this->closeDriverSections();
+            $this->alertSuccess('Driver shift added');
+        } else {
+            $this->alertFailed('Server error');
+        }
+    }
+
+    public function openEditDriverSec($id)
+    {
+        if ($this->user->type === User::TYPE_DRIVER) {
+            $this->isEditDriverSec = $id;
+            $driver = Driver::findOrFail($id);
+            $this->shift_title = $driver->shift_title;
+            $this->weight_limit = $driver->weight_limit / 1000;
+            $this->order_quantity_limit = $driver->order_quantity_limit;
+            $this->car_type = $driver->car_type;
+            $this->car_model = $driver->car_model;
+            if ($driver->is_available === 1) {
+                $this->is_available = true ;
+            }else{
+                $this->is_available = false ;
+            }
+            
+        }
+    }
+
+    public function updateDriver()
+    {
+        $this->validate([
+            'shift_title' => 'required|string|max:255',
+            'weight_limit' => 'nullable|integer|min:0',
+            'order_quantity_limit' => 'nullable|integer|min:0',
+            'car_type' => 'nullable|in:' . implode(',', Driver::CAR_TYPES),
+            'car_model' => 'nullable|string|max:255',
+            'is_available' => 'required|boolean',
+        ]);
+
+        $res = Driver::findOrFail($this->isEditDriverSec)->updateDriver($this->shift_title, $this->weight_limit ? $this->weight_limit * 1000 : null, $this->order_quantity_limit, $this->car_type, $this->car_model, $this->is_available);
+    
+        if ($res) {
+            $this->closeDriverSections();
+            $this->alertSuccess('Driver shift updated');
+        } else {
+            $this->alertFailed('Server error');
+        }
+    }
+
+    public function closeDriverSections()
+    {
+        $this->reset(['isOpenNewDriverSec', 'isEditDriverSec', 'shift_title', 'weight_limit', 'order_quantity_limit', 'car_type', 'car_model', 'is_available']);
+    }
 
     public function updatedPassword()
     {
@@ -58,26 +163,26 @@ class Profile extends Component
 
     public function clearIDdocFile()
     {
-        $this->reset('uploadIDFile','OLDuploadIDFile');
+        $this->reset('uploadIDFile', 'OLDuploadIDFile');
     }
 
     public function clearLicDocFile()
     {
-        $this->reset('uploadLicFile','OLDuploadLicFile');
+        $this->reset('uploadLicFile', 'OLDuploadLicFile');
     }
 
     public function clearCarLicDocFile()
     {
-        $this->reset('uploadCarLicFile','OLDuploadCarLicFile');
+        $this->reset('uploadCarLicFile', 'OLDuploadCarLicFile');
     }
 
     public function downloadIDDocument()
     {
-        $fileContents = Storage::disk('s3')->get(Auth::user()->id_doc_url);
-        $extension = pathinfo(Auth::user()->id_doc_url, PATHINFO_EXTENSION);
+        $fileContents = Storage::disk('s3')->get($this->user->id_doc_url);
+        $extension = pathinfo($this->user->id_doc_url, PATHINFO_EXTENSION);
         $headers = [
             'Content-Type' => 'application/octet-stream',
-            'Content-Disposition' => 'attachment; filename="' . Auth::user()->full_name . '_id_document.' . $extension . '"',
+            'Content-Disposition' => 'attachment; filename="' . $this->user->full_name . '_id_document.' . $extension . '"',
         ];
 
         return response()->stream(
@@ -91,11 +196,11 @@ class Profile extends Component
 
     public function downloadLicDocument()
     {
-        $fileContents = Storage::disk('s3')->get(Auth::user()->driving_license_doc_url);
-        $extension = pathinfo(Auth::user()->driving_license_doc_url, PATHINFO_EXTENSION);
+        $fileContents = Storage::disk('s3')->get($this->user->driving_license_doc_url);
+        $extension = pathinfo($this->user->driving_license_doc_url, PATHINFO_EXTENSION);
         $headers = [
             'Content-Type' => 'application/octet-stream',
-            'Content-Disposition' => 'attachment; filename="' . Auth::user()->full_name . '_licience_document.' . $extension . '"',
+            'Content-Disposition' => 'attachment; filename="' . $this->user->full_name . '_licience_document.' . $extension . '"',
         ];
 
         return response()->stream(
@@ -109,11 +214,11 @@ class Profile extends Component
 
     public function downloadCarLicDocument()
     {
-        $fileContents = Storage::disk('s3')->get(Auth::user()->car_license_doc_url);
-        $extension = pathinfo(Auth::user()->car_license_doc_url, PATHINFO_EXTENSION);
+        $fileContents = Storage::disk('s3')->get($this->user->car_license_doc_url);
+        $extension = pathinfo($this->user->car_license_doc_url, PATHINFO_EXTENSION);
         $headers = [
             'Content-Type' => 'application/octet-stream',
-            'Content-Disposition' => 'attachment; filename="' . Auth::user()->full_name . '_car_licience_document.' . $extension . '"',
+            'Content-Disposition' => 'attachment; filename="' . $this->user->full_name . '_car_licience_document.' . $extension . '"',
         ];
 
         return response()->stream(
@@ -154,8 +259,6 @@ class Profile extends Component
         return $url;
     }
 
-    
-
     // Live check for password match
     public function updated($propertyName)
     {
@@ -166,15 +269,13 @@ class Profile extends Component
 
     public function editPassword()
     {
-        $this->validate(
-            [
-                'oldPass' => 'required',
-                'password' => 'required|min:8',
-            ]
-        );
+        $this->validate([
+            'oldPass' => 'required',
+            'password' => 'required|min:8',
+        ]);
 
         // Get the authenticated user
-        $user = Auth::user();
+        $user = $this->user;
 
         // Check if the old password matches the user's current password
         if (!Hash::check($this->oldPass, $user->password)) {
@@ -194,20 +295,22 @@ class Profile extends Component
         $this->reset(['oldPass', 'password', 'newPasswordConfirm', 'passwordsMatch', 'is_open_update_pass']);
     }
 
-    public function mount()
+    public function mount($id)
     {
-        $this->username = Auth::user()->username;
-        $this->firstName = Auth::user()->first_name;
-        $this->lastName = Auth::user()->last_name;
-        $this->phone = Auth::user()->phone;
-        $this->email = Auth::user()->email;
-        $this->idNumber = Auth::user()->id_number;
-        $this->driveLicienceNo = Auth::user()->driving_license_number;
-        $this->carLicienceNo = Auth::user()->car_license_number;
-        $this->OLDuserImage = Auth::user()->image_url;
-        $this->OLDuploadIDFile = Auth::user()->id_doc_url;
-        $this->OLDuploadLicFile = Auth::user()->driving_license_doc_url;
-        $this->OLDuploadCarLicFile = Auth::user()->car_license_doc_url;
+        $user = User::findOrFail($id);
+        $this->username = $user->username;
+        $this->firstName = $user->first_name;
+        $this->lastName = $user->last_name;
+        $this->phone = $user->phone;
+        $this->email = $user->email;
+        $this->idNumber = $user->id_number;
+        $this->driveLicienceNo = $user->driving_license_number;
+        $this->carLicienceNo = $user->car_license_number;
+        $this->OLDuserImage = $user->image_url;
+        $this->OLDuploadIDFile = $user->id_doc_url;
+        $this->OLDuploadLicFile = $user->driving_license_doc_url;
+        $this->OLDuploadCarLicFile = $user->car_license_doc_url;
+        $this->user = $user;
     }
 
     public function openChangePass()
@@ -258,7 +361,7 @@ class Profile extends Component
     public function saveInfo()
     {
         $this->validate([
-            'username' => ['required', 'string', 'max:255', Rule::unique('users', 'username')->ignore(Auth::user()->id)],
+            'username' => ['required', 'string', 'max:255', Rule::unique('users', 'username')->ignore($this->user->id)],
             'firstName' => 'required|string|max:255',
             'lastName' => 'required|string|max:255',
             'phone' => 'nullable|string|max:20',
@@ -312,13 +415,13 @@ class Profile extends Component
             $user_car_lic_url = null;
         }
 
-        $user = User::find(Auth::user()->id);
+        $user = $this->user;
 
         $u = $user->editInfo(
             $this->username,
             $this->firstName,
             $this->lastName,
-            Auth::user()->type, // Assuming 'type' is a property of the currently authenticated user
+            $this->user->type, // Assuming 'type' is a property of the currently authenticated user
             $this->email,
             $this->phone,
             $this->idNumber,
@@ -331,14 +434,12 @@ class Profile extends Component
         );
 
         if ($u) {
-            $this->alertSuccess( 'Updated Successfuly');
+            $this->alertSuccess('Updated Successfuly');
             $this->changes = false;
         } else {
-            $this->alertFailed( 'Server error');
+            $this->alertFailed('Server error');
         }
     }
-
-
 
     public function changePassword()
     {
@@ -349,7 +450,7 @@ class Profile extends Component
 
         // Get the authenticated user
         /** @var User */
-        $user = Auth::user();
+        $user = $this->user;
         if ($user == null) {
             return $this->alert('failed', 'Unauthorized access');
         }
@@ -368,6 +469,9 @@ class Profile extends Component
 
     public function render()
     {
-        return view('livewire.users.profile')->layout('layouts.app', ['page_title' => $this->page_title, 'profile' => 'active']);
+        $carTypes = Driver::CAR_TYPES;
+        return view('livewire.users.profile', [
+            'carTypes' => $carTypes,
+        ])->layout('layouts.app', ['page_title' => $this->page_title, 'profile' => 'active']);
     }
 }

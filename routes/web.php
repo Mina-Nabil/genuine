@@ -27,7 +27,7 @@ Route::get('/', function () {
 });
 
 Route::middleware('auth')->group(function () {
-Route::get('/profile',Profile::class);
+Route::get('/profile/{id}',Profile::class)->name('profile');
 Route::get('/users',UserIndex::class);
 Route::get('/customers',CustomerIndex::class)->name('customer.index');
 Route::get('/customers/{id}',CustomerShow::class)->name('customer.show');

@@ -2,8 +2,11 @@
 
 namespace App\Models\Users;
 
+use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class Driver extends Model
 {
@@ -17,9 +20,93 @@ class Driver extends Model
     const CAR_TYPE_VAN = 'van';
     const CAR_TYPE_MOTORCYCLE = 'motorcycle';
 
-    protected $fillable = ['user_id', 'weight_limit', 'order_quantity_limit', 'car_type', 'car_model', 'is_available'];
+    protected $fillable = ['user_id', 'shift_title', 'weight_limit', 'order_quantity_limit', 'car_type', 'car_model', 'is_available'];
 
-    
+    public static function createDriver($shiftTitle, $userId, $weightLimit = null, $orderQuantityLimit = null, $carType = null, $carModel = null)
+    {
+        try {
+            DB::beginTransaction();
+
+            // Create a new driver record
+            $driver = self::create([
+                'shift_title' => $shiftTitle,
+                'user_id' => $userId,
+                'weight_limit' => $weightLimit,
+                'order_quantity_limit' => $orderQuantityLimit,
+                'car_type' => $carType,
+                'car_model' => $carModel,
+                'is_available' => true,
+            ]);
+
+            DB::commit();
+
+            // Log the successful creation
+            AppLog::info("Driver Shift created successfully with ID {$driver->id}", loggable: $driver);
+
+            return $driver;
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            // Log the error
+            AppLog::error('Failed to create driver', $e->getMessage());
+
+            return null;
+        }
+    }
+
+    public function deleteDriver()
+    {
+        try {
+            /** @var User */
+            $loggedInUser = Auth::user();
+            if ($loggedInUser && !$loggedInUser->can('delete', $this)) {
+                return false;
+            }
+
+            DB::beginTransaction();
+
+            $this->delete();
+
+            DB::commit();
+
+            AppLog::info("Driver Shift of {$this->user->full_name} deleted successfully", loggable: $this);
+
+            return true;
+        } catch (Exception $e) {
+            DB::rollBack();
+            AppLog::error('Failed to delete driver shift', $e->getMessage(), loggable: $this);
+
+            return false;
+        }
+    }
+
+    public function updateDriver($shiftTitle, $weightLimit, $orderQuantityLimit, $carType, $carModel, $isAvailable)
+    {
+        try {
+            DB::beginTransaction();
+
+            $this->shift_title = $shiftTitle;
+            $this->weight_limit = $weightLimit;
+            $this->order_quantity_limit = $orderQuantityLimit;
+            $this->car_type = $carType;
+            $this->car_model = $carModel;
+            $this->is_available = $isAvailable;
+
+            $this->save();
+
+            DB::commit();
+
+            AppLog::info("Driver updated successfully with ID {$this->id}", loggable: $this);
+
+            return true;
+        } catch (Exception $e) {
+            report($e);
+            DB::rollBack();
+
+            AppLog::error('Failed to update driver', $e->getMessage());
+            return false;
+        }
+    }
 
     public function scopeSearch($query, $searchTerm = null)
     {

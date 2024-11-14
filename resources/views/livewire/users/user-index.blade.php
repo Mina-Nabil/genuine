@@ -56,7 +56,9 @@
                                             </span>
                                         @endif
                                     </div>
-                                    <span>{{ $user->first_name }} {{ $user->last_name }}</span>
+                                    <a href="{{ route('profile', $user->id) }}" class="clickable-link">
+                                        <span>{{ $user->first_name }} {{ $user->last_name }}</span>
+                                    </a>
                                 </td>
 
 
@@ -400,7 +402,7 @@
                                 </div>
 
                                 @if ($newType === 'driver')
-                                <hr>
+                                    <hr>
                                     <h6 class="mt-3"><b>Driver Details</b></h6>
                                     <div class="from-group">
                                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
@@ -634,8 +636,8 @@
                                             class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
                                     @enderror
                                 </div>
-                                @if ($type === "driver")
-                                <hr>
+                                @if ($type === 'driver')
+                                    <hr>
                                     <h6 class="mt-3"><b>Driver Details</b></h6>
                                     <div class="from-group">
                                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">

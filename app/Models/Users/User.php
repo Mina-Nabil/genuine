@@ -107,7 +107,7 @@ class User extends Authenticatable
         }
     }
 
-    public function editInfo($username, $first_name, $last_name, $type, $email = null, $phone = null, $id_number = null, $id_doc_url = null, $driving_license_number = null, $driving_license_doc_url = null, $car_license_number = null, $car_license_doc_url = null, $image_url = null, $password = null, $weight_limit = null, $order_quantity_limit = null, $car_type = null, $car_model = null, $is_available = true): bool
+    public function editInfo($username, $first_name, $last_name, $type, $email = null, $phone = null, $id_number = null, $id_doc_url = null, $driving_license_number = null, $driving_license_doc_url = null, $car_license_number = null, $car_license_doc_url = null, $image_url = null, $password = null): bool
     {
         try {
             // Update user attributes
@@ -128,19 +128,6 @@ class User extends Authenticatable
             // Only update password if provided
             if ($password) {
                 $this->password = bcrypt($password);
-            }
-
-            // Update or create driver-specific information if the user is a driver
-            if ($type === User::TYPE_DRIVER) {
-                $driver = $this->driver()->firstOrNew();
-                $driver->weight_limit = $weight_limit;
-                $driver->order_quantity_limit = $order_quantity_limit;
-                $driver->car_type = $car_type;
-                $driver->car_model = $car_model;
-                $driver->is_available = $is_available;
-                $driver->save();
-            } else {
-                $this->driver()->delete();
             }
 
             // Save the updated user
@@ -412,9 +399,9 @@ class User extends Authenticatable
         return $this->hasMany(Notification::class)->latest();
     }
 
-    public function driver()
+    public function drivers():HasMany
     {
-        return $this->hasOne(Driver::class);
+        return $this->hasMany(Driver::class);
     }
 
     //auth
