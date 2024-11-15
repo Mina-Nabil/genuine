@@ -8,6 +8,7 @@ use App\Livewire\Customers\FollowupIndex;
 use App\Livewire\Customers\ZoneIndex;
 use App\Livewire\Orders\OrderCreate;
 use App\Livewire\Orders\OrderIndex;
+use App\Livewire\Orders\OrderInventory;
 use App\Livewire\Orders\OrderShow;
 use App\Livewire\Pets\PetIndex;
 use App\Livewire\Products\ComboIndex;
@@ -29,22 +30,29 @@ Route::get('/', function () {
 Route::middleware('auth')->group(function () {
 Route::get('/profile/{id}',Profile::class)->name('profile');
 Route::get('/users',UserIndex::class);
+
 Route::get('/customers',CustomerIndex::class)->name('customer.index');
 Route::get('/customers/{id}',CustomerShow::class)->name('customer.show');
+
 Route::get('/products',ProductIndex::class)->name('product.index');
 Route::get('/products/{id}',ProductShow::class)->name('product.show');
+
 Route::get('/combos',ComboIndex::class)->name('combo.index');
 Route::get('/combos/{id}',ComboShow::class)->name('combo.show');
+
 Route::get('/pets',PetIndex::class);
 Route::get('/zones',ZoneIndex::class);
 Route::get('/followups',FollowupIndex::class);
+
 Route::get('/tasks',TaskIndex::class);
 Route::get('/tasks/{id}',TaskShow::class)->name('tasks.show');
 Route::get('/notifications', NotificationIndex::class);
+
 Route::post('/notifications/seen/{id}', [UserController::class, 'setNotfAsSeen']);
 
 Route::get('/orders/new',OrderCreate::class)->name('orders.create');
 Route::get('/orders',OrderIndex::class)->name('orders.index');
+Route::get('/orders/inventory',OrderInventory::class)->name('orders.inventory');
 Route::get('/orders/{id}',OrderShow::class)->name('orders.show');
 
 Route::get('/productions',ProductionPlanning::class)->name('production.planning');
