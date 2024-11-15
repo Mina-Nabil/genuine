@@ -46,6 +46,7 @@ class User extends Authenticatable
         $car_license_number = null,
         $car_license_doc_url = null,
         $image_url = null,
+        $shift_title = null, // Driver-specific field
         $weight_limit = null, // Driver-specific field
         $order_quantity_limit = null, // Driver-specific field
         $car_type = null, // Driver-specific field
@@ -85,6 +86,7 @@ class User extends Authenticatable
             if ($type === self::TYPE_DRIVER) {
                 $driver = new Driver([
                     'user_id' => $user->id,
+                    'shift_title' => $shift_title,
                     'weight_limit' => $weight_limit,
                     'order_quantity_limit' => $order_quantity_limit,
                     'car_type' => $car_type,

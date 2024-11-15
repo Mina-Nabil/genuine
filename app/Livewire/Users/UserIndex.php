@@ -33,6 +33,7 @@ class UserIndex extends Component
     public $DrivingLicenceDoc;
     public $CarLicenceNo;
     public $CarLicenceDoc;
+    public $shiftTitle;//for driver
     public $weightLimit; //for driver
     public $orderQuantityLimit; //for driver
     public $carType; //for driver
@@ -113,7 +114,7 @@ class UserIndex extends Component
     public function closeNewUserSec()
     {
         $this->newUserSection = false;
-        $this->reset(['newUsername', 'newFirstName', 'newLastName', 'newType', 'newPassword', 'newPassword_confirmation', 'newEmail', 'newPhone', 'newManagerId', 'IdNumber', 'IdNumberDoc', 'DrivingLicenceNo', 'DrivingLicenceDoc', 'CarLicenceNo', 'CarLicenceDoc','weightLimit','orderQuantityLimit' ,'carType','carModel']);
+        $this->reset(['newUsername', 'newFirstName', 'newLastName', 'newType', 'newPassword', 'newPassword_confirmation', 'newEmail', 'newPhone', 'newManagerId', 'IdNumber', 'IdNumberDoc', 'DrivingLicenceNo', 'DrivingLicenceDoc', 'CarLicenceNo', 'CarLicenceDoc','shiftTitle','weightLimit','orderQuantityLimit' ,'carType','carModel']);
     }
 
     protected $rules = [
@@ -147,6 +148,7 @@ class UserIndex extends Component
 
         if ($this->newType === User::TYPE_DRIVER) {
             $this->validate([
+                'shiftTitle' => 'required|string|max:255', 
                 'weightLimit' => 'required|integer|min:1',  
                 'orderQuantityLimit' => 'required|integer|min:1',     
                 'carType' => 'nullable|in:' . implode(',', Driver::CAR_TYPES), 
@@ -160,12 +162,12 @@ class UserIndex extends Component
         $carLicenseDocUrl = $this->CarLicenceDoc ? $this->CarLicenceDoc->store(User::FILES_DIRECTORY, 's3') : null;
 
         // Create a new user with the validated data and document URLs
-        $res = User::newUser($this->newUsername, $this->newFirstName, $this->newLastName, $this->newType, $this->newPassword, $this->newEmail, $this->newPhone, $this->IdNumber, $idDocUrl, $this->DrivingLicenceNo, $drivingLicenseDocUrl, $this->CarLicenceNo, $carLicenseDocUrl,null,$this->weightLimit,$this->orderQuantityLimit,$this->carType,$this->carModel);
+        $res = User::newUser($this->newUsername, $this->newFirstName, $this->newLastName, $this->newType, $this->newPassword, $this->newEmail, $this->newPhone, $this->IdNumber, $idDocUrl, $this->DrivingLicenceNo, $drivingLicenseDocUrl, $this->CarLicenceNo, $carLicenseDocUrl,null,$this->shiftTitle,$this->weightLimit,$this->orderQuantityLimit,$this->carType,$this->carModel);
 
         // Check if the user was created successfully
         if ($res) {
-            $this->closeNewUserSec(); // Close the user creation section
             $this->alertSuccess('User added successfully!'); // Show success alert
+            return redirect(route('profile',$res->id));
         } else {
             $this->alertFailed('Server error'); // Show failure alert
         }

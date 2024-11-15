@@ -393,7 +393,21 @@
 
                                 @if ($newType === 'driver')
                                     <hr>
-                                    <h6 class="mt-3"><b>Driver Details</b></h6>
+                                    <h6 class="mt-3"><b>Initialize driver shift</b></h6>
+
+                                    <div class="from-group">
+                                        <div class="input-area">
+                                            <label for="shiftTitle" class="form-label">Shift title
+                                            </label>
+                                            <input id="shiftTitle" type="text"
+                                                class="form-control @error('shiftTitle') !border-danger-500 @enderror"
+                                                wire:model="shiftTitle" autocomplete="off">
+                                            @error('shiftTitle')
+                                                <span
+                                                    class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+                                    </div>
                                     <div class="from-group">
                                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
                                             <div class="input-area">
