@@ -398,7 +398,7 @@
                                     @if ($driver)
                                         <div
                                             class="badge bg-slate-900 text-white capitalize w-full flex justify-between items-center">
-                                            <span>{{ $driver->user->full_name }}</span>
+                                            <span>{{ $driver->user->full_name }} • {{ $driver->shift_title }}</span>
                                             <span class="cursor-pointer" wire:click='clearDriver'><iconify-icon
                                                     icon="material-symbols:close" width="1.2em"
                                                     height="1.2em"></iconify-icon></span>
@@ -748,8 +748,6 @@
                                                 Car
                                             </th>
 
-                                            <th scope="col" class="table-th">
-                                            </th>
 
                                         </tr>
                                     </thead>
@@ -761,7 +759,7 @@
                                                 class="hover:bg-slate-200 dark:hover:bg-slate-700 cursor-pointer">
 
                                                 <td class="table-td">
-                                                    <b>{{ $driver->user->full_name }}</b>
+                                                    <b>{{ $driver->user->full_name }} • {{ $driver->shift_title }}</b>
                                                 </td>
 
                                                 <td class="table-td">
@@ -771,6 +769,7 @@
                                                 <td class="table-td">
                                                     {{ $driver->car_model }}
                                                 </td>
+
 
                                             </tr>
                                         @endforeach

@@ -208,7 +208,7 @@
                     <span class="badge bg-slate-900 text-white capitalize">
                         <span class="cursor-pointer" wire:click='openFilteryDriver'>
                             <span class="text-secondary-500 ">Driver:</span>&nbsp;
-                            {{ ucwords($driver->user->full_name) }}
+                            {{ ucwords($driver->user->full_name) }}  • {{ $driver->shift_title }}
 
                         </span>
 
@@ -391,7 +391,7 @@
                                 </td>
 
                                 <td class="table-td text-start overflow-hidden text-ellipsis whitespace-nowrap">
-                                    {{ $order->driver ? $order->driver->user->full_name : '-' }}
+                                    {{ $order->driver ? $order->driver->user->full_name.' • '. $order->driver->shift_title  : '-' }}
                                 </td>
 
                                 <td class="table-td text-start overflow-hidden text-ellipsis whitespace-nowrap">
@@ -479,7 +479,7 @@
                                         <option value="">Select driver</option>
                                         @foreach ($drivers as $driver)
                                             <option value="{{ $driver->id }}">
-                                                {{ $driver->user->full_name }}</option>
+                                                {{ $driver->user->full_name }} • {{ $driver->shift_title }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -789,7 +789,7 @@
                                         <option value="">Select driver</option>
                                         @foreach ($DRIVERS as $ONE_DRIVERS)
                                             <option value="{{ $ONE_DRIVERS->id }}">
-                                                {{ $ONE_DRIVERS->user->full_name }}</option>
+                                                {{ $ONE_DRIVERS->user->full_name }} • {{ $ONE_DRIVERS->shift_title }}</option>
                                         @endforeach
                                     </select>
 
