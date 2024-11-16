@@ -105,6 +105,39 @@ class Order extends Model
         }
     }
 
+    public function setStatus(string $newStatus): bool
+    {
+        DB::beginTransaction();
+
+        try {
+            // Get the current status and check the allowed next statuses
+            $currentStatus = $this->status;
+            $allowedNextStatuses = self::getNextStatuses($currentStatus);
+
+            // If the new status is not allowed, throw an exception
+            if (!in_array($newStatus, $allowedNextStatuses, true)) {
+                throw new Exception("Order ID {$this->id} cannot transition from {$currentStatus} to {$newStatus}");
+            }
+
+            // If the new status is returned or cancelled, handle product cancellation
+            if ($newStatus === self::STATUS_RETURNED || $newStatus === self::STATUS_CANCELLED) {
+                $this->cancelAllProducts();
+            }
+
+            // Update the status
+            $this->status = $newStatus;
+            $this->save();
+
+            DB::commit();
+            return true;
+        } catch (Exception $e) {
+            DB::rollBack();
+            report($e);
+            AppLog::error("Failed to change status for Order ID {$this->id}", $e->getMessage());
+            return false;
+        }
+    }
+
     // Function to create a new order
     public static function newOrder(int $customerId, string $customerName, string $shippingAddress, string $customerPhone, int $zoneId, $locationURL = null, int $driverId = null, string $periodicOption = null, float $totalAmount = 0, float $deliveryAmount = 0, float $discountAmount = 0, Carbon $deliveryDate = null, string $note = null, array $products, $detuctFromBalance = false): Order|bool
     {
@@ -635,15 +668,14 @@ class Order extends Model
         DB::beginTransaction();
 
         try {
-
             if ($returnShippingAmount) {
                 $cancelledProductsTotalAmount = $this->delivery_amount;
                 $this->delivery_amount = 0;
                 $this->save();
-            }else{
+            } else {
                 $cancelledProductsTotalAmount = 0;
             }
-            
+
             foreach ($products as $product) {
                 // Skip if return_quantity is 0 or invalid
                 if (empty($product['return_quantity']) || $product['return_quantity'] <= 0) {
@@ -673,12 +705,11 @@ class Order extends Model
                     if ($orderProduct->inventory) {
                         $orderProduct->inventory->commitQuantity(-$product['return_quantity'], 'Removed from order #' . $this->order_number);
                     }
-                }else{
+                } else {
                     if ($orderProduct->inventory) {
-                        $orderProduct->inventory->removeCommit($product['return_quantity'], 'Removed from order #' . $this->order_number.'. Not returned to stock');
+                        $orderProduct->inventory->removeCommit($product['return_quantity'], 'Removed from order #' . $this->order_number . '. Not returned to stock');
                     }
                 }
-                
 
                 // Check if the product has already been cancelled and update the record if it exists
                 $existingRemovedProduct = OrderRemovedProduct::where('order_id', $this->id)
@@ -704,11 +735,9 @@ class Order extends Model
                 $cancelledProductsTotalAmount += $product['return_quantity'] * $product['price'];
             }
 
+            $totalReturnedAmount = min($cancelledProductsTotalAmount, $this->total_paid);
 
-
-            $totalReturnedAmount = min($cancelledProductsTotalAmount , $this->total_paid);
-
-            if($totalReturnedAmount > 0){
+            if ($totalReturnedAmount > 0) {
                 if ($returnPaymentMethod) {
                     $new_type_balance = CustomerPayment::calculateNewBalance(-$totalReturnedAmount, $returnPaymentMethod);
                     CustomerPayment::create([
@@ -731,7 +760,6 @@ class Order extends Model
                     ]);
                 }
             }
-            
 
             DB::commit();
             $this->refreshTotalAmount();
@@ -885,6 +913,11 @@ class Order extends Model
         $totalPaid = $totalPayments + $totalBalanceTransactions;
 
         return $totalPaid;
+    }
+
+    public function areAllProductsReady(): bool
+    {
+        return $this->products()->where('is_ready', false)->doesntExist();
     }
 
     public function isOpenToPay()

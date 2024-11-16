@@ -155,6 +155,15 @@
                         </a>
                     </li>
                     <li>
+                        <a href="{{ url('/orders/inventory') }}" class="navItem {{ $ordersInventory ?? '' }}">
+                            <span class="flex items-center">
+                                <iconify-icon class=" nav-icon" icon="gridicons:product">
+                                </iconify-icon>
+                                <span>Orders Inventory</span>
+                            </span>
+                        </a>
+                    </li>
+                    <li>
                         <a href="{{ url('/combos') }}" class="navItem {{ $combos ?? '' }}">
                             <span class="flex items-center">
                                 <iconify-icon class=" nav-icon" icon="mage:box-3d-plus">

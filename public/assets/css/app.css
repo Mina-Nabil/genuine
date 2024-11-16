@@ -16363,6 +16363,9 @@ ul.custom-list ul {
     --tw-text-opacity: 1;
     color: rgb(159 166 178 / var(--tw-text-opacity));
 }
+.xs\:mb-2 {
+    margin-bottom: 0.5rem;
+}
 @media (min-width: 320px) {
     @media (max-width: 825px) {
         @media (orientation: landscape) {
@@ -16428,6 +16431,9 @@ ul.custom-list ul {
         margin-left: auto;
         padding-right: 15px;
         padding-left: 15px;
+    }
+    .sm\:mb-0 {
+        margin-bottom: 0;
     }
     @media (min-width: 640px) {
         .sm\:container {

@@ -5,10 +5,13 @@ namespace App\Models\Orders;
 use App\Models\Products\Combo;
 use App\Models\Products\Inventory;
 use App\Models\Products\Product;
+use App\Models\Users\AppLog;
+use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class OrderProduct extends Model
@@ -21,7 +24,33 @@ class OrderProduct extends Model
         'product_id', // Foreign key to the product
         'quantity', // Quantity of the product
         'price', // Price of the product
+        'is_ready',
     ];
+
+    public function toggleReady()
+    {
+        try {
+
+            if ($this->order->status !== Order::STATUS_NEW) {
+                return false;
+            }
+            
+            $this->is_ready = !$this->is_ready;
+            $this->save();
+
+            AppLog::info('Order product ready status toggled', loggable: $this);
+
+            if ($this->is_ready && $this->order->areAllProductsReady()) {
+                $this->order->setStatus(Order::STATUS_READY);
+            }
+
+            return true;
+        } catch (Exception $e) {
+            report($e);
+            AppLog::error('Failed to toggle order product ready', $e->getMessage());
+            return false;
+        }
+    }
 
     /**
      * Scope for production planning

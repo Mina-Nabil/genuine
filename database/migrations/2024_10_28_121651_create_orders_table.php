@@ -51,6 +51,7 @@ return new class extends Migration
             $table->foreignIdFor(Combo::class)->nullable()->constrained();
             $table->integer('quantity');
             $table->decimal('price', 10, 2);
+            $table->boolean('is_ready')->default(false);
             $table->softDeletes();
             $table->timestamps();
         });
