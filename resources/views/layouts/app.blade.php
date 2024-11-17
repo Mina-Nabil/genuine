@@ -115,6 +115,59 @@
                 id="sidebar_menus">
                 <ul class="sidebar-menu">
 
+                    <li class="sidebar-menu-title">Orders</li>
+
+                    <li>
+                        <a href="{{ url('/orders') }}" class="navItem {{ $orders ?? '' }}">
+                            <span class="flex items-center">
+                                <iconify-icon class=" nav-icon" icon="icon-park-outline:ad-product">
+                                </iconify-icon>
+                                <span>All</span>
+                            </span>
+                        </a>
+                    </li>
+
+
+                    <li>
+                        <a href="{{ route('orders.driver.shift') }}" class="navItem {{ $driverShift ?? '' }}">
+                            <span class="flex items-center">
+                                <iconify-icon class=" nav-icon" icon="iconoir:delivery-truck">
+                                </iconify-icon>
+                                <span>Driver Shift</span>
+                            </span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ url('/orders/inventory') }}" class="navItem {{ $ordersInventory ?? '' }}">
+                            <span class="flex items-center">
+                                <iconify-icon class=" nav-icon" icon="gridicons:product">
+                                </iconify-icon>
+                                <span>Inventory</span>
+                            </span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ url('/productions') }}" class="navItem {{ $productions ?? '' }}">
+                            <span class="flex items-center">
+                                <iconify-icon class=" nav-icon" icon="la:industry">
+                                </iconify-icon>
+                                <span>Production</span>
+                            </span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ url('/products') }}" class="navItem {{ $products ?? '' }}">
+                            <span class="flex items-center">
+                                <iconify-icon class=" nav-icon" icon="flowbite:tag-outline">
+                                </iconify-icon>
+                                <span>Products</span>
+                            </span>
+                        </a>
+                    </li>
+
                     <li class="sidebar-menu-title">Operations</li>
                     <li>
                         <a href="{{ url('/tasks') }}" class="navItem {{ $tasks ?? '' }}">
@@ -125,53 +178,10 @@
                             </span>
                         </a>
                     </li>
-                    <li>
-                        <a href="{{ url('/productions') }}" class="navItem {{ $productions ?? '' }}">
-                            <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="la:industry">
-                                </iconify-icon>
-                                <span>Productions</span>
-                            </span>
-                        </a>
-                    </li>
+            
 
                     <li class="sidebar-menu-title">CRM</li>
-                    <li>
-                        <a href="{{ url('/products') }}" class="navItem {{ $products ?? '' }}">
-                            <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="flowbite:tag-outline">
-                                </iconify-icon>
-                                <span>Products</span>
-                            </span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ url('/orders') }}" class="navItem {{ $orders ?? '' }}">
-                            <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="icon-park-outline:ad-product">
-                                </iconify-icon>
-                                <span>Orders</span>
-                            </span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ url('/orders/inventory') }}" class="navItem {{ $ordersInventory ?? '' }}">
-                            <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="gridicons:product">
-                                </iconify-icon>
-                                <span>Orders Inventory</span>
-                            </span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('orders.driver.shift') }}" class="navItem {{ $driverShift ?? '' }}">
-                            <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="iconoir:delivery-truck">
-                                </iconify-icon>
-                                <span>Driver Shift</span>
-                            </span>
-                        </a>
-                    </li>
+  
                     <li>
                         <a href="{{ url('/combos') }}" class="navItem {{ $combos ?? '' }}">
                             <span class="flex items-center">

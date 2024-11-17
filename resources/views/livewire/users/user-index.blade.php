@@ -452,8 +452,7 @@
                                                 </select>
                                             </div>
                                             <div class="input-area">
-                                                <label for="carModel" class="form-label">Car model
-                                                    Limit</label>
+                                                <label for="carModel" class="form-label">Car model</label>
                                                 <input id="carModel" type="string"
                                                     class="form-control @error('carModel') !border-danger-500 @enderror"
                                                     wire:model="carModel" autocomplete="off">

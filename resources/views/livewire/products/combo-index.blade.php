@@ -228,7 +228,7 @@
                                     <div class="flex items-center justify-around space-x-2">
                                         <p>Product</p>
                                         <p>Quantity</p>
-                                        <p>Price</p>
+                                        <p>Price per item</p>
                                         @if (count($productQuantities) > 1)
                                                 <button class="action-btn2"  style="border:0" type="button">
                                                 </button>

@@ -21,8 +21,9 @@
                 <h6 class="mb-0">Products</h6>
                 @can('updateProducts', $combo)
                     <button wire:click='openAddProductSec' class="btn inline-flex justify-center btn-outline-light btn-sm">
-                        <iconify-icon icon="ic:baseline-plus" width="1.2em" height="1.2em"></iconify-icon>Add
-                        Product
+                        <iconify-icon icon="ic:baseline-plus" width="1.2em" height="1.2em"></iconify-icon>Add/Edit Combo
+                        Item
+
                     </button>
                 @endcan
             </div>
@@ -79,10 +80,11 @@
                                 <div class="flex items-center">
                                     <div class="flex-1 text-start">
                                         <h6 class=" whitespace-nowrap mb-1">
-                                            {{ number_format($product->pivot->price,2) }} <span class="text-sm">EGP</span>
+                                            {{ number_format($product->pivot->price, 2) }} <span
+                                                class="text-sm">EGP</span>
                                         </h6>
                                         <div class="text-xs font-normal text-slate-600 dark:text-slate-400">
-                                            Original Price: {{ number_format($product->price,2) }} EGP
+                                            Original Price: {{ number_format($product->price, 2) }} EGP
                                         </div>
                                     </div>
                                 </div>
@@ -94,7 +96,8 @@
                                 <div class="flex items-center">
                                     <div class="flex-1 text-start">
                                         <h6 class=" whitespace-nowrap mb-1">
-                                            {{ number_format($product->pivot->price * $product->pivot->quantity,2) }} <span class="text-sm">EGP</span>
+                                            {{ number_format($product->pivot->price * $product->pivot->quantity, 2) }}
+                                            <span class="text-sm">EGP</span>
                                         </h6>
                                     </div>
                                 </div>
@@ -125,7 +128,7 @@
                             <div class="flex items-center">
                                 <div class="flex-1 text-start">
                                     <h6 class=" whitespace-nowrap mb-1">
-                                        {{ number_format($combo->total_price,2) }} <span class="text-sm">EGP</span>
+                                        {{ number_format($combo->total_price, 2) }} <span class="text-sm">EGP</span>
                                     </h6>
                                 </div>
                             </div>
@@ -206,7 +209,8 @@
     @can('updateProducts', $combo)
         @if ($newProductSec)
             <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
-                tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog" style="display: block;">
+                tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
+                style="display: block;">
                 <div class="modal-dialog relative w-auto pointer-events-none">
                     <div
                         class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
@@ -215,7 +219,7 @@
                             <div
                                 class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
                                 <h3 class="text-xl font-medium text-white dark:text-white capitalize">
-                                    Add Product
+                                    Add/Edit Combo Item
                                 </h3>
                                 <button wire:click="closeAddProductSec" type="button"
                                     class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
@@ -280,7 +284,7 @@
                                             <span
                                                 class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
                                         @enderror
-                                        <small class="text-gray-500">Enter the price of the product in this combo.</small>
+                                        <small class="text-gray-500">Enter the price of each item in the combo.</small>
                                     </div>
                                 </div>
 
