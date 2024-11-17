@@ -2,15 +2,19 @@
 
 namespace App\Models\Users;
 
+use App\Models\Orders\Order;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class Driver extends Model
 {
     use HasFactory;
+
+    const MORPH_TYPE = 'driver';
 
     // Car Types
     const CAR_TYPES = [self::CAR_TYPE_SEDAN, self::CAR_TYPE_SUV, self::CAR_TYPE_PICKUP, self::CAR_TYPE_VAN, self::CAR_TYPE_MOTORCYCLE];
@@ -108,6 +112,32 @@ class Driver extends Model
         }
     }
 
+    public static function getDriverWithMostOrders($date = null, $userId = null)
+    {
+        $date = $date ?? now()->toDateString();
+
+        $query = Driver::select('drivers.*', DB::raw('COUNT(orders.id) as total_orders'))
+            ->leftJoin('orders', 'drivers.id', '=', 'orders.driver_id')
+            ->where(function ($query) use ($date) {
+                $query->whereDate('orders.delivery_date', $date)->orWhereNull('orders.delivery_date');
+            })
+            ->groupBy('drivers.id')
+            ->orderByDesc('total_orders');
+
+        if ($userId !== null) {
+            $query->where('drivers.user_id', $userId);
+        }
+
+        return $query->first();
+    }
+
+    public function countOrders($date = null)
+    {
+        $date = $date ?? now()->toDateString();
+
+        return $this->orders()->whereDate('delivery_date', $date)->count();
+    }
+
     public function scopeSearch($query, $searchTerm = null)
     {
         if (!is_null($searchTerm)) {
@@ -129,6 +159,11 @@ class Driver extends Model
         }
 
         return $query;
+    }
+
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
     }
 
     public function user()

@@ -16465,6 +16465,12 @@ ul.custom-list ul {
         margin-left: 0.25rem;
         margin-right: 0.25rem;
     }
+    .sm\:border-l-0 {
+        border-left-width: 0px;
+    }
+    .sm\:mb-2 {
+        margin-bottom: 0.5rem;
+    }
     .sm\:mb-0 {
         margin-bottom: 0px;
     }
@@ -16566,6 +16572,9 @@ ul.custom-list ul {
             padding-left: 15px;
         }
     }
+    .md\:border-l {
+        border-left-width: 1px;
+    }
     .md\:inset-0 {
         top: 0px;
         right: 0px;
@@ -16580,6 +16589,9 @@ ul.custom-list ul {
     }
     .md\:col-span-1 {
         grid-column: span 1 / span 1;
+    }
+    .md\:col-span-3 {
+        grid-column: span 3 / span 3;
     }
     .md\:col-span-2 {
         grid-column: span 2 / span 2;

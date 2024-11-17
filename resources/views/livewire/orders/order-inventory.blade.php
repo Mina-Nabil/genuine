@@ -284,7 +284,7 @@
                                             Total Orders
                                         </h4>
                                         <div class="text-sm font-medium text-slate-900 dark:text-white">
-                                            {{ $orders->count() }} <small>( {{ $orders->sum(fn($order) => $order->products->count()) }} Products ) </small>
+                                            {{ $orders->count() }} <small>( {{ $orders->sum(fn($order) => $order->products->sum('quantity')) }} Items ) </small>
                                         </div>
                                     </div>
                                 </div>

@@ -164,6 +164,15 @@
                         </a>
                     </li>
                     <li>
+                        <a href="{{ route('orders.driver.shift') }}" class="navItem {{ $driverShift ?? '' }}">
+                            <span class="flex items-center">
+                                <iconify-icon class=" nav-icon" icon="iconoir:delivery-truck">
+                                </iconify-icon>
+                                <span>Driver Shift</span>
+                            </span>
+                        </a>
+                    </li>
+                    <li>
                         <a href="{{ url('/combos') }}" class="navItem {{ $combos ?? '' }}">
                             <span class="flex items-center">
                                 <iconify-icon class=" nav-icon" icon="mage:box-3d-plus">

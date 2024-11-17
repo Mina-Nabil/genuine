@@ -9,6 +9,7 @@ use App\Models\Products\Inventory;
 use App\Models\Products\Product;
 use App\Models\Tasks\TaskWatcher;
 use App\Models\Users\AppLog;
+use App\Models\Users\Driver;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
 
@@ -34,6 +35,7 @@ class AppServiceProvider extends ServiceProvider
             AppLog::MORPH_TYPE   => AppLog::class, 
             Order::MORPH_TYPE   => Order::class, 
             Zone::MORPH_TYPE => Zone::class,
+            Driver::MORPH_TYPE => Driver::class,
             TaskWatcher::MORPH_TYPE => TaskWatcher::class,
         ]);
     }

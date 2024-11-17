@@ -961,6 +961,11 @@ class Order extends Model
             });
     }
 
+    public function scopeSortByZone(Builder $query, string $direction = 'asc'): Builder
+    {
+        return $query->join('zones', 'orders.zone_id', '=', 'zones.id')->orderBy('zones.name', $direction)->select('orders.*');
+    }
+
     public function getTotalWeightAttribute()
     {
         return $this->products()->join('products', 'order_products.product_id', '=', 'products.id')->selectRaw('SUM(products.weight * order_products.quantity) as total_weight')->value('total_weight') ?? 0;

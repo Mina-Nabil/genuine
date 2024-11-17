@@ -7,6 +7,7 @@ use App\Livewire\Customers\CustomerShow;
 use App\Livewire\Customers\FollowupIndex;
 use App\Livewire\Customers\ZoneIndex;
 use App\Livewire\Orders\OrderCreate;
+use App\Livewire\Orders\OrderDriverShift;
 use App\Livewire\Orders\OrderIndex;
 use App\Livewire\Orders\OrderInventory;
 use App\Livewire\Orders\OrderShow;
@@ -53,6 +54,7 @@ Route::post('/notifications/seen/{id}', [UserController::class, 'setNotfAsSeen']
 Route::get('/orders/new',OrderCreate::class)->name('orders.create');
 Route::get('/orders',OrderIndex::class)->name('orders.index');
 Route::get('/orders/inventory',OrderInventory::class)->name('orders.inventory');
+Route::get('/orders/driver',OrderDriverShift::class)->name('orders.driver.shift');
 Route::get('/orders/{id}',OrderShow::class)->name('orders.show');
 
 Route::get('/productions',ProductionPlanning::class)->name('production.planning');
