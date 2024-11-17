@@ -143,10 +143,16 @@
                             <span class="flex items-center">
                                 <iconify-icon class=" nav-icon" icon="gridicons:product">
                                 </iconify-icon>
-                                <span>Inventory</span>
+                                <span>Prepare</span>
                             </span>
                         </a>
                     </li>
+
+         
+
+        
+
+                    <li class="sidebar-menu-title">Inventory</li>
 
                     <li>
                         <a href="{{ url('/productions') }}" class="navItem {{ $productions ?? '' }}">
@@ -158,12 +164,24 @@
                         </a>
                     </li>
 
+
+
                     <li>
                         <a href="{{ url('/products') }}" class="navItem {{ $products ?? '' }}">
                             <span class="flex items-center">
                                 <iconify-icon class=" nav-icon" icon="flowbite:tag-outline">
                                 </iconify-icon>
                                 <span>Products</span>
+                            </span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ url('/combos') }}" class="navItem {{ $combos ?? '' }}">
+                            <span class="flex items-center">
+                                <iconify-icon class=" nav-icon" icon="mage:box-3d-plus">
+                                </iconify-icon>
+                                <span>Combos</span>
                             </span>
                         </a>
                     </li>
@@ -182,15 +200,7 @@
 
                     <li class="sidebar-menu-title">CRM</li>
   
-                    <li>
-                        <a href="{{ url('/combos') }}" class="navItem {{ $combos ?? '' }}">
-                            <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="mage:box-3d-plus">
-                                </iconify-icon>
-                                <span>Combos</span>
-                            </span>
-                        </a>
-                    </li>
+
                     <li>
                         <a href="{{ url('/customers') }}" class="navItem {{ $customers ?? '' }}">
                             <span class="flex items-center">
