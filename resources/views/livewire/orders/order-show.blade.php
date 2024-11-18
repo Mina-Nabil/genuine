@@ -34,7 +34,7 @@
                         wire:click='openReturnsSection'>Return</button>
                     <button
                         class="btn inline-flex justify-center  bg-secondary-500 bg-opacity-30 text-slate-900 dark:text-white btn-sm"
-                        wire:click='openReturnsSection'>Add Products</button>
+                        wire:click='openAddProductsSec'>Add Products</button>
                 </div>
             @endcan
         </div>
@@ -976,13 +976,17 @@
                                                 <td class="table-td imp-p-2">
                                                     <div class="checkbox-area">
                                                         <label class="inline-flex items-center cursor-pointer">
-                                                            <input wire:model='cancelledProducts.{{ $index }}.isReturnToStock' type="checkbox"
-                                                                class="hidden" name="checkbox" checked="checked">
+                                                            <input
+                                                                wire:model='cancelledProducts.{{ $index }}.isReturnToStock'
+                                                                type="checkbox" class="hidden" name="checkbox"
+                                                                checked="checked">
                                                             <span
                                                                 class="h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 bg-slate-100 dark:bg-slate-900">
-                                                                <img src="{{ asset('assets/images/icon/ck-white.svg') }}" alt=""
+                                                                <img src="{{ asset('assets/images/icon/ck-white.svg') }}"
+                                                                    alt=""
                                                                     class="h-[10px] w-[10px] block m-auto opacity-0"></span>
-                                                            <span class="text-slate-500 dark:text-slate-400 text-sm leading-6">
+                                                            <span
+                                                                class="text-slate-500 dark:text-slate-400 text-sm leading-6">
                                                                 Return to stock ?</span>
                                                         </label>
                                                     </div>
@@ -1011,20 +1015,17 @@
                                             <tr>
                                                 <td class="table-td ">
                                                     <b>{{ number_format($cancelledProductsTotalAmount, 2) }}</b><small>EGP</small>
-                                                    <span
-                                                        class="block text-slate-500 text-xs">Amount of retunrs</span>
+                                                    <span class="block text-slate-500 text-xs">Amount of retunrs</span>
                                                 </td>
 
                                                 <td class="table-td ">
                                                     <b>{{ number_format($order->total_paid, 2) }}</b><small>EGP</small>
-                                                    <span
-                                                        class="block text-slate-500 text-xs">Total Paid</span>
+                                                    <span class="block text-slate-500 text-xs">Total Paid</span>
                                                 </td>
 
                                                 <td class="table-td ">
-                                                    <b>{{ number_format(min($cancelledProductsTotalAmount,$order->total_paid), 2) }}</b><small>EGP</small>
-                                                    <span
-                                                        class="block text-slate-500 text-xs">Return Amount</span>
+                                                    <b>{{ number_format(min($cancelledProductsTotalAmount, $order->total_paid), 2) }}</b><small>EGP</small>
+                                                    <span class="block text-slate-500 text-xs">Return Amount</span>
                                                 </td>
 
                                             </tr>
@@ -1057,7 +1058,6 @@
                                                 Return Shipping Amount ?</span>
                                         </label>
                                     </div>
-
                                 @endif
                             </div>
 
@@ -1068,6 +1068,157 @@
                                     <span wire:loading.remove wire:target="returnProducts">Submit</span>
                                     <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
                                         wire:loading wire:target="returnProducts"
+                                        icon="line-md:loading-twotone-loop"></iconify-icon>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        @endif
+    @endcan
+
+    @can('update', $order)
+        @if ($addProductsSection)
+            <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+                tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
+                style="display: block;">
+                <div class="modal-dialog relative w-auto pointer-events-none">
+                    <div
+                        class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
+                        <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
+                            <!-- Modal header -->
+                            <div
+                                class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
+                                <h3 class="text-xl font-medium text-white dark:text-white capitalize">
+                                    Add products
+                                </h3>
+                                <button wire:click="closeAddProductsSec" type="button"
+                                    class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
+                                    data-bs-dismiss="modal">
+                                    <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd"
+                                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                            clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span class="sr-only">Close modal</span>
+                                </button>
+                            </div>
+
+                            <!-- Modal body -->
+                            <div class="p-6 space-y-4">
+
+                                <div class="input-area">
+                                    <input type="text" placeholder="Search products..."
+                                        class="form-control @error('searchAddProducts') !border-danger-500 @enderror"
+                                        wire:model.live='searchAddProducts'>
+                                </div>
+
+                                <div class="overflow-x-auto -mx-6">
+                                    <div class="inline-block min-w-full align-middle">
+                                        <div class="overflow-hidden ">
+                                            <table
+                                                class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700">
+                                                <tbody
+                                                    class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
+
+                                                    @foreach ($products as $product)
+                                                        <tr wire:click='addProductRow({{ $product->id }})'
+                                                            class="hover:bg-slate-200 dark:hover:bg-slate-700 cursor-pointer">
+                                                            <td class="table-td">
+                                                                <h6>
+                                                                    <b>{{ $product->name }}</b>
+                                                                </h6>
+                                                            </td>
+                                                            <td class="table-td">
+                                                                {{ number_format($product->price, 2) }}<small>EGP</small>
+                                                            </td>
+                                                            <td class="table-td ">{{ $product->weight }}<small>gm</small>
+                                                            </td>
+                                                        </tr>
+                                                    @endforeach
+
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @if (!Empty($productsToAdd))
+                                    
+                                
+                                <div class="md:flex justify-between items-center mb-6">
+                                    <h5>Added Products</h5>
+                                    <span class="text-sm text-slate-600 dark:text-slate-300"></span>
+                                </div>
+
+                                <table class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700">
+                                    <thead class="border-t border-slate-100 dark:border-slate-800">
+                                        <tr>
+                                            <th scope="col" class="table-th imp-p-2">Product</th>
+                                            <th scope="col" class="table-th imp-p-2">Quantity</th>
+                                            <th scope="col" class="table-th imp-p-2">Price/item</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody
+                                        class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
+                                        @foreach ($productsToAdd as $index => $productToAdd)
+                                            <tr class="bg-success-100">
+                                                <!-- Product Name Column -->
+                                                <td class="table-td imp-p-2">
+                                                    <div class="flex-1 text-start">
+                                                        <div class="text-start overflow-hidden text-ellipsis whitespace-nowrap"
+                                                            style="max-width:200px;">
+                                                            <h6
+                                                                class="text-slate-600 dark:text-slate-300 overflow-hidden text-ellipsis whitespace-nowrap">
+                                                                {{ $productToAdd['name'] }}
+                                                            </h6>
+                                                        </div>
+                                                    </div>
+                                                </td>
+
+                                                <!-- quantity -->
+                                                <td class="table-td imp-p-2">
+                                                    <input type="number"
+                                                        class="form-control @error('productsToAdd.' . $index . '.quantity') !border-danger-500 @enderror"
+                                                        style="max-width: 100px;"
+                                                        wire:model.live='productsToAdd.{{ $index }}.quantity'
+                                                        min="1">
+                                                </td>
+
+                                                <!-- price/item -->
+                                                <td class="table-td imp-p-2">
+                                                    <input type="number"
+                                                        class="form-control @error('productsToAdd.' . $index . '.price') !border-danger-500 @enderror"
+                                                        style="max-width: 100px;"
+                                                        wire:model.live='productsToAdd.{{ $index }}.price'
+                                                        min="1">
+                                                </td>
+
+                                                <td class="table-td imp-p-2">
+                                                    <button class="action-btn" type="button" wire:click='removeProductRow({{ $index }})'>
+                                                        <iconify-icon icon="heroicons:trash"></iconify-icon>
+                                                    </button>
+                                                </td>
+
+                                            </tr>
+                                        @endforeach
+
+
+
+                                    </tbody>
+                                </table>
+
+                                @endif
+                            </div>
+
+                            <!-- Modal footer -->
+                            <div class="flex items-center justify-end p-6 border-t border-slate-200 rounded-b">
+                                <button wire:click="addProducts" data-bs-dismiss="modal"
+                                    class="btn inline-flex justify-center text-white bg-black-500">
+                                    <span wire:loading.remove wire:target="addProducts">Submit</span>
+                                    <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
+                                        wire:loading wire:target="addProducts"
                                         icon="line-md:loading-twotone-loop"></iconify-icon>
                                 </button>
                             </div>
