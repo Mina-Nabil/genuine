@@ -192,29 +192,38 @@ class Order extends Model
         }
     }
 
-    /**
-     * Bulk assign a driver to multiple orders.
-     *
-     * @param array $orderIds Array of order IDs.
-     * @param int $driverId Driver ID to assign to the orders.
-     * @return bool True if successful, false otherwise.
-     */
+    public function assignDriverToOrder(int $driverId): bool
+    {
+        try {
+            $this->driver_id = $driverId;
+            $this->save();
+            AppLog::info('Order Assigned to driver', loggable: $this);
+            return true;
+        } catch (Exception $e) {
+            report($e);
+            AppLog::error('Failed to assign order to driver', $e->getMessage());
+            return false;
+        }
+    }
+
+    // Static function for bulk assignment
     public static function assignDriverToOrders(array $orderIds, int $driverId): bool
     {
         DB::beginTransaction();
 
         try {
-            // Update the driver_id for each order in the array
             foreach ($orderIds as $orderId) {
                 $order = self::find($orderId);
 
-                // Proceed if the order exists
                 if ($order) {
-                    $order->driver_id = $driverId;
-                    $order->save();
-                    AppLog::info('Order Assigned to driver', loggable: $order);
+                    if (!$order->assignDriverToOrder($driverId)) {
+                        throw new Exception("Failed to assign driver to order ID: {$orderId}");
+                    }
+                } else {
+                    AppLog::warning('Order not found', ['order_id' => $orderId]);
                 }
             }
+
             DB::commit();
             return true;
         } catch (Exception $e) {

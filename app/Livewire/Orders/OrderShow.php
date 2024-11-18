@@ -7,6 +7,7 @@ use App\Models\Orders\Order;
 use App\Models\Orders\OrderRemovedProduct;
 use App\Models\Payments\CustomerPayment;
 use App\Models\Products\Product;
+use App\Models\Users\Driver;
 use App\Traits\AlertFrontEnd;
 use Carbon\Carbon;
 use Livewire\Component;
@@ -30,6 +31,10 @@ class OrderShow extends Component
     public $shippingAddress;
     public $customerPhone;
     public $zoneId;
+
+    //driver
+    public $setDriverSection = false;
+    public $searchDrivers = '';
 
     //note
     public $updateNoteSec = false;
@@ -59,6 +64,14 @@ class OrderShow extends Component
     //pay from balance
     public $isOpenPayFromBalanceSec;
 
+    public function openSetDriverSection(){
+        $this->setDriverSection = true;
+    }
+
+    public function closeSetDriverSection(){
+        $this->reset(['setDriverSection','searchDrivers']);
+    }
+
     public function openAddProductsSec()
     {
         $this->addProductsSection = true;
@@ -67,6 +80,19 @@ class OrderShow extends Component
     public function closeAddProductsSec()
     {
         $this->reset(['addProductsSection', 'searchAddProducts', 'productsToAdd']);
+    }
+
+    public function setDriver($id){
+        
+        Driver::findOrFail($id);
+        $res = $this->order->assignDriverToOrder($id);
+
+        if ($res) {
+            $this->closeSetDriverSection();
+            $this->alertSuccess('Driver assigned');
+        }else{
+            $this->alertFailed();
+        }
     }
 
     public function addProductRow($id)
@@ -354,6 +380,8 @@ class OrderShow extends Component
             ->get();
         $PAYMENT_METHODS = CustomerPayment::PAYMENT_METHODS;
 
+        $drivers = Driver::search($this->searchDrivers)->get();
+
         $this->comments = $this->order
             ->comments()
             ->latest()
@@ -362,6 +390,7 @@ class OrderShow extends Component
         return view('livewire.orders.order-show', [
             'PAYMENT_METHODS' => $PAYMENT_METHODS,
             'products' => $products,
+            'drivers' => $drivers,
         ])->layout('layouts.app', ['page_title' => $this->page_title, 'orders' => 'active']);
     }
 }
