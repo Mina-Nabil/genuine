@@ -28,13 +28,33 @@
 
 
             @can('update', $order)
-                <div>
-                    <button
-                        class="btn inline-flex justify-center  bg-secondary-500 bg-opacity-30 text-slate-900 dark:text-white btn-sm"
-                        wire:click='openReturnsSection'>Return</button>
-                    <button
-                        class="btn inline-flex justify-center  bg-secondary-500 bg-opacity-30 text-slate-900 dark:text-white btn-sm"
-                        wire:click='openAddProductsSec'>Add Products</button>
+                <div class="dropdown relative">
+                    <button class="btn inline-flex justify-center btn-dark items-center btn-sm" type="button"
+                        id="darkDropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                        More actions
+                        <iconify-icon class="text-xl ltr:ml-2 rtl:mr-2" icon="ic:round-keyboard-arrow-down"></iconify-icon>
+                    </button>
+                    <ul
+                        class=" dropdown-menu min-w-max absolute text-sm text-slate-700 dark:text-white hidden bg-white dark:bg-slate-700 shadow
+                                        z-[2] float-left overflow-hidden list-none text-left rounded-lg mt-1 m-0 bg-clip-padding border-none">
+                        <li wire:click='openReturnsSection'
+                            class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600
+                            dark:hover:text-white cursor-pointer">
+                            Return
+                        </li>
+                        <li wire:click='openAddProductsSec'
+                            class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600
+                            dark:hover:text-white cursor-pointer">
+                            Add Products
+                        </li>
+                        @foreach ($NextStatuses as $NextStatus)
+                            <li wire:click="setStatus('{{ $NextStatus }}')"
+                                class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600
+                            dark:hover:text-white cursor-pointer">
+                                Set as {{ ucwords(str_replace('_', ' ', $NextStatus)) }}
+                            </li>
+                        @endforeach
+                    </ul>
                 </div>
             @endcan
         </div>
@@ -87,7 +107,7 @@
 
                                                 <div>
                                                     <h6
-                                                        class="text-slate-600 dark:text-slate-300 overflow-hidden text-ellipsis whitespace-nowrap">
+                                                        class="text-slate-600 pb-2 dark:text-slate-300 overflow-hidden text-ellipsis whitespace-nowrap">
                                                         {{ $orderProduct->product->name }}
                                                     </h6>
                                                 </div>
@@ -144,7 +164,7 @@
 
                                                 <div>
                                                     <h6
-                                                        class="text-slate-600 dark:text-slate-300 overflow-hidden text-ellipsis whitespace-nowrap">
+                                                        class="text-slate-600  pb-2 dark:text-slate-300 overflow-hidden text-ellipsis whitespace-nowrap">
                                                         {{ $removedProduct->product->name }}
                                                     </h6>
                                                 </div>
@@ -205,10 +225,26 @@
                                                 </button>
                                             @endif
                                             @if ($order->remaining_to_pay > 0)
-                                                <button wire:click='PayCash'
-                                                    class="btn inline-flex justify-center btn-outline-light btn-sm">
-                                                    Pay remaining cash
-                                                </button>
+                                                <div>
+                                                    <div class="relative">
+                                                        <div class="dropdown relative">
+                                                            <button class="text-xl text-center block w-full "
+                                                                type="button" id="tableDropdownMenuButton1"
+                                                                data-bs-toggle="dropdown" aria-expanded="false">
+                                                                <iconify-icon
+                                                                    icon="heroicons-outline:dots-vertical"></iconify-icon>
+                                                            </button>
+                                                            <ul
+                                                                class=" dropdown-menu min-w-[120px] absolute text-sm text-slate-700 dark:text-white hidden bg-white dark:bg-slate-700 shadow z-[2] float-left overflow-hidden list-none text-left rounded-lg mt-1 m-0 bg-clip-padding border-none" style="min-width: 180px">
+                                                                @foreach ($PAYMENT_METHODS as $PAYMENT_METHOD)
+                                                                    <li wire:click="PayOrder('{{ $PAYMENT_METHOD }}')" class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:text-white hover:bg-slate-900 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
+                                                                            Pay {{ ucwords(str_replace('_',' ',$PAYMENT_METHOD)) }}
+                                                                    </li>
+                                                                @endforeach
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             @endif
                                         </div>
                                     @endif
@@ -223,7 +259,8 @@
 
                                         <tr>
                                             <td class=" text-xs text-slate-500 dark:text-slate-400">Subtotal</td>
-                                            <td class="hidden md:table-cell text-xs text-slate-500 dark:text-slate-400">
+                                            <td
+                                                class="hidden md:table-cell text-xs text-slate-500 dark:text-slate-400">
                                                 {{ $order->total_items . ' items' }}</td>
                                             <td class="float-right text-dark">
                                                 <b>{{ $order->total_items_price ? number_format($order->total_items_price, 2) : '-' }}<small>&nbsp;EGP</small></b>
@@ -1144,71 +1181,69 @@
                                     </div>
                                 </div>
 
-                                @if (!Empty($productsToAdd))
-                                    
-                                
-                                <div class="md:flex justify-between items-center mb-6">
-                                    <h5>Added Products</h5>
-                                    <span class="text-sm text-slate-600 dark:text-slate-300"></span>
-                                </div>
+                                @if (!empty($productsToAdd))
+                                    <div class="md:flex justify-between items-center mb-6">
+                                        <h5>Added Products</h5>
+                                        <span class="text-sm text-slate-600 dark:text-slate-300"></span>
+                                    </div>
 
-                                <table class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700">
-                                    <thead class="border-t border-slate-100 dark:border-slate-800">
-                                        <tr>
-                                            <th scope="col" class="table-th imp-p-2">Product</th>
-                                            <th scope="col" class="table-th imp-p-2">Quantity</th>
-                                            <th scope="col" class="table-th imp-p-2">Price/item</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody
-                                        class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
-                                        @foreach ($productsToAdd as $index => $productToAdd)
-                                            <tr class="bg-success-100">
-                                                <!-- Product Name Column -->
-                                                <td class="table-td imp-p-2">
-                                                    <div class="flex-1 text-start">
-                                                        <div class="text-start overflow-hidden text-ellipsis whitespace-nowrap"
-                                                            style="max-width:200px;">
-                                                            <h6
-                                                                class="text-slate-600 dark:text-slate-300 overflow-hidden text-ellipsis whitespace-nowrap">
-                                                                {{ $productToAdd['name'] }}
-                                                            </h6>
-                                                        </div>
-                                                    </div>
-                                                </td>
-
-                                                <!-- quantity -->
-                                                <td class="table-td imp-p-2">
-                                                    <input type="number"
-                                                        class="form-control @error('productsToAdd.' . $index . '.quantity') !border-danger-500 @enderror"
-                                                        style="max-width: 100px;"
-                                                        wire:model.live='productsToAdd.{{ $index }}.quantity'
-                                                        min="1">
-                                                </td>
-
-                                                <!-- price/item -->
-                                                <td class="table-td imp-p-2">
-                                                    <input type="number"
-                                                        class="form-control @error('productsToAdd.' . $index . '.price') !border-danger-500 @enderror"
-                                                        style="max-width: 100px;"
-                                                        wire:model.live='productsToAdd.{{ $index }}.price'
-                                                        min="1">
-                                                </td>
-
-                                                <td class="table-td imp-p-2">
-                                                    <button class="action-btn" type="button" wire:click='removeProductRow({{ $index }})'>
-                                                        <iconify-icon icon="heroicons:trash"></iconify-icon>
-                                                    </button>
-                                                </td>
-
+                                    <table class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700">
+                                        <thead class="border-t border-slate-100 dark:border-slate-800">
+                                            <tr>
+                                                <th scope="col" class="table-th imp-p-2">Product</th>
+                                                <th scope="col" class="table-th imp-p-2">Quantity</th>
+                                                <th scope="col" class="table-th imp-p-2">Price/item</th>
                                             </tr>
-                                        @endforeach
+                                        </thead>
+                                        <tbody
+                                            class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
+                                            @foreach ($productsToAdd as $index => $productToAdd)
+                                                <tr class="bg-success-100">
+                                                    <!-- Product Name Column -->
+                                                    <td class="table-td imp-p-2">
+                                                        <div class="flex-1 text-start">
+                                                            <div class="text-start overflow-hidden text-ellipsis whitespace-nowrap"
+                                                                style="max-width:200px;">
+                                                                <h6
+                                                                    class="text-slate-600 dark:text-slate-300 overflow-hidden text-ellipsis whitespace-nowrap">
+                                                                    {{ $productToAdd['name'] }}
+                                                                </h6>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+
+                                                    <!-- quantity -->
+                                                    <td class="table-td imp-p-2">
+                                                        <input type="number"
+                                                            class="form-control @error('productsToAdd.' . $index . '.quantity') !border-danger-500 @enderror"
+                                                            style="max-width: 100px;"
+                                                            wire:model.live='productsToAdd.{{ $index }}.quantity'
+                                                            min="1">
+                                                    </td>
+
+                                                    <!-- price/item -->
+                                                    <td class="table-td imp-p-2">
+                                                        <input type="number"
+                                                            class="form-control @error('productsToAdd.' . $index . '.price') !border-danger-500 @enderror"
+                                                            style="max-width: 100px;"
+                                                            wire:model.live='productsToAdd.{{ $index }}.price'
+                                                            min="1">
+                                                    </td>
+
+                                                    <td class="table-td imp-p-2">
+                                                        <button class="action-btn" type="button"
+                                                            wire:click='removeProductRow({{ $index }})'>
+                                                            <iconify-icon icon="heroicons:trash"></iconify-icon>
+                                                        </button>
+                                                    </td>
+
+                                                </tr>
+                                            @endforeach
 
 
 
-                                    </tbody>
-                                </table>
-
+                                        </tbody>
+                                    </table>
                                 @endif
                             </div>
 

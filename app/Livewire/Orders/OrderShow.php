@@ -54,6 +54,8 @@ class OrderShow extends Component
     public $searchAddProducts = ''; //search term
     public $productsToAdd = [];
 
+    public $NextStatuses;
+
     //pay from balance
     public $isOpenPayFromBalanceSec;
 
@@ -114,10 +116,10 @@ class OrderShow extends Component
         }
     }
 
-    public function PayCash()
+    public function PayOrder($method)
     {
         $this->authorize('pay', $this->order);
-        $res = $this->order->setAsPaid(Carbon::now(), paymentMethod: CustomerPayment::PYMT_CASH, deductFromBalance: false);
+        $res = $this->order->setAsPaid(Carbon::now(), paymentMethod: $method, deductFromBalance: false);
         if ($res) {
             $this->mount($this->order->id);
             $this->closePayFromBalance();
@@ -323,6 +325,18 @@ class OrderShow extends Component
             ->get();
     }
 
+    public function setStatus($status){
+
+        $res = $this->order->setStatus($status);
+
+        if ($res) {
+            $this->mount($this->order->id);
+            $this->alertSuccess('Status updated');
+        } else {
+            $this->alertFailed();
+        }
+    }
+
     public function mount($id)
     {
         $this->order = Order::findOrFail($id);
@@ -333,10 +347,13 @@ class OrderShow extends Component
 
     public function render()
     {
+        $this->NextStatuses = Order::getNextStatuses($this->order->status);
+
         $products = Product::search($this->searchAddProducts)
             ->take(5)
             ->get();
         $PAYMENT_METHODS = CustomerPayment::PAYMENT_METHODS;
+
         $this->comments = $this->order
             ->comments()
             ->latest()
