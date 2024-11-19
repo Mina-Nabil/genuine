@@ -192,9 +192,12 @@ class Order extends Model
         }
     }
 
-    public function assignDriverToOrder(int $driverId): bool
+    public function assignDriverToOrder(int $driverId = null): bool
     {
         try {
+            if ($this->status !== self::STATUS_NEW && $this->status !== self::STATUS_READY) {
+                return false;
+            }
             $this->driver_id = $driverId;
             $this->save();
             AppLog::info('Order Assigned to driver', loggable: $this);
@@ -321,6 +324,17 @@ class Order extends Model
         });
 
         return $allHaveRemainingToPay;
+    }
+
+    public static function checkInHouseEligibility(array $orderIds)
+    {
+        $orders = Order::whereIn('id', $orderIds)->get();
+
+        $allEligible = $orders->every(function ($order) {
+            return $order->in_house; 
+        });
+
+        return $allEligible;
     }
 
     public function createPayment($amount, $paymentMethod, $paymentDate, $isTakeFromBalance = false)
@@ -922,6 +936,11 @@ class Order extends Model
         $totalPaid = $totalPayments + $totalBalanceTransactions;
 
         return $totalPaid;
+    }
+
+    public function getInHouseAttribute(): bool
+    {
+        return $this->status === self::STATUS_NEW || $this->status === self::STATUS_READY;
     }
 
     public function areAllProductsReady(): bool

@@ -9,22 +9,24 @@
             </button>
             <ul class="dropdown-menu min-w-max absolute text-sm text-slate-700 dark:text-white hidden bg-white dark:bg-slate-700 shadow z-[2] float-left overflow-hidden list-none text-left rounded-lg mt-1 m-0 bg-clip-padding border-none"
                 style="">
-                <li wire:click='openSetDriver'
-                    class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
-                    Set Driver
-                </li>
+                @if ($AvailableToSetDriver)
+                    <li wire:click='openSetDriver'
+                        class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
+                        Set Driver
+                    </li>
+                @endif
                 <li wire:click='openSetDeliveryDate'
                     class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
                     Set delivery date
                 </li>
                 @if ($AvailableToPay)
-                @foreach ($PAYMENT_METHODS as $PAYMENT_METHOD)
-                <li wire:click='openPayOrders("{{ $PAYMENT_METHOD }}")'
-                class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
-                Pay {{ ucwords(str_replace('_',' ',$PAYMENT_METHOD)) }}
-            </li>
-                @endforeach
-                    
+                    @foreach ($PAYMENT_METHODS as $PAYMENT_METHOD)
+                        <li wire:click='openPayOrders("{{ $PAYMENT_METHOD }}")'
+                            class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
+                            Pay {{ ucwords(str_replace('_', ' ', $PAYMENT_METHOD)) }}
+                        </li>
+                    @endforeach
+
                 @endif
                 @foreach ($availableBulkStatuses as $availableBulkStatus)
                     <li wire:click="setBulkStatus('{{ $availableBulkStatus }}')"
@@ -208,7 +210,7 @@
                     <span class="badge bg-slate-900 text-white capitalize">
                         <span class="cursor-pointer" wire:click='openFilteryDriver'>
                             <span class="text-secondary-500 ">Driver:</span>&nbsp;
-                            {{ ucwords($driver->user->full_name) }}  • {{ $driver->shift_title }}
+                            {{ ucwords($driver->user->full_name) }} • {{ $driver->shift_title }}
 
                         </span>
 
@@ -391,7 +393,7 @@
                                 </td>
 
                                 <td class="table-td text-start overflow-hidden text-ellipsis whitespace-nowrap">
-                                    {{ $order->driver ? $order->driver->user->full_name.' • '. $order->driver->shift_title  : '-' }}
+                                    {{ $order->driver ? $order->driver->user->full_name . ' • ' . $order->driver->shift_title : '-' }}
                                 </td>
 
                                 <td class="table-td text-start overflow-hidden text-ellipsis whitespace-nowrap">
@@ -571,56 +573,56 @@
     {{-- @endcan --}}
 
 
-        @if ($isOpenPayAlert)
-            <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
-                tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
-                style="display: block;">
-                <div class="modal-dialog relative w-auto pointer-events-none">
-                    <div
-                        class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
-                        <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
-                            <!-- Modal header -->
-                            <div
-                                class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-warning-500">
-                                <h3 class="text-xl font-medium text-black dark:text-white capitalize">
-                                    Payment Warning
-                                </h3>
-                                <button wire:click="closePayFromBalance" type="button"
-                                    class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
-                                    data-bs-dismiss="modal">
-                                    <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path fill-rule="evenodd"
-                                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                            clip-rule="evenodd"></path>
-                                    </svg>
-                                    <span class="sr-only">Close modal</span>
-                                </button>
-                            </div>
+    @if ($isOpenPayAlert)
+        <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+            tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
+            style="display: block;">
+            <div class="modal-dialog relative w-auto pointer-events-none">
+                <div
+                    class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
+                    <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
+                        <!-- Modal header -->
+                        <div
+                            class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-warning-500">
+                            <h3 class="text-xl font-medium text-black dark:text-white capitalize">
+                                Payment Warning
+                            </h3>
+                            <button wire:click="closePayFromBalance" type="button"
+                                class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
+                                data-bs-dismiss="modal">
+                                <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd"
+                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                <span class="sr-only">Close modal</span>
+                            </button>
+                        </div>
 
-                            <!-- Modal body -->
-                            <div class="p-6 space-y-4">
+                        <!-- Modal body -->
+                        <div class="p-6 space-y-4">
 
-                                Are you sure you want to pay 
-                                {{-- <b>{{ number_format($order->total_amount, 2) }}<small>EGP  </small> </b>  --}}
-                                {{ ucwords(str_replace('_',' ',$isOpenPayAlert)) }}
+                            Are you sure you want to pay
+                            {{-- <b>{{ number_format($order->total_amount, 2) }}<small>EGP  </small> </b>  --}}
+                            {{ ucwords(str_replace('_', ' ', $isOpenPayAlert)) }}
 
-                            </div>
+                        </div>
 
-                            <!-- Modal footer -->
-                            <div class="flex items-center justify-end p-6 border-t border-slate-200 rounded-b">
-                                <button wire:click="ProcceedBulkPayment" data-bs-dismiss="modal"
-                                    class="btn inline-flex justify-center text-white bg-black-500">
-                                    <span wire:loading.remove wire:target="ProcceedBulkPayment">Procceed Payment</span>
-                                    <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
-                                        wire:loading wire:target="ProcceedBulkPayment"
-                                        icon="line-md:loading-twotone-loop"></iconify-icon>
-                                </button>
-                            </div>
+                        <!-- Modal footer -->
+                        <div class="flex items-center justify-end p-6 border-t border-slate-200 rounded-b">
+                            <button wire:click="ProcceedBulkPayment" data-bs-dismiss="modal"
+                                class="btn inline-flex justify-center text-white bg-black-500">
+                                <span wire:loading.remove wire:target="ProcceedBulkPayment">Procceed Payment</span>
+                                <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
+                                    wire:loading wire:target="ProcceedBulkPayment"
+                                    icon="line-md:loading-twotone-loop"></iconify-icon>
+                            </button>
                         </div>
                     </div>
                 </div>
-        @endif
+            </div>
+    @endif
 
     @if ($Edited_deliveryDate_sec)
         <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
@@ -789,7 +791,8 @@
                                         <option value="">Select driver</option>
                                         @foreach ($DRIVERS as $ONE_DRIVERS)
                                             <option value="{{ $ONE_DRIVERS->id }}">
-                                                {{ $ONE_DRIVERS->user->full_name }} • {{ $ONE_DRIVERS->shift_title }}</option>
+                                                {{ $ONE_DRIVERS->user->full_name }} • {{ $ONE_DRIVERS->shift_title }}
+                                            </option>
                                         @endforeach
                                     </select>
 

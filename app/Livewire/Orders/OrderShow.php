@@ -35,6 +35,7 @@ class OrderShow extends Component
     //driver
     public $setDriverSection = false;
     public $searchDrivers = '';
+    public $confirmRemoveDriver;
 
     //note
     public $updateNoteSec = false;
@@ -69,7 +70,7 @@ class OrderShow extends Component
     }
 
     public function closeSetDriverSection(){
-        $this->reset(['setDriverSection','searchDrivers']);
+        $this->reset(['setDriverSection','searchDrivers','confirmRemoveDriver']);
     }
 
     public function openAddProductsSec()
@@ -82,9 +83,20 @@ class OrderShow extends Component
         $this->reset(['addProductsSection', 'searchAddProducts', 'productsToAdd']);
     }
 
-    public function setDriver($id){
+    public function showConfirmRemoveDriver(){
+        $this->confirmRemoveDriver = true;
+    }
+
+    public function hideConfirmRemoveDriver(){
+        $this->confirmRemoveDriver = false;
+    }
+
+    public function setDriver($id = null){
         
-        Driver::findOrFail($id);
+        if ($id) {
+            Driver::findOrFail($id);
+        }
+        
         $res = $this->order->assignDriverToOrder($id);
 
         if ($res) {
@@ -142,13 +154,23 @@ class OrderShow extends Component
         }
     }
 
-    public function PayOrder($method)
+    public $PAY_BY_PAYMENT_METHOD;
+
+    public function confirmPayOrder($method){
+        $this->PAY_BY_PAYMENT_METHOD = $method;
+    }
+
+    public function closeConfirmPayOrder(){
+        $this->PAY_BY_PAYMENT_METHOD = null;
+    }
+
+    public function PayOrder()
     {
         $this->authorize('pay', $this->order);
-        $res = $this->order->setAsPaid(Carbon::now(), paymentMethod: $method, deductFromBalance: false);
+        $res = $this->order->setAsPaid(Carbon::now(), paymentMethod: $this->PAY_BY_PAYMENT_METHOD, deductFromBalance: false);
         if ($res) {
             $this->mount($this->order->id);
-            $this->closePayFromBalance();
+            $this->PAY_BY_PAYMENT_METHOD = null;
             $this->alertSuccess('Order Payed');
         } else {
             $this->alertFailed();

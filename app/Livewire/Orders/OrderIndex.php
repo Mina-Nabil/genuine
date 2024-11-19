@@ -54,6 +54,7 @@ class OrderIndex extends Component
     public $Edited_deliveryDate_sec;
 
     public $AvailableToPay = false;
+    public $AvailableToSetDriver = false;
     public $isOpenPayAlert = null; //carry payment method
     public $errorMessages = []; 
 
@@ -169,6 +170,7 @@ class OrderIndex extends Component
     {
         $res = Order::checkStatusConsistency($this->selectedOrders);
         $this->AvailableToPay = Order::checkRemainingToPayConsistency($this->selectedOrders);
+        $this->AvailableToSetDriver = Order::checkInHouseEligibility($this->selectedOrders);
         if ($res) {
             $this->availableBulkStatuses = Order::getNextStatuses($res);
         } else {
