@@ -83,15 +83,14 @@
                                                     class="h-[10px] w-[10px] block m-auto opacity-0"></span>
                                         </label>
                                     </div>
-                                    <a href="{{ route('orders.show', $order->id) }}"> <span class="hover-underline">
+                                    <a href="{{ route('orders.periodic.show', $order->id) }}"> <span class="hover-underline">
                                             <b>
-                                                #{{ $order->order_number }}
+                                                {{ $order->order_name ?? '#PO'.$order->customer->id  }}
                                             </b>
                                         </span>
                                     </a>
 
                                 </td>
-
 
                                 <td class="table-td">
                                     {{ $order->customer->name }}

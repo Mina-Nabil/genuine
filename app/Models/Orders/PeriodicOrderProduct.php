@@ -19,6 +19,18 @@ class PeriodicOrderProduct extends Model
         'price',
     ];
 
+    //Scopes
+    public function scopeSearch($query, $searchTerm = null)
+    {
+        if (!is_null($searchTerm)) {
+            return $query->where(function ($query) use ($searchTerm) {
+                $query->where('name', 'like', '%' . $searchTerm . '%');
+            });
+        }
+
+        return $query; // Return the original query if no search term is provided
+    }
+
 
     public function periodicOrder()
     {

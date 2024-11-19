@@ -11,11 +11,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\DB;
 
 class PeriodicOrder extends Model
 {
     use HasFactory, SoftDeletes;
+
+    const MORPH_TYPE = 'periodic_order';
 
     // Define constants for periodic options
     const PERIODIC_OPTIONS = [self::PERIODIC_WEEKLY, self::PERIODIC_BI_WEEKLY, self::PERIODIC_MONTHLY];
@@ -38,6 +41,107 @@ class PeriodicOrder extends Model
     public function getIsActiveAttribute($value): bool
     {
         return (bool) $value;
+    }
+
+    public function updateShippingDetails(string $customerName, string $shippingAddress, string $locationUrl, string $customerPhone, int $zoneId): bool
+    {
+        /** @var User */
+        $loggedInUser = Auth::user();
+        if ($loggedInUser && !$loggedInUser->can('update', $this)) {
+            return false;
+        }
+
+        try {
+            $zone = Zone::findOrFail($zoneId);
+
+            $this->customer_name = $customerName;
+            $this->shipping_address = $shippingAddress;
+            $this->location_url = $locationUrl;
+            $this->customer_phone = $customerPhone;
+            $this->zone_id = $zoneId;
+            $this->delivery_amount = $zone->delivery_rate;
+
+            $this->save();
+
+            AppLog::info('Shipping details updated.', loggable: $this);
+            return true;
+        } catch (Exception $e) {
+            report($e);
+            AppLog::error('Failed to update shipping details for order', $e->getMessage());
+            return false;
+        }
+    }
+
+    public function addProducts(array $products, string $note = null): bool
+    {
+        DB::beginTransaction();
+
+        try {
+            foreach ($products as $product) {
+                // Skip if quantity is invalid
+                if (empty($product['quantity']) || $product['quantity'] <= 0) {
+                    continue;
+                }
+
+                $orderProduct = $this->products()
+                    ->where('product_id', $product['product_id'])
+                    ->first();
+
+                if ($orderProduct) {
+                    // Update the existing order product with the additional quantity and updated
+                    $orderProduct->quantity += $product['quantity'];
+                    $orderProduct->price = $product['price']; // Update price if provided
+                    $orderProduct->combo_id = $product['combo_id'] ?? $orderProduct->combo_id; // Only update if combo_id is provided
+                    $orderProduct->save();
+                } else {
+                    // Add new product entry to the order_products table
+                    PeriodicOrderProduct::create([
+                        'order_id' => $this->id,
+                        'product_id' => $product['product_id'],
+                        'quantity' => $product['quantity'],
+                        'price' => $product['price'],
+                        'combo_id' => $product['combo_id'] ?? null,
+                        'note' => $note,
+                    ]);
+                }
+            }
+
+            DB::commit();
+
+            AppLog::info('Products added', loggable: $this);
+            return true;
+        } catch (Exception $e) {
+            DB::rollBack();
+            report($e);
+            AppLog::error('Failed to add products to order', $e->getMessage());
+            return false;
+        }
+    }
+
+    public function addComment(string $comment): void
+    {
+        AppLog::comment($comment, $desc = null, loggable: $this);
+    }
+
+    public function updateNote(string $note = null): bool
+    {
+        /** @var User */
+        $loggedInUser = Auth::user();
+        if ($loggedInUser && !$loggedInUser->can('update', $this)) {
+            return false;
+        }
+
+        try {
+            $this->note = empty($note) ? null : $note;
+            $this->save();
+
+            AppLog::info('Note updated', loggable: $this);
+            return true;
+        } catch (Exception $e) {
+            report($e);
+            AppLog::error('Failed to update note for order', $e->getMessage());
+            return false;
+        }
     }
 
     // Determine the next order creation date based on frequency and last order
@@ -120,6 +224,7 @@ class PeriodicOrder extends Model
         return $query->where('is_active', true);
     }
 
+
     public function scopeByFrequency($query, string $frequency)
     {
         return $query->where('periodic_option', $frequency);
@@ -141,6 +246,11 @@ class PeriodicOrder extends Model
     public function customer()
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    public function comments(): HasMany
+    {
+        return $this->hasMany(AppLog::class, 'loggable_id')->where('loggable_type', self::MORPH_TYPE);
     }
 
     public function zone()

@@ -13,6 +13,7 @@ use App\Livewire\Orders\OrderInventory;
 use App\Livewire\Orders\OrderShow;
 use App\Livewire\Orders\PeriodicOrderCreate;
 use App\Livewire\Orders\PeriodicOrderIndex;
+use App\Livewire\Orders\PeriodicOrderShow;
 use App\Livewire\Pets\PetIndex;
 use App\Livewire\Products\ComboIndex;
 use App\Livewire\Products\ComboShow;
@@ -55,6 +56,8 @@ Route::post('/notifications/seen/{id}', [UserController::class, 'setNotfAsSeen']
 
 Route::get('/orders/new',OrderCreate::class)->name('orders.create');
 Route::get('/orders/periodic/new',PeriodicOrderCreate::class)->name('orders.periodic.create');
+Route::get('/orders/periodic/{id}',PeriodicOrderShow::class)->name('orders.periodic.show');
+
 Route::get('/orders',OrderIndex::class)->name('orders.index');
 Route::get('/orders/periodic',PeriodicOrderIndex::class)->name('orders.periodic.index');
 Route::get('/orders/inventory',OrderInventory::class)->name('orders.inventory');
