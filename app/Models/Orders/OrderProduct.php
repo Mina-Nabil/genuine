@@ -38,7 +38,7 @@ class OrderProduct extends Model
             $this->is_ready = !$this->is_ready;
             $this->save();
 
-            AppLog::info('Order product ready status toggled', loggable: $this);
+            AppLog::info('product '.$this->product->name.' set to '.(!$this->is_ready ? 'not' : '') .' ready', loggable: $this->order);
 
             if ($this->is_ready && $this->order->areAllProductsReady()) {
                 $this->order->setStatus(Order::STATUS_READY);

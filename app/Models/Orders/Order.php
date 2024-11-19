@@ -37,7 +37,7 @@ class Order extends Model
     const PERIODIC_OPTIONS = [self::PERIODIC_WEEKLY, self::PERIODIC_BI_WEEKLY, self::PERIODIC_MONTHLY];
     const PERIODIC_WEEKLY = 'weekly';
     const PERIODIC_BI_WEEKLY = 'bi-weekly';
-    const PERIODIC_MONTHLY = 'bi-monthly';
+    const PERIODIC_MONTHLY = 'monthly';
 
     const STATUS_NEW = 'new';
     const STATUS_READY = 'ready';

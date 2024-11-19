@@ -11,6 +11,8 @@ use App\Livewire\Orders\OrderDriverShift;
 use App\Livewire\Orders\OrderIndex;
 use App\Livewire\Orders\OrderInventory;
 use App\Livewire\Orders\OrderShow;
+use App\Livewire\Orders\PeriodicOrderCreate;
+use App\Livewire\Orders\PeriodicOrderIndex;
 use App\Livewire\Pets\PetIndex;
 use App\Livewire\Products\ComboIndex;
 use App\Livewire\Products\ComboShow;
@@ -52,7 +54,9 @@ Route::get('/notifications', NotificationIndex::class);
 Route::post('/notifications/seen/{id}', [UserController::class, 'setNotfAsSeen']);
 
 Route::get('/orders/new',OrderCreate::class)->name('orders.create');
+Route::get('/orders/periodic/new',PeriodicOrderCreate::class)->name('orders.periodic.create');
 Route::get('/orders',OrderIndex::class)->name('orders.index');
+Route::get('/orders/periodic',PeriodicOrderIndex::class)->name('orders.periodic.index');
 Route::get('/orders/inventory',OrderInventory::class)->name('orders.inventory');
 Route::get('/orders/driver',OrderDriverShift::class)->name('orders.driver.shift');
 Route::get('/orders/{id}',OrderShow::class)->name('orders.show');
