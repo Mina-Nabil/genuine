@@ -3,6 +3,7 @@
 namespace App\Models\Customers;
 
 use App\Models\Orders\Order;
+use App\Models\Orders\PeriodicOrder;
 use App\Models\Payments\BalanceTransaction;
 use App\Models\Payments\CustomerPayment;
 use App\Models\Pets\Pet;
@@ -238,6 +239,11 @@ class Customer extends Model
     public function orders()
     {
         return $this->hasMany(Order::class);
+    }
+
+    public function periodicOrders()
+    {
+        return $this->hasMany(PeriodicOrder::class);
     }
 
     public function followups(): MorphMany

@@ -85,7 +85,7 @@
                                     </div>
                                     <a href="{{ route('orders.periodic.show', $order->id) }}"> <span class="hover-underline">
                                             <b>
-                                                {{ $order->order_name ?? '#PO'.$order->customer->id  }}
+                                                {{ $order->order_name }}
                                             </b>
                                         </span>
                                     </a>

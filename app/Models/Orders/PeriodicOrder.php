@@ -43,7 +43,7 @@ class PeriodicOrder extends Model
         return (bool) $value;
     }
 
-    public function updateShippingDetails(string $customerName, string $shippingAddress, string $locationUrl, string $customerPhone, int $zoneId): bool
+    public function updateShippingDetails(string $customerName, string $shippingAddress, string $locationUrl = null, string $customerPhone, int $zoneId): bool
     {
         /** @var User */
         $loggedInUser = Auth::user();
@@ -59,7 +59,6 @@ class PeriodicOrder extends Model
             $this->location_url = $locationUrl;
             $this->customer_phone = $customerPhone;
             $this->zone_id = $zoneId;
-            $this->delivery_amount = $zone->delivery_rate;
 
             $this->save();
 
@@ -68,6 +67,33 @@ class PeriodicOrder extends Model
         } catch (Exception $e) {
             report($e);
             AppLog::error('Failed to update shipping details for order', $e->getMessage());
+            return false;
+        }
+    }
+
+    public function updatePeriodicDetails(string $periodicOption, ?int $orderDay = null): bool
+    {
+        /** @var User */
+        $loggedInUser = Auth::user();
+
+        if ($loggedInUser && !$loggedInUser->can('update', $this)) {
+            return false;
+        }
+
+        try {
+            if (!in_array($periodicOption, self::PERIODIC_OPTIONS)) {
+                throw new Exception('Invalid periodic option provided.');
+            }
+
+            $this->periodic_option = $periodicOption;
+            $this->order_day = $orderDay;
+            $this->save();
+
+            AppLog::info('Periodic details updated.', loggable: $this);
+            return true;
+        } catch (Exception $e) {
+            report($e); // Log the exception for debugging
+            AppLog::error('Failed to update periodic details', ['error' => $e->getMessage()]);
             return false;
         }
     }
@@ -96,7 +122,7 @@ class PeriodicOrder extends Model
                 } else {
                     // Add new product entry to the order_products table
                     PeriodicOrderProduct::create([
-                        'order_id' => $this->id,
+                        'periodic_order_id' => $this->id,
                         'product_id' => $product['product_id'],
                         'quantity' => $product['quantity'],
                         'price' => $product['price'],
@@ -182,6 +208,24 @@ class PeriodicOrder extends Model
         }
 
         try {
+            if (!$orderName) {
+                $lastOrder = PeriodicOrder::where('customer_id', $customerId)->orderBy('created_at', 'desc')->first();
+
+                if ($lastOrder) {
+                    $lastOrderName = $lastOrder->order_name;
+                    $lastLetter = substr($lastOrderName, -1);
+
+                    if (ctype_alpha($lastLetter)) {
+                        $newLetter = chr(ord($lastLetter) + 1);
+                    } else {
+                        $newLetter = 'A';
+                    }
+                    $orderName = substr($lastOrderName, 0, -1) . $newLetter;
+                } else {
+                    $orderName = 'PO' . $customerId . '-A';
+                }
+            }
+
             $periodicOrder = new self();
             $periodicOrder->customer_id = $customerId;
             $periodicOrder->customer_name = $customerName;
@@ -224,7 +268,6 @@ class PeriodicOrder extends Model
         return $query->where('is_active', true);
     }
 
-
     public function scopeByFrequency($query, string $frequency)
     {
         return $query->where('periodic_option', $frequency);
@@ -237,6 +280,33 @@ class PeriodicOrder extends Model
                 $query->select(DB::raw('SUM(quantity)'));
             },
         ]);
+    }
+
+    public function getTitleAttribute()
+    {
+        if ($this->order_name) {
+            return $this->order_name;
+        } else {
+            $orderIndex = $this->customer->periodicOrders()->orderBy('created_at', 'asc')->get()->search(fn($order) => $order->id === $this->id) + 1;
+
+            return 'PO' . $this->customer->id . '-' . $orderIndex;
+        }
+    }
+
+    public function scopeSearch(Builder $query, string $searchText = null, int $zoneId = null): Builder
+    {
+        return $query
+            ->when($searchText, function ($query, $searchText) {
+                $query->where(function ($q) use ($searchText) {
+                    $q->where('order_name', 'like', '%' . $searchText . '%')
+                        ->orWhere('customer_name', 'like', '%' . $searchText . '%')
+                        ->orWhere('customer_phone', 'like', '%' . $searchText . '%')
+                        ->orWhere('shipping_address', 'like', '%' . $searchText . '%');
+                });
+            })
+            ->when($zoneId, function ($query, $zoneId) {
+                $query->where('zone_id', $zoneId);
+            });
     }
 
     /**

@@ -148,6 +148,16 @@
                         </a>
                     </li>
 
+                    <li>
+                        <a href="{{ url('/orders/periodic') }}" class="navItem {{ $ordersPeriodic ?? '' }}">
+                            <span class="flex items-center">
+                                <iconify-icon class=" nav-icon" icon="wpf:timer">
+                                </iconify-icon>
+                                <span>Periodic</span>
+                            </span>
+                        </a>
+                    </li>
+
          
 
         
