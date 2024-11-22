@@ -83,6 +83,60 @@ class Inventory extends Model
     }
 
     /**
+     * Update on-hand inventory to a new value and adjust available stock.
+     *
+     * @param int $newOnHand The new value for on-hand inventory.
+     * @param string|null $remarks Optional remarks for the transaction.
+     * @return \App\Models\Transaction
+     * @throws \Exception
+     */
+    public function updateOnHandWithNewValue($newOnHand, $remarks = null)
+    {
+        /** @var User */
+        $user = Auth::user();
+        if (!$user->can('update', $this)) {
+            return false;
+        }
+
+        try {
+            // Record the old quantity before updating
+            $beforeAvailable = $this->available;
+            $beforeOnHand = $this->on_hand;
+
+            // Update the 'on_hand' inventory to the new value
+            $this->on_hand = $newOnHand;
+
+            // Update the 'available' stock after adjusting 'on_hand'
+            $this->available = $this->on_hand - $this->committed;
+
+            // Save the inventory changes
+            $this->save();
+
+            // Record the after value for available stock
+            $afterAvailable = $this->available;
+
+            // Create transaction log to track the change
+            $transaction = Transaction::create([
+                'inventory_id' => $this->id,
+                'quantity' => $newOnHand - $beforeOnHand, // This reflects the difference (positive or negative)
+                'before' => $beforeAvailable,
+                'after' => $afterAvailable,
+                'remarks' => $remarks,
+                'user_id' => Auth::user()->id,
+            ]);
+
+            // Log the action in AppLog
+            AppLog::info('Inventory updated with new on_hand value.', loggable: $this->inventoryable);
+
+            return $transaction;
+        } catch (\Exception $e) {
+            report($e);
+            AppLog::error('Inventory Update Failed', $e->getMessage(), loggable: $this->inventoryable);
+            return $e;
+        }
+    }
+
+    /**
      * Permanently remove committed quantity, reducing both committed and on_hand stock.
      *
      * @param int $quantity The amount to reduce from committed and on_hand stock.
@@ -244,6 +298,30 @@ class Inventory extends Model
             AppLog::error('Failed to initialize quantity for inventoryable', $e->getMessage());
             return null; // Indicate failure
         }
+    }
+
+    public function scopeSearch($query, $searchTerm = null)
+    {
+        if (!is_null($searchTerm)) {
+            return $query->whereHas('inventoryable', function ($query) use ($searchTerm) {
+                if (method_exists($query->getModel(), 'scopeSearch')) {
+                    $query->search($searchTerm); // Calls Product::scopeSearch
+                }
+            });
+        }
+
+        return $query;
+    }
+
+    public function scopeSortBy($query, $column = null, $direction = 'asc')
+    {
+        // Ensure the column is not null and exists in the table
+        if ($column && in_array($column, \Illuminate\Support\Facades\Schema::getColumnListing($this->getTable()))) {
+            return $query->orderBy($column, $direction);
+        }
+
+        // If column is not valid, just return the query without sorting
+        return $query;
     }
 
     /**

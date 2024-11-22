@@ -139,7 +139,7 @@ class Order extends Model
     }
 
     // Function to create a new order
-    public static function newOrder(int $customerId, string $customerName, string $shippingAddress, string $customerPhone, int $zoneId, $locationURL = null, int $driverId = null, string $periodicOption = null, float $totalAmount = 0, float $deliveryAmount = 0, float $discountAmount = 0, Carbon $deliveryDate = null, string $note = null, array $products, $detuctFromBalance = false): Order|bool
+    public static function newOrder(int $customerId, string $customerName, string $shippingAddress, string $customerPhone, int $zoneId, $locationURL = null, int $driverId = null, float $totalAmount = 0, float $deliveryAmount = 0, float $discountAmount = 0, Carbon $deliveryDate = null, string $note = null, array $products, $detuctFromBalance = false): Order|bool
     {
         /** @var User */
         $loggedInUser = Auth::user();
@@ -158,7 +158,6 @@ class Order extends Model
             $order->customer_phone = $customerPhone;
             $order->zone_id = $zoneId;
             $order->driver_id = $driverId;
-            $order->periodic_option = $periodicOption;
             $order->total_amount = $totalAmount;
             $order->delivery_amount = $deliveryAmount;
             $order->discount_amount = $discountAmount;

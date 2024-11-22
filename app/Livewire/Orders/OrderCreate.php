@@ -369,7 +369,6 @@ class OrderCreate extends Component
             'discountAmount' => 'nullable|numeric|min:0',
             'ddate' => 'required|date',
             'note' => 'nullable|string|max:500',
-            'periodicOption' => "nullable|in:" . implode(',', Order::PERIODIC_OPTIONS),
             'fetchedProducts.*.id' => 'required|exists:products,id',
             'fetchedProducts.*.combo_id' => 'nullable|exists:combos,id',
             'fetchedProducts.*.quantity' => 'required|integer|min:1',
@@ -384,7 +383,7 @@ class OrderCreate extends Component
         $driverID = null;
         $this->driver ? $driverID = $this->driver->id : null;
 
-        $res = Order::newOrder($customerId, $this->customerName, $this->shippingAddress, $this->customerPhone, $this->zoneId, $this->locationURL,$driverID, $this->periodicOption , $this->total, $this->shippingFee, $this->discountAmount, $this->ddate ? Carbon::parse($this->ddate) : null, $this->note, $this->fetchedProducts , $detuctFromBalance);
+        $res = Order::newOrder($customerId, $this->customerName, $this->shippingAddress, $this->customerPhone, $this->zoneId, $this->locationURL,$driverID , $this->total, $this->shippingFee, $this->discountAmount, $this->ddate ? Carbon::parse($this->ddate) : null, $this->note, $this->fetchedProducts , $detuctFromBalance);
 
         if ($res) {
             $this->alertSuccess('order added!');
@@ -415,7 +414,6 @@ class OrderCreate extends Component
             ->limit(10)
             ->get();
 
-        $PERIODIC_OPTIONS = Order::PERIODIC_OPTIONS;
 
         return view('livewire.orders.order-create', [
             'products' => $products,
@@ -423,7 +421,6 @@ class OrderCreate extends Component
             'customers' => $customers,
             'zones' => $zones,
             'combos' => $combos,
-            'PERIODIC_OPTIONS' => $PERIODIC_OPTIONS
         ])->layout('layouts.app', ['page_title' => $this->page_title, 'orders' => 'active']);
     }
 }

@@ -352,33 +352,7 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="col-span-2">
-                    <div class="card mb-5">
-                        <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base">
-                            <div class="items-center p-5">
-
-                                <div class="input-area w-full mt-5">
-                                    <label for="ddate" class="form-label"><b>Periodic option</b></label>
-                                    <select name="periodicOption" id="periodicOption"
-                                        class="form-control w-full @error('periodicOption') !border-danger-500 @enderror"
-                                        wire:model.live="periodicOption" autocomplete="off">
-                                        <option value="">None</option>
-                                        @foreach ($PERIODIC_OPTIONS as $PERIODIC_OPTION)
-                                            <option value="{{ $PERIODIC_OPTION }}">
-                                                {{ ucwords(str_replace('_', ' ', $PERIODIC_OPTION)) }}</option>
-                                        @endforeach
-                                    </select>
-                                    @error('periodicOption')
-                                        <span
-                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
+                
                 <div class="col-span-2">
                     <div class="card mb-5">
                         <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base">

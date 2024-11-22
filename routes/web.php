@@ -17,6 +17,7 @@ use App\Livewire\Orders\PeriodicOrderShow;
 use App\Livewire\Pets\PetIndex;
 use App\Livewire\Products\ComboIndex;
 use App\Livewire\Products\ComboShow;
+use App\Livewire\Products\InventoryTransactionIndex;
 use App\Livewire\Products\ProductIndex;
 use App\Livewire\Products\ProductShow;
 use App\Livewire\Reports\ProductionPlanning;
@@ -40,6 +41,8 @@ Route::get('/customers/{id}',CustomerShow::class)->name('customer.show');
 
 Route::get('/products',ProductIndex::class)->name('product.index');
 Route::get('/products/{id}',ProductShow::class)->name('product.show');
+
+Route::get('/inventories',InventoryTransactionIndex::class)->name('inventories.index');
 
 Route::get('/combos',ComboIndex::class)->name('combo.index');
 Route::get('/combos/{id}',ComboShow::class)->name('combo.show');

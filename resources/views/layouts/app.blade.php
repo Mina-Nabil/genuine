@@ -196,6 +196,16 @@
                         </a>
                     </li>
 
+                    <li>
+                        <a href="{{ url('/inventories') }}" class="navItem {{ $inventories ?? '' }}">
+                            <span class="flex items-center">
+                                <iconify-icon class=" nav-icon" icon="ic:sharp-inventory">
+                                </iconify-icon>
+                                <span>Inventories</span>
+                            </span>
+                        </a>
+                    </li>
+
                     <li class="sidebar-menu-title">Operations</li>
                     <li>
                         <a href="{{ url('/tasks') }}" class="navItem {{ $tasks ?? '' }}">
