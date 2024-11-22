@@ -20,6 +20,7 @@ use App\Livewire\Products\ComboShow;
 use App\Livewire\Products\InventoryTransactionIndex;
 use App\Livewire\Products\ProductIndex;
 use App\Livewire\Products\ProductShow;
+use App\Livewire\Products\TransactionIndex;
 use App\Livewire\Reports\ProductionPlanning;
 use App\Livewire\Tasks\TaskIndex;
 use App\Livewire\Tasks\TaskShow;
@@ -43,6 +44,7 @@ Route::get('/products',ProductIndex::class)->name('product.index');
 Route::get('/products/{id}',ProductShow::class)->name('product.show');
 
 Route::get('/inventories',InventoryTransactionIndex::class)->name('inventories.index');
+Route::get('/transactions',TransactionIndex::class)->name('transactions.index');
 
 Route::get('/combos',ComboIndex::class)->name('combo.index');
 Route::get('/combos/{id}',ComboShow::class)->name('combo.show');

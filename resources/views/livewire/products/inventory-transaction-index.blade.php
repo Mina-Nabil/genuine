@@ -108,6 +108,8 @@
                                     </span>
                                 </th>
 
+                                <th scope="col" class="table-th"></th>
+
                             @endif
 
                         </tr>
@@ -155,6 +157,10 @@
                                         style="max-width: 100px; "
                                         wire:model="productsChanges.data.{{ $index }}.available"
                                         wire:change="updateOnHand({{ $index }})">
+                                </td>
+
+                                <td class="table-td">
+                                    <a href="\transactions?product_id={{ $inventory->inventoryable->id }}" target="_blanck" class="btn inline-flex justify-center mx-2 mt-3 btn-light active btn-sm">View transactions</a>
                                 </td>
 
                             </tr>
