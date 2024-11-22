@@ -206,6 +206,16 @@
                         </a>
                     </li>
 
+                    <li>
+                        <a href="{{ url('/transactions') }}" class="navItem {{ $Trans ?? '' }}">
+                            <span class="flex items-center">
+                                <iconify-icon class=" nav-icon" icon="grommet-icons:transaction">
+                                </iconify-icon>
+                                <span>Transactions</span>
+                            </span>
+                        </a>
+                    </li>
+
                     <li class="sidebar-menu-title">Operations</li>
                     <li>
                         <a href="{{ url('/tasks') }}" class="navItem {{ $tasks ?? '' }}">
