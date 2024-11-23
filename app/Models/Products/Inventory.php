@@ -7,6 +7,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class Inventory extends Model
 {
@@ -198,6 +199,54 @@ class Inventory extends Model
         } catch (Exception $e) {
             // Log error to AppLog
             AppLog::error('Inventory Remove Commit Failed', $e->getMessage(), loggable: $this->inventoryable);
+            return false;
+        }
+    }
+
+    /**
+     * Fulfill a committed quantity by reducing it from committed and on-hand stock.
+     *
+     * @param int $quantity The quantity to fulfill.
+     * @return \App\Models\Transaction|bool Transaction object on success, false on failure.
+     * @throws \Exception
+     */
+    public function fulfillCommit($quantity)
+    {
+        /** @var User */
+        $user = Auth::user();
+        if (!$user->can('update', $this)) {
+            return false;
+        }
+
+        try {
+            DB::transaction(function () use ($quantity) {
+                // Ensure the quantity is positive
+                if ($quantity <= 0) {
+                    throw new \Exception('Quantity must be a positive number.');
+                }
+
+                // Check if sufficient committed stock is available
+                if ($this->on_hand - $quantity < 0) {
+                    throw new \Exception('Not enough committed stock to fulfill.');
+                }
+
+                // Reduce committed and on-hand quantities
+                $this->committed -= $quantity;
+                $this->on_hand -= $quantity;
+
+                // Update available stock
+                $this->available = $this->on_hand - $this->committed;
+
+                // Save the inventory changes
+                $this->save();
+
+                // Log the action in AppLog
+            });
+            AppLog::info('Inventory fulfill commit', loggable: $this->inventoryable);
+            return true;
+        } catch (\Exception $e) {
+            report($e);
+            AppLog::error('Inventory Fulfill Commit Failed', $e->getMessage(), loggable: $this->inventoryable);
             return false;
         }
     }

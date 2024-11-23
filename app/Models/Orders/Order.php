@@ -330,7 +330,7 @@ class Order extends Model
         $orders = Order::whereIn('id', $orderIds)->get();
 
         $allEligible = $orders->every(function ($order) {
-            return $order->in_house; 
+            return $order->in_house;
         });
 
         return $allEligible;
@@ -580,6 +580,10 @@ class Order extends Model
         DB::beginTransaction();
 
         try {
+            if (!$this->is_new) {
+                return false;
+            }
+
             foreach ($products as $product) {
                 // Skip if quantity is invalid
                 if (empty($product['quantity']) || $product['quantity'] <= 0) {
@@ -649,7 +653,11 @@ class Order extends Model
                 // Update the inventory quantity for the product
                 $inventory = $orderProduct->product->inventory;
                 if ($inventory) {
-                    $inventory->commitQuantity(-$quantityToRemove, 'Canceled from order #' . $this->order_number);
+                    if ($this->is_new) {
+                        $inventory->commitQuantity(-$quantityToRemove, 'Returned from order #' . $this->order_number);
+                    }else{
+                        $inventory->addTransaction($quantityToRemove, 'Returned from order #' . $this->order_number);
+                    }
                 }
 
                 // Log the removal in the order_removed_products table
@@ -725,7 +733,11 @@ class Order extends Model
                 // Update the inventory quantity for the product
                 if ($product['isReturnToStock']) {
                     if ($orderProduct->inventory) {
-                        $orderProduct->inventory->commitQuantity(-$product['return_quantity'], 'Removed from order #' . $this->order_number);
+                        if ($this->is_new) {
+                            $orderProduct->inventory->commitQuantity(-$product['return_quantity'], 'Returned from order #' . $this->order_number);
+                        }else{
+                            $orderProduct->inventory->addTransaction($product['return_quantity'], 'Returned from order #' . $this->order_number);
+                        }
                     }
                 } else {
                     if ($orderProduct->inventory) {
@@ -940,6 +952,11 @@ class Order extends Model
     public function getInHouseAttribute(): bool
     {
         return $this->status === self::STATUS_NEW || $this->status === self::STATUS_READY;
+    }
+
+    public function getIsNewAttribute(): bool
+    {
+        return $this->status === self::STATUS_NEW;
     }
 
     public function areAllProductsReady(): bool

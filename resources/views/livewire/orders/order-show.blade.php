@@ -42,11 +42,13 @@
                             dark:hover:text-white cursor-pointer">
                             Return
                         </li>
-                        <li wire:click='openAddProductsSec'
-                            class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600
+                        @if ($order->is_new)
+                            <li wire:click='openAddProductsSec'
+                                class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600
                             dark:hover:text-white cursor-pointer">
-                            Add Products
-                        </li>
+                                Add Products
+                            </li>
+                        @endif
                         @foreach ($NextStatuses as $NextStatus)
                             <li wire:click="setStatus('{{ $NextStatus }}')"
                                 class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600
