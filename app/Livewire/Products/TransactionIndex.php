@@ -6,8 +6,7 @@ use App\Models\Products\Transaction;
 use Livewire\Component;
 use App\Traits\AlertFrontEnd;
 use Livewire\WithPagination;
-
-use App\Models\Prod;
+use App\Models\Products\Inventory;
 use App\Models\Products\Product;
 
 class TransactionIndex extends Component
@@ -68,6 +67,11 @@ class TransactionIndex extends Component
 
     public function clearProduct(){
         $this->product_id = null;
+    }
+
+    public function mount()
+    {
+        $this->authorize('viewAny', Inventory::class);
     }
 
     public function render()

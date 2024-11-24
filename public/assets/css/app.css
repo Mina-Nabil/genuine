@@ -17871,3 +17871,10 @@ ul.custom-list ul {
     text-wrap-mode: nowrap;
     overflow-x: auto;
 }
+
+.navItem.disabled {
+    pointer-events: none; /* Prevent interaction */
+    opacity: 0.5;         /* Make it look inactive */
+    cursor: not-allowed;  /* Show the "not-allowed" cursor */
+    text-decoration: none; /* Remove any underline or hover effects */
+}

@@ -3,6 +3,7 @@
 namespace App\Livewire\Reports;
 
 use App\Models\Orders\OrderProduct;
+use App\Models\Products\Product;
 use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -27,6 +28,7 @@ class ProductionPlanning extends Component
 
     public function mount()
     {
+        $this->authorize('viewProductionPlanning',Product::class);
         $this->deliveryDate = Carbon::tomorrow()->toDateString();
     }
 

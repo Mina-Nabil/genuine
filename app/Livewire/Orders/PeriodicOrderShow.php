@@ -197,8 +197,8 @@ class PeriodicOrderShow extends Component
 
     public function addProducts()
     {
+        $this->authorize('update', $this->order);
         $res = $this->order->addProducts($this->productsToAdd);
-
         if ($res) {
             $this->closeAddProductsSec();
             $this->alertSuccess('Products added');

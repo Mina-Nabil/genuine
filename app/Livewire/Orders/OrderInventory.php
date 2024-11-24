@@ -44,7 +44,9 @@ class OrderInventory extends Component
     }
 
     public function toggleReady($id){
-        $res = OrderProduct::findOrFail($id)->toggleReady();
+        $orderProduct = OrderProduct::findOrFail($id);
+        $this->authorize('update',$orderProduct->order);
+        $res = $orderProduct->toggleReady();
 
         if ($res) {
             $this->mount();
@@ -56,6 +58,7 @@ class OrderInventory extends Component
 
     public function mount()
     {
+        $this->authorize('viewOrderInventory',Order::class);
         $this->deliveryDate = Carbon::tomorrow();
     }
 

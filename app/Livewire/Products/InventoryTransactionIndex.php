@@ -113,6 +113,7 @@ class InventoryTransactionIndex extends Component
 
     public function openReviewChanges()
     {
+        $this->authorize('update', Inventory::all()->first());
         $this->newChanges = $this->getChangedIndexes();
     }
 
@@ -168,12 +169,18 @@ class InventoryTransactionIndex extends Component
                 return;
             } else {
                 $quantity = (int) $changedIndex['to_on_hand'];
+                $this->authorize('update', Product::findOrFail($changedIndex['inventory_id'])->inventory);
                 Product::findOrFail($changedIndex['inventory_id'])->inventory->updateOnHandWithNewValue($quantity, $this->transRemark);
             }
         }
         $this->resetPage();
         $this->reset(['newChanges', 'transRemark', 'productsChanges', 'oldproductsChanges', 'hasChanges']);
         $this->alertSuccess('Inventory updated');
+    }
+
+    public function mount()
+    {
+        $this->authorize('viewAny', Inventory::class);
     }
 
     public function render()

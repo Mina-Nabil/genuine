@@ -16,6 +16,11 @@ class ProductPolicy
         return true;
     }
 
+    public function viewProductionPlanning(User $user): bool
+    {
+        return true;
+    }
+
     /**
      * Determine whether the user can view the model.
      */

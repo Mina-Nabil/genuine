@@ -12,8 +12,8 @@
                                 •
                                 @if ($order->periodic_option === App\Models\Orders\PeriodicOrder::PERIODIC_MONTHLY)
                                     Day: {{ $order->order_day }}
-                                @else 
-                                    {{ ucwords(str_replace('_', ' ',  App\Models\Orders\PeriodicOrder::daysOfWeek[$order->order_day])) }}
+                                @else
+                                    {{ ucwords(str_replace('_', ' ', App\Models\Orders\PeriodicOrder::daysOfWeek[$order->order_day])) }}
                                 @endif
                             </span>
                         @endif
@@ -77,36 +77,38 @@
                                                             {{ number_format($orderProduct->price * $orderProduct->quantity, 2) }}<small>&nbsp;EGP</small>
                                                         </p>
 
+                                                        @can('update', $order)
+                                                            <button class="inline-flex justify-center items-center"
+                                                                type="button" id="tableDropdownMenuButton2"
+                                                                data-bs-toggle="dropdown" aria-expanded="false">
+                                                                <iconify-icon class="text-xl ltr:ml-2 rtl:mr-2"
+                                                                    icon="heroicons-outline:dots-vertical"></iconify-icon>
+                                                            </button>
+                                                            <ul
+                                                                class="dropdown-menu min-w-max absolute text-sm text-slate-700 dark:text-white hidden bg-white dark:bg-slate-700 shadow z-[2] float-left overflow-hidden list-none text-left rounded-lg mt-1 m-0 bg-clip-padding border-none">
 
-                                                        <button class="inline-flex justify-center items-center"
-                                                            type="button" id="tableDropdownMenuButton2"
-                                                            data-bs-toggle="dropdown" aria-expanded="false">
-                                                            <iconify-icon class="text-xl ltr:ml-2 rtl:mr-2"
-                                                                icon="heroicons-outline:dots-vertical"></iconify-icon>
-                                                        </button>
-                                                        <ul
-                                                            class="dropdown-menu min-w-max absolute text-sm text-slate-700 dark:text-white hidden bg-white dark:bg-slate-700 shadow z-[2] float-left overflow-hidden list-none text-left rounded-lg mt-1 m-0 bg-clip-padding border-none">
 
-                                                            <li wire:click="openEditProduct({{ $orderProduct->id }})">
-                                                                <span
-                                                                    class="hover:bg-slate-900 dark:hover:bg-slate-600 dark:hover:bg-opacity-70 hover:text-white w-full border-b border-b-gray-500 border-opacity-10 px-4 py-2 text-sm dark:text-slate-300  last:mb-0 cursor-pointer first:rounded-t last:rounded-b flex space-x-2 items-center capitalize  rtl:space-x-reverse">
-                                                                    <iconify-icon icon="lucide:edit"></iconify-icon>
-                                                                    <span>Edit</span>
-                                                                </span>
-                                                            </li>
+                                                                <li wire:click="openEditProduct({{ $orderProduct->id }})">
+                                                                    <span
+                                                                        class="hover:bg-slate-900 dark:hover:bg-slate-600 dark:hover:bg-opacity-70 hover:text-white w-full border-b border-b-gray-500 border-opacity-10 px-4 py-2 text-sm dark:text-slate-300  last:mb-0 cursor-pointer first:rounded-t last:rounded-b flex space-x-2 items-center capitalize  rtl:space-x-reverse">
+                                                                        <iconify-icon icon="lucide:edit"></iconify-icon>
+                                                                        <span>Edit</span>
+                                                                    </span>
+                                                                </li>
 
-                                                            <li
-                                                                wire:click="showConfirmRemoveProduct({{ $orderProduct->id }})">
-                                                                <span
-                                                                    class="hover:bg-slate-900 dark:hover:bg-slate-600 dark:hover:bg-opacity-70 hover:text-white w-full border-b border-b-gray-500 border-opacity-10 px-4 py-2 text-sm dark:text-slate-300  last:mb-0 cursor-pointer first:rounded-t last:rounded-b flex space-x-2 items-center capitalize  rtl:space-x-reverse">
-                                                                    <iconify-icon
-                                                                        icon="material-symbols:delete-outline"></iconify-icon>
-                                                                    <span>Delete</span>
-                                                                </span>
-                                                            </li>
+                                                                <li
+                                                                    wire:click="showConfirmRemoveProduct({{ $orderProduct->id }})">
+                                                                    <span
+                                                                        class="hover:bg-slate-900 dark:hover:bg-slate-600 dark:hover:bg-opacity-70 hover:text-white w-full border-b border-b-gray-500 border-opacity-10 px-4 py-2 text-sm dark:text-slate-300  last:mb-0 cursor-pointer first:rounded-t last:rounded-b flex space-x-2 items-center capitalize  rtl:space-x-reverse">
+                                                                        <iconify-icon
+                                                                            icon="material-symbols:delete-outline"></iconify-icon>
+                                                                        <span>Delete</span>
+                                                                    </span>
+                                                                </li>
 
-                                                        </ul>
 
+                                                            </ul>
+                                                        @endcan
                                                     </div>
 
                                                 </div>

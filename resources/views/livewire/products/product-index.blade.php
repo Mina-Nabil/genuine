@@ -6,12 +6,12 @@
             </h4>
         </div>
         <div class="flex sm:space-x-4 space-x-2 sm:justify-end items-center md:mb-6 mb-4 rtl:space-x-reverse">
-            {{-- @can('create', App\Models\Customers\Customer::class) --}}
+            @can('create', App\Models\Products\Product::class)
             <button wire:click="openNewProductSec"
                 class="btn inline-flex justify-center btn-dark dark:bg-slate-700 dark:text-slate-300 m-1 btn-sm">
                 Add Product
             </button>
-            {{-- @endcan --}}
+            @endcan
 
         </div>
     </div>

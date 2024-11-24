@@ -166,34 +166,37 @@
                                                             </div>
                                                         </td>
 
-                                                        @if ($order->status !== App\Models\Orders\Order::STATUS_READY)
-                                                            <td class="float-right ml-5">
-                                                                @if ($orderProduct->is_ready)
-                                                                    <button
-                                                                        wire:click='toggleReady({{ $orderProduct->id }})'
-                                                                        class="btn inline-flex justify-center btn-outline-success btn-sm"
-                                                                        style="padding-top: 3px;padding-bottom: 3px">
-                                                                        Ready
-                                                                    </button>
-                                                                @else
-                                                                    @if ($orderProduct->product->inventory->on_hand - $orderProduct->quantity < 0)
-                                                                        <button
-                                                                            class="btn inline-flex justify-center btn-outline-danger btn-sm"
-                                                                            style="padding-top: 3px;padding-bottom: 3px"
-                                                                            disabled>
-                                                                            Out of stock
-                                                                        </button>
-                                                                    @else
+                                                        @can('update', $order)
+                                                            @if ($order->status !== App\Models\Orders\Order::STATUS_READY)
+                                                                <td class="float-right ml-5">
+                                                                    @if ($orderProduct->is_ready)
                                                                         <button
                                                                             wire:click='toggleReady({{ $orderProduct->id }})'
-                                                                            class="btn inline-flex justify-center btn-outline-secondary btn-sm"
+                                                                            class="btn inline-flex justify-center btn-outline-success btn-sm"
                                                                             style="padding-top: 3px;padding-bottom: 3px">
-                                                                            Not Ready
+                                                                            Ready
                                                                         </button>
+                                                                    @else
+                                                                        @if ($orderProduct->product->inventory->on_hand - $orderProduct->quantity < 0)
+                                                                            <button
+                                                                                class="btn inline-flex justify-center btn-outline-danger btn-sm"
+                                                                                style="padding-top: 3px;padding-bottom: 3px"
+                                                                                disabled>
+                                                                                Out of stock
+                                                                            </button>
+                                                                        @else
+                                                                            <button
+                                                                                wire:click='toggleReady({{ $orderProduct->id }})'
+                                                                                class="btn inline-flex justify-center btn-outline-secondary btn-sm"
+                                                                                style="padding-top: 3px;padding-bottom: 3px">
+                                                                                Not Ready
+                                                                            </button>
+                                                                        @endif
                                                                     @endif
-                                                                @endif
-                                                            </td>
-                                                        @endif
+                                                                </td>
+                                                            @endif
+                                                        @endcan
+
                                                         <td class="float-right">
                                                             <p class="card-text">
                                                                 {{ number_format($orderProduct->quantity * ($orderProduct->product->weight / 1000), 3) }}

@@ -108,6 +108,10 @@ class ProductIndex extends Component
         $this->selectedProducts = $this->fetched_products_IDs;
     }
 
+    public function mount(){
+        $this->authorize('viewAny' , Product::class);
+    }
+
     public function render()
     {
         $products = Product::search($this->searchTerm)

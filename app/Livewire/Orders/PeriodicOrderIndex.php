@@ -18,6 +18,9 @@ class PeriodicOrderIndex extends Component
     public $selectedOrdersStatus;
     public $selectedAllOrders = false;
     
+    public function mount(){
+        $this->authorize('viewAny',PeriodicOrder::class);
+    }
 
     public function render()
     {
