@@ -219,7 +219,7 @@
                                         </span>
                                     </div>
                                     @if ($order->isOpenToPay())
-                                        <div>
+                                        <div class="flex justify-between mb-2">
                                             @if ($order->remaining_to_pay && $order->customer->balance > 0)
                                                 <button wire:click='openPayFromBalance'
                                                     class="btn inline-flex justify-center btn-outline-light btn-sm">
@@ -227,8 +227,7 @@
                                                 </button>
                                             @endif
                                             @if ($order->remaining_to_pay > 0)
-                                                <div>
-                                                    <div class="relative">
+                                                    <div class="relative mt-2 ml-5">
                                                         <div class="dropdown relative">
                                                             <button class="text-xl text-center block w-full "
                                                                 type="button" id="tableDropdownMenuButton1"
@@ -248,7 +247,6 @@
                                                             </ul>
                                                         </div>
                                                     </div>
-                                                </div>
                                             @endif
                                         </div>
                                     @endif
@@ -494,7 +492,7 @@
                                     </a>
                                 </p>
                                 <p class="text-xs mt-1">{{ $order->customer->total_orders }}
-                                    order{{ $order->customer->total_orders > 1 ? 's' : '' }}</p>
+                                    order{{ $order->customer->total_orders > 1 ? 's' : '' }} @if($order->customer->balance) - {{ $order->customer->balance }}EGP in balance @endif</p>
                             </div>
                             <div class="flex justify-bewwteen mt-5">
                                 <label for="phone" class="form-label"><b>Shipping Address</b></label>
@@ -877,11 +875,11 @@
                             <!-- Modal body -->
                             <div class="p-6 space-y-4">
 
-                                Are you sure you want to deduct <b>{{ number_format($order->total_amount, 2) }}<small>EGP
+                                Are you sure you want to deduct <b>{{ min(number_format($order->total_amount, 2), $order->customer->balance) }}<small>EGP
                                     </small> </b> from the customer's balance of
                                 <b>{{ number_format($order->customer->balance, 2) }}<small>EGP </small></b>?
                                 The remaining balance will be
-                                <b>{{ number_format($order->customer->balance - $order->total_amount, 2) }}<small>EGP
+                                <b>{{ number_format($order->customer->balance - min(number_format($order->total_amount, 2), $order->customer->balance), 2) }}<small>EGP
                                     </small> </b>
 
                             </div>

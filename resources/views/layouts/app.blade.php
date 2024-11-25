@@ -156,7 +156,7 @@
                             <span class="flex items-center">
                                 <iconify-icon class=" nav-icon" icon="wpf:timer">
                                 </iconify-icon>
-                                <span>Periodic</span>
+                                <span>طلبات متكرره</span>
                             </span>
                         </a>
                     </li>
@@ -210,7 +210,7 @@
                             <span class="flex items-center">
                                 <iconify-icon class=" nav-icon" icon="ic:sharp-inventory">
                                 </iconify-icon>
-                                <span>Inventories</span>
+                                <span>مخزن</span>
                             </span>
                         </a>
                     </li>
@@ -221,7 +221,7 @@
                             <span class="flex items-center">
                                 <iconify-icon class=" nav-icon" icon="grommet-icons:transaction">
                                 </iconify-icon>
-                                <span>Transactions</span>
+                                <span>معاملات</span>
                             </span>
                         </a>
                     </li>
