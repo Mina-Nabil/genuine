@@ -133,7 +133,7 @@
                             <span class="flex items-center">
                                 <iconify-icon class=" nav-icon" icon="iconoir:delivery-truck">
                                 </iconify-icon>
-                                <span>Driver Shift</span>
+                                <span>يوميه مندوب</span>
                             </span>
                         </a>
                     </li>
@@ -143,7 +143,7 @@
                             <span class="flex items-center">
                                 <iconify-icon class=" nav-icon" icon="gridicons:product">
                                 </iconify-icon>
-                                <span>Prepare</span>
+                                <span>تحضير</span>
                             </span>
                         </a>
                     </li>
@@ -159,7 +159,7 @@
                             <span class="flex items-center">
                                 <iconify-icon class=" nav-icon" icon="la:industry">
                                 </iconify-icon>
-                                <span>Production</span>
+                                <span>انتاج</span>
                             </span>
                         </a>
                     </li>
@@ -171,7 +171,7 @@
                             <span class="flex items-center">
                                 <iconify-icon class=" nav-icon" icon="flowbite:tag-outline">
                                 </iconify-icon>
-                                <span>Products</span>
+                                <span>اصناف</span>
                             </span>
                         </a>
                     </li>
@@ -181,7 +181,7 @@
                             <span class="flex items-center">
                                 <iconify-icon class=" nav-icon" icon="mage:box-3d-plus">
                                 </iconify-icon>
-                                <span>Combos</span>
+                                <span>كومبو</span>
                             </span>
                         </a>
                     </li>
