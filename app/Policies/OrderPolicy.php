@@ -16,6 +16,11 @@ class OrderPolicy
         return true;
     }
 
+    public function viewOrderInventory(User $user): bool
+    {
+        return true;
+    }
+
     /**
      * Determine whether the user can view the model.
      */

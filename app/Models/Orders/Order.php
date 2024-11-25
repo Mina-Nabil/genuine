@@ -37,7 +37,7 @@ class Order extends Model
     const PERIODIC_OPTIONS = [self::PERIODIC_WEEKLY, self::PERIODIC_BI_WEEKLY, self::PERIODIC_MONTHLY];
     const PERIODIC_WEEKLY = 'weekly';
     const PERIODIC_BI_WEEKLY = 'bi-weekly';
-    const PERIODIC_MONTHLY = 'bi-monthly';
+    const PERIODIC_MONTHLY = 'monthly';
 
     const STATUS_NEW = 'new';
     const STATUS_READY = 'ready';
@@ -139,7 +139,7 @@ class Order extends Model
     }
 
     // Function to create a new order
-    public static function newOrder(int $customerId, string $customerName, string $shippingAddress, string $customerPhone, int $zoneId, $locationURL = null, int $driverId = null, string $periodicOption = null, float $totalAmount = 0, float $deliveryAmount = 0, float $discountAmount = 0, Carbon $deliveryDate = null, string $note = null, array $products, $detuctFromBalance = false): Order|bool
+    public static function newOrder(int $customerId, string $customerName, string $shippingAddress, string $customerPhone, int $zoneId, $locationURL = null, int $driverId = null, float $totalAmount = 0, float $deliveryAmount = 0, float $discountAmount = 0, Carbon $deliveryDate = null, string $note = null, array $products, $detuctFromBalance = false): Order|bool
     {
         /** @var User */
         $loggedInUser = Auth::user();
@@ -158,7 +158,6 @@ class Order extends Model
             $order->customer_phone = $customerPhone;
             $order->zone_id = $zoneId;
             $order->driver_id = $driverId;
-            $order->periodic_option = $periodicOption;
             $order->total_amount = $totalAmount;
             $order->delivery_amount = $deliveryAmount;
             $order->discount_amount = $discountAmount;
@@ -192,29 +191,41 @@ class Order extends Model
         }
     }
 
-    /**
-     * Bulk assign a driver to multiple orders.
-     *
-     * @param array $orderIds Array of order IDs.
-     * @param int $driverId Driver ID to assign to the orders.
-     * @return bool True if successful, false otherwise.
-     */
+    public function assignDriverToOrder(int $driverId = null): bool
+    {
+        try {
+            if ($this->status !== self::STATUS_NEW && $this->status !== self::STATUS_READY) {
+                return false;
+            }
+            $this->driver_id = $driverId;
+            $this->save();
+            AppLog::info('Order Assigned to driver', loggable: $this);
+            return true;
+        } catch (Exception $e) {
+            report($e);
+            AppLog::error('Failed to assign order to driver', $e->getMessage());
+            return false;
+        }
+    }
+
+    // Static function for bulk assignment
     public static function assignDriverToOrders(array $orderIds, int $driverId): bool
     {
         DB::beginTransaction();
 
         try {
-            // Update the driver_id for each order in the array
             foreach ($orderIds as $orderId) {
                 $order = self::find($orderId);
 
-                // Proceed if the order exists
                 if ($order) {
-                    $order->driver_id = $driverId;
-                    $order->save();
-                    AppLog::info('Order Assigned to driver', loggable: $order);
+                    if (!$order->assignDriverToOrder($driverId)) {
+                        throw new Exception("Failed to assign driver to order ID: {$orderId}");
+                    }
+                } else {
+                    AppLog::warning('Order not found', ['order_id' => $orderId]);
                 }
             }
+
             DB::commit();
             return true;
         } catch (Exception $e) {
@@ -312,6 +323,17 @@ class Order extends Model
         });
 
         return $allHaveRemainingToPay;
+    }
+
+    public static function checkInHouseEligibility(array $orderIds)
+    {
+        $orders = Order::whereIn('id', $orderIds)->get();
+
+        $allEligible = $orders->every(function ($order) {
+            return $order->in_house;
+        });
+
+        return $allEligible;
     }
 
     public function createPayment($amount, $paymentMethod, $paymentDate, $isTakeFromBalance = false)
@@ -558,6 +580,10 @@ class Order extends Model
         DB::beginTransaction();
 
         try {
+            if (!$this->is_new) {
+                return false;
+            }
+
             foreach ($products as $product) {
                 // Skip if quantity is invalid
                 if (empty($product['quantity']) || $product['quantity'] <= 0) {
@@ -627,7 +653,11 @@ class Order extends Model
                 // Update the inventory quantity for the product
                 $inventory = $orderProduct->product->inventory;
                 if ($inventory) {
-                    $inventory->commitQuantity(-$quantityToRemove, 'Canceled from order #' . $this->order_number);
+                    if ($this->is_new) {
+                        $inventory->commitQuantity(-$quantityToRemove, 'Returned from order #' . $this->order_number);
+                    }else{
+                        $inventory->addTransaction($quantityToRemove, 'Returned from order #' . $this->order_number);
+                    }
                 }
 
                 // Log the removal in the order_removed_products table
@@ -703,7 +733,11 @@ class Order extends Model
                 // Update the inventory quantity for the product
                 if ($product['isReturnToStock']) {
                     if ($orderProduct->inventory) {
-                        $orderProduct->inventory->commitQuantity(-$product['return_quantity'], 'Removed from order #' . $this->order_number);
+                        if ($this->is_new) {
+                            $orderProduct->inventory->commitQuantity(-$product['return_quantity'], 'Returned from order #' . $this->order_number);
+                        }else{
+                            $orderProduct->inventory->addTransaction($product['return_quantity'], 'Returned from order #' . $this->order_number);
+                        }
                     }
                 } else {
                     if ($orderProduct->inventory) {
@@ -913,6 +947,16 @@ class Order extends Model
         $totalPaid = $totalPayments + $totalBalanceTransactions;
 
         return $totalPaid;
+    }
+
+    public function getInHouseAttribute(): bool
+    {
+        return $this->status === self::STATUS_NEW || $this->status === self::STATUS_READY;
+    }
+
+    public function getIsNewAttribute(): bool
+    {
+        return $this->status === self::STATUS_NEW;
     }
 
     public function areAllProductsReady(): bool

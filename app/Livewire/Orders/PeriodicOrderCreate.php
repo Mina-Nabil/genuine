@@ -5,6 +5,7 @@ namespace App\Livewire\Orders;
 use App\Models\Customers\Customer;
 use App\Models\Customers\Zone;
 use App\Models\Orders\Order;
+use App\Models\Orders\PeriodicOrder;
 use App\Models\Products\Combo;
 use App\Models\Products\Product;
 use App\Models\Users\Driver;
@@ -13,7 +14,7 @@ use Carbon\Carbon;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 
-class OrderCreate extends Component
+class PeriodicOrderCreate extends Component
 {
     use AlertFrontEnd;
     public $page_title = '• Orders • New';
@@ -24,17 +25,15 @@ class OrderCreate extends Component
     public $filterType;
     public $selectedProducts = [];
     public $fetchedProducts = [];
-    public $ddate;
     public $note;
-    public $driver;
-    public $isOpenSelectDriverSec;
-    public $driversSearchText;
     public $customersSearchText;
     public $isOpenSelectCustomerSec;
     public $dummyProductsSearch;
 
     public $paymentMethod;
-    public $periodicOption;
+    public $periodicOption = PeriodicOrder::PERIODIC_WEEKLY;
+    public $orderDay =  1;
+    public $orderName;
 
     public $customerIsNew = false;
     public $customerId;
@@ -114,17 +113,6 @@ class OrderCreate extends Component
         $this->customerIsNew = true;
     }
 
-    public function selectDriver($id)
-    {
-        $this->driver = Driver::findOrFail($id);
-        $this->closeDriverSection();
-    }
-
-    public function clearDriver()
-    {
-        $this->reset(['driver']);
-    }
-
     public function clearCustomer()
     {
         $this->reset(['customerIsNew', 'customerId', 'customerName', 'shippingAddress','locationURL', 'customerPhone', 'zoneId','detuctFromBalance']);
@@ -163,17 +151,6 @@ class OrderCreate extends Component
         $this->refreshPayments();
 
         
-    }
-
-    public function openDriverSection()
-    {
-        $this->isOpenSelectDriverSec = true;
-    }
-
-    public function closeDriverSection()
-    {
-        $this->isOpenSelectDriverSec = false;
-        $this->driversSearchText = null;
     }
 
     public function selectCombo($id)
@@ -333,7 +310,6 @@ class OrderCreate extends Component
 
     public function createOrder()
     {
-        $detuctFromBalance = false;
         if ($this->customerId) {
             $this->validate([
                 'customerId' => 'required|exists:customers,id',
@@ -347,7 +323,6 @@ class OrderCreate extends Component
                 'zoneId' => 'zone',
             ]);
             $customerId = $this->customerId;
-            $detuctFromBalance = $this->detuctFromBalance;
         } else {
             $this->validate([
                 
@@ -364,11 +339,9 @@ class OrderCreate extends Component
         }
 
         $this->validate([
-            'total' => 'nullable|numeric|min:0',
-            'shippingFee' => 'nullable|numeric|min:0',
-            'discountAmount' => 'nullable|numeric|min:0',
-            'ddate' => 'required|date',
+            'orderName' => 'nullable|string|max:500',
             'note' => 'nullable|string|max:500',
+            'periodicOption' => "required|in:" . implode(',', PeriodicOrder::PERIODIC_OPTIONS),
             'fetchedProducts.*.id' => 'required|exists:products,id',
             'fetchedProducts.*.combo_id' => 'nullable|exists:combos,id',
             'fetchedProducts.*.quantity' => 'required|integer|min:1',
@@ -380,15 +353,24 @@ class OrderCreate extends Component
         ]);
 
 
-        $driverID = null;
-        $this->driver ? $driverID = $this->driver->id : null;
-
-        $res = Order::newOrder($customerId, $this->customerName, $this->shippingAddress, $this->customerPhone, $this->zoneId, $this->locationURL,$driverID , $this->total, $this->shippingFee, $this->discountAmount, $this->ddate ? Carbon::parse($this->ddate) : null, $this->note, $this->fetchedProducts , $detuctFromBalance);
+        $res = PeriodicOrder::newPeriodicOrder(
+            $customerId,
+            $this->customerName,
+            $this->shippingAddress,
+            $this->customerPhone,
+            $this->zoneId,
+            $this->locationURL,
+            $this->periodicOption,
+            $this->orderName,
+            $this->orderDay,
+            $this->note,
+            true,
+            $this->fetchedProducts);
 
         if ($res) {
             $this->alertSuccess('order added!');
             sleep(2);
-            return redirect(route('orders.create'));
+            return redirect(route('orders.periodic.create'));
         } else {
             $this->alertFailed();
         }
@@ -397,10 +379,6 @@ class OrderCreate extends Component
     public function render()
     {
         $products = Product::search($this->productsSearchText)
-            ->limit(10)
-            ->get();
-
-        $drivers = Driver::search($this->driversSearchText)
             ->limit(10)
             ->get();
 
@@ -414,13 +392,16 @@ class OrderCreate extends Component
             ->limit(10)
             ->get();
 
+        $PERIODIC_OPTIONS = PeriodicOrder::PERIODIC_OPTIONS;
+        $daysofweek = PeriodicOrder::daysOfWeek;
 
-        return view('livewire.orders.order-create', [
+        return view('livewire.orders.periodic-order-create',[
             'products' => $products,
-            'drivers' => $drivers,
             'customers' => $customers,
             'zones' => $zones,
             'combos' => $combos,
-        ])->layout('layouts.app', ['page_title' => $this->page_title, 'orders' => 'active']);
+            'PERIODIC_OPTIONS' => $PERIODIC_OPTIONS,
+            'daysofweek' => $daysofweek
+        ]);
     }
 }

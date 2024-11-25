@@ -1,7 +1,7 @@
 <div>
     <div class="space-y-5 profile-page mx-auto" style="max-width: 1000px">
         <div class="flex justify-between">
-            <h4><b>Create Order</b></h4>
+            <h4><b>Create Periodic Order</b></h4>
             @if (!empty($fetchedProducts))
                 <button wire:click='createOrder' class="btn inline-flex justify-center btn-dark btn-sm">Save</button>
             @endif
@@ -20,7 +20,7 @@
             </div>
         @endif
 
-        <div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-6 gap-5 mb-5 text-wrap">
+        <div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-6 md:gap-5 mb-5 text-wrap">
 
             <div class="col-span-4">
 
@@ -231,35 +231,6 @@
                                                     icon="material-symbols:close" width="1.2em"
                                                     height="1.2em"></iconify-icon></span>
                                         </div>
-
-                                        @if ($customerBalance > 0)
-                                            <div
-                                                class="bg-slate-50 dark:bg-slate-900 rounded p-4 mt-2 flex justify-between flex-wrap">
-                                                <div class="space-y-1">
-                                                    <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
-                                                        Balance
-                                                    </h4>
-                                                    <div class="text-sm font-medium text-slate-900 dark:text-white">
-                                                        <b>{{ number_format($customerBalance, 2) }}</b><small>&nbsp;EGP</small>
-                                                    </div>
-                                                    <div class="checkbox-area">
-                                                        <label class="inline-flex items-center cursor-pointer">
-                                                            <input wire:model.live='detuctFromBalance' type="checkbox"
-                                                                class="hidden" name="checkbox" checked="checked">
-                                                            <span
-                                                                class="h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 bg-slate-100 dark:bg-slate-900">
-                                                                <img src="{{ asset('assets/images/icon/ck-white.svg') }}"
-                                                                    alt=""
-                                                                    class="h-[10px] w-[10px] block m-auto opacity-0"></span>
-                                                            <span
-                                                                class="text-slate-500 dark:text-slate-400 text-sm leading-6">
-                                                                Detuct from balance ?</span>
-                                                        </label>
-                                                    </div>
-                                                </div>
-
-                                            </div>
-                                        @endif
                                     @elseif($customerIsNew)
                                         <div class="mb-2">
                                             <label for="customerName" class="form-label !m-0">Name</label>
@@ -352,45 +323,61 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="col-span-2">
                     <div class="card mb-5">
                         <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base">
                             <div class="items-center p-5">
                                 <div class="input-area w-full">
-                                    <label for="ddate" class="form-label"><b>Delivery Date</b></label>
-                                    <input wire:model='ddate' type="date" name="ddate"
-                                        class="form-control @error('ddate') !border-danger-500 @enderror">
-                                    @error('ddate')
+                                    <label for="periodicOption" class="form-label"><b>Periodic option</b></label>
+                                    <select name="periodicOption" id="periodicOption"
+                                        class="form-control w-full @error('periodicOption') !border-danger-500 @enderror"
+                                        wire:model.live="periodicOption" autocomplete="off">
+                                        @foreach ($PERIODIC_OPTIONS as $PERIODIC_OPTION)
+                                            <option value="{{ $PERIODIC_OPTION }}">
+                                                {{ ucwords(str_replace('_', ' ', $PERIODIC_OPTION)) }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('periodicOption')
                                         <span
                                             class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
                                     @enderror
                                 </div>
-
-                                <div class="input-area w-full mt-5">
-                                    <label for="ddate" class="form-label"><b>Driver</b></label>
-                                    @if ($driver)
-                                        <div
-                                            class="badge bg-slate-900 text-white capitalize w-full flex justify-between items-center">
-                                            <span>{{ $driver->user->full_name }} • {{ $driver->shift_title }}</span>
-                                            <span class="cursor-pointer" wire:click='clearDriver'><iconify-icon
-                                                    icon="material-symbols:close" width="1.2em"
-                                                    height="1.2em"></iconify-icon></span>
-                                        </div>
-                                    @else
-                                        <button wire:click='openDriverSection'
-                                            class="btn inline-flex justify-center btn-light block-btn btn-sm">
-                                            <span class="flex items-center">
-                                                <span>Set driver</span>
-                                            </span>
-                                        </button>
-                                    @endif
-                                </div>
+                                @if ($periodicOption === App\Models\Orders\PeriodicOrder::PERIODIC_WEEKLY || $periodicOption === App\Models\Orders\PeriodicOrder::PERIODIC_BI_WEEKLY)
+                                    <div class="input-area w-full mt-5">
+                                        <label for="orderDay" class="form-label"><b>Day of week</b></label>
+                                        <select name="orderDay" id="orderDay"
+                                            class="form-control w-full @error('orderDay') !border-danger-500 @enderror"
+                                            wire:model.live="orderDay" autocomplete="off">
+                                            @foreach ($daysofweek as $index => $day)
+                                                <option value="{{ $index }}">
+                                                    {{ ucwords(str_replace('_', ' ', $day)) }}</option>
+                                            @endforeach
+                                        </select>
+                                        @error('orderDay')
+                                            <span
+                                                class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                @elseif($periodicOption === App\Models\Orders\PeriodicOrder::PERIODIC_MONTHLY)
+                                    <div class="input-area w-full mt-5">
+                                        <label for="ddate" class="form-label"><b>Day of month</b></label>
+                                        <input ty name="orderDay" id="orderDay" type="number" min="1" max="30"
+                                            class="form-control w-full @error('orderDay') !border-danger-500 @enderror"
+                                            wire:model.live="orderDay" autocomplete="off">
+                                        @error('orderDay')
+                                            <span
+                                                class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                @endif
 
                             </div>
                         </div>
                     </div>
+                </div>
 
+                <div class="col-span-2">
                     <div class="card">
                         <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base">
                             <div class="items-center p-5">
@@ -671,111 +658,6 @@
             </div>
     @endif
 
-    @if ($isOpenSelectDriverSec)
-        <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
-            tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
-            style="display: block;">
-            <div class="modal-dialog relative w-auto pointer-events-none">
-                <div
-                    class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
-                    <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
-                        <!-- Modal header -->
-                        <div
-                            class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
-                            <h3 class="text-xl font-medium text-white dark:text-white capitalize">
-                                Set Driver
-                            </h3>
-                            <button wire:click="closeDriverSection" type="button"
-                                class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
-                                data-bs-dismiss="modal">
-                                <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path fill-rule="evenodd"
-                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                        clip-rule="evenodd"></path>
-                                </svg>
-                                <span class="sr-only">Close modal</span>
-                            </button>
-                        </div>
-
-                        <!-- Modal body -->
-                        <div class="p-6 space-y-4">
-                            <input wire:model.live='driversSearchText' type="text" class="form-control"
-                                placeholder="Search driver...">
-
-                            <div class=""> <!-- Add this wrapper to allow horizontal scroll -->
-                                <table class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700 ">
-                                    <thead
-                                        class="border-t border-slate-100 dark:border-slate-800 bg-slate-200 dark:bg-slate-700">
-                                        <tr>
-                                            <th scope="col"
-                                                class="table-th  flex items-center border-t border-slate-100 dark:border-slate-800 bg-slate-200 dark:bg-slate-700"
-                                                style="position: sticky; left: -25px;  z-index: 10;">
-                                                Name
-                                            </th>
-
-                                            <th scope="col" class="table-th">
-                                                Weight limit
-                                            </th>
-
-                                            <th scope="col" class="table-th">
-                                                Car
-                                            </th>
-
-
-                                        </tr>
-                                    </thead>
-                                    <tbody
-                                        class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700 no-wrap">
-
-                                        @foreach ($drivers as $driver)
-                                            <tr wire:click='selectDriver({{ $driver->id }})'
-                                                class="hover:bg-slate-200 dark:hover:bg-slate-700 cursor-pointer">
-
-                                                <td class="table-td">
-                                                    <b>{{ $driver->user->full_name }} • {{ $driver->shift_title }}</b>
-                                                </td>
-
-                                                <td class="table-td">
-                                                    {{ number_format($driver->weight_limit / 1000, 2) }}&nbsp;<small>KG</small>
-                                                </td>
-
-                                                <td class="table-td">
-                                                    {{ $driver->car_model }}
-                                                </td>
-
-
-                                            </tr>
-                                        @endforeach
-
-                                    </tbody>
-
-                                </table>
-
-
-                                @if ($drivers->isEmpty())
-                                    {{-- START: empty filter result --}}
-                                    <div class="card m-5 p-5">
-                                        <div class="card-body rounded-md bg-white dark:bg-slate-800">
-                                            <div class="items-center text-center p-5">
-                                                <h2>
-                                                    <iconify-icon icon="icon-park-outline:search"></iconify-icon>
-                                                </h2>
-                                                <h2 class="card-title text-slate-900 dark:text-white mb-3">No
-                                                    Drivers
-                                                    Found!</h2>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {{-- END: empty filter result --}}
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-    @endif
-
     @if ($isOpenSelectCustomerSec)
         <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
             tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
@@ -942,7 +824,8 @@
             </div>
     @endif
 
-    <div wire:loading wire:target="createOrder" class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+    <div wire:loading wire:target="createOrder"
+        class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
         tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog">
         <div class="modal-dialog relative w-auto pointer-events-none">
             <div class="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-75" role="dialog"

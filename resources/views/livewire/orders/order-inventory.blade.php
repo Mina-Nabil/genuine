@@ -166,25 +166,37 @@
                                                             </div>
                                                         </td>
 
-                                                        @if ($order->status !== App\Models\Orders\Order::STATUS_READY)
-                                                            <td class="float-right ml-5">
-                                                                @if ($orderProduct->is_ready)
-                                                                    <button
-                                                                        wire:click='toggleReady({{ $orderProduct->id }})'
-                                                                        class="btn inline-flex justify-center btn-outline-success btn-sm"
-                                                                        style="padding-top: 3px;padding-bottom: 3px">
-                                                                        Ready
-                                                                    </button>
-                                                                @else
-                                                                    <button
-                                                                        wire:click='toggleReady({{ $orderProduct->id }})'
-                                                                        class="btn inline-flex justify-center btn-outline-secondary btn-sm"
-                                                                        style="padding-top: 3px;padding-bottom: 3px">
-                                                                        Not Ready
-                                                                    </button>
-                                                                @endif
-                                                            </td>
-                                                        @endif
+                                                        @can('update', $order)
+                                                            @if ($order->status !== App\Models\Orders\Order::STATUS_READY)
+                                                                <td class="float-right ml-5">
+                                                                    @if ($orderProduct->is_ready)
+                                                                        <button
+                                                                            wire:click='toggleReady({{ $orderProduct->id }})'
+                                                                            class="btn inline-flex justify-center btn-outline-success btn-sm"
+                                                                            style="padding-top: 3px;padding-bottom: 3px">
+                                                                            Ready
+                                                                        </button>
+                                                                    @else
+                                                                        @if ($orderProduct->product->inventory->on_hand - $orderProduct->quantity < 0)
+                                                                            <button
+                                                                                class="btn inline-flex justify-center btn-outline-danger btn-sm"
+                                                                                style="padding-top: 3px;padding-bottom: 3px"
+                                                                                disabled>
+                                                                                Out of stock
+                                                                            </button>
+                                                                        @else
+                                                                            <button
+                                                                                wire:click='toggleReady({{ $orderProduct->id }})'
+                                                                                class="btn inline-flex justify-center btn-outline-secondary btn-sm"
+                                                                                style="padding-top: 3px;padding-bottom: 3px">
+                                                                                Not Ready
+                                                                            </button>
+                                                                        @endif
+                                                                    @endif
+                                                                </td>
+                                                            @endif
+                                                        @endcan
+
                                                         <td class="float-right">
                                                             <p class="card-text">
                                                                 {{ number_format($orderProduct->quantity * ($orderProduct->product->weight / 1000), 3) }}
@@ -268,7 +280,8 @@
                                             Total Weight
                                         </h4>
                                         <div class="text-sm font-medium text-slate-900 dark:text-white">
-                                            {{ number_format($orders->sum('total_weight') / 1000, 3) }} <small>KG</small>
+                                            {{ number_format($orders->sum('total_weight') / 1000, 3) }}
+                                            <small>KG</small>
                                         </div>
                                     </div>
                                     <div class="space-y-1">
@@ -276,7 +289,7 @@
                                             Total Price
                                         </h4>
                                         <div class="text-sm font-medium text-slate-900 dark:text-white">
-                                            {{ number_format($orders->sum('total_amount') , 2) }} <small>EGP</small>
+                                            {{ number_format($orders->sum('total_amount'), 2) }} <small>EGP</small>
                                         </div>
                                     </div>
                                     <div class="space-y-1">
@@ -284,7 +297,9 @@
                                             Total Orders
                                         </h4>
                                         <div class="text-sm font-medium text-slate-900 dark:text-white">
-                                            {{ $orders->count() }} <small>( {{ $orders->sum(fn($order) => $order->products->sum('quantity')) }} Items ) </small>
+                                            {{ $orders->count() }} <small>(
+                                                {{ $orders->sum(fn($order) => $order->products->sum('quantity')) }}
+                                                Items ) </small>
                                         </div>
                                     </div>
                                 </div>

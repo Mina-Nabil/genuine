@@ -11,11 +11,16 @@ use App\Livewire\Orders\OrderDriverShift;
 use App\Livewire\Orders\OrderIndex;
 use App\Livewire\Orders\OrderInventory;
 use App\Livewire\Orders\OrderShow;
+use App\Livewire\Orders\PeriodicOrderCreate;
+use App\Livewire\Orders\PeriodicOrderIndex;
+use App\Livewire\Orders\PeriodicOrderShow;
 use App\Livewire\Pets\PetIndex;
 use App\Livewire\Products\ComboIndex;
 use App\Livewire\Products\ComboShow;
+use App\Livewire\Products\InventoryTransactionIndex;
 use App\Livewire\Products\ProductIndex;
 use App\Livewire\Products\ProductShow;
+use App\Livewire\Products\TransactionIndex;
 use App\Livewire\Reports\ProductionPlanning;
 use App\Livewire\Tasks\TaskIndex;
 use App\Livewire\Tasks\TaskShow;
@@ -38,6 +43,9 @@ Route::get('/customers/{id}',CustomerShow::class)->name('customer.show');
 Route::get('/products',ProductIndex::class)->name('product.index');
 Route::get('/products/{id}',ProductShow::class)->name('product.show');
 
+Route::get('/inventories',InventoryTransactionIndex::class)->name('inventories.index');
+Route::get('/transactions',TransactionIndex::class)->name('transactions.index');
+
 Route::get('/combos',ComboIndex::class)->name('combo.index');
 Route::get('/combos/{id}',ComboShow::class)->name('combo.show');
 
@@ -52,7 +60,11 @@ Route::get('/notifications', NotificationIndex::class);
 Route::post('/notifications/seen/{id}', [UserController::class, 'setNotfAsSeen']);
 
 Route::get('/orders/new',OrderCreate::class)->name('orders.create');
+Route::get('/orders/periodic/new',PeriodicOrderCreate::class)->name('orders.periodic.create');
+Route::get('/orders/periodic/{id}',PeriodicOrderShow::class)->name('orders.periodic.show');
+
 Route::get('/orders',OrderIndex::class)->name('orders.index');
+Route::get('/orders/periodic',PeriodicOrderIndex::class)->name('orders.periodic.index');
 Route::get('/orders/inventory',OrderInventory::class)->name('orders.inventory');
 Route::get('/orders/driver',OrderDriverShift::class)->name('orders.driver.shift');
 Route::get('/orders/{id}',OrderShow::class)->name('orders.show');

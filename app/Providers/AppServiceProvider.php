@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\Customers\Customer;
 use App\Models\Customers\Zone;
 use App\Models\Orders\Order;
+use App\Models\Orders\PeriodicOrder;
 use App\Models\Products\Inventory;
 use App\Models\Products\Product;
 use App\Models\Tasks\TaskWatcher;
@@ -34,6 +35,7 @@ class AppServiceProvider extends ServiceProvider
             Inventory::MORPH_TYPE   => Inventory::class, 
             AppLog::MORPH_TYPE   => AppLog::class, 
             Order::MORPH_TYPE   => Order::class, 
+            PeriodicOrder::MORPH_TYPE   => PeriodicOrder::class, 
             Zone::MORPH_TYPE => Zone::class,
             Driver::MORPH_TYPE => Driver::class,
             TaskWatcher::MORPH_TYPE => TaskWatcher::class,

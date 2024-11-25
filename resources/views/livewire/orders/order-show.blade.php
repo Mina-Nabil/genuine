@@ -28,13 +28,35 @@
 
 
             @can('update', $order)
-                <div>
-                    <button
-                        class="btn inline-flex justify-center  bg-secondary-500 bg-opacity-30 text-slate-900 dark:text-white btn-sm"
-                        wire:click='openReturnsSection'>Return</button>
-                    <button
-                        class="btn inline-flex justify-center  bg-secondary-500 bg-opacity-30 text-slate-900 dark:text-white btn-sm"
-                        wire:click='openReturnsSection'>Add Products</button>
+                <div class="dropdown relative">
+                    <button class="btn inline-flex justify-center btn-dark items-center btn-sm" type="button"
+                        id="darkDropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                        More actions
+                        <iconify-icon class="text-xl ltr:ml-2 rtl:mr-2" icon="ic:round-keyboard-arrow-down"></iconify-icon>
+                    </button>
+                    <ul
+                        class=" dropdown-menu min-w-max absolute text-sm text-slate-700 dark:text-white hidden bg-white dark:bg-slate-700 shadow
+                                        z-[2] float-left overflow-hidden list-none text-left rounded-lg mt-1 m-0 bg-clip-padding border-none">
+                        <li wire:click='openReturnsSection'
+                            class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600
+                            dark:hover:text-white cursor-pointer">
+                            Return
+                        </li>
+                        @if ($order->is_new)
+                            <li wire:click='openAddProductsSec'
+                                class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600
+                            dark:hover:text-white cursor-pointer">
+                                Add Products
+                            </li>
+                        @endif
+                        @foreach ($NextStatuses as $NextStatus)
+                            <li wire:click="setStatus('{{ $NextStatus }}')"
+                                class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600
+                            dark:hover:text-white cursor-pointer">
+                                Set as {{ ucwords(str_replace('_', ' ', $NextStatus)) }}
+                            </li>
+                        @endforeach
+                    </ul>
                 </div>
             @endcan
         </div>
@@ -87,7 +109,7 @@
 
                                                 <div>
                                                     <h6
-                                                        class="text-slate-600 dark:text-slate-300 overflow-hidden text-ellipsis whitespace-nowrap">
+                                                        class="text-slate-600 pb-2 dark:text-slate-300 overflow-hidden text-ellipsis whitespace-nowrap">
                                                         {{ $orderProduct->product->name }}
                                                     </h6>
                                                 </div>
@@ -144,7 +166,7 @@
 
                                                 <div>
                                                     <h6
-                                                        class="text-slate-600 dark:text-slate-300 overflow-hidden text-ellipsis whitespace-nowrap">
+                                                        class="text-slate-600  pb-2 dark:text-slate-300 overflow-hidden text-ellipsis whitespace-nowrap">
                                                         {{ $removedProduct->product->name }}
                                                     </h6>
                                                 </div>
@@ -205,10 +227,28 @@
                                                 </button>
                                             @endif
                                             @if ($order->remaining_to_pay > 0)
-                                                <button wire:click='PayCash'
-                                                    class="btn inline-flex justify-center btn-outline-light btn-sm">
-                                                    Pay remaining cash
-                                                </button>
+                                                <div>
+                                                    <div class="relative">
+                                                        <div class="dropdown relative">
+                                                            <button class="text-xl text-center block w-full "
+                                                                type="button" id="tableDropdownMenuButton1"
+                                                                data-bs-toggle="dropdown" aria-expanded="false">
+                                                                <iconify-icon
+                                                                    icon="heroicons-outline:dots-vertical"></iconify-icon>
+                                                            </button>
+                                                            <ul class=" dropdown-menu min-w-[120px] absolute text-sm text-slate-700 dark:text-white hidden bg-white dark:bg-slate-700 shadow z-[2] float-left overflow-hidden list-none text-left rounded-lg mt-1 m-0 bg-clip-padding border-none"
+                                                                style="min-width: 180px">
+                                                                @foreach ($PAYMENT_METHODS as $PAYMENT_METHOD)
+                                                                    <li wire:click="confirmPayOrder('{{ $PAYMENT_METHOD }}')"
+                                                                        class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:text-white hover:bg-slate-900 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
+                                                                        Pay
+                                                                        {{ ucwords(str_replace('_', ' ', $PAYMENT_METHOD)) }}
+                                                                    </li>
+                                                                @endforeach
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             @endif
                                         </div>
                                     @endif
@@ -223,7 +263,8 @@
 
                                         <tr>
                                             <td class=" text-xs text-slate-500 dark:text-slate-400">Subtotal</td>
-                                            <td class="hidden md:table-cell text-xs text-slate-500 dark:text-slate-400">
+                                            <td
+                                                class="hidden md:table-cell text-xs text-slate-500 dark:text-slate-400">
                                                 {{ $order->total_items . ' items' }}</td>
                                             <td class="float-right text-dark">
                                                 <b>{{ $order->total_items_price ? number_format($order->total_items_price, 2) : '-' }}<small>&nbsp;EGP</small></b>
@@ -413,6 +454,7 @@
 
             </div>
             <div class="col-span-2">
+
                 <div class="card">
                     <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base">
                         <div class="items-center p-5">
@@ -465,6 +507,50 @@
                                 href="tel:{{ $order->customer_phone }}">{{ $order->customer_phone }}</a>
                             <p class="text-xs">{{ $order->shipping_address }}</p>
                             <p class="text-xs mt-1">{{ $order->zone->name }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-5">
+                    <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base">
+                        <div class="items-center p-5">
+                            <div class="input-area w-full">
+                                <div class="flex justify-between">
+                                    <label for="phone" class="form-label"><b>Assigned Driver</b></label>
+                                    @if ($order->in_house)
+                                        <button wire:click='openSetDriverSection' class="action-btn" type="button">
+                                            @if ($order->driver)
+                                                <iconify-icon icon="heroicons:pencil-square"></iconify-icon>
+                                            @else
+                                                <iconify-icon icon="material-symbols:add" width="1.2em"
+                                                    height="1.2em"></iconify-icon>
+                                            @endif
+                                        </button>
+                                        @if ($order->driver)
+                                            <button wire:click='showConfirmRemoveDriver' class="action-btn ml-2"
+                                                type="button">
+                                                <iconify-icon icon="material-symbols-light:delete-outline"
+                                                    width="1.2em" height="1.2em"></iconify-icon>
+                                            </button>
+                                        @endif
+                                    @endif
+                                </div>
+
+                                @if ($order->driver)
+                                    <p class="text-xs">
+                                        <a class="clickable-link"
+                                            href="{{ route('profile', $order->driver->user_id) }}">
+                                            {{ $order->driver->user->full_name }}
+                                        </a>
+                                        -> {{ $order->driver->shift_title }}
+                                    </p>
+                                    <a class="text-xs clickable-link"
+                                        href="tel:{{ $order->driver->user->phone }} ">{{ $order->driver->user->phone }}
+                                    </a>
+                                @else
+                                    <p class="text-xs text-center p-2">No Driver Assigned</p>
+                                @endif
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -816,6 +902,106 @@
         @endif
     @endcan
 
+    @if ($confirmRemoveDriver)
+        <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+            tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
+            style="display: block;">
+            <div class="modal-dialog relative w-auto pointer-events-none">
+                <div
+                    class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
+                    <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
+                        <!-- Modal header -->
+                        <div
+                            class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-danger-500">
+                            <h3 class="text-xl font-medium text-white dark:text-white capitalize">
+                                Remove driver
+                            </h3>
+                            <button wire:click="hideConfirmRemoveDriver" type="button"
+                                class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
+                                data-bs-dismiss="modal">
+                                <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd"
+                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                <span class="sr-only">Close modal</span>
+                            </button>
+                        </div>
+
+                        <!-- Modal body -->
+                        <div class="p-6 space-y-4">
+
+                            Are you sure you want to remove driver ?
+                        </div>
+
+                        <!-- Modal footer -->
+                        <div class="flex items-center justify-end p-6 border-t border-slate-200 rounded-b">
+                            <button wire:click="setDriver" data-bs-dismiss="modal"
+                                class="btn inline-flex justify-center text-white bg-black-500">
+                                <span wire:loading.remove wire:target="setDriver">Confirm</span>
+                                <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
+                                    wire:loading wire:target="setDriver"
+                                    icon="line-md:loading-twotone-loop"></iconify-icon>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    @endif
+
+    @can('pay', $order)
+        @if ($PAY_BY_PAYMENT_METHOD)
+            <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+                tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
+                style="display: block;">
+                <div class="modal-dialog relative w-auto pointer-events-none">
+                    <div
+                        class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
+                        <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
+                            <!-- Modal header -->
+                            <div
+                                class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-warning-500">
+                                <h3 class="text-xl font-medium text-black dark:text-white capitalize">
+                                    Warning
+                                </h3>
+                                <button wire:click="closeConfirmPayOrder" type="button"
+                                    class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
+                                    data-bs-dismiss="modal">
+                                    <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd"
+                                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                            clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span class="sr-only">Close modal</span>
+                                </button>
+                            </div>
+
+                            <!-- Modal body -->
+                            <div class="p-6 space-y-4">
+
+                                Are you sure you want to proceed with the payment of
+                                <b>{{ number_format($order->remaining_to_pay, 2) }}</b><small>EGP</small> using the
+                                <b>{{ ucwords(str_replace('_', ' ', $PAY_BY_PAYMENT_METHOD)) }}</b> method?
+                            </div>
+
+                            <!-- Modal footer -->
+                            <div class="flex items-center justify-end p-6 border-t border-slate-200 rounded-b">
+                                <button wire:click="PayOrder" data-bs-dismiss="modal"
+                                    class="btn inline-flex justify-center text-white bg-black-500">
+                                    <span wire:loading.remove wire:target="PayOrder">Procceed Transaction</span>
+                                    <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
+                                        wire:loading wire:target="PayOrder"
+                                        icon="line-md:loading-twotone-loop"></iconify-icon>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        @endif
+    @endcan
+
     @can('update', $order)
         @if ($ddateSection)
             <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
@@ -976,13 +1162,17 @@
                                                 <td class="table-td imp-p-2">
                                                     <div class="checkbox-area">
                                                         <label class="inline-flex items-center cursor-pointer">
-                                                            <input wire:model='cancelledProducts.{{ $index }}.isReturnToStock' type="checkbox"
-                                                                class="hidden" name="checkbox" checked="checked">
+                                                            <input
+                                                                wire:model='cancelledProducts.{{ $index }}.isReturnToStock'
+                                                                type="checkbox" class="hidden" name="checkbox"
+                                                                checked="checked">
                                                             <span
                                                                 class="h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 bg-slate-100 dark:bg-slate-900">
-                                                                <img src="{{ asset('assets/images/icon/ck-white.svg') }}" alt=""
+                                                                <img src="{{ asset('assets/images/icon/ck-white.svg') }}"
+                                                                    alt=""
                                                                     class="h-[10px] w-[10px] block m-auto opacity-0"></span>
-                                                            <span class="text-slate-500 dark:text-slate-400 text-sm leading-6">
+                                                            <span
+                                                                class="text-slate-500 dark:text-slate-400 text-sm leading-6">
                                                                 Return to stock ?</span>
                                                         </label>
                                                     </div>
@@ -1011,20 +1201,17 @@
                                             <tr>
                                                 <td class="table-td ">
                                                     <b>{{ number_format($cancelledProductsTotalAmount, 2) }}</b><small>EGP</small>
-                                                    <span
-                                                        class="block text-slate-500 text-xs">Amount of retunrs</span>
+                                                    <span class="block text-slate-500 text-xs">Amount of retunrs</span>
                                                 </td>
 
                                                 <td class="table-td ">
                                                     <b>{{ number_format($order->total_paid, 2) }}</b><small>EGP</small>
-                                                    <span
-                                                        class="block text-slate-500 text-xs">Total Paid</span>
+                                                    <span class="block text-slate-500 text-xs">Total Paid</span>
                                                 </td>
 
                                                 <td class="table-td ">
-                                                    <b>{{ number_format(min($cancelledProductsTotalAmount,$order->total_paid), 2) }}</b><small>EGP</small>
-                                                    <span
-                                                        class="block text-slate-500 text-xs">Return Amount</span>
+                                                    <b>{{ number_format(min($cancelledProductsTotalAmount, $order->total_paid), 2) }}</b><small>EGP</small>
+                                                    <span class="block text-slate-500 text-xs">Return Amount</span>
                                                 </td>
 
                                             </tr>
@@ -1057,7 +1244,6 @@
                                                 Return Shipping Amount ?</span>
                                         </label>
                                     </div>
-
                                 @endif
                             </div>
 
@@ -1076,4 +1262,226 @@
                 </div>
         @endif
     @endcan
+
+    @can('update', $order)
+        @if ($addProductsSection)
+            <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+                tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
+                style="display: block;">
+                <div class="modal-dialog relative w-auto pointer-events-none">
+                    <div
+                        class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
+                        <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
+                            <!-- Modal header -->
+                            <div
+                                class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
+                                <h3 class="text-xl font-medium text-white dark:text-white capitalize">
+                                    Add products
+                                </h3>
+                                <button wire:click="closeAddProductsSec" type="button"
+                                    class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
+                                    data-bs-dismiss="modal">
+                                    <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd"
+                                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                            clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span class="sr-only">Close modal</span>
+                                </button>
+                            </div>
+
+                            <!-- Modal body -->
+                            <div class="p-6 space-y-4">
+
+                                <div class="input-area">
+                                    <input type="text" placeholder="Search products..."
+                                        class="form-control @error('searchAddProducts') !border-danger-500 @enderror"
+                                        wire:model.live='searchAddProducts'>
+                                </div>
+
+                                <div class="overflow-x-auto -mx-6">
+                                    <div class="inline-block min-w-full align-middle">
+                                        <div class="overflow-hidden ">
+                                            <table
+                                                class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700">
+                                                <tbody
+                                                    class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
+
+                                                    @foreach ($products as $product)
+                                                        <tr wire:click='addProductRow({{ $product->id }})'
+                                                            class="hover:bg-slate-200 dark:hover:bg-slate-700 cursor-pointer">
+                                                            <td class="table-td">
+                                                                <h6>
+                                                                    <b>{{ $product->name }}</b>
+                                                                </h6>
+                                                            </td>
+                                                            <td class="table-td">
+                                                                {{ number_format($product->price, 2) }}<small>EGP</small>
+                                                            </td>
+                                                            <td class="table-td ">{{ $product->weight }}<small>gm</small>
+                                                            </td>
+                                                        </tr>
+                                                    @endforeach
+
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @if (!empty($productsToAdd))
+                                    <div class="md:flex justify-between items-center mb-6">
+                                        <h5>Added Products</h5>
+                                        <span class="text-sm text-slate-600 dark:text-slate-300"></span>
+                                    </div>
+
+                                    <table class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700">
+                                        <thead class="border-t border-slate-100 dark:border-slate-800">
+                                            <tr>
+                                                <th scope="col" class="table-th imp-p-2">Product</th>
+                                                <th scope="col" class="table-th imp-p-2">Quantity</th>
+                                                <th scope="col" class="table-th imp-p-2">Price/item</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody
+                                            class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
+                                            @foreach ($productsToAdd as $index => $productToAdd)
+                                                <tr class="bg-success-100">
+                                                    <!-- Product Name Column -->
+                                                    <td class="table-td imp-p-2">
+                                                        <div class="flex-1 text-start">
+                                                            <div class="text-start overflow-hidden text-ellipsis whitespace-nowrap"
+                                                                style="max-width:200px;">
+                                                                <h6
+                                                                    class="text-slate-600 dark:text-slate-300 overflow-hidden text-ellipsis whitespace-nowrap">
+                                                                    {{ $productToAdd['name'] }}
+                                                                </h6>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+
+                                                    <!-- quantity -->
+                                                    <td class="table-td imp-p-2">
+                                                        <input type="number"
+                                                            class="form-control @error('productsToAdd.' . $index . '.quantity') !border-danger-500 @enderror"
+                                                            style="max-width: 100px;"
+                                                            wire:model.live='productsToAdd.{{ $index }}.quantity'
+                                                            min="1">
+                                                    </td>
+
+                                                    <!-- price/item -->
+                                                    <td class="table-td imp-p-2">
+                                                        <input type="number"
+                                                            class="form-control @error('productsToAdd.' . $index . '.price') !border-danger-500 @enderror"
+                                                            style="max-width: 100px;"
+                                                            wire:model.live='productsToAdd.{{ $index }}.price'
+                                                            min="1">
+                                                    </td>
+
+                                                    <td class="table-td imp-p-2">
+                                                        <button class="action-btn" type="button"
+                                                            wire:click='removeProductRow({{ $index }})'>
+                                                            <iconify-icon icon="heroicons:trash"></iconify-icon>
+                                                        </button>
+                                                    </td>
+
+                                                </tr>
+                                            @endforeach
+
+
+
+                                        </tbody>
+                                    </table>
+                                @endif
+                            </div>
+
+                            <!-- Modal footer -->
+                            <div class="flex items-center justify-end p-6 border-t border-slate-200 rounded-b">
+                                <button wire:click="addProducts" data-bs-dismiss="modal"
+                                    class="btn inline-flex justify-center text-white bg-black-500">
+                                    <span wire:loading.remove wire:target="addProducts">Submit</span>
+                                    <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
+                                        wire:loading wire:target="addProducts"
+                                        icon="line-md:loading-twotone-loop"></iconify-icon>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        @endif
+    @endcan
+
+    @if ($setDriverSection)
+        <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+            tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
+            style="display: block;">
+            <div class="modal-dialog relative w-auto pointer-events-none">
+                <div
+                    class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
+                    <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
+                        <!-- Modal header -->
+                        <div
+                            class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
+                            <h3 class="text-xl font-medium text-white dark:text-white capitalize">
+                                Set driver
+                            </h3>
+                            <button wire:click="closeAddProductsSec" type="button"
+                                class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
+                                data-bs-dismiss="modal">
+                                <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd"
+                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                <span class="sr-only">Close modal</span>
+                            </button>
+                        </div>
+
+                        <!-- Modal body -->
+                        <div class="p-6 space-y-4">
+
+                            <div class="input-area">
+                                <input type="text" placeholder="Search drivers..."
+                                    class="form-control @error('searchDrivers') !border-danger-500 @enderror"
+                                    wire:model.live='searchDrivers'>
+                            </div>
+
+                            <div class="overflow-x-auto -mx-6">
+                                <div class="inline-block min-w-full align-middle">
+                                    <div class="overflow-hidden ">
+                                        <table
+                                            class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700">
+                                            <tbody
+                                                class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
+
+                                                @foreach ($drivers as $driver)
+                                                    <tr wire:click='setDriver({{ $driver->id }})'
+                                                        class="hover:bg-slate-200 dark:hover:bg-slate-700 cursor-pointer">
+                                                        <td class="table-td">
+                                                            <p>
+                                                                <b>{{ $driver->user->full_name }} •
+                                                                    {{ $driver->shift_title }}</b>
+                                                            </p>
+                                                        </td>
+                                                        <td class="table-td">
+                                                            {{ $driver->car_type }}
+                                                        </td>
+                                                        <td class="table-td">
+                                                            {{ $driver->car_model }}
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    @endif
 </div>

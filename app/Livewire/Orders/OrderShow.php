@@ -6,6 +6,8 @@ use App\Models\Customers\Zone;
 use App\Models\Orders\Order;
 use App\Models\Orders\OrderRemovedProduct;
 use App\Models\Payments\CustomerPayment;
+use App\Models\Products\Product;
+use App\Models\Users\Driver;
 use App\Traits\AlertFrontEnd;
 use Carbon\Carbon;
 use Livewire\Component;
@@ -30,6 +32,11 @@ class OrderShow extends Component
     public $customerPhone;
     public $zoneId;
 
+    //driver
+    public $setDriverSection = false;
+    public $searchDrivers = '';
+    public $confirmRemoveDriver;
+
     //note
     public $updateNoteSec = false;
     public $note;
@@ -49,12 +56,80 @@ class OrderShow extends Component
     public $otherReason;
 
     //add products
-    public $addProductsSection;
-    public $searchAddProducts; //search term
+    public $addProductsSection = false;
+    public $searchAddProducts = ''; //search term
     public $productsToAdd = [];
+
+    public $NextStatuses;
 
     //pay from balance
     public $isOpenPayFromBalanceSec;
+
+    public function openSetDriverSection(){
+        $this->setDriverSection = true;
+    }
+
+    public function closeSetDriverSection(){
+        $this->reset(['setDriverSection','searchDrivers','confirmRemoveDriver']);
+    }
+
+    public function openAddProductsSec()
+    {
+        $this->addProductsSection = true;
+    }
+
+    public function closeAddProductsSec()
+    {
+        $this->reset(['addProductsSection', 'searchAddProducts', 'productsToAdd']);
+    }
+
+    public function showConfirmRemoveDriver(){
+        $this->confirmRemoveDriver = true;
+    }
+
+    public function hideConfirmRemoveDriver(){
+        $this->confirmRemoveDriver = false;
+    }
+
+    public function setDriver($id = null){
+        
+        if ($id) {
+            Driver::findOrFail($id);
+        }
+        
+        $res = $this->order->assignDriverToOrder($id);
+
+        if ($res) {
+            $this->closeSetDriverSection();
+            $this->alertSuccess('Driver assigned');
+        }else{
+            $this->alertFailed();
+        }
+    }
+
+    public function addProductRow($id)
+    {
+        $p = Product::findOrFail($id);
+        $this->reset(['searchAddProducts']);
+        $this->productsToAdd[] = ['product_id' => $id, 'quantity' => 1, 'price' => $p->price, 'name' => $p->name , 'combo_id' => null];
+    }
+
+    public function removeProductRow($index)
+    {
+        unset($this->productsToAdd[$index]);
+        $this->productsToAdd = array_values($this->productsToAdd);
+    }
+
+    public function addProducts(){
+        $res = $this->order->addProducts($this->productsToAdd);
+
+        if ($res) {
+            $this->closeAddProductsSec();
+            $this->alertSuccess('Products added');
+        }else{
+            $this->alertFailed();
+        }
+    }
 
     public function openPayFromBalance()
     {
@@ -79,42 +154,42 @@ class OrderShow extends Component
         }
     }
 
-    public function PayCash()
+    public $PAY_BY_PAYMENT_METHOD;
+
+    public function confirmPayOrder($method){
+        $this->PAY_BY_PAYMENT_METHOD = $method;
+    }
+
+    public function closeConfirmPayOrder(){
+        $this->PAY_BY_PAYMENT_METHOD = null;
+    }
+
+    public function PayOrder()
     {
         $this->authorize('pay', $this->order);
-        $res = $this->order->setAsPaid(Carbon::now(), paymentMethod: CustomerPayment::PYMT_CASH, deductFromBalance: false);
+        $res = $this->order->setAsPaid(Carbon::now(), paymentMethod: $this->PAY_BY_PAYMENT_METHOD, deductFromBalance: false);
         if ($res) {
             $this->mount($this->order->id);
-            $this->closePayFromBalance();
+            $this->PAY_BY_PAYMENT_METHOD = null;
             $this->alertSuccess('Order Payed');
         } else {
             $this->alertFailed();
         }
     }
 
-    public function addProductRow()
-    {
-        $this->productsToAdd[] = ['product_id' => '', 'quantity' => 1, 'price' => 0, 'combo_id' => null];
-    }
-
-    public function removeProductRow($index)
-    {
-        unset($this->productsToAdd[$index]);
-        $this->productsToAdd = array_values($this->productsToAdd);
-    }
-
     public function updatedCancelledProducts()
     {
-        $this->cancelledProductsTotalAmount = 0 ;
+        $this->cancelledProductsTotalAmount = 0;
         foreach ($this->cancelledProducts as $cancelledProducts) {
-            $this->cancelledProductsTotalAmount += ($cancelledProducts['return_quantity'] * $cancelledProducts['price']);
+            $this->cancelledProductsTotalAmount += $cancelledProducts['return_quantity'] * $cancelledProducts['price'];
         }
         if ($this->isReturnShippingAmount) {
             $this->cancelledProductsTotalAmount += $this->order->delivery_amount;
         }
     }
 
-    public function updatedIsReturnShippingAmount(){
+    public function updatedIsReturnShippingAmount()
+    {
         $this->updatedCancelledProducts();
     }
 
@@ -157,12 +232,11 @@ class OrderShow extends Component
         }
 
         $returnPaymentMethod = null;
-        if ($this->returnPaymentMehod !== "" || $this->returnPaymentMehod !== null) {
+        if ($this->returnPaymentMehod !== '' || $this->returnPaymentMehod !== null) {
             $returnPaymentMethod = $this->returnPaymentMehod;
         }
 
-
-        $res = $this->order->cancelProducts($this->cancelledProducts, $reason , $returnPaymentMethod,$this->isReturnShippingAmount);
+        $res = $this->order->cancelProducts($this->cancelledProducts, $reason, $returnPaymentMethod, $this->isReturnShippingAmount);
 
         if ($res) {
             $this->mount($this->order->id);
@@ -299,25 +373,46 @@ class OrderShow extends Component
             ->get();
     }
 
+    public function setStatus($status){
+
+        $res = $this->order->setStatus($status);
+
+        if ($res) {
+            $this->mount($this->order->id);
+            $this->alertSuccess('Status updated');
+        } else {
+            $this->alertFailed();
+        }
+    }
+
     public function mount($id)
     {
         $this->order = Order::findOrFail($id);
         $this->authorize('view', $this->order);
         $this->page_title = '• Orders • #' . $this->order->order_number;
         $this->zones = Zone::select('id', 'name')->get();
-        $this->productsToAdd[] = ['product_id' => '', 'quantity' => 1, 'price' => 0, 'combo_id' => null];
     }
 
     public function render()
     {
+        $this->NextStatuses = Order::getNextStatuses($this->order->status);
+
+        $products = Product::search($this->searchAddProducts)
+            ->take(5)
+            ->get();
         $PAYMENT_METHODS = CustomerPayment::PAYMENT_METHODS;
+
+        $drivers = Driver::search($this->searchDrivers)->get();
+
         $this->comments = $this->order
             ->comments()
             ->latest()
             ->take($this->visibleCommentsCount)
             ->get();
-        return view('livewire.orders.order-show',[
-            'PAYMENT_METHODS' => $PAYMENT_METHODS
+        return view('livewire.orders.order-show', [
+            'PAYMENT_METHODS' => $PAYMENT_METHODS,
+            'products' => $products,
+            'drivers' => $drivers,
         ])->layout('layouts.app', ['page_title' => $this->page_title, 'orders' => 'active']);
     }
 }

@@ -34,7 +34,7 @@
         {{-- Pusher file --}}
         <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
         <script>
-        @env(['development', 'staging'])
+            @env(['development', 'staging'])
 
                 // Enable pusher logging - not included in prod
                 Pusher.logToConsole = true;
@@ -64,11 +64,11 @@
                     }
                 });
             });
-    </script>
+        </script>
     @endauth
 
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 </head>
 
 <body class=" font-inter dashcode-app">
@@ -118,10 +118,10 @@
                     <li class="sidebar-menu-title">Orders</li>
 
                     <li>
-                        <a href="{{ url('/orders') }}" class="navItem {{ $orders ?? '' }}">
+                        <a href="{{ auth()->user()->can('viewAny', App\Models\Orders\Order::class)? url('/orders'): '#' }}"
+                            class="navItem {{ $orders ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Orders\Order::class)? '': 'disabled' }}">
                             <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="icon-park-outline:ad-product">
-                                </iconify-icon>
+                                <iconify-icon class="nav-icon" icon="icon-park-outline:ad-product"></iconify-icon>
                                 <span>All</span>
                             </span>
                         </a>
@@ -129,7 +129,8 @@
 
 
                     <li>
-                        <a href="{{ route('orders.driver.shift') }}" class="navItem {{ $driverShift ?? '' }}">
+                        <a href="{{ auth()->user()->can('viewAny', App\Models\Users\Driver::class)? route('orders.driver.shift'): '#' }}"
+                            class="navItem {{ $driverShift ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Users\Driver::class)? '': 'disabled' }}">
                             <span class="flex items-center">
                                 <iconify-icon class=" nav-icon" icon="iconoir:delivery-truck">
                                 </iconify-icon>
@@ -139,7 +140,8 @@
                     </li>
 
                     <li>
-                        <a href="{{ url('/orders/inventory') }}" class="navItem {{ $ordersInventory ?? '' }}">
+                        <a href="{{ auth()->user()->can('viewAny', App\Models\Orders\Order::class)? url('/orders/inventory'): '#' }}"
+                            class="navItem {{ $ordersInventory ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Orders\Order::class)? '': 'disabled' }}">
                             <span class="flex items-center">
                                 <iconify-icon class=" nav-icon" icon="gridicons:product">
                                 </iconify-icon>
@@ -148,14 +150,27 @@
                         </a>
                     </li>
 
-         
+                    <li>
+                        <a href="{{ auth()->user()->can('viewAny', App\Models\Orders\PeriodicOrder::class)? url('/orders/periodic'): '#' }}"
+                            class="navItem {{ $ordersPeriodic ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Orders\PeriodicOrder::class)? '': 'disabled' }}">
+                            <span class="flex items-center">
+                                <iconify-icon class=" nav-icon" icon="wpf:timer">
+                                </iconify-icon>
+                                <span>Periodic</span>
+                            </span>
+                        </a>
+                    </li>
 
-        
+
+
+
 
                     <li class="sidebar-menu-title">Inventory</li>
 
                     <li>
-                        <a href="{{ url('/productions') }}" class="navItem {{ $productions ?? '' }}">
+                        <a href="{{ auth()->user()->can('viewAny', App\Models\Products\Inventory::class)? url('/productions'): '#' }}"
+                            class="navItem {{ $productions ?? '' }}
+                            {{ auth()->user()->can('viewAny', App\Models\Products\Inventory::class)? '': 'disabled' }}">
                             <span class="flex items-center">
                                 <iconify-icon class=" nav-icon" icon="la:industry">
                                 </iconify-icon>
@@ -167,7 +182,9 @@
 
 
                     <li>
-                        <a href="{{ url('/products') }}" class="navItem {{ $products ?? '' }}">
+                        <a href="{{ auth()->user()->can('viewAny', App\Models\Products\Product::class)? url('/products'): '#' }}"
+                            class="navItem {{ $products ?? '' }} 
+                            {{ auth()->user()->can('viewAny', App\Models\Products\Product::class)? '': 'disabled' }}">
                             <span class="flex items-center">
                                 <iconify-icon class=" nav-icon" icon="flowbite:tag-outline">
                                 </iconify-icon>
@@ -177,7 +194,8 @@
                     </li>
 
                     <li>
-                        <a href="{{ url('/combos') }}" class="navItem {{ $combos ?? '' }}">
+                        <a href="{{ auth()->user()->can('viewAny', App\Models\Products\Combo::class)? url('/combos'): '#' }}"
+                            class="navItem {{ $combos ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Products\Combo::class)? '': 'disabled' }}">
                             <span class="flex items-center">
                                 <iconify-icon class=" nav-icon" icon="mage:box-3d-plus">
                                 </iconify-icon>
@@ -186,9 +204,32 @@
                         </a>
                     </li>
 
+                    <li>
+                        <a href="{{ auth()->user()->can('viewAny', App\Models\Products\Inventory::class)? url('/inventories'): '#' }}"
+                            class="navItem {{ $inventories ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Products\Inventory::class)? '': 'disabled' }}">
+                            <span class="flex items-center">
+                                <iconify-icon class=" nav-icon" icon="ic:sharp-inventory">
+                                </iconify-icon>
+                                <span>Inventories</span>
+                            </span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ auth()->user()->can('viewAny', App\Models\Products\Inventory::class)? url('/transactions'): '#' }}"
+                            class="navItem {{ $Trans ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Products\Inventory::class)? '': 'disabled' }}">
+                            <span class="flex items-center">
+                                <iconify-icon class=" nav-icon" icon="grommet-icons:transaction">
+                                </iconify-icon>
+                                <span>Transactions</span>
+                            </span>
+                        </a>
+                    </li>
+
                     <li class="sidebar-menu-title">Operations</li>
                     <li>
-                        <a href="{{ url('/tasks') }}" class="navItem {{ $tasks ?? '' }}">
+                        <a href="{{ auth()->user()->can('viewAny', App\Models\Tasks\Task::class)? url('/tasks'): '#' }}"
+                            class="navItem {{ $tasks ?? '' }}  {{ auth()->user()->can('viewAny', App\Models\Tasks\Task::class)? '': 'disabled' }}">
                             <span class="flex items-center">
                                 <iconify-icon class=" nav-icon" icon="ic:round-add-task">
                                 </iconify-icon>
@@ -196,13 +237,14 @@
                             </span>
                         </a>
                     </li>
-            
+
 
                     <li class="sidebar-menu-title">CRM</li>
-  
+
 
                     <li>
-                        <a href="{{ url('/customers') }}" class="navItem {{ $customers ?? '' }}">
+                        <a href="{{ auth()->user()->can('viewAny', App\Models\Customers\Customer::class)? url('/customers'): '#' }}"
+                            class="navItem {{ $customers ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Customers\Customer::class)? '': 'disabled' }}">
                             <span class="flex items-center">
                                 <iconify-icon class=" nav-icon" icon="mdi:user">
                                 </iconify-icon>
@@ -220,7 +262,8 @@
                         </a>
                     </li> --}}
                     <li>
-                        <a href="{{ url('/followups') }}" class="navItem {{ $followups ?? '' }}">
+                        <a href="{{ auth()->user()->can('viewAny', App\Models\Customers\Followup::class)? url('/followups'): '#' }}"
+                            class="navItem {{ $followups ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Customers\Followup::class)? '': 'disabled' }}">
                             <span class="flex items-center">
                                 <iconify-icon class=" nav-icon" icon="icon-park-outline:cycle-arrow">
                                 </iconify-icon>
@@ -232,7 +275,8 @@
                     <li class="sidebar-menu-title">Settings</li>
 
                     <li>
-                        <a href="{{ route('profile',auth()->id()) }}" class="navItem {{ $profile ?? '' }}">
+                        <a href="{{ auth()->user()->can('viewAny', App\Models\Users\User::class)? route('profile', auth()->id()): '#' }}"
+                            class="navItem {{ $profile ?? '' }}  {{ auth()->user()->can('viewAny', App\Models\Users\User::class)? '': 'disabled' }}">
                             <span class="flex items-center">
                                 <iconify-icon class=" nav-icon" icon="ph:user-bold">
                                 </iconify-icon>
@@ -241,7 +285,8 @@
                         </a>
                     </li>
                     <li>
-                        <a href="{{ url('/users') }}" class="navItem {{ $users ?? '' }}">
+                        <a href="{{ auth()->user()->can('viewAny', App\Models\Users\User::class)? url('/users'): '#' }}"
+                            class="navItem {{ $users ?? '' }}  {{ auth()->user()->can('viewAny', App\Models\Users\User::class)? '': 'disabled' }}">
                             <span class="flex items-center">
                                 <iconify-icon class=" nav-icon" icon="material-symbols-light:account-tree-rounded">
                                 </iconify-icon>
@@ -250,7 +295,8 @@
                         </a>
                     </li>
                     <li>
-                        <a href="{{ url('/zones') }}" class="navItem {{ $zones ?? '' }}">
+                        <a href="{{ auth()->user()->can('viewAny', App\Models\Customers\Zone::class)? url('/zones'): '#' }}"
+                            class="navItem {{ $zones ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Customers\Zone::class)? '': 'disabled' }}">
                             <span class="flex items-center">
                                 <iconify-icon class=" nav-icon" icon="ri:time-zone-line">
                                 </iconify-icon>
@@ -278,8 +324,8 @@
                                 <a href="{{ url('/') }}" class="mobile-logo xl:hidden inline-block">
                                     <img src="{{ asset('assets/images/logo/genuine-icon.png') }}" class="black_logo"
                                         alt="logo">
-                                    <img src="{{ asset('assets/images/logo/genuine-icon-white.png') }}" class="white_logo"
-                                        alt="logoo">
+                                    <img src="{{ asset('assets/images/logo/genuine-icon-white.png') }}"
+                                        class="white_logo" alt="logoo">
                                 </a>
                                 <button class="smallDeviceMenuController hidden md:inline-block xl:hidden">
                                     <iconify-icon
@@ -492,7 +538,7 @@
 
                                 <!-- BEGIN: Notification Dropdown -->
                                 @php
-                                $notfCount = auth()->user()->getUnseenNotfCount();
+                                    $notfCount = auth()->user()->getUnseenNotfCount();
                                 @endphp
                                 <!-- Notifications Dropdown area -->
                                 <div class="relative md:block hidden">
@@ -502,9 +548,9 @@
                                         <iconify-icon class="animate-tada text-slate-800 dark:text-white text-xl"
                                             icon="heroicons-outline:bell"></iconify-icon>
                                         @if ($notfCount)
-                                        <span
-                                            class="absolute -right-1 lg:top-0 -top-[6px] h-4 w-4 bg-red-500 text-[8px] font-semibold flex flex-col items-center justify-center rounded-full text-white z-[99]">
-                                            {{ $notfCount }}</span>
+                                            <span
+                                                class="absolute -right-1 lg:top-0 -top-[6px] h-4 w-4 bg-red-500 text-[8px] font-semibold flex flex-col items-center justify-center rounded-full text-white z-[99]">
+                                                {{ $notfCount }}</span>
                                         @endif
                                     </button>
                                     <!-- Notifications Dropdown -->
@@ -526,12 +572,12 @@
                                                     <div class="flex ltr:text-left rtl:text-right relative">
                                                         <div class="flex-none ltr:mr-3 rtl:ml-3">
                                                             <div
-                                            class="lg:h-8 lg:w-8 h-7 w-7 rounded-full flex-1 ltr:mr-[10px] rtl:ml-[10px]">
-                                            <span
-                                                class="block w-full h-full object-cover text-center text-lg leading-8 user-initial">
-                                                {{ strtoupper(substr(Auth::user()->username, 0, 1)) }}
-                                            </span>
-                                        </div>
+                                                                class="lg:h-8 lg:w-8 h-7 w-7 rounded-full flex-1 ltr:mr-[10px] rtl:ml-[10px]">
+                                                                <span
+                                                                    class="block w-full h-full object-cover text-center text-lg leading-8 user-initial">
+                                                                    {{ strtoupper(substr(Auth::user()->username, 0, 1)) }}
+                                                                </span>
+                                                            </div>
                                                         </div>
                                                         <div class="flex-1">
                                                             <a href="{{ $notification->route }}"
@@ -621,7 +667,7 @@
 
 
                                             <li>
-                                                <a href="{{ route('profile',auth()->id()) }}"
+                                                <a href="{{ route('profile', auth()->id()) }}"
                                                     class="block px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white font-inter text-sm text-slate-600
             dark:text-white font-normal">
                                                     <iconify-icon icon="iconamoon:profile-bold"

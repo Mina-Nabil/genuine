@@ -2,11 +2,11 @@
 
 namespace App\Policies;
 
-use App\Models\Products\Product;
 use App\Models\Users\User;
+use App\Models\orders\PeriodicOrder;
 use Illuminate\Auth\Access\Response;
 
-class ProductPolicy
+class PeriodicOrderPolicy
 {
     /**
      * Determine whether the user can view any models.
@@ -16,15 +16,10 @@ class ProductPolicy
         return true;
     }
 
-    public function viewProductionPlanning(User $user): bool
-    {
-        return true;
-    }
-
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Product $product): bool
+    public function view(User $user, PeriodicOrder $periodicOrder): bool
     {
         return true;
     }
@@ -40,7 +35,7 @@ class ProductPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Product $product): bool
+    public function update(User $user, PeriodicOrder $periodicOrder): bool
     {
         return true;
     }
@@ -48,7 +43,7 @@ class ProductPolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Product $product): bool
+    public function delete(User $user, PeriodicOrder $periodicOrder): bool
     {
         return true;
     }
@@ -56,15 +51,7 @@ class ProductPolicy
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(User $user, Product $product): bool
-    {
-        return true;
-    }
-
-    /**
-     * Determine whether the user can restore the model.
-     */
-    public function controlTransactions(User $user, Product $product): bool
+    public function restore(User $user, PeriodicOrder $periodicOrder): bool
     {
         return true;
     }
@@ -72,7 +59,7 @@ class ProductPolicy
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, Product $product): bool
+    public function forceDelete(User $user, PeriodicOrder $periodicOrder): bool
     {
         return true;
     }
