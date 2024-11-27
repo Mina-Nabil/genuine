@@ -151,18 +151,15 @@
                     </li>
 
                     <li>
-                        <a href="{{ auth()->user()->can('viewAny', App\Models\Orders\PeriodicOrder::class)? url('/orders/periodic'): '#' }}"
-                            class="navItem {{ $ordersPeriodic ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Orders\PeriodicOrder::class)? '': 'disabled' }}">
+                        <a href="{{ auth()->user()->can('viewAny', App\Models\Products\Combo::class)? url('/combos'): '#' }}"
+                            class="navItem {{ $combos ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Products\Combo::class)? '': 'disabled' }}">
                             <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="wpf:timer">
+                                <iconify-icon class=" nav-icon" icon="mage:box-3d-plus">
                                 </iconify-icon>
-                                <span>طلبات متكرره</span>
+                                <span>كومبو</span>
                             </span>
                         </a>
                     </li>
-
-
-
 
 
                     <li class="sidebar-menu-title">Inventory</li>
@@ -174,7 +171,7 @@
                             <span class="flex items-center">
                                 <iconify-icon class=" nav-icon" icon="la:industry">
                                 </iconify-icon>
-                                <span>انتاج</span>
+                                <span>تقرير انتاجيه</span>
                             </span>
                         </a>
                     </li>
@@ -188,18 +185,7 @@
                             <span class="flex items-center">
                                 <iconify-icon class=" nav-icon" icon="flowbite:tag-outline">
                                 </iconify-icon>
-                                <span>اصناف</span>
-                            </span>
-                        </a>
-                    </li>
-
-                    <li>
-                        <a href="{{ auth()->user()->can('viewAny', App\Models\Products\Combo::class)? url('/combos'): '#' }}"
-                            class="navItem {{ $combos ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Products\Combo::class)? '': 'disabled' }}">
-                            <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="mage:box-3d-plus">
-                                </iconify-icon>
-                                <span>كومبو</span>
+                                <span>الاستوك</span>
                             </span>
                         </a>
                     </li>
@@ -210,7 +196,7 @@
                             <span class="flex items-center">
                                 <iconify-icon class=" nav-icon" icon="ic:sharp-inventory">
                                 </iconify-icon>
-                                <span>مخزن</span>
+                                <span>انتاجيه اليوم</span>
                             </span>
                         </a>
                     </li>
