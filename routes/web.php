@@ -6,6 +6,7 @@ use App\Livewire\Customers\CustomerIndex;
 use App\Livewire\Customers\CustomerShow;
 use App\Livewire\Customers\FollowupIndex;
 use App\Livewire\Customers\ZoneIndex;
+use App\Livewire\Orders\FollowupReport;
 use App\Livewire\Orders\OrderCreate;
 use App\Livewire\Orders\OrderDriverShift;
 use App\Livewire\Orders\OrderIndex;
@@ -68,6 +69,9 @@ Route::get('/orders/periodic',PeriodicOrderIndex::class)->name('orders.periodic.
 Route::get('/orders/inventory',OrderInventory::class)->name('orders.inventory');
 Route::get('/orders/driver',OrderDriverShift::class)->name('orders.driver.shift');
 Route::get('/orders/{id}',OrderShow::class)->name('orders.show');
+
+Route::get('/report/followup',FollowupReport::class)->name('reports.followup');
+
 
 Route::get('/productions',ProductionPlanning::class)->name('production.planning');
 

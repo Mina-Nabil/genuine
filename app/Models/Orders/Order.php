@@ -655,7 +655,7 @@ class Order extends Model
                 if ($inventory) {
                     if ($this->is_new) {
                         $inventory->commitQuantity(-$quantityToRemove, 'Returned from order #' . $this->order_number);
-                    }else{
+                    } else {
                         $inventory->addTransaction($quantityToRemove, 'Returned from order #' . $this->order_number);
                     }
                 }
@@ -735,7 +735,7 @@ class Order extends Model
                     if ($orderProduct->inventory) {
                         if ($this->is_new) {
                             $orderProduct->inventory->commitQuantity(-$product['return_quantity'], 'Returned from order #' . $this->order_number);
-                        }else{
+                        } else {
                             $orderProduct->inventory->addTransaction($product['return_quantity'], 'Returned from order #' . $this->order_number);
                         }
                     }
@@ -1004,6 +1004,81 @@ class Order extends Model
                 $query->where('is_paid', $isPaid);
             });
     }
+
+    public function scopeWeeklyWeightByCustomer(Builder $query, int $zoneId, int $weekCount, string $startMonth): array
+{
+    // Start from the first day of the start month
+    $startDate = \Carbon\Carbon::parse($startMonth)->startOfMonth();
+
+    // Get the current date as the end date
+    $endDate = \Carbon\Carbon::now()->addWeeks(2);
+
+    // Calculate the start of the week based on the given `weekCount`
+    $current = $startDate
+        ->copy()
+        ->addWeeks($weekCount) // We subtract 1 because weekCount starts from 1
+        ->startOfWeek(); // Start the week for the given weekCount
+
+    // Initialize the weeks array to hold the weeks we want to display
+    $weeks = [];
+
+    // Loop through the weeks until the current date (end date)
+    while ($current <= $endDate) {
+        $weeks[] = $current->format('Y-m-d'); // Store the week start date in 'Y-m-d' format
+        $current->addWeek(); // Move to the next week
+    }
+
+    // Fetch orders within the specified zone and date range
+    $orders = $query
+        ->where('zone_id', $zoneId)
+        ->whereBetween('delivery_date', [$startDate, $endDate])
+        ->with(['products.product', 'customer'])
+        ->get();
+
+    $customerWeights = [];
+
+    // Group orders by the start of each week
+    $groupedOrders = $orders->groupBy(function ($order) {
+        return $order->delivery_date->startOfWeek()->format('Y-m-d');
+    });
+
+    // Collect weekly weights by customer
+    foreach ($groupedOrders as $week => $ordersInWeek) {
+        foreach ($ordersInWeek as $order) {
+            $customerName = $order->customer->name;
+
+            // Calculate total weight for this order
+            $totalWeight = $order->products->sum(function ($orderProduct) {
+                return $orderProduct->product->weight * $orderProduct->quantity;
+            });
+
+            // Add to customer's weekly total
+            $customerWeights[$customerName][$week] = ($customerWeights[$customerName][$week] ?? 0) + $totalWeight;
+        }
+    }
+
+    // Ensure that the 4th week includes any remaining days
+    $lastWeek = end($weeks); // The last week in the weeks array (should be the 4th week)
+    $lastWeekEndDate = \Carbon\Carbon::parse($lastWeek)->endOfWeek(); // Get the end date of the last week
+
+    // If the last week's end date is before the month's end, update it to include the entire month
+    if ($lastWeekEndDate < $endDate) {
+        $weeks[count($weeks) - 1] = \Carbon\Carbon::parse($startDate)->endOfMonth()->format('Y-m-d');
+    }
+
+    // Ensure all weeks are present for each customer, even with zero weight
+    foreach ($weeks as $week) {
+        foreach ($customerWeights as $customerName => $weights) {
+            $customerWeights[$customerName][$week] = $weights[$week] ?? 0;
+        }
+    }
+
+    return [
+        'weeks' => $weeks,
+        'customerWeights' => $customerWeights,
+    ];
+}
+
 
     public function scopeSortByZone(Builder $query, string $direction = 'asc'): Builder
     {

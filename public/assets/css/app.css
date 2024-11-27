@@ -17878,3 +17878,12 @@ ul.custom-list ul {
     cursor: not-allowed;  /* Show the "not-allowed" cursor */
     text-decoration: none; /* Remove any underline or hover effects */
 }
+
+.badge-datepicker {
+    padding: 0;
+    display: inline-block;
+    width: auto;
+    background: transparent !important; 
+    border: 0;
+    color: white !important;
+}
