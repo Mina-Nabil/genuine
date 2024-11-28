@@ -16,6 +16,11 @@ class OrderPolicy
         return true;
     }
 
+    public function viewReports(User $user): bool
+    {
+        return $user->is_admin;
+    }
+
     public function viewOrderInventory(User $user): bool
     {
         return true;

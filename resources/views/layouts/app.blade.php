@@ -212,6 +212,21 @@
                         </a>
                     </li>
 
+                    @can('viewReports', App\Models\Orders\Order::class)
+                        <li class="sidebar-menu-title">Reports</li>
+                        <li>
+                            <a href="{{ auth()->user()->can('viewReports', App\Models\Orders\Order::class)? url('/report/followup'): '#' }}"
+                                class="navItem {{ $followupReport ?? '' }}  {{ auth()->user()->can('viewReports', App\Models\Orders\Order::class)? '': 'disabled' }}">
+                                <span class="flex items-center">
+                                    <iconify-icon class=" nav-icon" icon="material-symbols:order-approve-outline-sharp">
+                                    </iconify-icon>
+                                    <span>Follow-up Report</span>
+                                </span>
+                            </a>
+                        </li>
+                    @endcan
+
+
                     <li class="sidebar-menu-title">Operations</li>
                     <li>
                         <a href="{{ auth()->user()->can('viewAny', App\Models\Tasks\Task::class)? url('/tasks'): '#' }}"
