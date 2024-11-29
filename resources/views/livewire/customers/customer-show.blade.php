@@ -97,121 +97,120 @@
                             <p>
                                 <b>Last Orders Placed</b>
                             </p>
+                            <p wire:click='openSetWeightTarget' class="text-xs font-light text-slate-600 dark:text-slate-300 clickable-link">
+                                Monthly weight target: <b>{{ $customer->monthly_weight_target/1000 }}<small>KG</small></b>
+                            </p>
                             <br>
                             <div class="card mb-5">
-                                <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base">
-                                    <div class="items-center p-5">
 
-                                        <div class="card-body flex flex-col justify-between border rounded-lg h-full menu-open p-0 mb-5 "
-                                            style="border-color:rgb(224, 224, 224);">
-                                            @foreach ($customer->orders as $order)
-                                                <div class="p-3">
-                                                    <div class="flex justify-between">
+                                <div class="card-body flex flex-col justify-between border rounded-lg h-full menu-open p-0 mb-5 "
+                                    style="border-color:rgb(224, 224, 224);">
+                                    @forelse ($orders as $order)
+                                        <div class="p-3">
+                                            <div class="flex justify-between">
 
-                                                        <div>
-                                                            <h6
-                                                                class="text-slate-600 pb-2 dark:text-slate-300 overflow-hidden text-ellipsis whitespace-nowrap">
-                                                                <span class="clickable-link mb-1">
-                                                                    <a href="{{ route('orders.show',$order->id) }}">
-                                                                        #{{ $order->order_number }}
-                                                                    </a>
+                                                <div>
+                                                    <div
+                                                        class="text-slate-600 pb-2 dark:text-slate-300 overflow-hidden text-ellipsis whitespace-nowrap flex">
+                                                        <h6 class="clickable-link mr-3">
+                                                            <a href="{{ route('orders.show', $order->id) }}">
+                                                                #{{ $order->order_number }}
+                                                            </a>
+                                                        </h6>
+
+                                                        <div class="mr-2">
+                                                            @if ($order->status === App\Models\Orders\Order::STATUS_NEW || $order->status === App\Models\Orders\Order::STATUS_READY)
+                                                                <span
+                                                                    class="badge bg-info-500 text-dark-500 bg-opacity-50 capitalize">
+                                                                    <iconify-icon icon="octicon:dot-16" width="1.2em"
+                                                                        height="1.2em"></iconify-icon>
+                                                                    {{ ucwords(str_replace('_', ' ', $order->status)) }}
                                                                 </span>
-                                                                
-                                                                <div class="flex justify-between">
-                                                                    <div class="mr-2">
-                                                                        @if ($order->status === App\Models\Orders\Order::STATUS_NEW || $order->status === App\Models\Orders\Order::STATUS_READY)
-                                                                            <span
-                                                                                class="badge bg-info-500 text-dark-500 bg-opacity-50 capitalize">
-                                                                                <iconify-icon icon="octicon:dot-16"
-                                                                                    width="1.2em"
-                                                                                    height="1.2em"></iconify-icon>
-                                                                                {{ ucwords(str_replace('_', ' ', $order->status)) }}
-                                                                            </span>
-                                                                        @elseif ($order->status === App\Models\Orders\Order::STATUS_IN_DELIVERY)
-                                                                            <span
-                                                                                class="badge bg-warning-500 text-dark-500 bg-opacity-50 capitalize">
-                                                                                <iconify-icon icon="octicon:dot-16"
-                                                                                    width="1.2em"
-                                                                                    height="1.2em"></iconify-icon>
-                                                                                {{ ucwords(str_replace('_', ' ', $order->status)) }}
-                                                                            </span>
-                                                                        @elseif (
-                                                                            $order->status === App\Models\Orders\Order::STATUS_RETURNED ||
-                                                                                $order->status === App\Models\Orders\Order::STATUS_CANCELLED)
-                                                                            <span
-                                                                                class="badge bg-secondary-500 text-dark-500 bg-opacity-50 capitalize">
-                                                                                <iconify-icon
-                                                                                    icon="icon-park-outline:dot"
-                                                                                    width="1.2em"
-                                                                                    height="1.2em"></iconify-icon>
-                                                                                {{ ucwords(str_replace('_', ' ', $order->status)) }}
-                                                                            </span>
-                                                                        @elseif ($order->status === App\Models\Orders\Order::STATUS_DONE)
-                                                                            <span
-                                                                                class="badge bg-success-500 text-dark-500 bg-opacity-50 capitalize">
-                                                                                <iconify-icon
-                                                                                    icon="icon-park-outline:dot"
-                                                                                    width="1.2em"
-                                                                                    height="1.2em"></iconify-icon>
-                                                                                {{ ucwords(str_replace('_', ' ', $order->status)) }}
-                                                                            </span>
-                                                                        @else
-                                                                            <span
-                                                                                class="badge bg-secondary-500 text-dark-500 bg-opacity-50 capitalize">
-                                                                                <iconify-icon icon="octicon:dot-16"
-                                                                                    width="1.2em"
-                                                                                    height="1.2em"></iconify-icon>
-                                                                                {{ ucwords(str_replace('_', ' ', $order->status)) }}
-                                                                            </span>
-                                                                        @endif
-                                                                    </div>
+                                                            @elseif ($order->status === App\Models\Orders\Order::STATUS_IN_DELIVERY)
+                                                                <span
+                                                                    class="badge bg-warning-500 text-dark-500 bg-opacity-50 capitalize">
+                                                                    <iconify-icon icon="octicon:dot-16" width="1.2em"
+                                                                        height="1.2em"></iconify-icon>
+                                                                    {{ ucwords(str_replace('_', ' ', $order->status)) }}
+                                                                </span>
+                                                            @elseif (
+                                                                $order->status === App\Models\Orders\Order::STATUS_RETURNED ||
+                                                                    $order->status === App\Models\Orders\Order::STATUS_CANCELLED)
+                                                                <span
+                                                                    class="badge bg-secondary-500 text-dark-500 bg-opacity-50 capitalize">
+                                                                    <iconify-icon icon="icon-park-outline:dot"
+                                                                        width="1.2em" height="1.2em"></iconify-icon>
+                                                                    {{ ucwords(str_replace('_', ' ', $order->status)) }}
+                                                                </span>
+                                                            @elseif ($order->status === App\Models\Orders\Order::STATUS_DONE)
+                                                                <span
+                                                                    class="badge bg-success-500 text-dark-500 bg-opacity-50 capitalize">
+                                                                    <iconify-icon icon="icon-park-outline:dot"
+                                                                        width="1.2em" height="1.2em"></iconify-icon>
+                                                                    {{ ucwords(str_replace('_', ' ', $order->status)) }}
+                                                                </span>
+                                                            @else
+                                                                <span
+                                                                    class="badge bg-secondary-500 text-dark-500 bg-opacity-50 capitalize">
+                                                                    <iconify-icon icon="octicon:dot-16" width="1.2em"
+                                                                        height="1.2em"></iconify-icon>
+                                                                    {{ ucwords(str_replace('_', ' ', $order->status)) }}
+                                                                </span>
+                                                            @endif
+                                                        </div>
+
+                                                        <div class="flex justify-between">
 
 
-                                                                    @if ($order->is_paid)
+
+                                                            @if ($order->is_paid)
+                                                                <span
+                                                                    class="badge bg-success-500 text-dark-500 bg-opacity-50 capitalize">
+                                                                    <iconify-icon icon="icon-park-outline:dot"
+                                                                        width="1.2em" height="1.2em"></iconify-icon>
+                                                                    Paid
+                                                                </span>
+                                                            @else
+                                                                <div class="flex justify-between mb-2">
+                                                                    <div>
                                                                         <span
-                                                                            class="badge bg-success-500 text-dark-500 bg-opacity-50 capitalize">
-                                                                            <iconify-icon icon="icon-park-outline:dot"
+                                                                            class="badge bg-warning-500 text-dark-500 bg-opacity-50 capitalize">
+                                                                            <iconify-icon icon="octicon:dot-16"
                                                                                 width="1.2em"
                                                                                 height="1.2em"></iconify-icon>
-                                                                            Paid
+                                                                            Payment pending
                                                                         </span>
-                                                                    @else
-                                                                        <div class="flex justify-between mb-2">
-                                                                            <div>
-                                                                                <span
-                                                                                    class="badge bg-warning-500 text-dark-500 bg-opacity-50 capitalize">
-                                                                                    <iconify-icon icon="octicon:dot-16"
-                                                                                        width="1.2em"
-                                                                                        height="1.2em"></iconify-icon>
-                                                                                    Payment pending
-                                                                                </span>
-                                                                            </div>
-                                                                        </div>
-                                                                    @endif
+                                                                    </div>
                                                                 </div>
-
-                                                            </h6>
+                                                            @endif
                                                         </div>
-                                                        <div class="flex text-sm">
-                                                            <p class="ml-3  text-slate-900 dark:text-white">
-                                                                {{ number_format($order->total_amount, 2) }}<small>&nbsp;EGP</small>
-                                                            </p>
-                                                        </div>
-
-                                                    </div>
-                                                    <div class=" flex text-sm justify-between">
-                                                        <span>Delivery date: {{ $order->delivery_date->isToday() ? 'Today' : ($order->delivery_date->isYesterday() ? 'Yesterday' : $order->delivery_date->format('l Y-m-d')) }}</span>
 
                                                     </div>
                                                 </div>
-                                                @if (!$loop->last)
-                                                    <hr>
-                                                @endif
-                                            @endforeach
+                                                <div class="flex text-sm">
+                                                    <p class="ml-3  text-slate-900 dark:text-white">
+                                                        {{ number_format($order->total_amount, 2) }}<small>&nbsp;EGP</small>
+                                                    </p>
+                                                </div>
+
+                                            </div>
+                                            <div class=" flex text-sm justify-between">
+                                                <span>Delivery date:
+                                                    {{ $order->delivery_date->isToday() ? 'Today' : ($order->delivery_date->isYesterday() ? 'Yesterday' : $order->delivery_date->format('l Y-m-d')) }}</span>
+
+                                            </div>
+                                        </div>
+                                        @if (!$loop->last)
+                                            <hr>
+                                        @endif
+                                    @empty
+                                        <div
+                                            class="text-slate-600 dark:text-slate-300 overflow-hidden text-ellipsis whitespace-nowrap text-center p-5">
+                                            <p class="text-xs">No orders placed for this customer.</p>
 
                                         </div>
+                                    @endforelse
 
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1256,6 +1255,64 @@
                             <button wire:click="submitCallerNote" data-bs-dismiss="modal"
                                 class="btn inline-flex justify-center text-white bg-black-500">
                                 Submit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    @if ($isOpenSetWeightTarget)
+        <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+            tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
+            style="display: block;">
+            <div class="modal-dialog relative w-auto pointer-events-none">
+                <div
+                    class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
+                    <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
+                        <!-- Modal header -->
+                        <div
+                            class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
+                            <h3 class="text-xl font-medium text-white dark:text-white capitalize">
+                                Monthly Weight Target
+                            </h3>
+                            <button wire:click="closeSetWeightTarget" type="button"
+                                class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
+                                data-bs-dismiss="modal">
+                                <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd"
+                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                <span class="sr-only">Close modal</span>
+                            </button>
+                        </div>
+                        <!-- Modal body -->
+                        <div class="p-6 space-y-4">
+                            <div class="from-group">
+                                <div class="input-area">
+                                    <label for="monthlyWeightTarget" class="form-label">Target Weight (KG)</label>
+                                    <input id="monthlyWeightTarget" type="number" min="1"
+                                        class="form-control @error('monthlyWeightTarget') !border-danger-500 @enderror"
+                                        wire:model="monthlyWeightTarget">
+                                </div>
+                                @error('monthlyWeightTarget')
+                                    <span
+                                        class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                @enderror
+
+                            </div>
+                        </div>
+                        <!-- Modal footer -->
+                        <div class="flex items-center justify-end p-6 border-t border-slate-200 rounded-b">
+                            <button wire:click="setWeightTarget" data-bs-dismiss="modal"
+                                class="btn inline-flex justify-center text-white bg-black-500">
+                                <span wire:loading.remove wire:target="setWeightTarget">Submit</span>
+                                <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
+                                    wire:loading wire:target="setWeightTarget"
+                                    icon="line-md:loading-twotone-loop"></iconify-icon>
                             </button>
                         </div>
                     </div>

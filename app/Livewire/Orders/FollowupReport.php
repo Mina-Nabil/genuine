@@ -72,7 +72,7 @@ class FollowupReport extends Component
         return view('livewire.orders.followup-report', [
             'weeks' => $weeklyData['weeks'],
             'customerWeights' => $weeklyData['customerWeights'],
-        ])->layout('layouts.app', ['page_title' => $this->page_title, 'followupReport' => 'active']);;
+        ])->layout('layouts.app', ['page_title' => $this->page_title, 'followupReport' => 'active']);
     }
 }
 

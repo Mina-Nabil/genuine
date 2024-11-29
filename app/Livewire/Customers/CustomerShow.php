@@ -58,6 +58,38 @@ class CustomerShow extends Component
     public $AddedIsNowPaymentDate = true;
     public $AddedPaymentNote;
 
+    //monthy weight target
+    public $isOpenSetWeightTarget = false;
+    public $monthlyWeightTarget;
+
+    public function openSetWeightTarget(){
+        $this->isOpenSetWeightTarget = true;
+        $this->monthlyWeightTarget = $this->customer->monthly_weight_target/1000;
+    }
+
+    public function closeSetWeightTarget(){
+        $this->isOpenSetWeightTarget = false;
+        $this->reset('monthlyWeightTarget');
+    }
+
+    public function setWeightTarget(){
+        $this->validate([
+            'monthlyWeightTarget' => 'required|numeric|min:1'
+        ]);
+
+
+
+        $res = $this->customer->setMonthlyWeightTarget($this->monthlyWeightTarget*1000);
+
+        if ($res) {
+            $this->closeSetWeightTarget();
+            $this->mount($this->customer->id);
+            $this->alertSuccess('Target updated!');
+        } else {
+            $this->alertFailed();
+        }
+    }
+
 
     protected $queryString = ['section'];
     protected $listeners = ['removePet'];
@@ -345,13 +377,15 @@ class CustomerShow extends Component
         $ZONES = Zone::select('id', 'name')->get();
         $PET_CATEGORIES = Pet::CATEGORIES;
         $PAYMENT_METHODS = CustomerPayment::PAYMENT_METHODS;
+        $orders = $this->customer->orders->take(5);
 
         $PET_TYPES = Pet::getDistinctPetTypes($this->petCategory);
         return view('livewire.customers.customer-show', [
             'ZONES' => $ZONES,
             'PET_CATEGORIES' => $PET_CATEGORIES,
             'PET_TYPES' => $PET_TYPES,
-            'PAYMENT_METHODS' => $PAYMENT_METHODS
+            'PAYMENT_METHODS' => $PAYMENT_METHODS,
+            'orders' => $orders,
         ])->layout('layouts.app', ['page_title' => $this->page_title, 'customers' => 'active']);
     }
 }

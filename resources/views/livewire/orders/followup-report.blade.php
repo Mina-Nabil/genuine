@@ -109,49 +109,44 @@
                     <thead class="border-t border-slate-100 dark:border-slate-800 bg-slate-200 dark:bg-slate-700">
                         <tr>
                             <th scope="col"
-                                class="table-th  flex items-center border-t border-slate-100 dark:border-slate-800 bg-slate-200 dark:bg-slate-700"
+                                class="table-th flex items-center border-t border-slate-100 dark:border-slate-800 bg-slate-200 dark:bg-slate-700"
                                 style="position: sticky; left: -25px;  z-index: 10;">
                                 Customer Name
                             </th>
-
                             @foreach ($weeks as $week)
                                 <th scope="col" class="table-th">
                                     {{ getWeekOfMonth(\Carbon\Carbon::parse($week)->format('Y-m-d')) }}
                                 </th>
                             @endforeach
-
-
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700 no-wrap">
-
                         @foreach ($customerWeights as $customerName => $weights)
                             <tr>
-
                                 <td class="table-td flex items-center sticky-column bg-white dark:bg-slate-800 colomn-shadow"
-                                    style="position: sticky; left: -25px;  z-index: 10;">
-                                    {{ $customerName }}
+                                    style="position: sticky; left: -25px; z-index: 10;">
+                                    <div class="flex-1 text-start">
+                                        <h4 class="text-sm font-medium text-slate-600 whitespace-nowrap">
+                                            {{ $customerName }}
+                                        </h4>
+                                        <div class="text-xs font-normal text-slate-600 dark:text-slate-400">
+                                            Target: <b>{{ $weights['monthly_weight_target'] / 1000 ?? 0 }}</b> KG
+                                        </div>
+                                    </div>
                                 </td>
-
                                 @foreach ($weeks as $week)
                                     <td class="table-td">
-                                        <b>{{ $weights[$week] / 1000 ?? 0 }}</b>
+                                        <b>{{ $weights['weekly_weights'][$week] / 1000 ?? 0 }}</b>
                                         <small>KG</small>
                                     </td>
                                 @endforeach
-
-
-
-
                             </tr>
                         @endforeach
-
                     </tbody>
-
                 </table>
 
 
-                @if (empty($customerWeights))
+                @if (Empty($customerWeights))
                     {{-- START: empty filter result --}}
                     <div class="card m-5 p-5">
                         <div class="card-body rounded-md bg-white dark:bg-slate-800">
@@ -180,7 +175,7 @@
         </div>
         {{-- <div style="position: sticky ; bottom:0;width:100%; z-index:10;"
             class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
-            {{ $products->links('vendor.livewire.simple-bootstrap') }}
+            {{ $customerWeights->links('vendor.livewire.simple-bootstrap') }}
         </div> --}}
 
     </div>

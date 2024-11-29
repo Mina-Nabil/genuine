@@ -1054,35 +1054,31 @@ class Order extends Model
             });
     }
 
-    public function scopeWeeklyWeightByCustomer(Builder $query, int $zoneId, int $weekCount, string $startMonth): array
-    {
-        // Start from the first day of the start month
+    public function scopeWeeklyWeightByCustomer(
+        Builder $query,
+        int $zoneId,
+        int $weekCount,
+        string $startMonth
+    ): array {
         $startDate = \Carbon\Carbon::parse($startMonth)->startOfMonth();
-        // Get the current date as the end date
         $endDate = \Carbon\Carbon::now()->addWeeks(2);
 
-        // Calculate the start of the week based on the given `weekCount`
         $current = $startDate
             ->copy()
-            ->addDays(($weekCount - 1) * 7) // Add the correct number of days to get the correct start day (1st, 8th, 15th, 22nd)
-            ->startOfDay(); // Ensure it's the start of the day for the given date
+            ->addDays(($weekCount - 1) * 7)
+            ->startOfDay();
 
-        // Initialize the weeks array to hold the weeks we want to display
         $weeks = [];
-
-        // Loop through the weeks until the current date (end date)
         while ($current <= $endDate) {
             $weeks[] = $current->format('Y-m-d');
 
-            // Check if the current week is on the 22nd, if so, start the next week from the 1st of the next month
             if ($current->day == 22) {
-                $current = $current->copy()->addMonth()->startOfMonth(); // Move to the 1st day of the next month
+                $current = $current->copy()->addMonth()->startOfMonth();
             } else {
-                $current->addWeek(); // Move to the next week if it's not the 22nd
+                $current->addWeek();
             }
         }
-        // dd($weeks);
-        // Fetch orders within the specified zone and date range
+
         $orders = $query
             ->where('zone_id', $zoneId)
             ->whereBetween('delivery_date', [$startDate, $endDate])
@@ -1092,49 +1088,47 @@ class Order extends Model
         $customerWeights = [];
 
         $groupedOrders = $orders->groupBy(function ($order) use ($weeks) {
-            // Find the corresponding week for each order based on its delivery date
             foreach ($weeks as $week) {
                 $startOfWeek = \Carbon\Carbon::parse($week);
-
-                // Determine the end of the week based on custom week pattern (1st, 8th, 15th, 22nd, end of month)
                 $endOfWeek = $this->getEndOfCustomWeek($startOfWeek);
 
-                // Check if the order's delivery date is within the week
                 if ($order->delivery_date >= $startOfWeek && $order->delivery_date <= $endOfWeek) {
                     return $week;
                 }
             }
-            return null; // In case there's no match, though this should not happen
+            return null;
         });
 
-        // Collect weekly weights by customer
         foreach ($groupedOrders as $week => $ordersInWeek) {
             foreach ($ordersInWeek as $order) {
-                $customerName = $order->customer->name;
+                $customer = $order->customer;
 
-                // Calculate total weight for this order
+                if (!$customer) {
+                    continue;
+                }
+
+                $customerName = $customer->name;
+                $monthlyWeightTarget = $customer->monthly_weight_target;
+
                 $totalWeight = $order->products->sum(function ($orderProduct) {
                     return $orderProduct->product->weight * $orderProduct->quantity;
                 });
 
-                // Add to customer's weekly total
-                $customerWeights[$customerName][$week] = ($customerWeights[$customerName][$week] ?? 0) + $totalWeight;
+                if (!isset($customerWeights[$customerName])) {
+                    $customerWeights[$customerName] = [
+                        'monthly_weight_target' => $monthlyWeightTarget,
+                        'weekly_weights' => [],
+                    ];
+                }
+
+                $customerWeights[$customerName]['weekly_weights'][$week] =
+                    ($customerWeights[$customerName]['weekly_weights'][$week] ?? 0) + $totalWeight;
             }
         }
 
-        // Ensure that the 4th week includes any remaining days
-        $lastWeek = end($weeks); // The last week in the weeks array (should be the 4th week)
-        $lastWeekEndDate = \Carbon\Carbon::parse($lastWeek)->endOfWeek(); // Get the end date of the last week
-
-        // If the last week's end date is before the month's end, update it to include the entire month
-        if ($lastWeekEndDate < $endDate) {
-            $weeks[count($weeks) - 1] = \Carbon\Carbon::parse($startDate)->endOfMonth()->format('Y-m-d');
-        }
-
-        // Ensure all weeks are present for each customer, even with zero weight
         foreach ($weeks as $week) {
-            foreach ($customerWeights as $customerName => $weights) {
-                $customerWeights[$customerName][$week] = $weights[$week] ?? 0;
+            foreach ($customerWeights as $customerName => &$weights) {
+                $weights['weekly_weights'][$week] = $weights['weekly_weights'][$week] ?? 0;
             }
         }
 
@@ -1147,20 +1141,20 @@ class Order extends Model
     private function getEndOfCustomWeek(\Carbon\Carbon $startOfWeek): \Carbon\Carbon
     {
         // Check the day of the month for the start of the week and determine the correct end date
-        $day = $startOfWeek->day;
+        $endOfWeek = $startOfWeek->copy();
 
-        if ($day == 1) {
-            return $startOfWeek->copy()->addDays(6); // Ends on the 7th
-        } elseif ($day == 8) {
-            return $startOfWeek->copy()->addDays(6); // Ends on the 14th
-        } elseif ($day == 15) {
-            return $startOfWeek->copy()->addDays(6); // Ends on the 21st
-        } elseif ($day == 22) {
-            return $startOfWeek->copy()->addDays(6); // Ends on the 28th
+        if ($startOfWeek->day == 1) {
+            $endOfWeek->addDays(6);
+        } elseif ($startOfWeek->day == 8) {
+            $endOfWeek->addDays(6);
+        } elseif ($startOfWeek->day == 15) {
+            $endOfWeek->addDays(6);
+        } elseif ($startOfWeek->day == 22) {
+            $endOfWeek->endOfMonth();
         }
 
         // Default case: return the last day of the month
-        return $startOfWeek->copy()->endOfMonth();
+        return $endOfWeek;
     }
 
     public function scopeSortByZone(Builder $query, string $direction = 'asc'): Builder

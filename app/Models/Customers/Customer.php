@@ -74,6 +74,24 @@ class Customer extends Model
         }
     }
 
+    public function setMonthlyWeightTarget(int $target)
+    {
+        try {
+            $this->monthly_weight_target = $target;
+
+            if ($this->save()) {
+                AppLog::info('Monthly weight target updated', "Customer $this->name Monthly weight target updated successfully.");
+                return true;
+            } else {
+                return false;
+            }
+        } catch (Exception $e) {
+            AppLog::error('Updating customer failed', $e->getMessage());
+            report($e);
+            return false;
+        }
+    }
+
     // Method to add a new pet for this customer
     public function addPet($name, $category, $type, $bdate, $note = null)
     {
