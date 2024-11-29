@@ -21,12 +21,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class Order extends Model
 {
     use HasFactory, SoftDeletes;
 
     const MORPH_TYPE = 'order';
+    const currency = 'EGP';
 
     protected $casts = [
         'delivery_date' => 'date',
@@ -815,6 +817,53 @@ class Order extends Model
         $this->save();
     }
 
+    public function generateWhatsAppMessage()
+    {
+        $message = <<<EOD
+        Hello {$this->customer_name},
+
+        Thank you for placing your order with us!
+
+        Here are your order details:
+
+        *Order Number*: #{$this->order_number}
+
+        *Payment Information*:
+        EOD;
+
+        if ($this->payment_status == 'paid') {
+            $message .= "\n• Payment Status: Paid.";
+        } elseif ($this->isPartlyPaid()) {
+            $message .= "\n• Payment Status: Partly Paid.";
+            $message .= "\n• Remaining Balance: {$this->remaining_to_pay} EGP.";
+        } else {
+            $message .= "\n• Payment Status: Not Paid.";
+        }
+
+        $message .= "\n\n*Total Amount*: {$this->total_amount} EGP\n";
+
+        $message .= <<<EOD
+
+        *Driver Details*:
+        Name: {$this->driver->user->full_name}
+        Phone: {$this->driver->user->phone}
+        Delivery time: {$this->driver->start_time->format('h:i A')} to {$this->driver->end_time->format('h:i A')}
+
+        If you have any questions or need assistance, please feel free to contact us.
+
+        Thank you for choosing Genuine!
+        EOD;
+
+        $encodedMessage = urlencode($message);
+        $phoneNumber = $this->customer_phone;
+        if (Str::startsWith($phoneNumber, '01')) {
+            $phoneNumber = '+2' . $phoneNumber;
+        }
+
+        // Return the full WhatsApp URL
+        return "https://wa.me/{$phoneNumber}?text={$encodedMessage}";
+    }
+
     /**
      * Update the note for the order.
      *
@@ -1093,7 +1142,6 @@ class Order extends Model
             'weeks' => $weeks,
             'customerWeights' => $customerWeights,
         ];
-        
     }
 
     private function getEndOfCustomWeek(\Carbon\Carbon $startOfWeek): \Carbon\Carbon

@@ -49,6 +49,15 @@
                                 Add Products
                             </li>
                         @endif
+                        @if ($order->driver)
+                            <a href="{{ $order->generateWhatsAppMessage() }}" target="_blanck">
+                                <li
+                                    class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600
+                            dark:hover:text-white cursor-pointer">
+                                    Send Whatsapp Message
+                                </li>
+                            </a>
+                        @endif
                         @foreach ($NextStatuses as $NextStatus)
                             <li wire:click="setStatus('{{ $NextStatus }}')"
                                 class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600
@@ -227,26 +236,26 @@
                                                 </button>
                                             @endif
                                             @if ($order->remaining_to_pay > 0)
-                                                    <div class="relative mt-2 ml-5">
-                                                        <div class="dropdown relative">
-                                                            <button class="text-xl text-center block w-full "
-                                                                type="button" id="tableDropdownMenuButton1"
-                                                                data-bs-toggle="dropdown" aria-expanded="false">
-                                                                <iconify-icon
-                                                                    icon="heroicons-outline:dots-vertical"></iconify-icon>
-                                                            </button>
-                                                            <ul class=" dropdown-menu min-w-[120px] absolute text-sm text-slate-700 dark:text-white hidden bg-white dark:bg-slate-700 shadow z-[2] float-left overflow-hidden list-none text-left rounded-lg mt-1 m-0 bg-clip-padding border-none"
-                                                                style="min-width: 180px">
-                                                                @foreach ($PAYMENT_METHODS as $PAYMENT_METHOD)
-                                                                    <li wire:click="confirmPayOrder('{{ $PAYMENT_METHOD }}')"
-                                                                        class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:text-white hover:bg-slate-900 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
-                                                                        Pay
-                                                                        {{ ucwords(str_replace('_', ' ', $PAYMENT_METHOD)) }}
-                                                                    </li>
-                                                                @endforeach
-                                                            </ul>
-                                                        </div>
+                                                <div class="relative mt-2 ml-5">
+                                                    <div class="dropdown relative">
+                                                        <button class="text-xl text-center block w-full "
+                                                            type="button" id="tableDropdownMenuButton1"
+                                                            data-bs-toggle="dropdown" aria-expanded="false">
+                                                            <iconify-icon
+                                                                icon="heroicons-outline:dots-vertical"></iconify-icon>
+                                                        </button>
+                                                        <ul class=" dropdown-menu min-w-[120px] absolute text-sm text-slate-700 dark:text-white hidden bg-white dark:bg-slate-700 shadow z-[2] float-left overflow-hidden list-none text-left rounded-lg mt-1 m-0 bg-clip-padding border-none"
+                                                            style="min-width: 180px">
+                                                            @foreach ($PAYMENT_METHODS as $PAYMENT_METHOD)
+                                                                <li wire:click="confirmPayOrder('{{ $PAYMENT_METHOD }}')"
+                                                                    class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:text-white hover:bg-slate-900 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
+                                                                    Pay
+                                                                    {{ ucwords(str_replace('_', ' ', $PAYMENT_METHOD)) }}
+                                                                </li>
+                                                            @endforeach
+                                                        </ul>
                                                     </div>
+                                                </div>
                                             @endif
                                         </div>
                                     @endif
@@ -492,7 +501,10 @@
                                     </a>
                                 </p>
                                 <p class="text-xs mt-1">{{ $order->customer->total_orders }}
-                                    order{{ $order->customer->total_orders > 1 ? 's' : '' }} @if($order->customer->balance) - {{ $order->customer->balance }}EGP in balance @endif</p>
+                                    order{{ $order->customer->total_orders > 1 ? 's' : '' }} @if ($order->customer->balance)
+                                        - {{ $order->customer->balance }}EGP in balance
+                                    @endif
+                                </p>
                             </div>
                             <div class="flex justify-bewwteen mt-5">
                                 <label for="phone" class="form-label"><b>Shipping Address</b></label>
@@ -875,7 +887,8 @@
                             <!-- Modal body -->
                             <div class="p-6 space-y-4">
 
-                                Are you sure you want to deduct <b>{{ min(number_format($order->total_amount, 2), $order->customer->balance) }}<small>EGP
+                                Are you sure you want to deduct
+                                <b>{{ min(number_format($order->total_amount, 2), $order->customer->balance) }}<small>EGP
                                     </small> </b> from the customer's balance of
                                 <b>{{ number_format($order->customer->balance, 2) }}<small>EGP </small></b>?
                                 The remaining balance will be
