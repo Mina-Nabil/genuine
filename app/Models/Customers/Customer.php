@@ -25,7 +25,7 @@ class Customer extends Model
 
     const MORPH_TYPE = 'customer';
 
-    protected $fillable = ['name', 'address', 'phone', 'location_url', 'zone_id'];
+    protected $fillable = ['name', 'address', 'phone', 'location_url', 'zone_id','monthly_weight_target'];
 
     // Create a new customer
     public static function newCustomer($name, $address = null, $phone, $location_url = null, $zone_id = null)

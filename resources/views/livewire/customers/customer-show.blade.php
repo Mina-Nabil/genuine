@@ -92,6 +92,131 @@
                         </div>
                     </div>
 
+                    <div class="card-body flex flex-col justify-center bg-cover card p-4 mt-4">
+                        <div class="card-text flex flex-col justify-between  menu-open">
+                            <p>
+                                <b>Last Orders Placed</b>
+                            </p>
+                            <br>
+                            <div class="card mb-5">
+                                <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base">
+                                    <div class="items-center p-5">
+
+                                        <div class="card-body flex flex-col justify-between border rounded-lg h-full menu-open p-0 mb-5 "
+                                            style="border-color:rgb(224, 224, 224);">
+                                            @foreach ($customer->orders as $order)
+                                                <div class="p-3">
+                                                    <div class="flex justify-between">
+
+                                                        <div>
+                                                            <h6
+                                                                class="text-slate-600 pb-2 dark:text-slate-300 overflow-hidden text-ellipsis whitespace-nowrap">
+                                                                <span class="clickable-link mb-1">
+                                                                    <a href="{{ route('orders.show',$order->id) }}">
+                                                                        #{{ $order->order_number }}
+                                                                    </a>
+                                                                </span>
+                                                                
+                                                                <div class="flex justify-between">
+                                                                    <div class="mr-2">
+                                                                        @if ($order->status === App\Models\Orders\Order::STATUS_NEW || $order->status === App\Models\Orders\Order::STATUS_READY)
+                                                                            <span
+                                                                                class="badge bg-info-500 text-dark-500 bg-opacity-50 capitalize">
+                                                                                <iconify-icon icon="octicon:dot-16"
+                                                                                    width="1.2em"
+                                                                                    height="1.2em"></iconify-icon>
+                                                                                {{ ucwords(str_replace('_', ' ', $order->status)) }}
+                                                                            </span>
+                                                                        @elseif ($order->status === App\Models\Orders\Order::STATUS_IN_DELIVERY)
+                                                                            <span
+                                                                                class="badge bg-warning-500 text-dark-500 bg-opacity-50 capitalize">
+                                                                                <iconify-icon icon="octicon:dot-16"
+                                                                                    width="1.2em"
+                                                                                    height="1.2em"></iconify-icon>
+                                                                                {{ ucwords(str_replace('_', ' ', $order->status)) }}
+                                                                            </span>
+                                                                        @elseif (
+                                                                            $order->status === App\Models\Orders\Order::STATUS_RETURNED ||
+                                                                                $order->status === App\Models\Orders\Order::STATUS_CANCELLED)
+                                                                            <span
+                                                                                class="badge bg-secondary-500 text-dark-500 bg-opacity-50 capitalize">
+                                                                                <iconify-icon
+                                                                                    icon="icon-park-outline:dot"
+                                                                                    width="1.2em"
+                                                                                    height="1.2em"></iconify-icon>
+                                                                                {{ ucwords(str_replace('_', ' ', $order->status)) }}
+                                                                            </span>
+                                                                        @elseif ($order->status === App\Models\Orders\Order::STATUS_DONE)
+                                                                            <span
+                                                                                class="badge bg-success-500 text-dark-500 bg-opacity-50 capitalize">
+                                                                                <iconify-icon
+                                                                                    icon="icon-park-outline:dot"
+                                                                                    width="1.2em"
+                                                                                    height="1.2em"></iconify-icon>
+                                                                                {{ ucwords(str_replace('_', ' ', $order->status)) }}
+                                                                            </span>
+                                                                        @else
+                                                                            <span
+                                                                                class="badge bg-secondary-500 text-dark-500 bg-opacity-50 capitalize">
+                                                                                <iconify-icon icon="octicon:dot-16"
+                                                                                    width="1.2em"
+                                                                                    height="1.2em"></iconify-icon>
+                                                                                {{ ucwords(str_replace('_', ' ', $order->status)) }}
+                                                                            </span>
+                                                                        @endif
+                                                                    </div>
+
+
+                                                                    @if ($order->is_paid)
+                                                                        <span
+                                                                            class="badge bg-success-500 text-dark-500 bg-opacity-50 capitalize">
+                                                                            <iconify-icon icon="icon-park-outline:dot"
+                                                                                width="1.2em"
+                                                                                height="1.2em"></iconify-icon>
+                                                                            Paid
+                                                                        </span>
+                                                                    @else
+                                                                        <div class="flex justify-between mb-2">
+                                                                            <div>
+                                                                                <span
+                                                                                    class="badge bg-warning-500 text-dark-500 bg-opacity-50 capitalize">
+                                                                                    <iconify-icon icon="octicon:dot-16"
+                                                                                        width="1.2em"
+                                                                                        height="1.2em"></iconify-icon>
+                                                                                    Payment pending
+                                                                                </span>
+                                                                            </div>
+                                                                        </div>
+                                                                    @endif
+                                                                </div>
+
+                                                            </h6>
+                                                        </div>
+                                                        <div class="flex text-sm">
+                                                            <p class="ml-3  text-slate-900 dark:text-white">
+                                                                {{ number_format($order->total_amount, 2) }}<small>&nbsp;EGP</small>
+                                                            </p>
+                                                        </div>
+
+                                                    </div>
+                                                    <div class=" flex text-sm justify-between">
+                                                        <span>Delivery date: {{ $order->delivery_date->isToday() ? 'Today' : ($order->delivery_date->isYesterday() ? 'Yesterday' : $order->delivery_date->format('l Y-m-d')) }}</span>
+
+                                                    </div>
+                                                </div>
+                                                @if (!$loop->last)
+                                                    <hr>
+                                                @endif
+                                            @endforeach
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
 
 
                 </div>
@@ -105,7 +230,8 @@
                                         Balance
                                     </span>
                                     <span class="text-lg font-medium text-slate-900 dark:text-white block">
-                                        <small class="text-light">EGP</small>{{ number_format($customer->balance, 2) }}
+                                        <small
+                                            class="text-light">EGP</small>{{ number_format($customer->balance, 2) }}
                                     </span>
                                 </div>
                                 @can('updateCustomerBalance', $customer)
@@ -248,7 +374,7 @@
                                                             <div class="min-w-[100px]">
                                                                 <span class="text-slate-500 dark:text-slate-400">
                                                                     <span
-                                                                        class="block text-slate-600 dark:text-slate-300">{{  $transaction->description }}</span>
+                                                                        class="block text-slate-600 dark:text-slate-300">{{ $transaction->description }}</span>
                                                                     @if ($transaction->order)
                                                                         <a
                                                                             href="{{ route('orders.show', $transaction->order->id) }}">
