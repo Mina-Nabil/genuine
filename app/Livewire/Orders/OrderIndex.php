@@ -155,6 +155,7 @@ class OrderIndex extends Component
         if ($res) {
             $this->resetPage();
             $this->selectedOrders = [];
+            $this->selectAll = false;
             $this->alertSuccess('Status changed!');
         } else {
             $this->alertFailed();
@@ -194,6 +195,8 @@ class OrderIndex extends Component
         if ($res) {
             $this->resetPage();
             $this->closeSetDeliveryDate();
+            $this->selectedOrders = [];
+            $this->selectAll = false;
             $this->alertSuccess('Delivery date set!');
         } else {
             $this->alertFailed();
@@ -220,6 +223,8 @@ class OrderIndex extends Component
         if ($res) {
             $this->resetPage();
             $this->closeSetDriver();
+            $this->selectedOrders = [];
+            $this->selectAll = false;
             $this->alertSuccess('Driver set!');
         } else {
             $this->alertFailed();

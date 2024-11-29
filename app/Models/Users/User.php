@@ -51,6 +51,8 @@ class User extends Authenticatable
         $order_quantity_limit = null, // Driver-specific field
         $car_type = null, // Driver-specific field
         $car_model = null, // Driver-specific field
+        $shift_start_time = null,
+        $shift_end_time = null,
     ): self|false {
         try {
             // Check if the user already exists
@@ -88,6 +90,8 @@ class User extends Authenticatable
                     'user_id' => $user->id,
                     'shift_title' => $shift_title,
                     'weight_limit' => $weight_limit,
+                    'start_time' => $shift_start_time,
+                    'end_time' => $shift_end_time,
                     'order_quantity_limit' => $order_quantity_limit,
                     'car_type' => $car_type,
                     'car_model' => $car_model,

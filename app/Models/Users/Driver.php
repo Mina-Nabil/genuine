@@ -16,6 +16,11 @@ class Driver extends Model
 
     const MORPH_TYPE = 'driver';
 
+    protected $casts = [
+        'start_time' => 'datetime:H:i',
+        'end_time' => 'datetime:H:i',
+    ];
+
     // Car Types
     const CAR_TYPES = [self::CAR_TYPE_SEDAN, self::CAR_TYPE_SUV, self::CAR_TYPE_PICKUP, self::CAR_TYPE_VAN, self::CAR_TYPE_MOTORCYCLE];
     const CAR_TYPE_SEDAN = 'sedan';
@@ -24,9 +29,9 @@ class Driver extends Model
     const CAR_TYPE_VAN = 'van';
     const CAR_TYPE_MOTORCYCLE = 'motorcycle';
 
-    protected $fillable = ['user_id', 'shift_title', 'weight_limit', 'order_quantity_limit', 'car_type', 'car_model', 'is_available'];
+    protected $fillable = ['user_id', 'shift_title', 'weight_limit', 'order_quantity_limit','start_time','end_time', 'car_type', 'car_model', 'is_available'];
 
-    public static function createDriver($shiftTitle, $userId, $weightLimit = null, $orderQuantityLimit = null, $carType = null, $carModel = null)
+    public static function createDriver($shiftTitle, $userId, $start_time ,$end_time, $weightLimit = null, $orderQuantityLimit = null, $carType = null, $carModel = null)
     {
         try {
             DB::beginTransaction();
@@ -37,6 +42,8 @@ class Driver extends Model
                 'user_id' => $userId,
                 'weight_limit' => $weightLimit,
                 'order_quantity_limit' => $orderQuantityLimit,
+                'start_time' => $start_time,
+                'end_time' => $end_time,
                 'car_type' => $carType,
                 'car_model' => $carModel,
                 'is_available' => true,
@@ -84,7 +91,7 @@ class Driver extends Model
         }
     }
 
-    public function updateDriver($shiftTitle, $weightLimit, $orderQuantityLimit, $carType, $carModel, $isAvailable)
+    public function updateDriver($shiftTitle, $weightLimit, $start_time ,$end_time, $orderQuantityLimit, $carType, $carModel, $isAvailable)
     {
         try {
             DB::beginTransaction();
@@ -93,6 +100,8 @@ class Driver extends Model
             $this->weight_limit = $weightLimit;
             $this->order_quantity_limit = $orderQuantityLimit;
             $this->car_type = $carType;
+            $this->start_time = $start_time;
+            $this->end_time = $end_time;
             $this->car_model = $carModel;
             $this->is_available = $isAvailable;
 

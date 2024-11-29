@@ -33,21 +33,19 @@ class UserIndex extends Component
     public $DrivingLicenceDoc;
     public $CarLicenceNo;
     public $CarLicenceDoc;
-    public $shiftTitle;//for driver
+    public $shiftTitle; //for driver
     public $weightLimit; //for driver
     public $orderQuantityLimit; //for driver
     public $carType; //for driver
     public $carModel; //for driver
+    public $startTime = '10:00';
+    public $endTime = '18:00';
     public $driverIsAvailable;
-
-
-
 
     public function updatedSearch()
     {
         $this->resetPage();
     }
-
 
     public function toggleUserStatus($id)
     {
@@ -110,11 +108,10 @@ class UserIndex extends Component
         );
     }
 
-
     public function closeNewUserSec()
     {
         $this->newUserSection = false;
-        $this->reset(['newUsername', 'newFirstName', 'newLastName', 'newType', 'newPassword', 'newPassword_confirmation', 'newEmail', 'newPhone', 'newManagerId', 'IdNumber', 'IdNumberDoc', 'DrivingLicenceNo', 'DrivingLicenceDoc', 'CarLicenceNo', 'CarLicenceDoc','shiftTitle','weightLimit','orderQuantityLimit' ,'carType','carModel']);
+        $this->reset(['newUsername', 'newFirstName', 'newLastName', 'newType', 'newPassword', 'newPassword_confirmation', 'newEmail', 'newPhone', 'newManagerId', 'IdNumber', 'IdNumberDoc', 'DrivingLicenceNo', 'DrivingLicenceDoc', 'CarLicenceNo', 'CarLicenceDoc', 'shiftTitle', 'weightLimit', 'orderQuantityLimit', 'carType', 'carModel','startTime','endTime']);
     }
 
     protected $rules = [
@@ -148,11 +145,13 @@ class UserIndex extends Component
 
         if ($this->newType === User::TYPE_DRIVER) {
             $this->validate([
-                'shiftTitle' => 'required|string|max:255', 
-                'weightLimit' => 'required|integer|min:1',  
-                'orderQuantityLimit' => 'required|integer|min:1',     
-                'carType' => 'nullable|in:' . implode(',', Driver::CAR_TYPES), 
-                'carModel' => 'nullable|string|max:255',              
+                'shiftTitle' => 'required|string|max:255',
+                'weightLimit' => 'required|integer|min:1',
+                'orderQuantityLimit' => 'required|integer|min:1',
+                'carType' => 'nullable|in:' . implode(',', Driver::CAR_TYPES),
+                'carModel' => 'nullable|string|max:255',
+                'startTime' => 'required|date_format:H:i',
+                'endTime' => 'required|date_format:H:i|after:startTime                                                                                                                                                                                      ',
             ]);
         }
 
@@ -162,12 +161,12 @@ class UserIndex extends Component
         $carLicenseDocUrl = $this->CarLicenceDoc ? $this->CarLicenceDoc->store(User::FILES_DIRECTORY, 's3') : null;
 
         // Create a new user with the validated data and document URLs
-        $res = User::newUser($this->newUsername, $this->newFirstName, $this->newLastName, $this->newType, $this->newPassword, $this->newEmail, $this->newPhone, $this->IdNumber, $idDocUrl, $this->DrivingLicenceNo, $drivingLicenseDocUrl, $this->CarLicenceNo, $carLicenseDocUrl,null,$this->shiftTitle,$this->weightLimit,$this->orderQuantityLimit,$this->carType,$this->carModel);
+        $res = User::newUser($this->newUsername, $this->newFirstName, $this->newLastName, $this->newType, $this->newPassword, $this->newEmail, $this->newPhone, $this->IdNumber, $idDocUrl, $this->DrivingLicenceNo, $drivingLicenseDocUrl, $this->CarLicenceNo, $carLicenseDocUrl, null, $this->shiftTitle, $this->weightLimit, $this->orderQuantityLimit, $this->carType, $this->carModel,$this->startTime,$this->endTime);
 
         // Check if the user was created successfully
         if ($res) {
             $this->alertSuccess('User added successfully!'); // Show success alert
-            return redirect(route('profile',$res->id));
+            return redirect(route('profile', $res->id));
         } else {
             $this->alertFailed('Server error'); // Show failure alert
         }
@@ -186,7 +185,7 @@ class UserIndex extends Component
         return view('livewire.users.user-index', [
             'users' => $users,
             'TYPES' => $TYPES,
-            'carTypes' => $carTypes
+            'carTypes' => $carTypes,
         ])->layout('layouts.app', ['page_title' => $this->page_title, 'users' => 'active']);
     }
 }

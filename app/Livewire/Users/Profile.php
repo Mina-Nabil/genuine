@@ -46,6 +46,8 @@ class Profile extends Component
     public $car_type = Driver::CAR_TYPE_SEDAN;
     public $car_model;
     public $is_available;
+    public $startTime;
+    public $endTime;
     
     public $deleteDriverShiftId;
 
@@ -88,8 +90,10 @@ class Profile extends Component
             'order_quantity_limit' => 'nullable|integer|min:0',
             'car_type' => 'nullable|in:' . implode(',', Driver::CAR_TYPES),
             'car_model' => 'nullable|string|max:255',
+            'startTime' => 'required|date_format:H:i',
+            'endTime' => 'required|date_format:H:i|after:startTime'
         ]);
-        $res = Driver::createDriver($this->shift_title, $this->user->id, $this->weight_limit ? $this->weight_limit * 1000 : null , $this->order_quantity_limit, $this->car_type, $this->car_model);
+        $res = Driver::createDriver($this->shift_title, $this->user->id,$this->startTime,$this->endTime, $this->weight_limit ? $this->weight_limit * 1000 : null , $this->order_quantity_limit, $this->car_type, $this->car_model);
 
         if ($res) {
             $this->closeDriverSections();
@@ -109,6 +113,8 @@ class Profile extends Component
             $this->order_quantity_limit = $driver->order_quantity_limit;
             $this->car_type = $driver->car_type;
             $this->car_model = $driver->car_model;
+            $this->startTime = $driver->start_time->format('H:i');
+            $this->endTime = $driver->end_time->format('H:i');
             if ($driver->is_available === 1) {
                 $this->is_available = true ;
             }else{
@@ -127,9 +133,11 @@ class Profile extends Component
             'car_type' => 'nullable|in:' . implode(',', Driver::CAR_TYPES),
             'car_model' => 'nullable|string|max:255',
             'is_available' => 'required|boolean',
+            'startTime' => 'required|date_format:H:i',
+            'endTime' => 'required|date_format:H:i|after:startTime'
         ]);
 
-        $res = Driver::findOrFail($this->isEditDriverSec)->updateDriver($this->shift_title, $this->weight_limit ? $this->weight_limit * 1000 : null, $this->order_quantity_limit, $this->car_type, $this->car_model, $this->is_available);
+        $res = Driver::findOrFail($this->isEditDriverSec)->updateDriver($this->shift_title, $this->weight_limit ? $this->weight_limit * 1000 : null,$this->startTime,$this->endTime, $this->order_quantity_limit, $this->car_type, $this->car_model, $this->is_available);
     
         if ($res) {
             $this->closeDriverSections();
@@ -141,7 +149,7 @@ class Profile extends Component
 
     public function closeDriverSections()
     {
-        $this->reset(['isOpenNewDriverSec', 'isEditDriverSec', 'shift_title', 'weight_limit', 'order_quantity_limit', 'car_type', 'car_model', 'is_available']);
+        $this->reset(['isOpenNewDriverSec', 'isEditDriverSec', 'shift_title', 'weight_limit', 'order_quantity_limit', 'car_type', 'car_model', 'is_available','startTime','endTime']);
     }
 
     public function updatedPassword()

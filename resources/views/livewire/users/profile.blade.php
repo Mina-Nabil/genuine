@@ -206,6 +206,10 @@
                                                 </th>
 
                                                 <th scope="col" class=" table-th ">
+                                                    <span class="text-slate-100">Time</span>
+                                                </th>
+
+                                                <th scope="col" class=" table-th ">
                                                     <span class="text-slate-100">Weight Limit</span>
                                                 </th>
 
@@ -234,6 +238,13 @@
                                                                 class="badge bg-success-500 text-success-500 bg-opacity-30 capitalize rounded-3xl ml-5">Available</span>
                                                         @endif
 
+                                                    </td>
+                                                    <td class="table-td">
+                                                        <div class="flex-1 text-start flex justify-between">
+                                                                <span>{{ $shift->start_time->format('h:i A') }}</span>
+                                                                <span>-></span>
+                                                                <span>{{ $shift->end_time->format('h:i A') }}</span>
+                                                        </div>
                                                     </td>
                                                     <td class="table-td">
                                                         @if ($shift->weight_limit)
@@ -623,6 +634,32 @@
                                         <span
                                             class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
                                     @enderror
+                                </div>
+                            </div>
+
+                            <div class="from-group">
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+                                    <div class="input-area">
+                                        <label for="startTime" class="form-label">Start Time
+                                        </label>
+                                        <input id="startTime" type="time"
+                                            class="form-control @error('startTime') !border-danger-500 @enderror"
+                                            wire:model="startTime" autocomplete="off">
+                                        @error('startTime')
+                                            <span
+                                                class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                    <div class="input-area">
+                                        <label for="endTime" class="form-label">End Time</label>
+                                        <input id="endTime" type="time"
+                                            class="form-control @error('endTime') !border-danger-500 @enderror"
+                                            wire:model="endTime" autocomplete="off">
+                                        @error('endTime')
+                                            <span
+                                                class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                        @enderror
+                                    </div>
                                 </div>
                             </div>
 

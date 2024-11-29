@@ -19,6 +19,8 @@ return new class extends Migration
             $table->foreignIdFor(User::class)->constrained()->onDelete('cascade')->unique();
             $table->integer('weight_limit')->nullable(); 
             $table->integer('order_quantity_limit')->nullable(); 
+            $table->time('start_time');
+            $table->time('end_time');
             $table->enum('car_type', Driver::CAR_TYPES)->nullable();
             $table->string('car_model')->nullable();
             $table->boolean('is_available')->default(true); 

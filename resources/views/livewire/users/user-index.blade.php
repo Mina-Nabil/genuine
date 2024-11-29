@@ -468,6 +468,32 @@
                                                 class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
                                         @enderror
                                     </div>
+
+                                    <div class="from-group">
+                                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+                                            <div class="input-area">
+                                                <label for="startTime" class="form-label">Start Time
+                                                </label>
+                                                <input id="startTime" type="time"
+                                                    class="form-control @error('startTime') !border-danger-500 @enderror"
+                                                    wire:model="startTime" autocomplete="off">
+                                                @error('startTime')
+                                                    <span
+                                                        class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+                                            <div class="input-area">
+                                                <label for="endTime" class="form-label">End Time</label>
+                                                <input id="endTime" type="time"
+                                                    class="form-control @error('endTime') !border-danger-500 @enderror"
+                                                    wire:model="endTime" autocomplete="off">
+                                                @error('endTime')
+                                                    <span
+                                                        class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                    </div>
                                 @endif
 
 
