@@ -411,7 +411,7 @@
                                     <div class="from-group">
                                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
                                             <div class="input-area">
-                                                <label for="weightLimit" class="form-label">Weight Limit ( grams )
+                                                <label for="weightLimit" class="form-label">Weight Limit ( KG )
                                                 </label>
                                                 <input id="weightLimit" type="number"
                                                     class="form-control @error('weightLimit') !border-danger-500 @enderror"
