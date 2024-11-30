@@ -10339,9 +10339,9 @@ ToolTip And PopOver
     color: rgb(241 89 92 / var(--tw-text-opacity));
 }
 
-#passwordshow {
+/* #passwordshow {
     display: none;
-}
+} */
 
 #tooltipValidation span.error {
     margin-top: 0.25rem;

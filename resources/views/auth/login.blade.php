@@ -83,9 +83,21 @@
                                 <label class="block capitalize form-label">Password</label>
                                 <!-- Typo corrected from "passwrod" to "Password" -->
                                 <div class="relative">
-                                    <input type="password" name="password"
-                                        class="form-control py-2 @if($errors->first('password')) !border-danger-500 @endif"
-                                        placeholder="Enter Password">
+                                    <input 
+                                        id="password" 
+                                        type="password" 
+                                        name="password" 
+                                        class="form-control pr-9" 
+                                        placeholder="Password" 
+                                        required="required">
+                                    <button 
+                                        id="passIcon" 
+                                        class="passIcon absolute top-2.5 right-3 text-slate-300 text-xl p-0 leading-none" 
+                                        type="button" 
+                                        onclick="togglePassword()">
+                                        <iconify-icon id="passwordhide" class="inline-block hidden" icon="mdi:eye-outline"></iconify-icon>
+                                        <iconify-icon id="passwordshow" class="inline-block" icon="mdi:eye-off-outline"></iconify-icon>
+                                    </button>
                                 </div>
                                 @if ($errors->first('password'))
                                 <span id="nameErrorMsg" class="font-Inter text-sm text-danger-500 pt-2 hidden mt-1"
