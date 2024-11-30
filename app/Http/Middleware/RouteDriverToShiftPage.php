@@ -4,8 +4,9 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class RouteDriverToShiftPage
 {
@@ -16,9 +17,10 @@ class RouteDriverToShiftPage
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $user = Auth::user();
-        if ($user->is_driver && $request->url() !== '/orders/driver')
-            return route('login');
+        /** @var User */
+        $loggedInUser = Auth::user();
+        if ($loggedInUser && $loggedInUser->is_driver && $request->path() !== '/orders/driver')
+            return redirect('/orders/driver');
         return $next($request);
     }
 }

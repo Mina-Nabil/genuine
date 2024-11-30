@@ -20,17 +20,7 @@ class Kernel extends ConsoleKernel
     {
         $schedule->call(fn() => AppLog::expired()->delete())
             ->environments(['production'])->dailyAt('3:00');
-        $schedule->call(fn() => Offer::cleanOffersDirectory())
-            ->environments(['production'])->dailyAt('4:00');
-        $schedule->call(function () {
-            /** @var Target */
-            foreach (Target::onlyToday()->get() as $t) {
-                if ($t->is_due) {
-                    $t->processTargetPayments();
-                }
-            }
-        })
-            ->environments(['production'])->dailyAt('4:00');
+
     }
 
     /**

@@ -8,6 +8,8 @@ use App\Models\Pets\Pet;
 use Livewire\Component;
 use App\Traits\AlertFrontEnd;
 use Illuminate\Routing\Route;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 
@@ -33,6 +35,10 @@ class CustomerIndex extends Component
 
     public function mount()
     {
+        /** @var User */
+        $loggedInUser = Auth::user();
+        Log::info($loggedInUser);
+
         // Initialize the pets array with the first category set as default
         $firstCategory = Pet::CATEGORIES[0]; // Assuming Pet::CATEGORIES is an array of categories
         $this->pets[] = [
@@ -114,7 +120,7 @@ class CustomerIndex extends Component
     public function addNewCustomer()
     {
         $this->authorize('create', Customer::class);
-        
+
         $this->validate([
             'fullName' => 'required|string|max:255',
             'phone' => 'required|string|max:15',
@@ -125,7 +131,7 @@ class CustomerIndex extends Component
             'pets.*.category' => 'required|in:' . implode(',', Pet::CATEGORIES),
             'pets.*.type' => 'required|string|max:255',
             'pets.*.bdate' => 'required|date',
-        ],attributes:[
+        ], attributes: [
             'pets.*.name' => 'pet name',
             'pets.*.category' => 'pet category',
             'pets.*.type' => 'pet type',
