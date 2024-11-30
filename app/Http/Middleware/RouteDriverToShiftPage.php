@@ -17,7 +17,8 @@ class RouteDriverToShiftPage
     public function handle(Request $request, Closure $next): Response
     {
         $user = Auth::user();
-        if ($user->is_driver && $request->url() !== '/orders/driver') return redirect('/orders/driver');
+        if ($user->is_driver && $request->url() !== '/orders/driver')
+            return route('login');
         return $next($request);
     }
 }
