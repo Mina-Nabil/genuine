@@ -149,6 +149,15 @@ class Order extends Model
             return false;
         }
 
+        if ($deliveryDate->isToday()) {
+            foreach ($products as $product) {
+                $p = Product::findOrFail($product['id']);
+                if ($p->inventory->available - $product['quantity'] < 0 ) {
+                    return false;
+                }
+            }
+        }
+
         try {
             $order = new self();
             $order->order_number = self::generateNextOrderNumber();

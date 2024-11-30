@@ -57,7 +57,7 @@
                                             </td>
                                             <td class="table-td imp-p-2 ">
                                                 <span class="text-slate-100">x</span>
-                                                
+
                                             </td>
                                             <!-- Quantity Input Column -->
                                             <td class="table-td imp-p-2  text-slate-100">
@@ -113,6 +113,10 @@
                                                                                 Combo
                                                                             @endif
                                                                         </div>
+                                                                        @error('fetchedProducts.' . $index . '.quantity')
+                                                                            <span
+                                                                                class="font-Inter text-xs text-danger-500 inline-block">{{ $message }}</span>
+                                                                        @enderror
                                                                     </div>
                                                                 </td>
 
@@ -121,9 +125,10 @@
                                                                     <input type="number" min="1"
                                                                         class="form-control @error('fetchedProducts.' . $index . '.quantity') !border-danger-500 @enderror"
                                                                         style="width: 100px;"
-                                                                        @if($fetchedProducts[$index]['combo_id']) disabled @endif
+                                                                        @if ($fetchedProducts[$index]['combo_id']) disabled @endif
                                                                         wire:model="fetchedProducts.{{ $index }}.quantity"
                                                                         wire:input="updateTotal({{ $index }})">
+
                                                                 </td>
 
                                                                 <!-- Price Input Column -->

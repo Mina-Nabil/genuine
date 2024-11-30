@@ -62,7 +62,8 @@ class OrderCreate extends Component
 
     public $fetchedCombos = [];
 
-    public function updatedFetchedProducts(){
+    public function updatedFetchedProducts()
+    {
         $this->refreshPayments();
     }
 
@@ -129,7 +130,7 @@ class OrderCreate extends Component
 
     public function clearCustomer()
     {
-        $this->reset(['customerIsNew', 'customerId', 'customerName', 'shippingAddress','locationURL', 'customerPhone', 'zoneId','detuctFromBalance']);
+        $this->reset(['customerIsNew', 'customerId', 'customerName', 'shippingAddress', 'locationURL', 'customerPhone', 'zoneId', 'detuctFromBalance']);
         $this->refreshPayments();
     }
 
@@ -157,14 +158,12 @@ class OrderCreate extends Component
 
         if ($customer->balance > 0) {
             $this->detuctFromBalance = true;
-        }else{
+        } else {
             $this->detuctFromBalance = false;
         }
 
         $this->closeCustomerSection();
         $this->refreshPayments();
-
-        
     }
 
     public function openDriverSection()
@@ -179,28 +178,28 @@ class OrderCreate extends Component
     }
 
     public function updatedFetchedCombos()
-{
-    foreach ($this->fetchedCombos as $combo) {
-        // Fetch the combo from the database with its related products and pivot
-        $c = Combo::with('products')->find($combo['combo_id']);
-        
-        if ($c) {
-            // Loop through fetchedProducts to find matching combo_id
-            foreach ($this->fetchedProducts as &$product) {
-                if ($product['combo_id'] === $combo['combo_id']) {
-                    // Find the product in the combo's products relationship
-                    $pivot = $c->products->where('id', $product['id'])->first();
+    {
+        foreach ($this->fetchedCombos as $combo) {
+            // Fetch the combo from the database with its related products and pivot
+            $c = Combo::with('products')->find($combo['combo_id']);
 
-                    if ($pivot) {
-                        // Update product quantity using combo_quantity and pivot quantity
-                        $product['quantity'] = $combo['combo_quantity'] * $pivot->pivot->quantity;
+            if ($c) {
+                // Loop through fetchedProducts to find matching combo_id
+                foreach ($this->fetchedProducts as &$product) {
+                    if ($product['combo_id'] === $combo['combo_id']) {
+                        // Find the product in the combo's products relationship
+                        $pivot = $c->products->where('id', $product['id'])->first();
+
+                        if ($pivot) {
+                            // Update product quantity using combo_quantity and pivot quantity
+                            $product['quantity'] = $combo['combo_quantity'] * $pivot->pivot->quantity;
+                        }
                     }
                 }
             }
         }
+        $this->refreshPayments();
     }
-    $this->refreshPayments();
-}
 
     public function selectCombo($id)
     {
@@ -226,10 +225,7 @@ class OrderCreate extends Component
                 'quantity' => $product->pivot->quantity, // Default quantity
                 'price' => $product->pivot->price, // Price from the pivot
                 'combo_name' => $combo->name, // Combo association
-
             ];
-
-            
 
             // Ensure the product ID is also in selectedProducts
             if (!in_array($product->id, $this->selectedProducts)) {
@@ -240,14 +236,14 @@ class OrderCreate extends Component
         foreach ($this->fetchedProducts as $product) {
             $existingComboKey = array_search($product['combo_id'], array_column($this->fetchedCombos, 'combo_id'));
         }
-        
+
         if ($existingComboKey === false) {
             $this->fetchedCombos[] = [
                 'combo_id' => $product['combo_id'],
                 'combo_name' => $product['combo_name'],
-                'combo_quantity' => 1, 
+                'combo_quantity' => 1,
             ];
-        }else {
+        } else {
             // Increment the quantity of the existing combo
             $this->fetchedCombos[$existingComboKey]['combo_quantity']++;
             $this->updatedFetchedCombos();
@@ -292,13 +288,16 @@ class OrderCreate extends Component
 
     public function updateTotal($index)
     {
-        $this->validate([
-            'fetchedProducts.*.quantity' => 'required|integer|min:1',
-            'fetchedProducts.*.price' => 'required|numeric|min:0',
-        ], [
-            'fetchedProducts.*.quantity' => 'Each order item must have a valid quantity',
-            'fetchedProducts.*.price' => 'Each order item must have a price',   
-        ]);
+        $this->validate(
+            [
+                'fetchedProducts.*.quantity' => 'required|integer|min:1',
+                'fetchedProducts.*.price' => 'required|numeric|min:0',
+            ],
+            [
+                'fetchedProducts.*.quantity' => 'Each order item must have a valid quantity',
+                'fetchedProducts.*.price' => 'Each order item must have a price',
+            ],
+        );
         $this->fetchedProducts[$index]['total'] = $this->fetchedProducts[$index]['quantity'] * $this->fetchedProducts[$index]['price'];
     }
 
@@ -310,16 +309,19 @@ class OrderCreate extends Component
 
     public function refreshPayments()
     {
-        $this->validate([
-            'fetchedProducts.*.id' => 'required|exists:products,id',
-            'fetchedProducts.*.combo_id' => 'nullable|exists:combos,id',
-            'fetchedProducts.*.quantity' => 'required|integer|min:1',
-            'fetchedProducts.*.price' => 'required|numeric|min:0',
-        ], [
-            'fetchedProducts.*.id' => 'Each order item is required',
-            'fetchedProducts.*.quantity' => 'Each order item must have a valid quantity',
-            'fetchedProducts.*.price' => 'Each order item must have a price',   
-        ]);
+        $this->validate(
+            [
+                'fetchedProducts.*.id' => 'required|exists:products,id',
+                'fetchedProducts.*.combo_id' => 'nullable|exists:combos,id',
+                'fetchedProducts.*.quantity' => 'required|integer|min:1',
+                'fetchedProducts.*.price' => 'required|numeric|min:0',
+            ],
+            [
+                'fetchedProducts.*.id' => 'Each order item is required',
+                'fetchedProducts.*.quantity' => 'Each order item must have a valid quantity',
+                'fetchedProducts.*.price' => 'Each order item must have a price',
+            ],
+        );
 
         $subtotal = 0;
         $totalItems = 0;
@@ -378,57 +380,81 @@ class OrderCreate extends Component
 
     public function createOrder()
     {
+        if (Carbon::parse($this->ddate)->isToday()) {
+            foreach ($this->fetchedProducts as $index => $product) {
+
+                $p = Product::findOrFail($product['id']);
+    
+                if ($p->inventory->available - $product['quantity'] < 0) {
+                    $this->addError("fetchedProducts.$index.quantity", "Quantity exceeds available stock: {$p->inventory->available}");
+                    $hasErrors = true;
+                }
+            }
+    
+            if ($hasErrors) {
+                return;
+            }
+    
+        }
+        
         $detuctFromBalance = false;
         if ($this->customerId) {
-            $this->validate([
-                'customerId' => 'required|exists:customers,id',
-                'customerName' => 'required|string|max:255',
-                'shippingAddress' => 'required|string|max:255',
-                'locationURL' => 'required|string|max:255',
-                'customerPhone' => 'required|string|max:15',
-                'zoneId' => 'required|exists:zones,id',
-            ],attributes:[
-                'customerId' => 'customer',
-                'zoneId' => 'zone',
-            ]);
+            $this->validate(
+                [
+                    'customerId' => 'required|exists:customers,id',
+                    'customerName' => 'required|string|max:255',
+                    'shippingAddress' => 'required|string|max:255',
+                    'locationURL' => 'required|string|max:255',
+                    'customerPhone' => 'required|string|max:15',
+                    'zoneId' => 'required|exists:zones,id',
+                ],
+                attributes: [
+                    'customerId' => 'customer',
+                    'zoneId' => 'zone',
+                ],
+            );
             $customerId = $this->customerId;
             $detuctFromBalance = $this->detuctFromBalance;
         } else {
-            $this->validate([
-                
-                'customerName' => 'required|string|max:255',
-                'shippingAddress' => 'required|string|max:255',
-                'locationURL' => 'required|string|max:255',
-                'customerPhone' => 'required|string|max:15',
-                'zoneId' => 'required|exists:zones,id',
-            ],attributes:[
-                'zoneId' => 'zone',
-            ]);
-            $res = Customer::newCustomer($this->customerName, $this->shippingAddress, $this->customerPhone,location_url:$this->locationURL, zone_id: $this->zoneId);
+            $this->validate(
+                [
+                    'customerName' => 'required|string|max:255',
+                    'shippingAddress' => 'required|string|max:255',
+                    'locationURL' => 'required|string|max:255',
+                    'customerPhone' => 'required|string|max:15',
+                    'zoneId' => 'required|exists:zones,id',
+                ],
+                attributes: [
+                    'zoneId' => 'zone',
+                ],
+            );
+            $res = Customer::newCustomer($this->customerName, $this->shippingAddress, $this->customerPhone, location_url: $this->locationURL, zone_id: $this->zoneId);
             $customerId = $res->id;
         }
 
-        $this->validate([
-            'total' => 'nullable|numeric|min:0',
-            'shippingFee' => 'nullable|numeric|min:0',
-            'discountAmount' => 'nullable|numeric|min:0',
-            'ddate' => 'required|date',
-            'note' => 'nullable|string|max:500',
-            'fetchedProducts.*.id' => 'required|exists:products,id',
-            'fetchedProducts.*.combo_id' => 'nullable|exists:combos,id',
-            'fetchedProducts.*.quantity' => 'required|integer|min:1',
-            'fetchedProducts.*.price' => 'required|numeric|min:0',
-        ], [
-            'fetchedProducts.*.id' => 'Each order item is required',
-            'fetchedProducts.*.quantity' => 'Each order item must have a valid quantity',
-            'fetchedProducts.*.price' => 'Each order item must have a price',   
-        ]);
-
+        $this->validate(
+            [
+                'total' => 'nullable|numeric|min:0',
+                'shippingFee' => 'nullable|numeric|min:0',
+                'discountAmount' => 'nullable|numeric|min:0',
+                'ddate' => 'required|date',
+                'note' => 'nullable|string|max:500',
+                'fetchedProducts.*.id' => 'required|exists:products,id',
+                'fetchedProducts.*.combo_id' => 'nullable|exists:combos,id',
+                'fetchedProducts.*.quantity' => 'required|integer|min:1',
+                'fetchedProducts.*.price' => 'required|numeric|min:0',
+            ],
+            [
+                'fetchedProducts.*.id' => 'Each order item is required',
+                'fetchedProducts.*.quantity' => 'Each order item must have a valid quantity',
+                'fetchedProducts.*.price' => 'Each order item must have a price',
+            ],
+        );
 
         $driverID = null;
-        $this->driver ? $driverID = $this->driver->id : null;
+        $this->driver ? ($driverID = $this->driver->id) : null;
 
-        $res = Order::newOrder($customerId, $this->customerName, $this->shippingAddress, $this->customerPhone, $this->zoneId, $this->locationURL,$driverID , $this->total, $this->shippingFee, $this->discountAmount, $this->ddate ? Carbon::parse($this->ddate) : null, $this->note, $this->fetchedProducts , $detuctFromBalance);
+        $res = Order::newOrder($customerId, $this->customerName, $this->shippingAddress, $this->customerPhone, $this->zoneId, $this->locationURL, $driverID, $this->total, $this->shippingFee, $this->discountAmount, $this->ddate ? Carbon::parse($this->ddate) : null, $this->note, $this->fetchedProducts, $detuctFromBalance);
 
         if ($res) {
             $this->alertSuccess('order added!');
@@ -458,7 +484,6 @@ class OrderCreate extends Component
         $combos = Combo::search($this->combosSearchText)
             ->limit(10)
             ->get();
-
 
         return view('livewire.orders.order-create', [
             'products' => $products,
