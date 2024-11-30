@@ -404,8 +404,8 @@ class OrderCreate extends Component
                     'customerId' => 'required|exists:customers,id',
                     'customerName' => 'required|string|max:255',
                     'shippingAddress' => 'required|string|max:255',
-                    'locationURL' => 'required|string|max:255',
-                    'customerPhone' => 'required|string|max:15',
+                    'locationURL' => 'nullable|string|max:255',
+                    'customerPhone' => 'required|string',
                     'zoneId' => 'required|exists:zones,id',
                 ],
                 attributes: [

@@ -71,12 +71,11 @@ class Product extends Model
         for ($i = 2; $i <= $highestRow; $i++) {
             $category = $activeSheet->getCell('B' . $i)->getValue();
             //skip if no car category found
-            if (!$category) {
-                continue;
+            if ($category) {
+                $catg = Category::firstOrCreate([
+                    'name' => $category,
+                ]);
             }
-            $catg = Category::firstOrCreate([
-                'name' => $category,
-            ]);
 
             //skip if no brand found
             if (!$catg) {
@@ -85,7 +84,7 @@ class Product extends Model
             $product_name = $activeSheet->getCell('C' . $i)->getValue();
             $price = $activeSheet->getCell('D' . $i)->getValue();
             $weight = $activeSheet->getCell('E' . $i)->getValue();
-            $balance = $activeSheet->getCell('F' . $i)->getValue();
+            $balance = 0;
 
             $prod = self::firstOrCreate([
                 'category_id'   => $catg->id,

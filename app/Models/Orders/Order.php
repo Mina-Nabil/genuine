@@ -21,7 +21,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class Order extends Model
 {
@@ -107,7 +109,7 @@ class Order extends Model
         }
     }
 
-    public function setStatus(string $newStatus): bool
+    public function setStatus(string $newStatus, $skipCheck = false): bool
     {
         DB::beginTransaction();
 
@@ -117,7 +119,7 @@ class Order extends Model
             $allowedNextStatuses = self::getNextStatuses($currentStatus);
 
             // If the new status is not allowed, throw an exception
-            if (!in_array($newStatus, $allowedNextStatuses, true)) {
+            if (!in_array($newStatus, $allowedNextStatuses, true) && !$skipCheck) {
                 throw new Exception("Order ID {$this->id} cannot transition from {$currentStatus} to {$newStatus}");
             }
 
@@ -141,18 +143,18 @@ class Order extends Model
     }
 
     // Function to create a new order
-    public static function newOrder(int $customerId, string $customerName, string $shippingAddress, string $customerPhone, int $zoneId, $locationURL = null, int $driverId = null, float $totalAmount = 0, float $deliveryAmount = 0, float $discountAmount = 0, Carbon $deliveryDate = null, string $note = null, array $products, $detuctFromBalance = false): Order|bool
+    public static function newOrder(int $customerId, string $customerName, string $shippingAddress, string $customerPhone, int $zoneId, $locationURL = null, int $driverId = null, float $totalAmount = 0, float $deliveryAmount = 0, float $discountAmount = 0, Carbon $deliveryDate = null, string $note = null, array $products, $detuctFromBalance = false, $migrated = false): Order|bool
     {
         /** @var User */
         $loggedInUser = Auth::user();
-        if ($loggedInUser && !$loggedInUser->can('create', self::class)) {
+        if (!$migrated && $loggedInUser && !$loggedInUser->can('create', self::class)) {
             return false;
         }
 
         if ($deliveryDate->isToday()) {
             foreach ($products as $product) {
                 $p = Product::findOrFail($product['id']);
-                if ($p->inventory->available - $product['quantity'] < 0 ) {
+                if ($p->inventory->available - $product['quantity'] < 0) {
                     return false;
                 }
             }
@@ -175,7 +177,7 @@ class Order extends Model
             $order->delivery_date = $deliveryDate;
             $order->is_paid = false;
             $order->note = $note;
-            $order->created_by = $loggedInUser->id;
+            $order->created_by = $migrated ? 1 : $loggedInUser->id;
 
             $order->save();
 
@@ -186,7 +188,8 @@ class Order extends Model
                     'quantity' => $product['quantity'],
                     'price' => $product['price'],
                 ]);
-                $orderProduct->product->inventory->commitQuantity($product['quantity'], 'Order: #' . $order->order_number . ' committed');
+                if (!$migrated)
+                    $orderProduct->product->inventory->commitQuantity($product['quantity'], 'Order: #' . $order->order_number . ' committed');
             }
 
             if ($detuctFromBalance) {
@@ -194,6 +197,10 @@ class Order extends Model
             }
 
             AppLog::info('Order Created successfuly', loggable: $order);
+            if ($order && $migrated && $deliveryDate) {
+                $order->setAsPaid($deliveryDate, CustomerPayment::PYMT_CASH, migrated: $migrated);
+                $order->setStatus(self::STATUS_DONE, true);
+            }
             return $order;
         } catch (Exception $e) {
             report($e);
@@ -511,9 +518,9 @@ class Order extends Model
         }
     }
 
-    public function setAsPaid($paymentDate, $paymentMethod = null, $deductFromBalance = false)
+    public function setAsPaid($paymentDate, $paymentMethod = null, $deductFromBalance = false, $migrated = false)
     {
-        return DB::transaction(function () use ($paymentMethod, $paymentDate, $deductFromBalance) {
+        return DB::transaction(function () use ($paymentMethod, $paymentDate, $deductFromBalance, $migrated) {
             try {
                 /** @var User */
                 $loggedInUser = Auth::user();
@@ -542,7 +549,7 @@ class Order extends Model
                             'amount' => -$deductedAmount,
                             'balance' => $customer->balance,
                             'description' => 'Payment deducted from balance',
-                            'created_by' => $loggedInUser->id,
+                            'created_by' => $migrated ? 1 : $loggedInUser->id,
                         ]);
                     }
                 } else {
@@ -556,7 +563,7 @@ class Order extends Model
                             'type_balance' => $new_type_balance,
                             'payment_method' => $paymentMethod,
                             'payment_date' => $paymentDate,
-                            'created_by' => $loggedInUser->id,
+                            'created_by' => $migrated ? 1 : $loggedInUser->id,
                         ]);
                     }
                 }
@@ -939,7 +946,7 @@ class Order extends Model
 
     private static function generateNextOrderNumber(): string
     {
-        $latestOrder = self::orderBy('created_at', 'desc')->first();
+        $latestOrder = self::orderBy('id', 'desc')->first();
 
         // Determine the next order number based on the latest order
         if ($latestOrder) {
@@ -949,7 +956,7 @@ class Order extends Model
             $nextOrderNumber = 1; // Start from 1 if no orders exist
         }
 
-        return str_pad($nextOrderNumber, 4, '0', STR_PAD_LEFT); // Format as a 6-digit number (e.g., 000001)
+        return str_pad($nextOrderNumber, 6, '0', STR_PAD_LEFT); // Format as a 4-digit number (e.g., 000001)
     }
 
     public function addComment(string $comment): void

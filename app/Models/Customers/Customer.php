@@ -51,6 +51,12 @@ class Customer extends Model
         }
     }
 
+    //get customer or null if name is exact
+    public static function findByName($name)
+    {
+        return self::byName($name)->first();
+    }
+
     // import customers data
     public static function importData($file)
     {
@@ -66,7 +72,7 @@ class Customer extends Model
             $zone_name  = $activeSheet->getCell('B' . $i)->getValue();
             $phone      = '0' . $activeSheet->getCell('C' . $i)->getValue();
             $address    = $activeSheet->getCell('D' . $i)->getValue();
-            
+
             if (!$name) {
                 continue;
             }
@@ -263,7 +269,16 @@ class Customer extends Model
     public function scopeSearch($query, $term)
     {
         $term = "%{$term}%";
-        return $query->where('name', 'like', $term)->orWhere('address', 'like', $term)->orWhere('phone', 'like', $term);
+        return $query->where(function ($q) use ($term) {
+            $q->where('name', 'like', $term)
+                ->orWhere('address', 'like', $term)
+                ->orWhere('phone', 'like', $term);
+        });
+    }
+
+    public function scopeByName($query, $name)
+    {
+        return $query->where('name', '=', $name);
     }
 
     // Relations
