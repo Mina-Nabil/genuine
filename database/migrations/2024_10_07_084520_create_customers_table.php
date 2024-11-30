@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('address')->nullable();
             $table->string('phone');
             $table->string('location_url')->nullable();
-            $table->foreignId('zone_id')->constrained('zones')->nullable();
+            $table->foreignId('zone_id')->nullable()->constrained('zones');
             $table->timestamps();
         });
     }
