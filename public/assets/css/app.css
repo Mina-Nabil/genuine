@@ -17887,3 +17887,7 @@ ul.custom-list ul {
     border: 0;
     color: white !important;
 }
+
+.-translate-y-1\/4 {
+    --tw-translate-y: -65%;
+}

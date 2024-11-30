@@ -26,9 +26,9 @@
 
                 {{-- Products --}}
                 <div class="card mb-5">
-                    <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base">
+                    <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base no-wrap">
                         <div class="items-center p-5">
-                            <div class="flex justify-between items-end space-x-6">
+                            <div class="flex justify-between items-end space-x-6 mb-3">
                                 <div class="input-area w-full">
                                     <label for="phone" class="form-label"><b>Products</b></label>
                                     <input id="phone" type="tel" class="form-control"
@@ -36,8 +36,43 @@
                                         placeholder="Search products..." autocomplete="off">
                                 </div>
                                 <button wire:click='openCombosSection'
-                                    class="btn inline-flex justify-center btn-outline-light btn-sm">Combos</button>
+                                    class="btn inline-flex justify-center btn-outline-light btn-sm no-wrap">Combos</button>
                             </div>
+
+                            <table class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700">
+                                <tbody
+                                    class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
+                                    @foreach ($fetchedCombos as $index => $combo)
+                                        <tr class="bg-slate-800 dark:bg-slate-700 ">
+                                            <td class="table-td imp-p-2">
+                                                <div class="flex-1 text-start">
+                                                    <div class="text-start overflow-hidden text-ellipsis whitespace-nowrap text-slate-100"
+                                                        style="max-width:200px;">
+                                                        <h6
+                                                            class="text-slate-100 dark:text-slate-300 overflow-hidden text-ellipsis whitespace-nowrap">
+                                                            {{ $combo['combo_name'] }} Combo
+                                                        </h6>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="table-td imp-p-2 ">
+                                                <span class="text-slate-100">x</span>
+
+                                            </td>
+                                            <!-- Quantity Input Column -->
+                                            <td class="table-td imp-p-2  text-slate-100">
+                                                <input type="number" min="1"
+                                                    class="form-control @error('fetchedCombos.' . $index . '.combo_quantity') !border-danger-500 @enderror"
+                                                    style="max-width: 100px;"
+                                                    wire:model.live="fetchedCombos.{{ $index }}.combo_quantity"
+                                                    wire:input="updateTotal({{ $index }})">
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+
+
 
                             @if (!empty($fetchedProducts))
                                 <div class="card-body px-6 pb-6 mt-2">
@@ -74,9 +109,14 @@
                                                                         <div
                                                                             class="text-xs font-normal text-slate-600 dark:text-slate-400">
                                                                             @if ($product['combo_id'])
-                                                                                Added From Combo
+                                                                                Added From {{ $product['combo_name'] }}
+                                                                                Combo
                                                                             @endif
                                                                         </div>
+                                                                        @error('fetchedProducts.' . $index . '.quantity')
+                                                                            <span
+                                                                                class="font-Inter text-xs text-danger-500 inline-block">{{ $message }}</span>
+                                                                        @enderror
                                                                     </div>
                                                                 </td>
 
@@ -84,16 +124,18 @@
                                                                 <td class="table-td imp-p-2">
                                                                     <input type="number" min="1"
                                                                         class="form-control @error('fetchedProducts.' . $index . '.quantity') !border-danger-500 @enderror"
-                                                                        style="max-width: 100px;"
+                                                                        style="width: 100px;"
+                                                                        @if ($fetchedProducts[$index]['combo_id']) disabled @endif
                                                                         wire:model="fetchedProducts.{{ $index }}.quantity"
                                                                         wire:input="updateTotal({{ $index }})">
+
                                                                 </td>
 
                                                                 <!-- Price Input Column -->
                                                                 <td class="table-td imp-p-2">
                                                                     <input type="number" min="0"
                                                                         class="form-control @error('fetchedProducts.' . $index . '.price') !border-danger-500 @enderror"
-                                                                        style="max-width: 100px;"
+                                                                        style="width: 100px;"
                                                                         wire:model="fetchedProducts.{{ $index }}.price"
                                                                         wire:input="updateTotal({{ $index }})">
                                                                 </td>
@@ -107,7 +149,6 @@
                                                                         <span>0.00
                                                                             <small>EGP</small> </span>
                                                                     @endif
-
 
                                                                 </td>
                                                                 <td class="table-td imp-p-2">
@@ -352,7 +393,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="col-span-2">
                     <div class="card mb-5">
                         <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base">
@@ -942,7 +983,8 @@
             </div>
     @endif
 
-    <div wire:loading wire:target="createOrder" class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+    <div wire:loading wire:target="createOrder"
+        class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
         tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog">
         <div class="modal-dialog relative w-auto pointer-events-none">
             <div class="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-75" role="dialog"
