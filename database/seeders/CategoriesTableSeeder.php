@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Products\Category;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\App;
 
 class CategoriesTableSeeder extends Seeder
 {
@@ -13,14 +14,16 @@ class CategoriesTableSeeder extends Seeder
      */
     public function run(): void
     {
-        return; //added file import
-        
+        if (App::isProduction())
+            return; //added file import
+
         $categories = [
             ['name' => 'فراخ'],
-            ['name' => 'لحم'],
+            ['name' => 'لحوم'],
             ['name' => 'سمك'],
-            ['name' => 'خضار'],
-            ['name' => 'فاكهة'],
+            ['name' => 'اضافات'],
+            ['name' => 'قطط'],
+            ['name' => 'مطهرات']
         ];
 
         foreach ($categories as $category) {

@@ -7,6 +7,7 @@ use App\Models\Users\User;
 use Carbon\Carbon;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\App;
 
 class FollowupsTableSeeder extends Seeder
 {
@@ -15,6 +16,8 @@ class FollowupsTableSeeder extends Seeder
      */
     public function run(): void
     {
+        if (App::isProduction()) return;
+
         $user = User::first(); // Assuming there's at least one user in the users table
 
         Followup::create([

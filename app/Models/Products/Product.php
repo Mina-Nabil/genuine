@@ -65,7 +65,7 @@ class Product extends Model
         if (!$spreadsheet) {
             throw new Exception('Failed to read files content');
         }
-        $activeSheet = $spreadsheet->getSheet(1);
+        $activeSheet = $spreadsheet->getSheet(2);
         $highestRow = $activeSheet->getHighestDataRow();
 
         for ($i = 2; $i <= $highestRow; $i++) {
@@ -97,6 +97,9 @@ class Product extends Model
             if (!$prod->inventory()->first())
                 Inventory::initializeQuantity($prod, $balance);
         }
+        Category::firstOrCreate([
+            'name' => 'مطهرات',
+        ]);
     }
 
 

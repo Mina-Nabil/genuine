@@ -10,6 +10,7 @@ use App\Models\Tasks\TaskWatcher;
 use App\Models\Tasks\TaskTempAssignee;
 use App\Models\Users\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\App;
 
 class TaskAllSeeder extends Seeder
 {
@@ -18,6 +19,8 @@ class TaskAllSeeder extends Seeder
      */
     public function run(): void
     {
+        if (App::isProduction()) return;
+
         // Seed Users for Task-Related Data
         $users = User::take(5)->get();
 

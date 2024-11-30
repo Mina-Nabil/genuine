@@ -7,6 +7,7 @@ use Illuminate\Database\Seeder;
 use App\Models\Pets\Pet;
 use Faker\Factory as Faker;
 use App\Models\Customers\Customer;
+use Illuminate\Support\Facades\App;
 
 class PetsTableSeeder extends Seeder
 {
@@ -15,6 +16,8 @@ class PetsTableSeeder extends Seeder
      */
     public function run()
     {
+        if (App::isProduction()) return;
+
         $faker = Faker::create();
 
         // Define arrays of types for cats and dogs

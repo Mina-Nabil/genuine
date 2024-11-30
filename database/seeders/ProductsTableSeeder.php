@@ -7,6 +7,7 @@ use App\Models\Products\Product;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Faker\Factory as Faker;
+use Illuminate\Support\Facades\App;
 
 class ProductsTableSeeder extends Seeder
 {
@@ -16,10 +17,12 @@ class ProductsTableSeeder extends Seeder
     public function run(): void
     {
 
-        Product::importData(resource_path('import/Genuine Data.xlsx'));
-        return ;
+        if (App::isProduction()) {
+            Product::importData(resource_path('import/Genuine Data.xlsx'));
+            return;
+        }
 
-         // Assuming the categories have already been seeded
+        // Assuming the categories have already been seeded
         $categories = Category::all();
 
         // Initialize Faker
@@ -28,18 +31,18 @@ class ProductsTableSeeder extends Seeder
         // Sample products data
         $products = [
             ['name' => 'رز بالخلطه', 'desc' => $faker->sentence(10), 'price' => 30.00, 'weight' => 500, 'category_id' => $categories[0]->id],
-            ['name' => 'كفتة', 'desc' => $faker->sentence(10),'price' => 25.00, 'weight' => 300, 'category_id' => $categories[1]->id],
-            ['name' => 'سمك مقلي', 'desc' => $faker->sentence(10),'price' => 40.00, 'weight' => 600, 'category_id' => $categories[2]->id],
-            ['name' => 'سلطة خضار', 'desc' => $faker->sentence(10),'price' => 15.00, 'weight' => 200, 'category_id' => $categories[3]->id],
-            ['name' => 'فاكهة مشكّلة', 'desc' => $faker->sentence(10),'price' => 20.00, 'weight' => 300, 'category_id' => $categories[4]->id],
-            ['name' => 'فراخ مشوية', 'desc' => $faker->sentence(10),'price' => 50.00, 'weight' => 700, 'category_id' => $categories[0]->id],
-            ['name' => 'لحم بقر', 'desc' => $faker->sentence(10),'price' => 60.00, 'weight' => 800, 'category_id' => $categories[1]->id],
-            ['name' => 'جمبري', 'desc' => $faker->sentence(10),'price' => 100.00, 'weight' => 500, 'category_id' => $categories[2]->id],
-            ['name' => 'فاصوليا خضراء', 'desc' => $faker->sentence(10),'price' => 18.00, 'weight' => 400, 'category_id' => $categories[3]->id],
-            ['name' => 'تفاح', 'desc' => $faker->sentence(10),'price' => 10.00, 'weight' => 300, 'category_id' => $categories[4]->id],
-            ['name' => 'بروكلي', 'desc' => $faker->sentence(10),'price' => 12.00, 'weight' => 200, 'category_id' => $categories[3]->id],
-            ['name' => 'بطيخ', 'desc' => $faker->sentence(10),'price' => 25.00, 'weight' => 1500, 'category_id' => $categories[4]->id],
-            ['name' => 'لحم ضأن', 'desc' => $faker->sentence(10),'price' => 70.00, 'weight' => 700, 'category_id' => $categories[1]->id],
+            ['name' => 'كفتة', 'desc' => $faker->sentence(10), 'price' => 25.00, 'weight' => 300, 'category_id' => $categories[1]->id],
+            ['name' => 'سمك مقلي', 'desc' => $faker->sentence(10), 'price' => 40.00, 'weight' => 600, 'category_id' => $categories[2]->id],
+            ['name' => 'سلطة خضار', 'desc' => $faker->sentence(10), 'price' => 15.00, 'weight' => 200, 'category_id' => $categories[3]->id],
+            ['name' => 'فاكهة مشكّلة', 'desc' => $faker->sentence(10), 'price' => 20.00, 'weight' => 300, 'category_id' => $categories[4]->id],
+            ['name' => 'فراخ مشوية', 'desc' => $faker->sentence(10), 'price' => 50.00, 'weight' => 700, 'category_id' => $categories[0]->id],
+            ['name' => 'لحم بقر', 'desc' => $faker->sentence(10), 'price' => 60.00, 'weight' => 800, 'category_id' => $categories[1]->id],
+            ['name' => 'جمبري', 'desc' => $faker->sentence(10), 'price' => 100.00, 'weight' => 500, 'category_id' => $categories[2]->id],
+            ['name' => 'فاصوليا خضراء', 'desc' => $faker->sentence(10), 'price' => 18.00, 'weight' => 400, 'category_id' => $categories[3]->id],
+            ['name' => 'تفاح', 'desc' => $faker->sentence(10), 'price' => 10.00, 'weight' => 300, 'category_id' => $categories[4]->id],
+            ['name' => 'بروكلي', 'desc' => $faker->sentence(10), 'price' => 12.00, 'weight' => 200, 'category_id' => $categories[3]->id],
+            ['name' => 'بطيخ', 'desc' => $faker->sentence(10), 'price' => 25.00, 'weight' => 1500, 'category_id' => $categories[4]->id],
+            ['name' => 'لحم ضأن', 'desc' => $faker->sentence(10), 'price' => 70.00, 'weight' => 700, 'category_id' => $categories[1]->id],
             ['name' => 'سمك مشوي', 'price' => 55.00, 'weight' => 600, 'category_id' => $categories[2]->id],
             ['name' => 'معكرونة', 'price' => 20.00, 'weight' => 250, 'category_id' => $categories[0]->id],
             ['name' => 'بيتزا', 'price' => 45.00, 'weight' => 400, 'category_id' => $categories[1]->id],

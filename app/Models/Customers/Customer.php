@@ -25,7 +25,7 @@ class Customer extends Model
 
     const MORPH_TYPE = 'customer';
 
-    protected $fillable = ['name', 'address', 'phone', 'location_url', 'zone_id','monthly_weight_target'];
+    protected $fillable = ['name', 'address', 'phone', 'location_url', 'zone_id', 'monthly_weight_target'];
 
     // Create a new customer
     public static function newCustomer($name, $address = null, $phone, $location_url = null, $zone_id = null)
@@ -50,6 +50,34 @@ class Customer extends Model
             return false;
         }
     }
+
+    // import customers data
+    public static function importData($file)
+    {
+        $spreadsheet = IOFactory::load($file);
+        if (!$spreadsheet) {
+            throw new Exception('Failed to read files content');
+        }
+        $activeSheet = $spreadsheet->getSheet(1);
+        $highestRow = $activeSheet->getHighestDataRow();
+
+        for ($i = 2; $i <= $highestRow; $i++) {
+            $name       = $activeSheet->getCell('A' . $i)->getValue();
+            $zone_name  = $activeSheet->getCell('B' . $i)->getValue();
+            $phone      = $activeSheet->getCell('C' . $i)->getValue();
+            $address    = $activeSheet->getCell('D' . $i)->getValue();
+            
+            if (!$name) {
+                continue;
+            }
+            if ($zone_name) {
+                $zone = Zone::getZoneByName($zone_name);
+            }
+
+            self::newCustomer($name, $address, $phone, zone_id: ($zone_name && $zone) ? $zone->id : null);
+        }
+    }
+
 
     // Edit customer info
     public function editInfo($name, $address = null, $phone, $location_url = null, $zone_id = null)
@@ -186,7 +214,7 @@ class Customer extends Model
                     // 'balance' => $this->balance,
                 ]);
 
-                $new_type_balance = CustomerPayment::calculateNewBalance($amount,$paymentMethod);
+                $new_type_balance = CustomerPayment::calculateNewBalance($amount, $paymentMethod);
 
                 // Step 3: Create the payment record for the added amount
                 CustomerPayment::create([

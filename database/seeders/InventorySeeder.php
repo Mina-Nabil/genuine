@@ -6,6 +6,7 @@ use App\Models\Products\Inventory;
 use App\Models\Products\Product;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\App;
 
 class InventorySeeder extends Seeder
 {
@@ -14,7 +15,8 @@ class InventorySeeder extends Seeder
      */
     public function run(): void
     {
-        return;
+
+        if (App::isProduction()) return;
         
         // Get all products
         $products = Product::all();

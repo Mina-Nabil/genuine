@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Exception;
 use App\Models\Users\AppLog;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class Zone extends Model
 {
@@ -14,6 +15,33 @@ class Zone extends Model
     const MORPH_TYPE = 'zone';
 
     protected $fillable = ['name', 'delivery_rate'];
+
+    //import from genuine file
+    public static function importData($file)
+    {
+        $spreadsheet = IOFactory::load($file);
+        if (!$spreadsheet) {
+            throw new Exception('Failed to read files content');
+        }
+        $activeSheet = $spreadsheet->getSheet(0);
+        $highestRow = $activeSheet->getHighestDataRow();
+
+        for ($i = 1; $i <= $highestRow; $i++) {
+            $name = $activeSheet->getCell('A' . $i)->getValue();
+            $rate = $activeSheet->getCell('B' . $i)->getValue();
+            //skip if no car category found
+            if (!$name) {
+                continue;
+            }
+            self::newZone($name, $rate);
+        }
+        
+    }
+
+    public static function getZoneByName($name)
+    {
+        return self::byName($name)->first();
+    }
 
     // Create a new zone
     public static function newZone($name, $delivery_rate)
@@ -116,6 +144,10 @@ class Zone extends Model
     {
         $term = "%{$term}%";
         return $query->where('name', 'like', $term)->orWhere('delivery_rate', 'like', $term);
+    }
+
+    public function scopeByName($query, $name){
+        return $query->where('zones.name', '=', $name);
     }
 
     // Relations

@@ -6,6 +6,7 @@ use App\Models\Customers\Customer;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Faker\Factory as Faker;
+use Illuminate\Support\Facades\App;
 
 class CustomersTableSeeder extends Seeder
 {
@@ -14,6 +15,9 @@ class CustomersTableSeeder extends Seeder
      */
     public function run()
     {
+        Customer::importData(resource_path('import/Genuine Data.xlsx'));
+        return;
+
         $faker = Faker::create();
 
         for ($i = 0; $i < 100; $i++) {

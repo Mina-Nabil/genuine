@@ -220,7 +220,7 @@
                                 <span class="flex items-center">
                                     <iconify-icon class=" nav-icon" icon="material-symbols:order-approve-outline-sharp">
                                     </iconify-icon>
-                                    <span>Follow-up Report</span>
+                                    <span>متابعه عملاء</span>
                                 </span>
                             </a>
                         </li>

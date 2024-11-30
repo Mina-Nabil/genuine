@@ -172,6 +172,17 @@ class UserIndex extends Component
         }
     }
 
+    public function UpdatedshiftTitle()
+    {
+        // if($this->shiftTitle && str_contains($this->shiftTitle, ' AM')){
+        //     $this->startTime = ;
+        //     $this->endTime = ;
+        // } else if($this->shiftTitle && str_contains($this->shiftTitle, ' PM')) {
+        //     $this->startTime = ;
+        //     $this->endTime = ; 
+        // }
+    }
+
     public function openNewUserSec()
     {
         $this->newUserSection = true;

@@ -13,6 +13,10 @@ class ZonesTableSeeder extends Seeder
      */
     public function run()
     {
+
+        Zone::importData(resource_path('import/Genuine Data.xlsx'));
+        return ;
+
         // Define an array of cities and their average delivery rates
         $zones = [
             ['name' => 'Cairo', 'delivery_rate' => 60],
