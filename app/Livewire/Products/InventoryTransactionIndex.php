@@ -124,6 +124,12 @@ class InventoryTransactionIndex extends Component
 
     public function updateAvailable($index)
     {
+        if ($this->productsChanges['data'][$index]['on_hand'] === '') {
+            $this->productsChanges['data'][$index]['on_hand'] = 0;
+            $this->updateOnHand($index);
+            return;
+        }
+
         $oldOnHand = $this->oldproductsChanges['data'][$index]['on_hand']; // Old value of on_hand
         $newOnHand = $this->productsChanges['data'][$index]['on_hand']; // New value of on_hand
         $available = $this->productsChanges['data'][$index]['available'];

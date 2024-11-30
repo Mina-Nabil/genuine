@@ -309,8 +309,43 @@
                                                 </div>
                                             </div>
 
-                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                                                <div class="input-area">
+                                            <div class="from-group mt-2">
+                                                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6">
+                                                    <div class="input-area">
+                                                        <label for="pet_years" class="form-label">Age Years</label>
+                                                        <input id="pet_years" type="number"
+                                                            class="form-control @error('pets.' . $index . 'pet_years') !border-danger-500 @enderror"
+                                                            wire:model="pets.{{ $index }}.pet_years">
+                                                        @error('pets.' . $index . 'pet_years')
+                                                            <span
+                                                                class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                                        @enderror
+                                                    </div>
+                                                    <div class="input-area">
+                                                        <label for="pet_months" class="form-label">Months</label>
+                                                        <input id="pet_months" type="number" 
+                                                            class="form-control @error('pets.' . $index . 'pet_months') !border-danger-500 @enderror"
+                                                            wire:model="pets.{{ $index }}.pet_months">
+                                                        @error('pets.' . $index . 'pet_months')
+                                                            <span
+                                                                class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                                        @enderror
+                                                    </div>
+                                                    <div class="input-area">
+                                                        <label for="pet_days" class="form-label">Days</label>
+                                                        <input id="pet_days" type="number" 
+                                                            class="form-control @error('pets.' . $index . 'pet_days') !border-danger-500 @enderror"
+                                                            wire:model="pets.{{ $index }}.pet_days">
+                                                        @error('pets.' . $index . 'pet_days')
+                                                            <span
+                                                                class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                                        @enderror
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {{-- <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4"> --}}
+                                                {{-- <div class="input-area">
                                                     <label for="petBdate{{ $index }}"
                                                         class="form-label">Birthdate</label>
                                                     <input id="petBdate{{ $index }}" type="date"
@@ -321,7 +356,7 @@
                                                         <span
                                                             class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
                                                     @enderror
-                                                </div>
+                                                </div> --}}
 
                                                 <div class="input-area">
                                                     <label for="petName{{ $index }}"
@@ -335,7 +370,7 @@
                                                             class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
                                                     @enderror
                                                 </div>
-                                            </div>
+
                                             <div class="flex justify-end">
                                                 <button wire:click="removePet({{ $index }})"
                                                     class="btn inline-flex justify-center btn-outline-danger btn-sm mt-4">Remove

@@ -7,6 +7,21 @@
             @endif
         </div>
 
+        @if ($customerId && $hasPrevOrdersAlert)
+        <div
+            class="py-[18px] px-6 font-normal text-sm rounded-md bg-white text-warning-500 border border-warning-500
+                                    dark:bg-slate-800">
+            <div class="flex items-center space-x-3 rtl:space-x-reverse">
+                <iconify-icon class="text-2xl flex-0" icon="line-md:alert"></iconify-icon>
+                <p class="flex-1 font-Inter">
+                    This customer has already placed another order scheduled for
+                    <b>{{ \Carbon\Carbon::parse($ddate)->isToday() ? 'Today' : (\Carbon\Carbon::parse($ddate)->isYesterday() ? 'Yesterday' : \Carbon\Carbon::parse($ddate)->format('l Y-m-d')) }}</b>.
+                    Please review  existing orders to avoid conflicts.
+                </p>
+            </div>
+        </div>
+        @endif
+
         @if ($errors->any())
             <div
                 class="py-[18px] px-6 font-normal text-sm rounded-md bg-white text-danger-500 border border-danger-500 dark:bg-slate-800">
@@ -113,7 +128,8 @@
                                                                                 Combo
                                                                             @endif
                                                                         </div>
-                                                                        @error('fetchedProducts.' . $index . '.quantity')
+                                                                        @error('fetchedProducts.' . $index .
+                                                                            '.quantity')
                                                                             <span
                                                                                 class="font-Inter text-xs text-danger-500 inline-block">{{ $message }}</span>
                                                                         @enderror
@@ -400,7 +416,7 @@
                             <div class="items-center p-5">
                                 <div class="input-area w-full">
                                     <label for="ddate" class="form-label"><b>Delivery Date</b></label>
-                                    <input wire:model='ddate' type="date" name="ddate"
+                                    <input wire:model.live='ddate' type="date" name="ddate"
                                         class="form-control @error('ddate') !border-danger-500 @enderror">
                                     @error('ddate')
                                         <span

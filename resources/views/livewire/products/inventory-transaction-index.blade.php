@@ -152,11 +152,12 @@
                                 </td>
 
                                 <td class="table-td">
-                                    <input type="number"
+                                    {{ $productsChanges['data'][$index]['available'] }}
+                                    {{-- <input type="number"
                                         class="form-control @if ($inventory->available <= 0) !border-danger-500 @endif"
                                         style="max-width: 100px; "
                                         wire:model="productsChanges.data.{{ $index }}.available"
-                                        wire:change="updateOnHand({{ $index }})">
+                                        wire:change="updateOnHand({{ $index }})"> --}}
                                 </td>
 
                                 <td class="table-td">

@@ -1220,3 +1220,19 @@ document.addEventListener("scroll", function () {
         stickyColumn.classList.remove("is-stuck");
     }
 });
+
+function togglePassword() {
+    const passwordField = document.getElementById("password");
+    const hideIcon = document.getElementById("passwordhide");
+    const showIcon = document.getElementById("passwordshow");
+
+    if (passwordField.type === "password") {
+        passwordField.type = "text"; // Show password
+        hideIcon.classList.remove("hidden"); // Show the "hide" icon
+        showIcon.classList.add("hidden"); // Hide the "show" icon
+    } else {
+        passwordField.type = "password"; // Hide password
+        hideIcon.classList.add("hidden"); // Hide the "hide" icon
+        showIcon.classList.remove("hidden"); // Show the "show" icon
+    }
+}

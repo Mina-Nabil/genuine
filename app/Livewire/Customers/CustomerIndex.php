@@ -58,6 +58,9 @@ class CustomerIndex extends Component
             'category' => $firstCategory,
             'type' => '',
             'bdate' => '',
+            'pet_years' => '',
+            'pet_months' => '',
+            'pet_days' => '',
             'types' => Pet::getDistinctPetTypes($firstCategory), // Initialize types based on the default category
         ];
     }
@@ -121,6 +124,11 @@ class CustomerIndex extends Component
     {
         $this->authorize('create', Customer::class);
 
+        foreach ($this->pets as $index => $pet) {
+            $this->pets[$index]['bdate'] = Pet::calculateBirthDate($pet['pet_years'],$pet['pet_months'],$pet['pet_days']);
+        }
+        
+        
         $this->validate([
             'fullName' => 'required|string|max:255',
             'phone' => 'required|string|max:15',

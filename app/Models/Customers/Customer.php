@@ -170,13 +170,13 @@ class Customer extends Model
     }
 
     // Delete customer and optionally associated pets
-    public function deleteCustomer($deletePets = false): bool
+    public function deleteCustomer(): bool
     {
+        if (!$this->orders->isEmpty()) {
+            return false;
+        }
         try {
-            // Optionally delete associated pets
-            if ($deletePets) {
-                $this->pets()->delete(); // Deletes all pets related to this customer
-            }
+            $this->pets()->delete();
 
             if ($this->delete()) {
                 AppLog::info('Customer deleted', "Customer {$this->name} deleted successfully.");

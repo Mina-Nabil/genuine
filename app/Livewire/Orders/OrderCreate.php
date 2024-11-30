@@ -52,6 +52,8 @@ class OrderCreate extends Component
 
     public $isOpenEditDiscount = false;
 
+    public $hasPrevOrdersAlert = false;
+
     //payments
     public $subtotal;
     public $totalItems;
@@ -145,6 +147,18 @@ class OrderCreate extends Component
         $this->customersSearchText = null;
     }
 
+    public function updatedDdate()
+    {
+        if ($this->customerId) {
+            $customer = Customer::findOrFail($this->customerId);
+            if ($this->ddate && !$customer->orders->where('delivery_date', Carbon::parse($this->ddate))->isEmpty()) {
+                $this->hasPrevOrdersAlert = true;
+            } else {
+                $this->hasPrevOrdersAlert = false;
+            }
+        }
+    }
+
     public function selectCustomer($id)
     {
         $customer = Customer::findOrFail($id);
@@ -155,6 +169,12 @@ class OrderCreate extends Component
         $this->locationURL = $customer->location_url;
         $this->customerPhone = $customer->phone;
         $this->zoneId = $customer->zone?->id;
+
+        if ($this->ddate && !$customer->orders->where('delivery_date', Carbon::parse($this->ddate))->isEmpty()) {
+            $this->hasPrevOrdersAlert = true;
+        } else {
+            $this->hasPrevOrdersAlert = false;
+        }
 
         if ($customer->balance > 0) {
             $this->detuctFromBalance = true;
@@ -382,21 +402,19 @@ class OrderCreate extends Component
     {
         if (Carbon::parse($this->ddate)->isToday()) {
             foreach ($this->fetchedProducts as $index => $product) {
-
                 $p = Product::findOrFail($product['id']);
-    
+
                 if ($p->inventory->available - $product['quantity'] < 0) {
                     $this->addError("fetchedProducts.$index.quantity", "Quantity exceeds available stock: {$p->inventory->available}");
                     $hasErrors = true;
                 }
             }
-    
+
             if ($hasErrors) {
                 return;
             }
-    
         }
-        
+
         $detuctFromBalance = false;
         if ($this->customerId) {
             $this->validate(
