@@ -155,6 +155,7 @@
                                     <div class="sm:border-l-0 md:border-l p-3 md:col-span-3">
                                         <div
                                             class="bg-slate-50 dark:bg-slate-900 rounded p-2 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-5 flex-wrap">
+                                            
                                             <div class="space-y-1">
                                                 <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
                                                     Total Weight
@@ -164,15 +165,19 @@
                                                     <small>KG</small>
                                                 </div>
                                             </div>
-                                            <div class="space-y-1  sm:mb-2 md:mb-0">
-                                                <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
-                                                    Total Quantity
-                                                </h4>
-                                                <div class=" font-medium text-slate-900 dark:text-white">
-                                                    {{ $order->total_items }}
-                                                    <small>Product{{ $order->total_items > 1 ? 's' : '' }}</small>
+
+                                            @if (!auth()->user()->is_driver)
+                                                <div class="space-y-1  sm:mb-2 md:mb-0">
+                                                    <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
+                                                        Total Quantity
+                                                    </h4>
+                                                    <div class=" font-medium text-slate-900 dark:text-white">
+                                                        {{ $order->total_items }}
+                                                        <small>Product{{ $order->total_items > 1 ? 's' : '' }}</small>
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            @endif
+
                                             <div class="space-y-1">
                                                 <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
                                                     Total Price
@@ -180,9 +185,9 @@
                                                 <div class=" font-medium text-success-500 dark:text-white">
                                                     <b>{{ number_format($order->total_amount, 2) }}</b>
                                                     <small>EGP</small>
-
                                                 </div>
                                             </div>
+
                                             <div class="space-y-1">
                                                 <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
                                                     Price to Collect
@@ -235,15 +240,17 @@
                                             <small>KG</small>
                                         </div>
                                     </div>
-                                    <div class="space-y-1">
-                                        <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
-                                            Total Zones
-                                        </h4>
-                                        <div class="text-sm font-medium text-slate-900 dark:text-white">
-                                            {{ $totalZones }}
-                                            <small>Zones</small>
+                                    @if (!auth()->user()->is_driver)
+                                        <div class="space-y-1">
+                                            <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
+                                                Total Zones
+                                            </h4>
+                                            <div class="text-sm font-medium text-slate-900 dark:text-white">
+                                                {{ $totalZones }}
+                                                <small>Zones</small>
+                                            </div>
                                         </div>
-                                    </div>
+                                    @endif
                                     <div class="space-y-1">
                                         <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
                                             Price to Collect
@@ -252,16 +259,18 @@
                                             {{ number_format($orders->sum('remaining_to_pay'), 2) }}<small>&nbsp;EGP</small>
                                         </div>
                                     </div>
-                                    <div class="space-y-1">
-                                        <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
-                                            Total Orders
-                                        </h4>
-                                        <div class="text-sm font-medium text-slate-900 dark:text-white">
-                                            {{ $orders->count() }} <small>(
-                                                {{ $orders->sum(fn($order) => $order->products->sum('quantity')) }}
-                                                Items ) </small>
+                                    @if (!auth()->user()->is_driver)
+                                        <div class="space-y-1">
+                                            <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
+                                                Total Orders
+                                            </h4>
+                                            <div class="text-sm font-medium text-slate-900 dark:text-white">
+                                                {{ $orders->count() }} <small>(
+                                                    {{ $orders->sum(fn($order) => $order->products->sum('quantity')) }}
+                                                    Items ) </small>
+                                            </div>
                                         </div>
-                                    </div>
+                                    @endif
 
                                 </div>
                             </div>
