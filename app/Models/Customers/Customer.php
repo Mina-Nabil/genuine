@@ -74,7 +74,7 @@ class Customer extends Model
                 $zone = Zone::getZoneByName($zone_name);
             }
 
-            self::newCustomer($name, $address, $phone, zone_id: ($zone_name && $zone) ? $zone->id : null);
+            self::newCustomer($name, $address ?? "N/A", $phone ?? "N/A", zone_id: ($zone_name && $zone) ? $zone->id : null);
         }
     }
 
