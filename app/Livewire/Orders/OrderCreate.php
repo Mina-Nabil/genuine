@@ -60,6 +60,8 @@ class OrderCreate extends Component
     public $total;
     public $discountAmount = 0;
 
+    public $fetchedCombos = [];
+
     public function updatedFetchedProducts(){
         $this->refreshPayments();
     }
@@ -176,6 +178,30 @@ class OrderCreate extends Component
         $this->driversSearchText = null;
     }
 
+    public function updatedFetchedCombos()
+{
+    foreach ($this->fetchedCombos as $combo) {
+        // Fetch the combo from the database with its related products and pivot
+        $c = Combo::with('products')->find($combo['combo_id']);
+        
+        if ($c) {
+            // Loop through fetchedProducts to find matching combo_id
+            foreach ($this->fetchedProducts as &$product) {
+                if ($product['combo_id'] === $combo['combo_id']) {
+                    // Find the product in the combo's products relationship
+                    $pivot = $c->products->where('id', $product['id'])->first();
+
+                    if ($pivot) {
+                        // Update product quantity using combo_quantity and pivot quantity
+                        $product['quantity'] = $combo['combo_quantity'] * $pivot->pivot->quantity;
+                    }
+                }
+            }
+        }
+    }
+    $this->refreshPayments();
+}
+
     public function selectCombo($id)
     {
         // Fetch the combo and its associated products
@@ -199,7 +225,11 @@ class OrderCreate extends Component
                 'combo_id' => $id, // Combo association
                 'quantity' => $product->pivot->quantity, // Default quantity
                 'price' => $product->pivot->price, // Price from the pivot
+                'combo_name' => $combo->name, // Combo association
+
             ];
+
+            
 
             // Ensure the product ID is also in selectedProducts
             if (!in_array($product->id, $this->selectedProducts)) {
@@ -207,7 +237,22 @@ class OrderCreate extends Component
             }
         }
 
-        // Re-index fetchedProducts array
+        foreach ($this->fetchedProducts as $product) {
+            $existingComboKey = array_search($product['combo_id'], array_column($this->fetchedCombos, 'combo_id'));
+        }
+        
+        if ($existingComboKey === false) {
+            $this->fetchedCombos[] = [
+                'combo_id' => $product['combo_id'],
+                'combo_name' => $product['combo_name'],
+                'combo_quantity' => 1, 
+            ];
+        }else {
+            // Increment the quantity of the existing combo
+            $this->fetchedCombos[$existingComboKey]['combo_quantity']++;
+            $this->updatedFetchedCombos();
+        }
+
         $this->fetchedProducts = array_values($this->fetchedProducts);
 
         $this->closeCombosSection();
