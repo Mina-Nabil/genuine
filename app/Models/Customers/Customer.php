@@ -64,7 +64,7 @@ class Customer extends Model
         for ($i = 2; $i <= $highestRow; $i++) {
             $name       = $activeSheet->getCell('A' . $i)->getValue();
             $zone_name  = $activeSheet->getCell('B' . $i)->getValue();
-            $phone      = $activeSheet->getCell('C' . $i)->getValue();
+            $phone      = '0' . $activeSheet->getCell('C' . $i)->getValue();
             $address    = $activeSheet->getCell('D' . $i)->getValue();
             
             if (!$name) {
@@ -74,7 +74,7 @@ class Customer extends Model
                 $zone = Zone::getZoneByName($zone_name);
             }
 
-            self::newCustomer($name, $address, $phone, zone_id: ($zone_name && $zone) ? $zone->id : null);
+            self::newCustomer($name, $address ?? "N/A", $phone ?? "N/A", zone_id: ($zone_name && $zone) ? $zone->id : null);
         }
     }
 
