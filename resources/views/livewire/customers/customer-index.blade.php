@@ -99,7 +99,7 @@
                                 </td>
 
                                 <td class="table-td">
-                                    {{ $customer->zone->name }}
+                                    {{ $customer->zone?->name }}
                                 </td>
 
                                 <td class="table-td text-start overflow-hidden text-ellipsis whitespace-nowrap">

@@ -78,7 +78,7 @@
                             <br>
 
                             <p><b>Zone</b></p>
-                            <p>{{ $customer->zone->name ?? 'N/A' }}</p>
+                            <p>{{ $customer->zone?->name ?? 'N/A' }}</p>
                             <br>
 
                             <p><b>Location URL</b></p>
