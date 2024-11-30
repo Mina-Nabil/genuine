@@ -62,24 +62,45 @@ class CustomerShow extends Component
     public $isOpenSetWeightTarget = false;
     public $monthlyWeightTarget;
 
-    public function openSetWeightTarget(){
-        $this->isOpenSetWeightTarget = true;
-        $this->monthlyWeightTarget = $this->customer->monthly_weight_target/1000;
+    //delete
+    public $isOpenDeleteSection = false;
+
+    public function toggleDelete()
+    {
+        $this->toggle($this->isOpenDeleteSection);
     }
 
-    public function closeSetWeightTarget(){
+    public function deleteCustomer()
+    {
+        $this->authorize('delete', $this->customer);
+        $res = $this->customer->deleteCustomer();
+        if ($res) {
+            $this->alertSuccess('deleted!');
+            return redirect(route('customer.index'));
+        } else {
+            $this->alertFailed();
+        }
+    }
+
+    public function openSetWeightTarget()
+    {
+        $this->isOpenSetWeightTarget = true;
+        $this->monthlyWeightTarget = $this->customer->monthly_weight_target / 1000;
+    }
+
+    public function closeSetWeightTarget()
+    {
         $this->isOpenSetWeightTarget = false;
         $this->reset('monthlyWeightTarget');
     }
 
-    public function setWeightTarget(){
+    public function setWeightTarget()
+    {
         $this->validate([
-            'monthlyWeightTarget' => 'required|numeric|min:1'
+            'monthlyWeightTarget' => 'required|numeric|min:1',
         ]);
 
-
-
-        $res = $this->customer->setMonthlyWeightTarget($this->monthlyWeightTarget*1000);
+        $res = $this->customer->setMonthlyWeightTarget($this->monthlyWeightTarget * 1000);
 
         if ($res) {
             $this->closeSetWeightTarget();
@@ -90,27 +111,29 @@ class CustomerShow extends Component
         }
     }
 
-
     protected $queryString = ['section'];
     protected $listeners = ['removePet'];
 
-    public function openAddToBalanceSection(){
+    public function openAddToBalanceSection()
+    {
         $this->isOpenAddToBalance = true;
     }
 
-    public function closeAddToBalanceSection(){
-        $this->reset(['isOpenAddToBalance','AddedAmount','AddedPaymentMethod','AddedPaymentDate','AddedIsNowPaymentDate','AddedPaymentNote']);
+    public function closeAddToBalanceSection()
+    {
+        $this->reset(['isOpenAddToBalance', 'AddedAmount', 'AddedPaymentMethod', 'AddedPaymentDate', 'AddedIsNowPaymentDate', 'AddedPaymentNote']);
     }
 
-    public function addToBalance(){
-        $this->authorize('updateCustomerBalance',$this->customer);
+    public function addToBalance()
+    {
+        $this->authorize('updateCustomerBalance', $this->customer);
 
         $paymentDate = null;
         if ($this->AddedIsNowPaymentDate) {
             $paymentDate = now();
-        }else{
+        } else {
             $this->validate([
-                'AddedPaymentDate' => 'required|date'
+                'AddedPaymentDate' => 'required|date',
             ]);
             $paymentDate = $this->AddedPaymentDate;
         }
@@ -118,10 +141,10 @@ class CustomerShow extends Component
         $this->validate([
             'AddedAmount' => 'required|numeric|min:1',
             'AddedPaymentMethod' => 'required|in:' . implode(',', CustomerPayment::PAYMENT_METHODS),
-            'AddedPaymentNote' => 'nullable|string'
+            'AddedPaymentNote' => 'nullable|string',
         ]);
 
-        $res = $this->customer->addToBalanceWithPayment($this->AddedAmount,$this->AddedPaymentMethod,Carbon::parse($paymentDate),$this->AddedPaymentNote);
+        $res = $this->customer->addToBalanceWithPayment($this->AddedAmount, $this->AddedPaymentMethod, Carbon::parse($paymentDate), $this->AddedPaymentNote);
 
         if ($res) {
             $this->closeAddToBalanceSection();
@@ -188,8 +211,14 @@ class CustomerShow extends Component
         $this->mount($this->customer->id);
     }
 
+    public $pet_years = 1; // Example age in years
+    public $pet_months = 0; // Example months
+    public $pet_days = 0; // Example days
+
     public function addPet()
     {
+        $this->petBdate = Pet::calculateBirthDate($this->pet_years, $this->pet_months, $this->pet_days);
+        
         $this->validate([
             'petCategory' => 'required|in:' . implode(',', Pet::CATEGORIES), // Must be a valid category
             'petType' => 'required|string|max:255', // Required string with a maximum length

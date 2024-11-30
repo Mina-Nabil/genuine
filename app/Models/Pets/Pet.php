@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Exception;
 use App\Models\Users\AppLog;
+use DateInterval;
+use DateTime;
+use InvalidArgumentException;
 
 class Pet extends Model
 {
@@ -41,6 +44,23 @@ class Pet extends Model
             report($e);
             return false;
         }
+    }
+
+    public static function calculateBirthDate(int $years, int $months, int $days)
+    {
+        // Validate input
+        if (!is_int($years) || !is_int($months) || !is_int($days)) {
+            throw new InvalidArgumentException('All inputs must be integers.');
+        }
+
+        // Get the current date
+        $currentDate = new DateTime();
+
+        // Subtract the years, months, and days from the current date
+        $currentDate->sub(new DateInterval("P{$years}Y{$months}M{$days}D"));
+
+        // Return the calculated birth date
+        return $currentDate->format('Y-m-d');
     }
 
     // Edit pet info
