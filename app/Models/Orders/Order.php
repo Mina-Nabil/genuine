@@ -1077,7 +1077,7 @@ class Order extends Model
         string $startMonth
     ): array {
         $startDate = \Carbon\Carbon::parse($startMonth)->startOfMonth();
-        $endDate = \Carbon\Carbon::now()->addWeeks(2);
+        $endDate = \Carbon\Carbon::now()->addWeeks(1);
 
         $current = $startDate
             ->copy()
