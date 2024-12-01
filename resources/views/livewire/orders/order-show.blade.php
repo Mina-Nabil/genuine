@@ -601,10 +601,10 @@
                                             <span
                                                 class="block w-full h-full object-cover text-center text-lg user-initial"
                                                 style="font-size: 12px">
-                                                {{ strtoupper(substr($comment->user->username, 0, 1)) }}
+                                                {{ strtoupper(substr($comment->user?->username, 0, 1)) }}
                                             </span>
                                         </span>
-                                        <span><a href="#">{{ $comment->user->full_name }}</a>
+                                        <span><a href="#">{{ $comment->user?->full_name }}</a>
                                             {{ $comment->title }}
                                             <time datetime="21-01-2021">
                                                 @if ($comment->created_at->isToday())
@@ -634,10 +634,10 @@
                                                 <span
                                                     class="block w-full h-full object-cover text-center text-lg user-initial"
                                                     style="font-size: 12px">
-                                                    {{ strtoupper(substr($comment->user->username, 0, 1)) }}
+                                                    {{ strtoupper(substr($comment->user?->username, 0, 1)) }}
                                                 </span>
                                             </span>
-                                            <span><a href="#">{{ $comment->user->full_name }}</a> commented
+                                            <span><a href="#">{{ $comment->user?->full_name }}</a> commented
                                                 <time datetime="20-01-2021">
                                                     @if ($comment->created_at->isToday())
                                                         Today at {{ $comment->created_at->format('h:m') }}
