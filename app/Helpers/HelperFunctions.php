@@ -24,7 +24,7 @@ if (!function_exists('getWeekOfMonth')) {
         $weekNumber = $weekNumber > 4 ? 4 : $weekNumber;
 
         // Get the month name (e.g., 'October')
-        $monthName = $date->format('M Y');
+        $monthName = $date->format('M y');
 
         // Return the week number and month (e.g., "W2 of Oct")
         return "W" . (int) $weekNumber . " $monthName";
