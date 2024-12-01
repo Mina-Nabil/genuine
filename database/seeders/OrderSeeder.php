@@ -55,6 +55,9 @@ class OrderSeeder extends Seeder
             $totalAmount = $activeSheet->getCell('BG' . $i)->getValue();
             $deliveryAmount = $activeSheet->getCell('BF' . $i)->getValue();
             $ddate = $activeSheet->getCell('C' . $i)->getValue();
+            if ($ddate)
+                $ddate = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject((int) $ddate);
+        
             $note = $activeSheet->getCell('G' . $i)->getValue();
 
             $prod1Count = $activeSheet->getCell('J' . $i)->getValue();
@@ -211,7 +214,7 @@ class OrderSeeder extends Seeder
                 totalAmount: $totalAmount,
                 deliveryAmount: $deliveryAmount,
                 discountAmount: 0,
-                deliveryDate: Carbon::parse($ddate),
+                deliveryDate: new Carbon($ddate),
                 note: $note,
                 products: $products,
                 migrated: true
