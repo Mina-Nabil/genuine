@@ -16,9 +16,9 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 class OrderSeeder extends Seeder
 {
 
-    const START = 2;
-    const END = 2036;
-    const STEP = 400;
+    const START = 0;
+    const END = 3000;
+    const STEP = 500;
 
     /**
      * Run the database seeds.
