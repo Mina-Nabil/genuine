@@ -212,7 +212,7 @@ class OrderCreate extends Component
 
                         if ($pivot) {
                             // Update product quantity using combo_quantity and pivot quantity
-                            $product['quantity'] = $combo['combo_quantity'] * $pivot->pivot->quantity;
+                            $product['quantity'] = (is_numeric($combo['combo_quantity']) ?  $combo['combo_quantity'] : 0) * $pivot->pivot->quantity;
                         }
                     }
                 }

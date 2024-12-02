@@ -125,7 +125,7 @@ class CustomerIndex extends Component
         $this->authorize('create', Customer::class);
 
         foreach ($this->pets as $index => $pet) {
-            $this->pets[$index]['bdate'] = Pet::calculateBirthDate($pet['pet_years'],$pet['pet_months'],$pet['pet_days']);
+            $this->pets[$index]['bdate'] = Pet::calculateBirthDate($pet['pet_years'],$pet['pet_months'] ?? 0,$pet['pet_days'] ?? 1);
         }
         
         
