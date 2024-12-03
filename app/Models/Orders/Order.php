@@ -871,7 +871,7 @@ class Order extends Model
         EOD;
 
         $encodedMessage = urlencode($message);
-        $phoneNumber = $this->customer_phone;
+        $phoneNumber = str_replace(" ", "", $this->customer_phone);
         if (Str::startsWith($phoneNumber, '01')) {
             $phoneNumber = '+2' . $phoneNumber;
         }
