@@ -5,6 +5,7 @@ namespace App\Policies;
 use App\Models\Customers\Customer;
 use App\Models\Users\User;
 use Illuminate\Auth\Access\Response;
+use Illuminate\Support\Facades\Auth;
 
 class CustomerPolicy
 {
@@ -50,7 +51,7 @@ class CustomerPolicy
      */
     public function delete(User $user, Customer $customer): bool
     {
-        return true;
+        return Auth::id() === 1;
     }
 
     /**

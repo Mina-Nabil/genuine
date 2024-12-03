@@ -624,13 +624,15 @@
 
 
         </div>
-        @if ($customer->orders->isEmpty())
-            <div class="flex justify-end">
-                <button wire:click='toggleDelete'
-                    class="btn inline-flex justify-center btn-outline-danger rounded-[25px] btn-sm">Delete
-                    customer</button>
-            </div>
-        @endif
+        @can('delete', $customer)
+            @if ($customer->orders->isEmpty())
+                <div class="flex justify-end">
+                    <button wire:click='toggleDelete'
+                        class="btn inline-flex justify-center btn-outline-danger rounded-[25px] btn-sm">Delete
+                        customer</button>
+                </div>
+            @endif
+        @endcan
     </div>
 
 
@@ -715,7 +717,7 @@
                                         </div>
                                         <div class="input-area">
                                             <label for="pet_months" class="form-label">Months</label>
-                                            <input id="pet_months" type="number"  placeholder="Type to search..."
+                                            <input id="pet_months" type="number" placeholder="Type to search..."
                                                 class="form-control @error('pet_months') !border-danger-500 @enderror"
                                                 wire:model="pet_months">
                                             @error('pet_months')
@@ -725,7 +727,7 @@
                                         </div>
                                         <div class="input-area">
                                             <label for="pet_days" class="form-label">Days</label>
-                                            <input id="pet_days" type="number"  placeholder="Type to search..."
+                                            <input id="pet_days" type="number" placeholder="Type to search..."
                                                 class="form-control @error('pet_days') !border-danger-500 @enderror"
                                                 wire:model="pet_days">
                                             @error('pet_days')
@@ -1372,6 +1374,7 @@
         </div>
     @endif
 
+    @can('delete', $customer)
     @if ($isOpenDeleteSection)
         <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
             tabindex="-1" aria-labelledby="dangerModalLabel" aria-modal="true" role="dialog"
@@ -1422,4 +1425,5 @@
             </div>
         </div>
     @endif
+    @endcan
 </div>
