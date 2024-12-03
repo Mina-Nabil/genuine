@@ -141,7 +141,7 @@
                                                                     <input type="number" min="1"
                                                                         class="form-control @error('fetchedProducts.' . $index . '.quantity') !border-danger-500 @enderror"
                                                                         style="width: 100px;"
-                                                                        @if ($fetchedProducts[$index]['combo_id']) disabled @endif
+                                                                   
                                                                         wire:model="fetchedProducts.{{ $index }}.quantity"
                                                                         wire:input="updateTotal({{ $index }})">
 

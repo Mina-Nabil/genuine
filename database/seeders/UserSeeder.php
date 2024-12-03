@@ -20,7 +20,7 @@ class UserSeeder extends Seeder
 
         User::newUser("lydia.nasr", "Lydia", "Nasr", User::TYPE_ADMIN, "lydia.nasr@123");
 
-        User::newUser("mariam.maher", "Mariam", "Maher", User::TYPE_SALES, "lydia.nasr@123");
+        User::newUser("mariam.maher", "Mariam", "Maher", User::TYPE_SALES, "mariam.maher@123");
         User::newUser("maria.malak", "Maria", "Malak", User::TYPE_SALES, "maria.malak@123");
         User::newUser("safaa.george", "Safaa", "George", User::TYPE_SALES, "safaa.george@123");
         User::newUser("nada.salah", "Nada", "Salah", User::TYPE_SALES, "nada.salah@123");
