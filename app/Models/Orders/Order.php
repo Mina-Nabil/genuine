@@ -862,10 +862,7 @@ class Order extends Model
 
         *Driver Details*:
         Name: {$this->driver->user->full_name}
-        Phone: {$this->driver->user->phone}
-        Delivery time: {$this->driver->start_time->format('h:i A')} to {$this->driver->end_time->format('h:i A')}
-
-        If you have any questions or need assistance, please feel free to contact us.
+        f you have any questions or need assistance, please feel free to contact us.
 
         Thank you for choosing Genuine!
         EOD;
@@ -962,6 +959,46 @@ class Order extends Model
     public function addComment(string $comment): void
     {
         AppLog::comment($comment, $desc = null, loggable: $this);
+    }
+
+    public function deleteOrder():bool
+    {
+        /** @var User */
+        $loggedInUser = Auth::user();
+        if ($loggedInUser && !$loggedInUser->can('delete', $this)) {
+            return false;
+        }
+        DB::beginTransaction();
+        try {
+            foreach ($this->products as $orderProduct) {
+                $quantityToRemove = $orderProduct->quantity;
+
+                // Remove or delete the product from the order
+                $orderProduct->delete();
+
+                // Update the inventory quantity for the product
+                $inventory = $orderProduct->product->inventory;
+                if ($inventory) {
+                    if ($this->is_new) {
+                        $inventory->commitQuantity(-$quantityToRemove, 'Returned from deleted order #' . $this->order_number);
+                    } else {
+                        $inventory->addTransaction($quantityToRemove, 'Returned from deleted order #' . $this->order_number);
+                    }
+                }
+
+            }
+            $orderNumber = $this->order_number;
+            $this->delete();
+            DB::commit();
+
+            AppLog::info('Order #'.$orderNumber.' deleted successfuly');
+            return true;
+        } catch (Exception $e) {
+            DB::rollBack();
+            report($e);
+            AppLog::error('Failed to delete order', $e->getMessage());
+            return false;
+        }
     }
 
     public function scopeWithTotalQuantity(Builder $query)

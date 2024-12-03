@@ -5,6 +5,7 @@ namespace App\Policies;
 use App\Models\Orders\Order;
 use App\Models\Users\User;
 use Illuminate\Auth\Access\Response;
+use Illuminate\Support\Facades\Auth;
 
 class OrderPolicy
 {
@@ -70,7 +71,14 @@ class OrderPolicy
      */
     public function delete(User $user, Order $order): bool
     {
-        return true;
+        if (Auth::id() === 1 && $order->is_new) {
+            foreach ($order->products as $product) {
+                if (!$product->is_ready) continue; else return false;
+            }
+            return true;
+        }else{
+            return false;
+        }
     }
 
     /**

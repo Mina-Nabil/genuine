@@ -9,13 +9,14 @@ use App\Models\Payments\CustomerPayment;
 use App\Models\Products\Product;
 use App\Models\Users\Driver;
 use App\Traits\AlertFrontEnd;
+use App\Traits\ToggleSectionLivewire;
 use Carbon\Carbon;
 use Livewire\Component;
 use tidy;
 
 class OrderShow extends Component
 {
-    use AlertFrontEnd;
+    use AlertFrontEnd, ToggleSectionLivewire;
     public $page_title;
     public $order;
     public $discountAmount;
@@ -64,6 +65,25 @@ class OrderShow extends Component
 
     //pay from balance
     public $isOpenPayFromBalanceSec;
+
+    public $isOpenDeleteSection = false;
+
+    public function toggleDelete()
+    {
+        $this->toggle($this->isOpenDeleteSection);
+    }
+
+    public function deleteCustomer()
+    {
+        $this->authorize('delete', $this->order);
+        $res = $this->order->deleteOrder();
+        if ($res) {
+            $this->alertSuccess('deleted!');
+            return redirect(route('orders.index'));
+        } else {
+            $this->alertFailed();
+        }
+    }
 
     public function openSetDriverSection(){
         $this->setDriverSection = true;

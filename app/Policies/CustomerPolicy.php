@@ -51,7 +51,7 @@ class CustomerPolicy
      */
     public function delete(User $user, Customer $customer): bool
     {
-        return Auth::id() === 1;
+        return true;
     }
 
     /**
