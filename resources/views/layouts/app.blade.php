@@ -163,20 +163,6 @@
                         </a>
                     </li>
 
-
-
-                    <li>
-                        <a href="{{ auth()->user()->can('viewAny', App\Models\Products\Product::class)? url('/products'): '#' }}"
-                            class="navItem {{ $products ?? '' }} 
-                            {{ auth()->user()->can('viewAny', App\Models\Products\Product::class)? '': 'disabled' }}">
-                            <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="flowbite:tag-outline">
-                                </iconify-icon>
-                                <span>الاستوك</span>
-                            </span>
-                        </a>
-                    </li>
-
                     <li>
                         <a href="{{ auth()->user()->can('viewAny', App\Models\Products\Inventory::class)? url('/inventories'): '#' }}"
                             class="navItem {{ $inventories ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Products\Inventory::class)? '': 'disabled' }}">
@@ -251,6 +237,18 @@
                     </li>
 
                     <li class="sidebar-menu-title">Database</li>
+
+                    <li>
+                        <a href="{{ auth()->user()->can('viewAny', App\Models\Products\Product::class)? url('/products'): '#' }}"
+                            class="navItem {{ $products ?? '' }} 
+                            {{ auth()->user()->can('viewAny', App\Models\Products\Product::class)? '': 'disabled' }}">
+                            <span class="flex items-center">
+                                <iconify-icon class=" nav-icon" icon="flowbite:tag-outline">
+                                </iconify-icon>
+                                <span>Products</span>
+                            </span>
+                        </a>
+                    </li>
 
                     <li>
                         <a href="{{ auth()->user()->can('viewAny', App\Models\Customers\Customer::class)? url('/customers'): '#' }}"
