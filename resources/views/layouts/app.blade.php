@@ -127,7 +127,6 @@
                         </a>
                     </li>
 
-
                     <li>
                         <a href="{{ auth()->user()->can('viewAny', App\Models\Users\Driver::class)? route('orders.driver.shift'): '#' }}"
                             class="navItem {{ $driverShift ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Users\Driver::class)? '': 'disabled' }}">
@@ -150,18 +149,6 @@
                         </a>
                     </li>
 
-                    <li>
-                        <a href="{{ auth()->user()->can('viewAny', App\Models\Products\Combo::class)? url('/combos'): '#' }}"
-                            class="navItem {{ $combos ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Products\Combo::class)? '': 'disabled' }}">
-                            <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="mage:box-3d-plus">
-                                </iconify-icon>
-                                <span>كومبو</span>
-                            </span>
-                        </a>
-                    </li>
-
-
                     <li class="sidebar-menu-title">Inventory</li>
 
                     <li>
@@ -172,20 +159,6 @@
                                 <iconify-icon class=" nav-icon" icon="la:industry">
                                 </iconify-icon>
                                 <span>تقرير انتاجيه</span>
-                            </span>
-                        </a>
-                    </li>
-
-
-
-                    <li>
-                        <a href="{{ auth()->user()->can('viewAny', App\Models\Products\Product::class)? url('/products'): '#' }}"
-                            class="navItem {{ $products ?? '' }} 
-                            {{ auth()->user()->can('viewAny', App\Models\Products\Product::class)? '': 'disabled' }}">
-                            <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="flowbite:tag-outline">
-                                </iconify-icon>
-                                <span>الاستوك</span>
                             </span>
                         </a>
                     </li>
@@ -227,7 +200,8 @@
                     @endcan
 
 
-                    <li class="sidebar-menu-title">Operations</li>
+                    <li class="sidebar-menu-title">Calendar</li>
+
                     <li>
                         <a href="{{ auth()->user()->can('viewAny', App\Models\Tasks\Task::class)? url('/tasks'): '#' }}"
                             class="navItem {{ $tasks ?? '' }}  {{ auth()->user()->can('viewAny', App\Models\Tasks\Task::class)? '': 'disabled' }}">
@@ -242,17 +216,6 @@
 
                     <li class="sidebar-menu-title">CRM</li>
 
-
-                    <li>
-                        <a href="{{ auth()->user()->can('viewAny', App\Models\Customers\Customer::class)? url('/customers'): '#' }}"
-                            class="navItem {{ $customers ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Customers\Customer::class)? '': 'disabled' }}">
-                            <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="mdi:user">
-                                </iconify-icon>
-                                <span>Customers</span>
-                            </span>
-                        </a>
-                    </li>
                     {{-- <li>
                         <a href="{{ url('/pets') }}" class="navItem {{ $pets ?? '' }}">
                             <span class="flex items-center">
@@ -273,7 +236,42 @@
                         </a>
                     </li>
 
-                    <li class="sidebar-menu-title">Settings</li>
+                    <li class="sidebar-menu-title">Database</li>
+
+                    <li>
+                        <a href="{{ auth()->user()->can('viewAny', App\Models\Products\Product::class)? url('/products'): '#' }}"
+                            class="navItem {{ $products ?? '' }} 
+                            {{ auth()->user()->can('viewAny', App\Models\Products\Product::class)? '': 'disabled' }}">
+                            <span class="flex items-center">
+                                <iconify-icon class=" nav-icon" icon="flowbite:tag-outline">
+                                </iconify-icon>
+                                <span>Products</span>
+                            </span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ auth()->user()->can('viewAny', App\Models\Customers\Customer::class)? url('/customers'): '#' }}"
+                            class="navItem {{ $customers ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Customers\Customer::class)? '': 'disabled' }}">
+                            <span class="flex items-center">
+                                <iconify-icon class=" nav-icon" icon="mdi:user">
+                                </iconify-icon>
+                                <span>Customers</span>
+                            </span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ auth()->user()->can('viewAny', App\Models\Products\Combo::class)? url('/combos'): '#' }}"
+                            class="navItem {{ $combos ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Products\Combo::class)? '': 'disabled' }}">
+                            <span class="flex items-center">
+                                <iconify-icon class=" nav-icon" icon="mage:box-3d-plus">
+                                </iconify-icon>
+                                <span>Offers</span>
+                            </span>
+                        </a>
+                    </li>
+
 
                     <li>
                         <a href="{{ auth()->user()->can('viewAny', App\Models\Users\User::class)? route('profile', auth()->id()): '#' }}"
