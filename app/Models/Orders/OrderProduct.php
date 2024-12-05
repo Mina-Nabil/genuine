@@ -78,6 +78,7 @@ class OrderProduct extends Model
                 $join->on('products.id', '=', 'inventories.inventoryable_id')->where('inventories.inventoryable_type', '=', 'Product');
             })
             ->whereIn('orders.status', [Order::STATUS_NEW])
+            ->whereDate('orders.delivery_date', '>=', now()->toDateString())
             ->when($deliveryDate, function ($q) use ($deliveryDate, $isToDate) {
                 if ($isToDate) {
                     // Filter orders where delivery_date is less than or equal to the deliveryDate
