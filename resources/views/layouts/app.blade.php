@@ -185,20 +185,6 @@
                         </a>
                     </li>
 
-                    @can('viewReports', App\Models\Orders\Order::class)
-                        <li class="sidebar-menu-title">Reports</li>
-                        <li>
-                            <a href="{{ auth()->user()->can('viewReports', App\Models\Orders\Order::class)? url('/report/followup'): '#' }}"
-                                class="navItem {{ $followupReport ?? '' }}  {{ auth()->user()->can('viewReports', App\Models\Orders\Order::class)? '': 'disabled' }}">
-                                <span class="flex items-center">
-                                    <iconify-icon class=" nav-icon" icon="material-symbols:order-approve-outline-sharp">
-                                    </iconify-icon>
-                                    <span>متابعه عملاء</span>
-                                </span>
-                            </a>
-                        </li>
-                    @endcan
-
 
                     <li class="sidebar-menu-title">Calendar</li>
 
@@ -225,6 +211,22 @@
                             </span>
                         </a>
                     </li> --}}
+
+
+                    @can('viewReports', App\Models\Orders\Order::class)
+                        <li class="sidebar-menu-title">Reports</li>
+                        <li>
+                            <a href="{{ auth()->user()->can('viewReports', App\Models\Orders\Order::class)? url('/report/followup'): '#' }}"
+                                class="navItem {{ $followupReport ?? '' }}  {{ auth()->user()->can('viewReports', App\Models\Orders\Order::class)? '': 'disabled' }}">
+                                <span class="flex items-center">
+                                    <iconify-icon class=" nav-icon" icon="material-symbols:order-approve-outline-sharp">
+                                    </iconify-icon>
+                                    <span>متابعه عملاء</span>
+                                </span>
+                            </a>
+                        </li>
+                    @endcan
+
                     <li>
                         <a href="{{ auth()->user()->can('viewAny', App\Models\Customers\Followup::class)? url('/followups'): '#' }}"
                             class="navItem {{ $followups ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Customers\Followup::class)? '': 'disabled' }}">
