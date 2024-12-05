@@ -1162,6 +1162,7 @@ class Order extends Model
 
                 $customerName = $customer->name;
                 $monthlyWeightTarget = $customer->monthly_weight_target;
+                $customer_id = $customer->id;
 
                 $totalWeight = $order->products->sum(function ($orderProduct) {
                     return ($orderProduct->product ? $orderProduct->product->weight : 0) * $orderProduct->quantity;
@@ -1170,6 +1171,7 @@ class Order extends Model
                 if (!isset($customerWeights[$customerName])) {
                     $customerWeights[$customerName] = [
                         'monthly_weight_target' => $monthlyWeightTarget,
+                        'customer_id' => $customer_id,
                         'weekly_weights' => [],
                     ];
                 }

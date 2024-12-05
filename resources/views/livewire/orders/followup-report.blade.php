@@ -127,7 +127,8 @@
                                     style="position: sticky; left: -25px; z-index: 10;">
                                     <div class="flex-1 text-start">
                                         <h4 class="text-sm font-medium text-slate-600 whitespace-nowrap">
-                                            {{ $customerName }}
+                                            <a href="{{ route('customer.show',$weights['customer_id']) }}" target="_blanck" class="hover-underline">{{ $customerName }}</a>
+                                            
                                         </h4>
                                         <div class="text-xs font-normal text-slate-600 dark:text-slate-400">
                                             Target: <b>{{ $weights['monthly_weight_target'] / 1000 ?? 0 }}</b> KG
