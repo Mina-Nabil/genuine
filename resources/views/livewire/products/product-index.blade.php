@@ -82,7 +82,9 @@
                                     </span>
                                 </th>
 
-                                <th scope="col" class="table-th">Quantity ( Available )</th>
+                                <th scope="col" class="table-th">Actual</th>
+                                <th scope="col" class="table-th">Sold</th>
+                                <th scope="col" class="table-th">Available</th>
 
                                 <th scope="col" class="table-th">
                                     <span wire:click="sortByColomn('weight')" class="clickable-header">
@@ -136,6 +138,12 @@
                                     <b>{{ number_format($product->price) }}</b><small>EGP</small>
                                 </td>
 
+                                <td class="table-td">
+                                    <b>{{ number_format($product->inventory?->on_hand) }}</b>
+                                </td>
+                                <td class="table-td">
+                                    <b>{{ number_format($product->inventory?->committed) }}</b>
+                                </td>
                                 <td class="table-td">
                                     <b>{{ number_format($product->inventory?->available) }}</b> in stock
                                 </td>
