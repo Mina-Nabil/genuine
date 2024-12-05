@@ -77,6 +77,7 @@ class OrderProduct extends Model
                 // Join on inventory table with polymorphic constraints
                 $join->on('products.id', '=', 'inventories.inventoryable_id')->where('inventories.inventoryable_type', '=', 'Product');
             })
+            ->whereIn('orders.status', [Order::STATUS_NEW])
             ->when($deliveryDate, function ($q) use ($deliveryDate, $isToDate) {
                 if ($isToDate) {
                     // Filter orders where delivery_date is less than or equal to the deliveryDate
