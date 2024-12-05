@@ -1164,7 +1164,7 @@ class Order extends Model
                 $monthlyWeightTarget = $customer->monthly_weight_target;
 
                 $totalWeight = $order->products->sum(function ($orderProduct) {
-                    return $orderProduct->product->weight * $orderProduct->quantity;
+                    return ($orderProduct->product ? $orderProduct->product->weight : 0) * $orderProduct->quantity;
                 });
 
                 if (!isset($customerWeights[$customerName])) {
