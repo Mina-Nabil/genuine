@@ -188,8 +188,9 @@ class Order extends Model
                     'quantity' => $product['quantity'],
                     'price' => $product['price'],
                 ]);
-                if (!$migrated)
+                if (!$migrated) {
                     $orderProduct->product->inventory->commitQuantity($product['quantity'], 'Order: #' . $order->order_number . ' committed');
+                }
             }
 
             if ($detuctFromBalance) {
@@ -833,47 +834,49 @@ class Order extends Model
         $this->save();
     }
 
+    // File Path: /app/Models/Order.php
+
     public function generateWhatsAppMessage()
     {
         $message = <<<EOD
-        Hello {$this->customer_name},
+        عزيزي/عزيزتي {$this->customer_name}،
 
-        Thank you for placing your order with us!
+        شكراً لطلبك مع جينوين جيانت!
 
-        Here are your order details:
+        إجمالي السعر: {$this->total_amount} جنيه
 
-        *Order Number*: #{$this->order_number}
-
-        *Payment Information*:
+        الاوردر:
         EOD;
 
-        if ($this->payment_status == 'paid') {
-            $message .= "\n• Payment Status: Paid.";
-        } elseif ($this->isPartlyPaid()) {
-            $message .= "\n• Payment Status: Partly Paid.";
-            $message .= "\n• Remaining Balance: {$this->remaining_to_pay} EGP.";
-        } else {
-            $message .= "\n• Payment Status: Not Paid.";
+        foreach ($this->products as $product) {
+            $weightInKg = ($product->product->weight * $product->quantity) / 1000;
+            $message .= "\n• {$product->product->name}: {$weightInKg} كيلو";
         }
 
-        $message .= "\n\n*Total Amount*: {$this->total_amount} EGP\n";
+        $message .= "\n\nتفاصيل المندوب:\n";
+        if (!empty($this->driver->user->full_name)) {
+            $message .= "الاسم: {$this->driver->user->full_name}\n";
+        }
+        if (!empty($this->driver->user->phone)) {
+            $message .= "رقم الهاتف: {$this->driver->user->phone}\n";
+        }
+
+        if (!empty($this->driver->start_time) && !empty($this->driver->end_time)) {
+            $message .= "موعد التسليم: من " . Carbon::parse($this->driver->start_time)->format('h:i A') . 
+            " إلى " . Carbon::parse($this->driver->end_time)->format('h:i A') . "\n";
+        }
 
         $message .= <<<EOD
 
-        *Driver Details*:
-        Name: {$this->driver->user->full_name}
-        f you have any questions or need assistance, please feel free to contact us.
-
-        Thank you for choosing Genuine!
+        لأي استفسار، لا تتردد في الاتصال بنا. شكراً لتعاملك معنا!
         EOD;
 
         $encodedMessage = urlencode($message);
-        $phoneNumber = str_replace(" ", "", $this->customer_phone);
+        $phoneNumber = str_replace(' ', '', $this->customer_phone);
         if (Str::startsWith($phoneNumber, '01')) {
             $phoneNumber = '+2' . $phoneNumber;
         }
 
-        // Return the full WhatsApp URL
         return "https://wa.me/{$phoneNumber}?text={$encodedMessage}";
     }
 
@@ -961,7 +964,7 @@ class Order extends Model
         AppLog::comment($comment, $desc = null, loggable: $this);
     }
 
-    public function deleteOrder():bool
+    public function deleteOrder(): bool
     {
         /** @var User */
         $loggedInUser = Auth::user();
@@ -985,13 +988,12 @@ class Order extends Model
                         $inventory->addTransaction($quantityToRemove, 'Returned from deleted order #' . $this->order_number);
                     }
                 }
-
             }
             $orderNumber = $this->order_number;
             $this->delete();
             DB::commit();
 
-            AppLog::info('Order #'.$orderNumber.' deleted successfuly');
+            AppLog::info('Order #' . $orderNumber . ' deleted successfuly');
             return true;
         } catch (Exception $e) {
             DB::rollBack();
@@ -1107,12 +1109,8 @@ class Order extends Model
             });
     }
 
-    public function scopeWeeklyWeightByCustomer(
-        Builder $query,
-        int $zoneId,
-        int $weekCount,
-        string $startMonth
-    ): array {
+    public function scopeWeeklyWeightByCustomer(Builder $query, int $zoneId, int $weekCount, string $startMonth): array
+    {
         $startDate = \Carbon\Carbon::parse($startMonth)->startOfMonth();
         $endDate = \Carbon\Carbon::now()->addWeeks(1);
 
@@ -1176,8 +1174,7 @@ class Order extends Model
                     ];
                 }
 
-                $customerWeights[$customerName]['weekly_weights'][$week] =
-                    ($customerWeights[$customerName]['weekly_weights'][$week] ?? 0) + $totalWeight;
+                $customerWeights[$customerName]['weekly_weights'][$week] = ($customerWeights[$customerName]['weekly_weights'][$week] ?? 0) + $totalWeight;
             }
         }
 
