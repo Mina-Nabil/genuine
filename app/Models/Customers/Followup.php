@@ -92,6 +92,41 @@ class Followup extends Model
         }
     }
 
+    public function scopeUserData($query, $searchText = null, $upcoming_only = false, $mineOnly = false)
+    {
+        /** @var User */
+        $loggedInUser = Auth::user();
+        $query->select('followups.*')
+            ->join('users', "followups.creator_id", '=', 'users.id');
+
+        if ($loggedInUser->type !== User::TYPE_ADMIN || $mineOnly) {
+            $query->where(function ($q) use ($loggedInUser) {
+                $q->where('users.id', $loggedInUser->id);
+            });
+        }
+
+        $query->when($searchText, function ($q, $v) {
+
+
+            $splittedText = explode(' ', $v);
+
+            foreach ($splittedText as $tmp) {
+                $q->where(function ($qq) use ($tmp) {
+                    $qq->where('followups.title', 'LIKE', "%$tmp%")
+                        ->orwhere('customers.name', 'LIKE', "%$tmp%");
+                });
+            }
+        })->when($upcoming_only, function ($q) {
+            $now = new Carbon();
+            $q->whereBetween('call_time', [
+                $now->format('Y-m-01'),
+                $now->addMonth()->format('Y-m-t')
+            ]);
+        });
+
+        return $query->latest();
+    }
+
 
 
     ///relations
