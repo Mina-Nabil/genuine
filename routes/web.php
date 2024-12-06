@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
+use App\Livewire\Users\Calendar;
 use App\Livewire\Customers\CustomerIndex;
 use App\Livewire\Customers\CustomerShow;
 use App\Livewire\Customers\FollowupIndex;
@@ -58,6 +59,8 @@ Route::middleware(['auth', 'no_driver'])->group(function () {
     Route::get('/pets', PetIndex::class);
     Route::get('/zones', ZoneIndex::class);
     Route::get('/followups', FollowupIndex::class);
+
+    Route::get('/calendar', Calendar::class);
 
     Route::get('/tasks', TaskIndex::class);
     Route::get('/tasks/{id}', TaskShow::class)->name('tasks.show');
