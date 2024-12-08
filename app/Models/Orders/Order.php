@@ -615,7 +615,7 @@ class Order extends Model
 
                 if ($orderProduct) {
                     // Update the existing order product with the additional quantity and updated
-                    $orderProduct->quantity += $product['quantity'];
+                    $orderProduct->quantity = $product['quantity'];
                     $orderProduct->price = $product['price']; // Update price if provided
                     $orderProduct->combo_id = $product['combo_id'] ?? $orderProduct->combo_id; // Only update if combo_id is provided
                     $orderProduct->save();
