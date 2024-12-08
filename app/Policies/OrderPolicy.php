@@ -35,6 +35,16 @@ class OrderPolicy
         return true;
     }
 
+    public function updateDriverNote(User $user, Order $order): bool
+    {
+        return $user->is_driver;
+    }
+
+    public function updateOrderNote(User $user, Order $order): bool
+    {
+        return !$user->is_driver;
+    }
+
     public function pay(User $user, Order $order): bool
     {
         return true;

@@ -116,6 +116,60 @@
                                                     </span>
                                                 @endif
                                             </div>
+
+
+                                        </div>
+                                        <hr class="mt-2">
+                                        <div class="mb-2">
+                                            @if ($order->note)
+                                                <div class="flex justify-between items-end">
+                                                    <small>Order Note:</small>
+                                                    @can('updateOrderNote', $order)
+                                                        <button wire:click='openEditOrderNote({{ $order->id }})'
+                                                            class="action-btn mt-2" type="button">
+                                                            <iconify-icon icon="heroicons:pencil-square"></iconify-icon>
+                                                        </button>
+                                                    @endcan
+                                                </div>  
+                                                <small class="text-wrap"><b>{{ $order->note }}</b></small>
+                                            @else
+                                                @can('updateOrderNote', $order)
+                                                    <div wire:click='openEditOrderNote({{ $order->id }})'
+                                                        class="inline-flex items-center clickable-link">
+                                                        <iconify-icon icon="material-symbols:add" width="15"
+                                                            height="15"></iconify-icon>
+                                                        <small class="">Add Note</small>
+                                                    </div>
+                                                @else
+                                                    <small class="">No notes for this order.</small>
+                                                @endcan
+                                            @endif
+                                        </div>
+                                        <hr>
+                                        <div>
+                                            @if ($order->driver_note)
+                                                <div class="flex justify-between items-end">
+                                                    <small>Driver Note:</small>
+                                                    @can('updateDriverNote', $order)
+                                                        <button wire:click='openEditDriverNote({{ $order->id }})'
+                                                            class="action-btn  mt-2" type="button">
+                                                            <iconify-icon icon="heroicons:pencil-square"></iconify-icon>
+                                                        </button>
+                                                    @endcan
+                                                </div>
+                                                <small class="text-wrap"><b>{{ $order->driver_note }}</b></small>
+                                            @else
+                                                @can('updateDriverNote', $order)
+                                                    <div wire:click='openEditDriverNote({{ $order->id }})'
+                                                        class="inline-flex items-center clickable-link">
+                                                        <iconify-icon icon="material-symbols:add" width="15"
+                                                            height="15"></iconify-icon>
+                                                        <small class="">Add Note</small>
+                                                    </div>
+                                                @else
+                                                    <small class="">No driver notes for this order.</small>
+                                                @endcan
+                                            @endif
                                         </div>
                                     </div>
 
@@ -155,7 +209,7 @@
                                     <div class="sm:border-l-0 md:border-l p-3 md:col-span-3">
                                         <div
                                             class="bg-slate-50 dark:bg-slate-900 rounded p-2 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-5 flex-wrap">
-                                            
+
                                             <div class="space-y-1">
                                                 <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
                                                     Total Weight
@@ -283,7 +337,8 @@
 
     @if ($Edited_driverId_sec)
         <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
-            tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog" style="display: block;">
+            tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
+            style="display: block;">
             <div class="modal-dialog relative w-auto pointer-events-none">
                 <div
                     class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
@@ -404,6 +459,128 @@
                                 <span wire:loading.remove wire:target="setFilteryDeliveryDate">Submit</span>
                                 <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
                                     wire:loading wire:target="setFilteryDeliveryDate"
+                                    icon="line-md:loading-twotone-loop"></iconify-icon>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    @endif
+
+    @if ($editedOrderNoteSec)
+        <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+            tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
+            style="display: block;">
+            <div class="modal-dialog relative w-auto pointer-events-none">
+                <div
+                    class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
+                    <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
+                        <!-- Modal header -->
+                        <div
+                            class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
+                            <h3 class="text-xl font-medium text-white dark:text-white capitalize">
+                                Edit order note
+                            </h3>
+                            <button wire:click="closeEditOrderNote" type="button"
+                                class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
+                                data-bs-dismiss="modal">
+                                <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd"
+                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                <span class="sr-only">Close modal</span>
+                            </button>
+                        </div>
+
+                        <!-- Modal body -->
+                        <div class="p-6 space-y-4">
+
+                            <div class="from-group">
+                                <div class="input-area">
+                                    <label for="editedOrderNote" class="form-label">Note</label>
+                                    <textarea name="editedOrderNote" id="editedOrderNote"
+                                        class="form-control w-full mt-2 @error('editedOrderNote') !border-danger-500 @enderror"
+                                        wire:model="editedOrderNote" autocomplete="off" style="min-height: 200px"></textarea>
+
+                                </div>
+                                @error('editedOrderNote')
+                                    <span
+                                        class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                        </div>
+
+                        <!-- Modal footer -->
+                        <div class="flex items-center justify-end p-6 border-t border-slate-200 rounded-b">
+                            <button wire:click="EditOrderNote" data-bs-dismiss="modal"
+                                class="btn inline-flex justify-center text-white bg-black-500">
+                                <span wire:loading.remove wire:target="EditOrderNote">Submit</span>
+                                <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
+                                    wire:loading wire:target="EditOrderNote"
+                                    icon="line-md:loading-twotone-loop"></iconify-icon>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    @endif
+
+    @if ($editedDriverNoteSec)
+        <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+            tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
+            style="display: block;">
+            <div class="modal-dialog relative w-auto pointer-events-none">
+                <div
+                    class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
+                    <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
+                        <!-- Modal header -->
+                        <div
+                            class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
+                            <h3 class="text-xl font-medium text-white dark:text-white capitalize">
+                                Edit driver note
+                            </h3>
+                            <button wire:click="closeEditDriverNote" type="button"
+                                class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
+                                data-bs-dismiss="modal">
+                                <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd"
+                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                <span class="sr-only">Close modal</span>
+                            </button>
+                        </div>
+
+                        <!-- Modal body -->
+                        <div class="p-6 space-y-4">
+
+                            <div class="from-group">
+                                <div class="input-area">
+                                    <label for="editedDriverNote" class="form-label">Note</label>
+                                    <textarea name="editedDriverNote" id="editedDriverNote"
+                                        class="form-control w-full mt-2 @error('editedDriverNote') !border-danger-500 @enderror"
+                                        wire:model="editedDriverNote" autocomplete="off" style="min-height: 200px"></textarea>
+
+                                </div>
+                                @error('editedDriverNote')
+                                    <span
+                                        class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                        </div>
+
+                        <!-- Modal footer -->
+                        <div class="flex items-center justify-end p-6 border-t border-slate-200 rounded-b">
+                            <button wire:click="EditDriverNote" data-bs-dismiss="modal"
+                                class="btn inline-flex justify-center text-white bg-black-500">
+                                <span wire:loading.remove wire:target="EditDriverNote">Submit</span>
+                                <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
+                                    wire:loading wire:target="EditDriverNote"
                                     icon="line-md:loading-twotone-loop"></iconify-icon>
                             </button>
                         </div>

@@ -36,7 +36,7 @@ class Order extends Model
         'delivery_date' => 'date',
     ];
 
-    protected $fillable = ['order_number', 'customer_id', 'customer_name', 'shipping_address', 'location_url', 'customer_phone', 'status', 'zone_id', 'driver_id', 'periodic_option', 'total_amount', 'delivery_amount', 'discount_amount', 'delivery_date', 'is_paid', 'note', 'created_by'];
+    protected $fillable = ['order_number', 'customer_id', 'customer_name', 'shipping_address', 'location_url', 'customer_phone', 'status', 'zone_id', 'driver_id', 'periodic_option', 'total_amount', 'delivery_amount', 'discount_amount', 'delivery_date', 'is_paid', 'note', 'driver_note', 'created_by'];
 
     const PERIODIC_OPTIONS = [self::PERIODIC_WEEKLY, self::PERIODIC_BI_WEEKLY, self::PERIODIC_MONTHLY];
     const PERIODIC_WEEKLY = 'weekly';
@@ -862,8 +862,7 @@ class Order extends Model
         }
 
         if (!empty($this->driver->start_time) && !empty($this->driver->end_time)) {
-            $message .= "موعد التسليم: من " . Carbon::parse($this->driver->start_time)->format('h:i A') . 
-            " إلى " . Carbon::parse($this->driver->end_time)->format('h:i A') . "\n";
+            $message .= 'موعد التسليم: من ' . Carbon::parse($this->driver->start_time)->format('h:i A') . ' إلى ' . Carbon::parse($this->driver->end_time)->format('h:i A') . "\n";
         }
 
         $message .= <<<EOD
@@ -890,7 +889,7 @@ class Order extends Model
     {
         /** @var User */
         $loggedInUser = Auth::user();
-        if ($loggedInUser && !$loggedInUser->can('update', $this)) {
+        if ($loggedInUser && !$loggedInUser->can('updateOrderNote', $this)) {
             return false;
         }
 
@@ -903,6 +902,27 @@ class Order extends Model
         } catch (Exception $e) {
             report($e);
             AppLog::error('Failed to update note for order', $e->getMessage());
+            return false;
+        }
+    }
+
+    public function updateDriverNote(string $note = null): bool
+    {
+        /** @var User */
+        $loggedInUser = Auth::user();
+        if ($loggedInUser && !$loggedInUser->can('updateDriverNote', $this)) {
+            return false;
+        }
+
+        try {
+            $this->driver_note = empty($note) ? null : $note;
+            $this->save();
+
+            AppLog::info('Driver Note updated', loggable: $this);
+            return true;
+        } catch (Exception $e) {
+            report($e);
+            AppLog::error('Failed to update driver note for order', $e->getMessage());
             return false;
         }
     }
@@ -1107,6 +1127,11 @@ class Order extends Model
             ->when(!is_null($isPaid), function ($query) use ($isPaid) {
                 $query->where('is_paid', $isPaid);
             });
+    }
+
+    public function scopeOpenOrders(Builder $query): Builder
+    {
+        return $query->whereNotIn('status', [self::STATUS_DONE, self::STATUS_RETURNED, self::STATUS_CANCELLED]);
     }
 
     public function scopeWeeklyWeightByCustomer(Builder $query, int $zoneId, int $weekCount, string $startMonth): array

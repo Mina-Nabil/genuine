@@ -31,6 +31,61 @@ class OrderDriverShift extends Component
     public $Edited_driverId_sec;
     public $DRIVERS;
 
+    public $editedOrderNote;
+    public $editedOrderNoteSec;
+    public $editedDriverNote;
+    public $editedDriverNoteSec;
+
+    public function openEditOrderNote($order_id){
+        $this->editedOrderNoteSec = $order_id;
+        $this->editedOrderNote = Order::findOrFail($order_id)->note;
+    }
+
+    public function closeEditOrderNote(){
+        $this->reset(['editedOrderNoteSec','editedOrderNote']);
+    }
+
+    public function  EditOrderNote(){
+        $this->validate([
+            'editedOrderNote' => 'nullable|string|max:255',
+        ]);
+
+        $res = Order::findOrFail($this->editedOrderNoteSec)->updateNote($this->editedOrderNote);
+
+        if ($res) {
+            $this->closeEditOrderNote();
+            $this->alertSuccess('Note updated');
+        }else{
+            $this->alertFailed();
+        }
+    }
+
+    public function openEditDriverNote($order_id){
+        $this->editedDriverNoteSec = $order_id;
+        $this->editedDriverNote = Order::findOrFail($order_id)->driver_note;
+    }
+
+    public function closeEditDriverNote(){
+        $this->reset(['editedDriverNoteSec','editedDriverNote']);
+    }
+
+    public function  EditDriverNote(){
+        $this->validate([
+            'editedDriverNote' => 'nullable|string|max:255',
+        ]);
+
+        $res = Order::findOrFail($this->editedDriverNoteSec)->updateDriverNote($this->editedDriverNote);
+
+        if ($res) {
+            $this->closeEditDriverNote();
+            $this->alertSuccess('Note updated');
+        }else{
+            $this->alertFailed();
+        }
+    }
+
+    
+
     protected $queryString = ['deliveryDate'];
 
     public function openFilteryDeliveryDate()
@@ -90,7 +145,7 @@ class OrderDriverShift extends Component
 
     public function render()
     {
-        $orders = Order::search(searchText: $this->search, deliveryDate: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneId: $this->zone?->id)->withTotalQuantity()->sortByZone()->paginate(50);
+        $orders = Order::search(searchText: $this->search, deliveryDate: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneId: $this->zone?->id)->openOrders()->withTotalQuantity()->sortByZone()->paginate(50);
 
         $totalZones = Order::getTotalZonesForOrders($orders);
 
