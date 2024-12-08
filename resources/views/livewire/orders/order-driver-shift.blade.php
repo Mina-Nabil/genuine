@@ -388,6 +388,7 @@
                                             {{ number_format($orders->sum('remaining_to_pay'), 2) }}<small>&nbsp;EGP</small>
                                         </div>
                                     </div>
+
                                     @if (!auth()->user()->is_driver)
                                         <div class="space-y-1">
                                             <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
@@ -400,6 +401,21 @@
                                             </div>
                                         </div>
                                     @endif
+                                    
+                                    @foreach ($collectedFromPaymentTypes as $index => $priceCollected)
+                                        @if ($priceCollected > 0)
+                                            <div class="space-y-1">
+                                                <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
+                                                    {{ ucwords(str_replace('_', ' ', $index)) }} Collected
+                                                </h4>
+                                                <div class="text-sm font-medium text-slate-900 dark:text-white">
+                                                    {{ number_format($priceCollected, 2) }}<small>&nbsp;EGP</small>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    @endforeach
+
+                                    
 
                                 </div>
                             </div>

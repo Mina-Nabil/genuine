@@ -37,6 +37,9 @@ class OrderDriverShift extends Component
     public $editedDriverNote;
     public $editedDriverNoteSec;
 
+    //collected
+    public $collectedFromPaymentTypes = [];
+
     public function openEditOrderNote($order_id){
         $this->editedOrderNoteSec = $order_id;
         $this->editedOrderNote = Order::findOrFail($order_id)->note;
@@ -167,6 +170,19 @@ class OrderDriverShift extends Component
 
         $totalZones = Order::getTotalZonesForOrders($orders);
         $PAYMENT_METHODS = CustomerPayment::PAYMENT_METHODS;
+
+        $this->collectedFromPaymentTypes = [];
+        foreach ($PAYMENT_METHODS as $PAYMENT_METHOD) {
+            $this->collectedFromPaymentTypes[$PAYMENT_METHOD] = 0; // Initialize each payment type with 0
+        }
+
+        foreach ($orders as $order) {
+            if (isset($this->collectedFromPaymentTypes[$order->driver_payment_type])) {
+                $this->collectedFromPaymentTypes[$order->driver_payment_type] += $order->remaining_to_pay;
+            }
+        }
+
+        // dd($this->collectedFromPaymentTypes);
 
         return view('livewire.orders.order-driver-shift', [
             'orders' => $orders,
