@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Orders;
 
+use App\Models\Customers\Customer;
 use App\Models\Customers\Zone;
 use App\Models\Orders\Order;
 use App\Models\Users\User;
@@ -22,6 +23,10 @@ class FollowupReport extends Component
     public $zones;
     public $zone;
 
+    public function reorderLastOrder($last_order_id){
+        $lastOrderid = $last_order_id;
+        $this->dispatch('openNewTab', ['url' => route('orders.create', ['order_id' => $lastOrderid])]);
+    }
 
     public function mount()
     {

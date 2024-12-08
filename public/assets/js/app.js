@@ -1071,7 +1071,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 window.addEventListener("openNewTab", function (event) {
-    window.open(event.detail.url, "_blank");
+    window.open(event.detail[0]["url"], "_blank");
 });
 
 // radio btn new

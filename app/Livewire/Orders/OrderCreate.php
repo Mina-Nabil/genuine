@@ -12,6 +12,7 @@ use App\Traits\AlertFrontEnd;
 use Carbon\Carbon;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
+use Illuminate\Http\Request;
 
 class OrderCreate extends Component
 {
@@ -61,6 +62,9 @@ class OrderCreate extends Component
     public $zoneName;
     public $total;
     public $discountAmount = 0;
+
+    //last order
+    public $customerLastOrder = false;
 
     public $fetchedCombos = [];
 
@@ -132,7 +136,7 @@ class OrderCreate extends Component
 
     public function clearCustomer()
     {
-        $this->reset(['customerIsNew', 'customerId', 'customerName', 'shippingAddress', 'locationURL', 'customerPhone', 'zoneId', 'detuctFromBalance']);
+        $this->reset(['customerIsNew', 'customerId', 'customerName', 'shippingAddress', 'locationURL', 'customerPhone', 'zoneId', 'detuctFromBalance','customerLastOrder']);
         $this->refreshPayments();
     }
 
@@ -176,6 +180,12 @@ class OrderCreate extends Component
             $this->hasPrevOrdersAlert = false;
         }
 
+        $latestOrder = $customer->orders()->latest()->first()->id;
+
+        if ($latestOrder) {
+            $this->customerLastOrder = $latestOrder;
+        }
+
         if ($customer->balance > 0) {
             $this->detuctFromBalance = true;
         } else {
@@ -183,6 +193,36 @@ class OrderCreate extends Component
         }
 
         $this->closeCustomerSection();
+        $this->refreshPayments();
+    }
+
+    public function reorderLastOrder(){
+        $this->fetchedProducts = [];
+        $lastOrder = Order::find($this->customerLastOrder);
+
+        $this->customerName = $lastOrder->customer_name;
+        $this->shippingAddress = $lastOrder->shipping_address;
+        $this->locationURL = $lastOrder->location_url;
+        $this->customerPhone = $lastOrder->customer_phone;
+        $this->zoneId = $lastOrder->zone_id;
+        $this->discountAmount = $lastOrder->discount_amount;
+
+        if ($lastOrder->driver_id) {
+            $this->selectDriver($lastOrder->driver_id);
+        }
+        
+        foreach($lastOrder->products as $product){
+        // dd($product->product_id);
+
+            $this->fetchedProducts[] = [
+                'id' => $product->product_id,
+                'name' => Product::find($product->product_id)->name,
+                'combo_id' => $product->combo_id, 
+                'quantity' => $product->quantity, 
+                'price' => $product->price,
+            ];
+        }
+
         $this->refreshPayments();
     }
 
@@ -212,7 +252,7 @@ class OrderCreate extends Component
 
                         if ($pivot) {
                             // Update product quantity using combo_quantity and pivot quantity
-                            $product['quantity'] = (is_numeric($combo['combo_quantity']) ?  $combo['combo_quantity'] : 0) * $pivot->pivot->quantity;
+                            $product['quantity'] = (is_numeric($combo['combo_quantity']) ? $combo['combo_quantity'] : 0) * $pivot->pivot->quantity;
                         }
                     }
                 }
@@ -400,6 +440,8 @@ class OrderCreate extends Component
 
     public function createOrder()
     {
+        $hasErrors = null;
+
         if (Carbon::parse($this->ddate)->isToday()) {
             foreach ($this->fetchedProducts as $index => $product) {
                 $p = Product::findOrFail($product['id']);
@@ -481,6 +523,13 @@ class OrderCreate extends Component
         } else {
             $this->alertFailed();
         }
+    }
+
+    public function mount(Request $request){
+        $this->customerLastOrder = $request->query('order_id');
+        $order = Order::findOrFail($this->customerLastOrder);
+        $this->selectCustomer($order->customer_id);
+        $this->reorderLastOrder();
     }
 
     public function render()

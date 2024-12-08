@@ -126,12 +126,18 @@
                                 <td class="table-td flex items-center sticky-column bg-white dark:bg-slate-800 colomn-shadow"
                                     style="position: sticky; left: -25px; z-index: 10;">
                                     <div class="flex-1 text-start">
-                                        <h4 class="text-sm font-medium text-slate-600 whitespace-nowrap">
-                                            <a href="{{ route('customer.show',$weights['customer_id']) }}" target="_blanck" class="hover-underline">{{ $customerName }}</a>
-                                            
+                                        <h4 class="text-lg font-medium text-slate-600 whitespace-nowrap">
+                                            <a href="{{ route('customer.show', $weights['customer_id']) }}"
+                                                target="_blanck" class="hover-underline">
+                                                <b>{{ $customerName }}</b>
+                                            </a>
+
                                         </h4>
                                         <div class="text-xs font-normal text-slate-600 dark:text-slate-400">
                                             Target: <b>{{ $weights['monthly_weight_target'] / 1000 ?? 0 }}</b> KG
+                                        </div>
+                                        <div  wire:click='reorderLastOrder({{ $weights['last_order_id'] }})' class="text-xs font-normal text-slate-600 dark:text-slate-400 clickable-link">
+                                            <span><iconify-icon icon="radix-icons:reload"></iconify-icon> Repeat Last Order</span>
                                         </div>
                                     </div>
                                 </td>
@@ -147,7 +153,7 @@
                 </table>
 
 
-                @if (Empty($customerWeights))
+                @if (empty($customerWeights))
                     {{-- START: empty filter result --}}
                     <div class="card m-5 p-5">
                         <div class="card-body rounded-md bg-white dark:bg-slate-800">

@@ -1169,6 +1169,7 @@ class Order extends Model
                 if (!isset($customerWeights[$customerName])) {
                     $customerWeights[$customerName] = [
                         'monthly_weight_target' => $monthlyWeightTarget,
+                        'last_order_id' => $customer->orders()->latest()->first()->id,
                         'customer_id' => $customer_id,
                         'weekly_weights' => [],
                     ];

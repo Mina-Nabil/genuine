@@ -8,18 +8,18 @@
         </div>
 
         @if ($customerId && $hasPrevOrdersAlert)
-        <div
-            class="py-[18px] px-6 font-normal text-sm rounded-md bg-white text-warning-500 border border-warning-500
+            <div
+                class="py-[18px] px-6 font-normal text-sm rounded-md bg-white text-warning-500 border border-warning-500
                                     dark:bg-slate-800">
-            <div class="flex items-center space-x-3 rtl:space-x-reverse">
-                <iconify-icon class="text-2xl flex-0" icon="line-md:alert"></iconify-icon>
-                <p class="flex-1 font-Inter">
-                    This customer has already placed another order scheduled for
-                    <b>{{ \Carbon\Carbon::parse($ddate)->isToday() ? 'Today' : (\Carbon\Carbon::parse($ddate)->isYesterday() ? 'Yesterday' : \Carbon\Carbon::parse($ddate)->format('l Y-m-d')) }}</b>.
-                    Please review  existing orders to avoid conflicts.
-                </p>
+                <div class="flex items-center space-x-3 rtl:space-x-reverse">
+                    <iconify-icon class="text-2xl flex-0" icon="line-md:alert"></iconify-icon>
+                    <p class="flex-1 font-Inter">
+                        This customer has already placed another order scheduled for
+                        <b>{{ \Carbon\Carbon::parse($ddate)->isToday() ? 'Today' : (\Carbon\Carbon::parse($ddate)->isYesterday() ? 'Yesterday' : \Carbon\Carbon::parse($ddate)->format('l Y-m-d')) }}</b>.
+                        Please review existing orders to avoid conflicts.
+                    </p>
+                </div>
             </div>
-        </div>
         @endif
 
         @if ($errors->any())
@@ -141,7 +141,6 @@
                                                                     <input type="number" min="1"
                                                                         class="form-control @error('fetchedProducts.' . $index . '.quantity') !border-danger-500 @enderror"
                                                                         style="width: 100px;"
-                                                                   
                                                                         wire:model="fetchedProducts.{{ $index }}.quantity"
                                                                         wire:input="updateTotal({{ $index }})">
 
@@ -317,6 +316,16 @@
 
                                             </div>
                                         @endif
+
+                                        @if ($customerLastOrder)
+                                            <button wire:click='reorderLastOrder'
+                                                class="btn inline-flex justify-center btn-primary block-btn btn-sm mt-5">
+                                                <span class="flex items-center">
+                                                    <span>Repeat Last Order</span>
+                                                </span>
+                                            </button>
+                                        @endif
+
                                     @elseif($customerIsNew)
                                         <div class="mb-2">
                                             <label for="customerName" class="form-label !m-0">Name</label>
