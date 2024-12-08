@@ -36,7 +36,7 @@ class Order extends Model
         'delivery_date' => 'date',
     ];
 
-    protected $fillable = ['order_number', 'customer_id', 'customer_name', 'shipping_address', 'location_url', 'customer_phone', 'status', 'zone_id', 'driver_id', 'periodic_option', 'total_amount', 'delivery_amount', 'discount_amount', 'delivery_date', 'is_paid', 'note', 'driver_note', 'created_by'];
+    protected $fillable = ['order_number', 'customer_id', 'customer_name', 'shipping_address', 'location_url', 'customer_phone', 'status', 'zone_id', 'driver_id', 'periodic_option', 'total_amount', 'delivery_amount', 'discount_amount', 'delivery_date', 'is_paid', 'is_confirmed', 'note', 'driver_note', 'created_by'];
 
     const PERIODIC_OPTIONS = [self::PERIODIC_WEEKLY, self::PERIODIC_BI_WEEKLY, self::PERIODIC_MONTHLY];
     const PERIODIC_WEEKLY = 'weekly';
@@ -105,6 +105,38 @@ class Order extends Model
             DB::rollBack();
             report($e);
             AppLog::error('Failed to changes bulk status for orders', $e->getMessage());
+            return false;
+        }
+    }
+
+    public static function setBulkConfirmed(array $orderIds, bool $isConfirmed): bool
+    {
+        DB::beginTransaction();
+
+        try {
+            // Fetch the orders by the given IDs
+            $orders = self::whereIn('id', $orderIds)->get();
+
+            foreach ($orders as $order) {
+                /** @var User */
+                $loggedInUser = Auth::user();
+
+                // Check if the user has permission to update the order
+                if (!$loggedInUser || !$loggedInUser->can('update', $order)) {
+                    throw new Exception("Unauthorized to confirm Order ID {$order->id}");
+                }
+
+                // Update the `is_confirmed` status
+                $order->is_confirmed = $isConfirmed;
+                $order->save();
+            }
+
+            DB::commit();
+            return true;
+        } catch (Exception $e) {
+            DB::rollBack();
+            report($e);
+            AppLog::error('Failed to set bulk confirmation for orders', $e->getMessage());
             return false;
         }
     }
@@ -306,6 +338,28 @@ class Order extends Model
         } catch (Exception $e) {
             report($e);
             AppLog::error('Failed to update delivery date for order', $e->getMessage());
+            return false;
+        }
+    }
+
+    public function toggleConfirmation(): bool
+    {
+        /** @var User */
+        $loggedInUser = Auth::user();
+        if ($loggedInUser && !$loggedInUser->can('update', $this)) {
+            return false;
+        }
+
+        try {
+            $this->is_confirmed = !$this->is_confirmed;
+            $this->save();
+
+            AppLog::info('Order confirmation toggled', loggable: $this);
+
+            return true;
+        } catch (Exception $e) {
+            report($e);
+            AppLog::error('Failed to toggle confirmation for order', $e->getMessage());
             return false;
         }
     }
@@ -1132,6 +1186,11 @@ class Order extends Model
     public function scopeOpenOrders(Builder $query): Builder
     {
         return $query->whereNotIn('status', [self::STATUS_DONE, self::STATUS_RETURNED, self::STATUS_CANCELLED]);
+    }
+
+    public function scopeConfirmed(Builder $query): Builder
+    {
+        return $query->where('is_confirmed', true);
     }
 
     public function scopeWeeklyWeightByCustomer(Builder $query, int $zoneId, int $weekCount, string $startMonth): array

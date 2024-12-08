@@ -145,7 +145,7 @@ class OrderDriverShift extends Component
 
     public function render()
     {
-        $orders = Order::search(searchText: $this->search, deliveryDate: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneId: $this->zone?->id)->openOrders()->withTotalQuantity()->sortByZone()->paginate(50);
+        $orders = Order::search(searchText: $this->search, deliveryDate: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneId: $this->zone?->id)->confirmed()->openOrders()->withTotalQuantity()->sortByZone()->paginate(50);
 
         $totalZones = Order::getTotalZonesForOrders($orders);
 

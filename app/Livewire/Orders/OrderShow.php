@@ -85,6 +85,17 @@ class OrderShow extends Component
         }
     }
 
+    public function toggleConfirmation(){
+        $this->authorize('update', $this->order);
+        $res = $this->order->toggleConfirmation();
+        if ($res) {
+            $this->alertSuccess('updated!');
+            $this->mount($this->order->id);
+        } else {
+            $this->alertFailed();
+        }
+    }
+
     public function openSetDriverSection(){
         $this->setDriverSection = true;
     }

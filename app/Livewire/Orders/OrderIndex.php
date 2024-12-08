@@ -162,6 +162,32 @@ class OrderIndex extends Component
         }
     }
 
+    public function setBulkAsConfirmed()
+    {
+        $res = Order::setBulkConfirmed($this->selectedOrders, isConfirmed:true);
+        if ($res) {
+            $this->resetPage();
+            $this->selectedOrders = [];
+            $this->selectAll = false;
+            $this->alertSuccess('Confirmation changed!');
+        } else {
+            $this->alertFailed();
+        }
+    }
+
+    public function setBulkAsNotConfirmed()
+    {
+        $res = Order::setBulkConfirmed($this->selectedOrders, isConfirmed:false);
+        if ($res) {
+            $this->resetPage();
+            $this->selectedOrders = [];
+            $this->selectAll = false;
+            $this->alertSuccess('Confirmation changed!');
+        } else {
+            $this->alertFailed();
+        }
+    }
+
     public function openSetDeliveryDate()
     {
         $this->setDeliveryDateSection = true;

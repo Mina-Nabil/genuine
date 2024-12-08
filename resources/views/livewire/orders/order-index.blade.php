@@ -19,6 +19,14 @@
                     class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
                     Set delivery date
                 </li>
+                <li wire:click='setBulkAsConfirmed'
+                    class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
+                    Set as confirmed
+                </li>
+                <li wire:click='setBulkAsNotConfirmed'
+                    class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
+                    Set as not confirmed
+                </li>
                 @if ($AvailableToPay)
                     @foreach ($PAYMENT_METHODS as $PAYMENT_METHOD)
                         <li wire:click='openPayOrders("{{ $PAYMENT_METHOD }}")'
@@ -356,6 +364,14 @@
                                             {{ ucwords(str_replace('_', ' ', $order->status)) }}
                                         </span>
                                     @endif
+
+                                    @if ($order->is_confirmed)
+                                        <span class="badge bg-success-500 text-white capitalize rounded-3xl">
+                                            <iconify-icon icon="line-md:check-all" width="1.2em"
+                                                height="1.2em"></iconify-icon>&nbsp;
+                                            Confirmed</span>
+                                    @endif
+
 
                                 </td>
 
