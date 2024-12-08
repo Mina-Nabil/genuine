@@ -25,7 +25,7 @@ class Customer extends Model
 
     const MORPH_TYPE = 'customer';
 
-    protected $fillable = ['name', 'address', 'phone', 'location_url', 'zone_id', 'monthly_weight_target'];
+    protected $fillable = ['name', 'address', 'phone', 'location_url', 'zone_id', 'monthly_weight_target','note'];
 
     // Create a new customer
     public static function newCustomer($name, $address = null, $phone, $location_url = null, $zone_id = null)
@@ -97,6 +97,24 @@ class Customer extends Model
 
             if ($this->save()) {
                 AppLog::info('Customer updated', "Customer $name updated successfully.");
+                return true;
+            } else {
+                return false;
+            }
+        } catch (Exception $e) {
+            AppLog::error('Updating customer failed', $e->getMessage());
+            report($e);
+            return false;
+        }
+    }
+
+    public function editNote($note = null)
+    {
+        try {
+            $this->note = $note;
+
+            if ($this->save()) {
+                AppLog::info('Customer note updated', "Customer $this->name note updated successfully.");
                 return true;
             } else {
                 return false;

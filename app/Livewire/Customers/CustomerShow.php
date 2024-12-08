@@ -50,6 +50,9 @@ class CustomerShow extends Component
     public $address;
     public $EditCustomerSection = false;
 
+    public $editedCustomerNote;
+    public $editedCustomerNoteSec = false;
+
     //balance
     public $isOpenAddToBalance;
     public $AddedAmount;
@@ -77,6 +80,36 @@ class CustomerShow extends Component
         if ($res) {
             $this->alertSuccess('deleted!');
             return redirect(route('customer.index'));
+        } else {
+            $this->alertFailed();
+        }
+    }
+
+    public function openEditNote(){
+        $this->editedCustomerNote = $this->customer->note;
+        $this->editedCustomerNoteSec = true;
+    }
+
+    public function closeEditNote(){
+        $this->reset(['editedCustomerNote','editedCustomerNoteSec']);
+    }
+
+    public function updateCustomerNote(){
+
+        if ($this->editedCustomerNote === '') {
+            $this->editedCustomerNote = null;
+        }
+
+        $this->validate([
+            'editedCustomerNote' => 'nullable|string'
+        ]);
+
+        $res = $this->customer->editNote($this->editedCustomerNote);
+
+        if ($res) {
+            $this->closeEditNote();
+            $this->mount($this->customer->id);
+            $this->alertSuccess('Note updated!');
         } else {
             $this->alertFailed();
         }
