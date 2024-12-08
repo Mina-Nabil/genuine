@@ -5,6 +5,7 @@ namespace App\Livewire\Orders;
 use Livewire\Component;
 use App\Models\Orders\Order;
 use App\Models\Orders\OrderProduct;
+use App\Models\Payments\CustomerPayment;
 use App\Models\Users\Driver;
 use App\Models\Users\User;
 use App\Traits\AlertFrontEnd;
@@ -84,7 +85,14 @@ class OrderDriverShift extends Component
         }
     }
 
-    
+    public function toggleIsDelivered($id){
+        $res = Order::findOrFail($id)->toggleIsDelivered();
+        if ($res) {
+            $this->alertSuccess('updated!');
+        }else{
+            $this->alertFailed();
+        }
+    }
 
     protected $queryString = ['deliveryDate'];
 
@@ -104,6 +112,16 @@ class OrderDriverShift extends Component
     {
         $this->deliveryDate = Carbon::parse($this->Edited_deliveryDate);
         $this->closeFilteryDeliveryDate();
+    }
+
+    public function setDriverPaymentType($orderId, $method = null){
+        $res = Order::findOrFail($orderId)->updateDriverPaymentType($method ?? null);
+
+        if ($res) {
+            $this->alertSuccess('updated!');
+        }else{
+            $this->alertFailed();
+        }
     }
 
     public function mount()
@@ -148,10 +166,12 @@ class OrderDriverShift extends Component
         $orders = Order::search(searchText: $this->search, deliveryDate: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneId: $this->zone?->id)->confirmed()->openOrders()->withTotalQuantity()->sortByZone()->paginate(50);
 
         $totalZones = Order::getTotalZonesForOrders($orders);
+        $PAYMENT_METHODS = CustomerPayment::PAYMENT_METHODS;
 
         return view('livewire.orders.order-driver-shift', [
             'orders' => $orders,
             'totalZones' => $totalZones,
+            'PAYMENT_METHODS' => $PAYMENT_METHODS
         ])->layout('layouts.app', ['page_title' => $this->page_title, 'driverShift' => 'active']);
     }
 }

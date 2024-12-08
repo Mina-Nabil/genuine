@@ -36,7 +36,7 @@ class Order extends Model
         'delivery_date' => 'date',
     ];
 
-    protected $fillable = ['order_number', 'customer_id', 'customer_name', 'shipping_address', 'location_url', 'customer_phone', 'status', 'zone_id', 'driver_id', 'periodic_option', 'total_amount', 'delivery_amount', 'discount_amount', 'delivery_date', 'is_paid', 'is_confirmed', 'note', 'driver_note', 'created_by'];
+    protected $fillable = ['order_number', 'customer_id', 'customer_name', 'shipping_address', 'location_url', 'customer_phone', 'status', 'zone_id', 'driver_id', 'periodic_option', 'total_amount', 'delivery_amount', 'discount_amount', 'delivery_date', 'is_paid', 'is_confirmed', 'note', 'driver_note', 'created_by', 'is_delivered', 'driver_payment_type'];
 
     const PERIODIC_OPTIONS = [self::PERIODIC_WEEKLY, self::PERIODIC_BI_WEEKLY, self::PERIODIC_MONTHLY];
     const PERIODIC_WEEKLY = 'weekly';
@@ -977,6 +977,56 @@ class Order extends Model
         } catch (Exception $e) {
             report($e);
             AppLog::error('Failed to update driver note for order', $e->getMessage());
+            return false;
+        }
+    }
+
+    public function toggleIsDelivered(): bool
+    {
+        /** @var User */
+        $loggedInUser = Auth::user();
+        if ($loggedInUser && !$loggedInUser->can('update', $this)) {
+            return false;
+        }
+
+        try {
+            $this->is_delivered = !$this->is_delivered;
+            $this->save();
+
+            AppLog::info('Order delivery status toggled', loggable: $this);
+            return true;
+        } catch (Exception $e) {
+            report($e);
+            AppLog::error('Failed to toggle delivery status for order', $e->getMessage());
+            return false;
+        }
+    }
+
+    public function updateDriverPaymentType(?string $paymentType = null): bool
+    {
+        /** @var User */
+        $loggedInUser = Auth::user();
+
+        // Check if the user has permission to update the order
+        if ($loggedInUser && !$loggedInUser->can('update', $this)) {
+            return false;
+        }
+
+        try {
+            // Validate the payment type
+            if ($paymentType && !in_array($paymentType, CustomerPayment::PAYMENT_METHODS, true)) {
+                throw new Exception("Invalid payment type: {$paymentType}");
+            }
+
+            // Update the driver_payment_type field
+            $this->driver_payment_type = $paymentType;
+            $this->save();
+
+            AppLog::info('Driver payment type updated', loggable: $this);
+            return true;
+        } catch (Exception $e) {
+            report($e);
+            AppLog::error('Failed to update driver payment type for order', $e->getMessage());
             return false;
         }
     }

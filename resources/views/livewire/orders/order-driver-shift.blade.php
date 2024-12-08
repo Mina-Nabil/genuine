@@ -130,7 +130,7 @@
                                                             <iconify-icon icon="heroicons:pencil-square"></iconify-icon>
                                                         </button>
                                                     @endcan
-                                                </div>  
+                                                </div>
                                                 <small class="text-wrap"><b>{{ $order->note }}</b></small>
                                             @else
                                                 @can('updateOrderNote', $order)
@@ -253,6 +253,81 @@
                                                 </div>
                                             </div>
                                         </div>
+
+
+                                        @if (auth()->user()->is_driver)
+                                            <div class="grid grid-cols-2 gap-2 mt-2">
+                                                <div>
+                                                    @if ($order->is_delivered)
+                                                        <button wire:click='toggleIsDelivered({{ $order->id }})'
+                                                            class="btn inline-flex justify-center btn-success block-btn btn-sm">
+                                                            <span class="flex items-center">
+                                                                <iconify-icon class="text-xl ltr:mr-2 rtl:ml-2"
+                                                                    icon="mdi:truck-check"></iconify-icon>
+                                                                <span>Delivered</span>
+                                                            </span>
+                                                        </button>
+                                                    @else
+                                                        <button wire:click='toggleIsDelivered({{ $order->id }})'
+                                                            class="btn inline-flex justify-center btn-secondary block-btn btn-sm">
+                                                            <span class="flex items-center">
+                                                                <iconify-icon class="text-xl ltr:mr-2 rtl:ml-2"
+                                                                    icon="mdi:truck-remove"></iconify-icon>
+                                                                <span>Not Delivered</span>
+                                                            </span>
+                                                        </button>
+                                                    @endif
+                                                </div>
+
+                                                <div class="dropdown relative">
+                                                    <button
+                                                        class="btn flex justify-center w-full btn-outline-dark items-center btn-sm"
+                                                        type="button" id="blockDropdownMenuButton2"
+                                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                                        {{ $order->driver_payment_type ? ucwords(str_replace('_', ' ', $order->driver_payment_type)) : 'Not Paid' }}
+                                                        <iconify-icon class="text-xl ltr:ml-2 rtl:mr-2"
+                                                            icon="ic:round-keyboard-arrow-down"></iconify-icon>
+                                                    </button>
+                                                    <ul class="dropdown-menu min-w-full absolute text-sm text-slate-700 dark:text-white hidden bg-white dark:bg-slate-700 shadow z-[2] float-left overflow-hidden list-none text-left rounded-lg mt-1 m-0 bg-clip-padding border-none"
+                                                        style="">
+                                                        <li wire:click='setDriverPaymentType({{ $order->id }})'
+                                                            class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600
+                                                    dark:hover:text-white cursor-pointer">
+                                                            None
+                                                        </li>
+                                                        @foreach ($PAYMENT_METHODS as $PAYMENT_METHOD)
+                                                            <li wire:click='setDriverPaymentType({{ $order->id }},"{{ $PAYMENT_METHOD }}")'
+                                                                class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600
+                                                    dark:hover:text-white cursor-pointer">
+                                                                {{ ucwords(str_replace('_', ' ', $PAYMENT_METHOD)) }}
+                                                            </li>
+                                                        @endforeach
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        @else
+                                            <div class="mt-2">
+                                                @if ($order->is_delivered)
+                                                    <span
+                                                        class="badge bg-success-500 text-white capitalize">Delivered</span>
+                                                @else
+                                                    <span class="badge bg-secondary-500 text-white capitalize">Not
+                                                        Delivered</span>
+                                                @endif
+                                                @if ($order->driver_payment_type)
+                                                    <span class="badge bg-success-500 text-white capitalize">Paid:
+                                                        {{ ucwords(str_replace('_', ' ', $order->driver_payment_type)) }}</span>
+                                                @else
+                                                    <span class="badge bg-secondary-500 text-white capitalize">Not
+                                                        Paid</span>
+                                                @endif
+                                            </div>
+                                        @endif
+
+
+
+
+
                                     </div>
 
                                 </div>
