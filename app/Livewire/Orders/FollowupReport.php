@@ -20,8 +20,19 @@ class FollowupReport extends Component
     public $weeksToSelect = [1,2,3,4];
     public $months = [];
     public $selectedMonth;
-    public $zones;
     public $zone;
+
+    public $setZoneSection = false;
+    public $searchZoneText;
+
+    public function openSetZoneSec(){
+        $this->setZoneSection = true;
+    }
+
+    public function closeSetZoneSec(){
+        $this->setZoneSection = false;
+        $this->searchZoneText = null;
+    }
 
     public function reorderLastOrder($last_order_id){
         $lastOrderid = $last_order_id;
@@ -36,13 +47,14 @@ class FollowupReport extends Component
             return sprintf('%02d', $month);
         }, range(1, 12)); 
         $this->selectedMonth = date('m');
-        $this->zones = Zone::select('id', 'name')->get();
-        $this->zone = $this->zones->first();;
+
+        $this->zone = Zone::select('id', 'name')->get()->first();;
     }
 
     public function setZone($zone_id)
     {
         $this->zone = Zone::findOrFail($zone_id);
+        $this->closeSetZoneSec();
     }
 
     public function setMonth($month)
@@ -71,12 +83,14 @@ class FollowupReport extends Component
         $zoneId = $this->zone->id;
         $weekCount = $this->selectedWeek;
         $startMonth = $this->year.'-'.$this->selectedMonth;
+        $zones = Zone::select('id', 'name')->search($this->searchZoneText)->get();
 
         $weeklyData = Order::weeklyWeightByCustomer($zoneId, $weekCount, $startMonth);
 
         return view('livewire.orders.followup-report', [
             'weeks' => $weeklyData['weeks'],
             'customerWeights' => $weeklyData['customerWeights'],
+            'zones' => $zones
         ])->layout('layouts.app', ['page_title' => $this->page_title, 'followupReport' => 'active']);
     }
 }
