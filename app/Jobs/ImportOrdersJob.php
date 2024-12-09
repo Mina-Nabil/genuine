@@ -1,42 +1,40 @@
 <?php
 
-namespace Database\Seeders;
+namespace App\Jobs;
 
 use App\Models\Customers\Customer;
 use App\Models\Orders\Order;
-use App\Models\Products\Product;
 use Carbon\Carbon;
+use Database\Seeders\MyReadFilter;
 use Exception;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\App;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
-use PhpOffice\PhpSpreadsheet\IOFactory;
 
-class OrderSeeder extends Seeder
+class ImportOrdersJob implements ShouldQueue
 {
+    use Queueable;
 
-    const START = 0;
-    const END = 20000;
-    const STEP = 50;
-
+    private $from;
+    private $to;
     /**
-     * Run the database seeds.
+     * Create a new job instance.
      */
-    public function run(): void
+    public function __construct($from, $to)
     {
-        Log::info("START ORDER SEED");
-        for ($i = self::START; $i < self::END; $i += self::STEP) {
-            dispatch(fn() => self::importOrders($i, $i + self::STEP));
-        }
+        $this->from = $from;
+        $this->to = $to;
     }
 
-    public static function importOrders($from, $to)
+    /**
+     * Execute the job.
+     */
+    public function handle(): void
     {
-        Log::info("Job from $from $to started");
+        Log::info("Job from $this->from $this->to started");
 
         /**  Create an Instance of our Read Filter  **/
-        $filterSubset = new MyReadFilter($from, $to);
+        $filterSubset = new MyReadFilter($this->from, $this->to);
 
         /**  Create a new Reader of the type defined in $inputFileType  **/
         $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReader('Xlsx');
@@ -51,11 +49,11 @@ class OrderSeeder extends Seeder
         $activeSheet = $spreadsheet->getActiveSheet();
         // Log::info($activeSheet);
 
-        for ($i = $from; $i <= $to; $i++) {
+        for ($i = $this->from; $i <= $this->to; $i++) {
             $client_name = $activeSheet->getCell('D' . $i)->getValue();
             $client_address = $activeSheet->getCell('F' . $i)->getValue();
 
-            $totalAmount = $activeSheet->getCell('BG' . $i)->getCalculatedValue();
+            $totalAmount = $activeSheet->getCell('BG' . $i)->getValue();
             $deliveryAmount = $activeSheet->getCell('BF' . $i)->getValue();
             $ddate = $activeSheet->getCell('C' . $i)->getValue();
             if ($ddate)
@@ -205,7 +203,7 @@ class OrderSeeder extends Seeder
                     "combo_id"  =>  null
                 ]);
 
-            Log::info("Adding order $i");
+
             Order::newOrder(
                 $customer->id,
                 $customer->name,
@@ -224,89 +222,5 @@ class OrderSeeder extends Seeder
             );
         }
     }
-}
 
-
-/**  Define a Read Filter class implementing \PhpOffice\PhpSpreadsheet\Reader\IReadFilter  */
-class MyReadFilter implements \PhpOffice\PhpSpreadsheet\Reader\IReadFilter
-{
-
-    private $row_from;
-    private $row_to;
-
-    public function __construct($row_from, $row_to)
-    {
-        $this->row_from = $row_from;
-        $this->row_to = $row_to;
-    }
-
-
-    public function readCell(string $columnAddress, int $row, string $worksheetName = ''): bool
-    {
-        //  Read rows 1 to 7 and columns A to E only
-        if ($row >= $this->row_from && $row <= $this->row_to) {
-            if (in_array($columnAddress, [
-                'A',
-                'B',
-                'C',
-                'D',
-                'E',
-                'F',
-                'G',
-                'H',
-                'I',
-                'J',
-                'K',
-                'L',
-                'M',
-                'N',
-                'O',
-                'P',
-                'Q',
-                'R',
-                'S',
-                'T',
-                'U',
-                'V',
-                'W',
-                'X',
-                'Y',
-                'Z',
-                'AA',
-                'AB',
-                'AC',
-                'AD',
-                'AE',
-                'AF',
-                'AG',
-                'AH',
-                'AI',
-                'AJ',
-                'AL',
-                'AM',
-                'AN',
-                'AO',
-                'AP',
-                'AQ',
-                'AR',
-                'AS',
-                'AT',
-                'AU',
-                'AW',
-                'AX',
-                'AY',
-                'AZ',
-                'BA',
-                'BB',
-                'BC',
-                'BD',
-                'BE',
-                'BF',
-                'BG',
-            ])) {
-                return true;
-            }
-        }
-        return false;
-    }
 }
