@@ -43,7 +43,9 @@ class OrderSeeder extends Seeder
         /**  Tell the Reader that we want to use the Read Filter  **/
         $reader->setReadFilter($filterSubset);
         /**  Load only the rows and columns that match our filter to Spreadsheet  **/
+        Log::info("GEET HNA");
         $spreadsheet = $reader->load(resource_path('import/Orders.xlsx'));
+        Log::info("WHNA");
         if (!$spreadsheet) {
             throw new Exception('Failed to read files content');
         }
