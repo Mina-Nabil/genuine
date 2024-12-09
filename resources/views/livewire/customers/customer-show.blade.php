@@ -221,7 +221,7 @@
                     <div class="mb-5 text-wrap mt-5">
                         <div class="col-span-4">
                             <div class="mb-5">
-                                <h3 class="card-title text-slate-900 dark:text-white">Timeline</h3>
+                                <h3 class="card-title text-slate-900 dark:text-white">Comments</h3>
                                 <ol class="timeline">
                                     <li class="timeline-item">
                                         <span class="timeline-item-icon | avatar-icon">

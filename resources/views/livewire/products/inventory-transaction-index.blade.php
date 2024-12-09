@@ -117,54 +117,59 @@
                     <tbody class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700 no-wrap">
 
                         @foreach ($inventories as $index => $inventory)
-                            <tr>
+                            @if ($inventory->inventoryable)
+                                <tr>
 
-                                <td class="table-td flex items-center sticky-column bg-white dark:bg-slate-800 colomn-shadow"
-                                    style="position: sticky; left: -25px;  z-index: 10;">
-                                    <div class="checkbox-area">
-                                        <label class="inline-flex items-center cursor-pointer">
-                                            <input type="checkbox" wire:model="selectedInventories"
-                                                value="{{ $inventory->id }}" class="hidden" id="select-all">
-                                            <span
-                                                class="h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 bg-slate-100 dark:bg-slate-900">
-                                                <img src="assets/images/icon/ck-white.svg" alt=""
-                                                    class="h-[10px] w-[10px] block m-auto opacity-0"></span>
-                                        </label>
-                                    </div>
-                                    <a href="{{ route('product.show', $inventory->inventoryable->id) }}"> <span
-                                            class="hover-underline">
-                                            <b>
-                                                {{ $inventory->inventoryable->name }}
-                                            </b>
-                                        </span>
-                                    </a>
+                                    <td class="table-td flex items-center sticky-column bg-white dark:bg-slate-800 colomn-shadow"
+                                        style="position: sticky; left: -25px;  z-index: 10;">
+                                        <div class="checkbox-area">
+                                            <label class="inline-flex items-center cursor-pointer">
+                                                <input type="checkbox" wire:model="selectedInventories"
+                                                    value="{{ $inventory->id }}" class="hidden" id="select-all">
+                                                <span
+                                                    class="h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 bg-slate-100 dark:bg-slate-900">
+                                                    <img src="assets/images/icon/ck-white.svg" alt=""
+                                                        class="h-[10px] w-[10px] block m-auto opacity-0"></span>
+                                            </label>
+                                        </div>
+                                        <a href="{{ route('product.show', $inventory->inventoryable?->id) }}"> <span
+                                                class="hover-underline">
+                                                <b>
+                                                    {{ $inventory->inventoryable?->name }}
+                                                </b>
+                                            </span>
+                                        </a>
 
-                                </td>
+                                    </td>
 
-                                <td class="table-td">
-                                    <input type="number" class="form-control" style="max-width: 100px;"
-                                        wire:model="productsChanges.data.{{ $index }}.on_hand"
-                                        wire:change="updateAvailable({{ $index }})" min="0">
-                                </td>
+                                    <td class="table-td">
+                                        <input type="number" class="form-control" style="max-width: 100px;"
+                                            wire:model="productsChanges.data.{{ $index }}.on_hand"
+                                            wire:change="updateAvailable({{ $index }})" min="0">
+                                    </td>
 
-                                <td class="table-td">
-                                    <b>{{ number_format($inventory?->committed) }}</b>
-                                </td>
+                                    <td class="table-td">
+                                        <b>{{ number_format($inventory?->committed) }}</b>
+                                    </td>
 
-                                <td class="table-td">
-                                    {{ $productsChanges['data'][$index]['available'] }}
-                                    {{-- <input type="number"
+                                    <td class="table-td">
+                                        {{ $productsChanges['data'][$index]['available'] }}
+                                        {{-- <input type="number"
                                         class="form-control @if ($inventory->available <= 0) !border-danger-500 @endif"
                                         style="max-width: 100px; "
                                         wire:model="productsChanges.data.{{ $index }}.available"
                                         wire:change="updateOnHand({{ $index }})"> --}}
-                                </td>
+                                    </td>
 
-                                <td class="table-td">
-                                    <a href="\transactions?product_id={{ $inventory->inventoryable->id }}" target="_blanck" class="btn inline-flex justify-center mx-2 mt-3 btn-light active btn-sm">View transactions</a>
-                                </td>
+                                    <td class="table-td">
+                                        <a href="\transactions?product_id={{ $inventory->inventoryable?->id }}"
+                                            target="_blanck"
+                                            class="btn inline-flex justify-center mx-2 mt-3 btn-light active btn-sm">View
+                                            transactions</a>
+                                    </td>
 
-                            </tr>
+                                </tr>
+                            @endif
                         @endforeach
 
                     </tbody>

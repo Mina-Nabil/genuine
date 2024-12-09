@@ -81,7 +81,7 @@ class OrderPolicy
      */
     public function delete(User $user, Order $order): bool
     {
-        if (Auth::id() === 1 && $order->is_new) {
+        if ((Auth::id() === 1 || Auth::id() === 2)  && $order->is_new) {
             foreach ($order->products as $product) {
                 if (!$product->is_ready) continue; else return false;
             }
