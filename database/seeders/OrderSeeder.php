@@ -17,21 +17,24 @@ class OrderSeeder extends Seeder
 {
 
     const START = 0;
-    const END = 3000;
-    const STEP = 500;
+    const END = 20000;
+    const STEP = 50;
 
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
+        Log::info("START ORDER SEED");
         for ($i = self::START; $i < self::END; $i += self::STEP) {
-            self::importOrders($i, $i + self::STEP);
+            dispatch(fn() => self::importOrders($i, $i + self::STEP));
         }
     }
 
     public static function importOrders($from, $to)
     {
+        Log::info("Job from $from $to started");
+
         /**  Create an Instance of our Read Filter  **/
         $filterSubset = new MyReadFilter($from, $to);
 
@@ -52,12 +55,12 @@ class OrderSeeder extends Seeder
             $client_name = $activeSheet->getCell('D' . $i)->getValue();
             $client_address = $activeSheet->getCell('F' . $i)->getValue();
 
-            $totalAmount = $activeSheet->getCell('BG' . $i)->getValue();
+            $totalAmount = $activeSheet->getCell('BG' . $i)->getCalculatedValue();
             $deliveryAmount = $activeSheet->getCell('BF' . $i)->getValue();
             $ddate = $activeSheet->getCell('C' . $i)->getValue();
             if ($ddate)
                 $ddate = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject((int) $ddate);
-        
+
             $note = $activeSheet->getCell('G' . $i)->getValue();
 
             $prod1Count = $activeSheet->getCell('J' . $i)->getValue();

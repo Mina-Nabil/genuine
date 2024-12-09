@@ -25,7 +25,7 @@ class Customer extends Model
 
     const MORPH_TYPE = 'customer';
 
-    protected $fillable = ['name', 'address', 'phone', 'location_url', 'zone_id', 'monthly_weight_target','note'];
+    protected $fillable = ['name', 'address', 'phone', 'location_url', 'zone_id', 'monthly_weight_target', 'note'];
 
     // Create a new customer
     public static function newCustomer($name, $address = null, $phone, $location_url = null, $zone_id = null)
@@ -79,8 +79,13 @@ class Customer extends Model
             if ($zone_name) {
                 $zone = Zone::getZoneByName($zone_name);
             }
-
-            self::newCustomer($name, $address ?? "N/A", $phone ?? "N/A", zone_id: ($zone_name && $zone) ? $zone->id : null);
+            self::firstOrCreate([
+                "name"  =>  $name,
+            ], [
+                "phone"  =>  $phone,
+                "address" =>    $address,
+                "zone_id" =>    $zone?->id,
+            ]);
         }
     }
 
