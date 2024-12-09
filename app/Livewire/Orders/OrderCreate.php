@@ -136,7 +136,7 @@ class OrderCreate extends Component
 
     public function clearCustomer()
     {
-        $this->reset(['customerIsNew', 'customerId', 'customerName', 'shippingAddress', 'locationURL', 'customerPhone', 'zoneId', 'detuctFromBalance','customerLastOrder']);
+        $this->reset(['customerIsNew', 'customerId', 'customerName', 'shippingAddress', 'locationURL', 'customerPhone', 'zoneId', 'detuctFromBalance', 'customerLastOrder']);
         $this->refreshPayments();
     }
 
@@ -196,7 +196,8 @@ class OrderCreate extends Component
         $this->refreshPayments();
     }
 
-    public function reorderLastOrder(){
+    public function reorderLastOrder()
+    {
         $this->fetchedProducts = [];
         $lastOrder = Order::find($this->customerLastOrder);
 
@@ -210,15 +211,15 @@ class OrderCreate extends Component
         if ($lastOrder->driver_id) {
             $this->selectDriver($lastOrder->driver_id);
         }
-        
-        foreach($lastOrder->products as $product){
-        // dd($product->product_id);
+
+        foreach ($lastOrder->products as $product) {
+            // dd($product->product_id);
 
             $this->fetchedProducts[] = [
                 'id' => $product->product_id,
                 'name' => Product::find($product->product_id)->name,
-                'combo_id' => $product->combo_id, 
-                'quantity' => $product->quantity, 
+                'combo_id' => $product->combo_id,
+                'quantity' => $product->quantity,
                 'price' => $product->price,
             ];
         }
@@ -525,9 +526,11 @@ class OrderCreate extends Component
         }
     }
 
-    public function mount(Request $request){
+    public function mount(Request $request)
+    {
         $this->customerLastOrder = $request->query('order_id');
-        $order = Order::findOrFail($this->customerLastOrder);
+        if ($this->customerLastOrder)
+            $order = Order::findOrFail($this->customerLastOrder);
         $this->selectCustomer($order->customer_id);
         $this->reorderLastOrder();
     }
