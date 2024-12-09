@@ -249,6 +249,11 @@ class Order extends Model
                 return false;
             }
             $this->driver_id = $driverId;
+
+            if ($this->driver_id !== $driverId) {
+                $this->driver_order = null;
+            }
+
             $this->save();
             AppLog::info('Order Assigned to driver', loggable: $this);
             return true;
@@ -272,9 +277,15 @@ class Order extends Model
                     if (!$order->assignDriverToOrder($driverId)) {
                         throw new Exception("Failed to assign driver to order ID: {$orderId}");
                     }
+                    if ($order->driver_id !== $driverId) {
+                        $order->driver_order = null;
+                        $order->save();
+                    }
                 } else {
                     AppLog::warning('Order not found', ['order_id' => $orderId]);
                 }
+
+                
             }
 
             DB::commit();
@@ -286,6 +297,7 @@ class Order extends Model
             return false;
         }
     }
+
 
     /**
      * Bulk set a delivery date for multiple orders.
@@ -306,6 +318,9 @@ class Order extends Model
                 // Proceed if the order exists
                 if ($order) {
                     $order->delivery_date = $deliveryDate;
+                    if ($order->delivery_date !== $deliveryDate) {
+                        $order->driver_order = null;
+                    }
                     $order->save();
                     AppLog::info('Delivery date set for order', loggable: $order);
                 }
@@ -331,6 +346,11 @@ class Order extends Model
 
         try {
             $this->delivery_date = $deliveryDate;
+
+            if ($this->delivery_date !== $deliveryDate) {
+                $this->driver_order = null;
+            }
+
             $this->save();
 
             AppLog::info('Delivery date updated', loggable: $this);
@@ -1000,17 +1020,6 @@ class Order extends Model
             AppLog::error('Failed to toggle delivery status for order', $e->getMessage());
             return false;
         }
-    }
-
-    public static function setDriverOrder($driverId, $deliveryDate)
-    {
-        // Find the highest driver_order for this driver and delivery_date
-        $highestOrder = self::where('driver_id', $driverId)
-            ->where('delivery_date', $deliveryDate)
-            ->max('driver_order');
-
-        // Set the new driver_order, which is the next highest order number
-        return $highestOrder ? $highestOrder + 1 : 1; // If no existing order, set it to 1
     }
 
     public function moveUp()
