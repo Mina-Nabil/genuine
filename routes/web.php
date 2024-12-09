@@ -13,6 +13,7 @@ use App\Livewire\Orders\OrderDriverShift;
 use App\Livewire\Orders\OrderIndex;
 use App\Livewire\Orders\OrderInventory;
 use App\Livewire\Orders\OrderShow;
+use App\Livewire\Orders\PastDueOrderIndex;
 use App\Livewire\Orders\PeriodicOrderCreate;
 use App\Livewire\Orders\PeriodicOrderIndex;
 use App\Livewire\Orders\PeriodicOrderShow;
@@ -73,6 +74,7 @@ Route::middleware(['auth', 'no_driver'])->group(function () {
     Route::get('/orders/periodic/{id}', PeriodicOrderShow::class)->name('orders.periodic.show');
 
     Route::get('/orders', OrderIndex::class)->name('orders.index');
+    Route::get('/orders/pastdue', PastDueOrderIndex::class)->name('orders.past.due');
     Route::get('/orders/periodic', PeriodicOrderIndex::class)->name('orders.periodic.index');
     Route::get('/orders/inventory', OrderInventory::class)->name('orders.inventory');
     Route::get('/orders/{id}', OrderShow::class)->name('orders.show');

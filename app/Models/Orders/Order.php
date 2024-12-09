@@ -1235,7 +1235,21 @@ class Order extends Model
 
     public function scopeOpenOrders(Builder $query): Builder
     {
-        return $query->whereNotIn('status', [self::STATUS_DONE, self::STATUS_RETURNED, self::STATUS_CANCELLED]);
+        return $query->where(function (Builder $query) {
+            $query->whereNotIn('status', [self::STATUS_DONE, self::STATUS_RETURNED, self::STATUS_CANCELLED])->orWhere(function (Builder $query) {
+                $query->whereNotIn('status', [self::STATUS_RETURNED, self::STATUS_CANCELLED])->where('is_paid', false);
+            });
+        });
+    }
+
+    public function scopePastDeliveryDate(Builder $query): Builder
+    {
+        return $query->whereDate('delivery_date', '<', Carbon::today());
+    }
+
+    public function scopeNotPaid(Builder $query): Builder
+    {
+        return $query->where('is_paid', false);
     }
 
     public function scopeConfirmed(Builder $query): Builder
