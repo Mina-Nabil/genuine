@@ -203,9 +203,9 @@
                                             </div>
                                             @if ($order->customer_phone || $order->customer->phone)
                                                 <div class="text-sm font-medium text-slate-900 dark:text-white">
-                                                    {{ $order->customer_phone ?? $order->customer->phone }}&nbsp;
                                                     <a class="clickable-link" target="_blanck"
-                                                        href="tel:{{ $order->customer_phone ?? $order->customer->phone }}"></a>
+                                                        href="tel:{{ $order->customer_phone ?? $order->customer->phone }}">
+                                                        {{ $order->customer_phone ?? $order->customer->phone }}</a>
                                                 </div>
                                             @endif
 
