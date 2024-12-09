@@ -529,10 +529,11 @@ class OrderCreate extends Component
     public function mount(Request $request)
     {
         $this->customerLastOrder = $request->query('order_id');
-        if ($this->customerLastOrder)
+        if ($this->customerLastOrder) {
             $order = Order::findOrFail($this->customerLastOrder);
-        $this->selectCustomer($order->customer_id);
-        $this->reorderLastOrder();
+            $this->selectCustomer($order->customer_id);
+            $this->reorderLastOrder();
+        }
     }
 
     public function render()
