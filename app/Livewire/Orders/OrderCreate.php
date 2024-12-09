@@ -180,7 +180,7 @@ class OrderCreate extends Component
             $this->hasPrevOrdersAlert = false;
         }
 
-        $latestOrder = $customer->orders()->latest()->first()->id;
+        $latestOrder = $customer->orders()->latest()->first()?->id;
 
         if ($latestOrder) {
             $this->customerLastOrder = $latestOrder;
