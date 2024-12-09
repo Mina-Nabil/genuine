@@ -194,13 +194,20 @@
                                                 Address
                                             </h4>
                                             <div class="text-sm font-medium text-slate-900 dark:text-white">
-                                                {{ $order->shipping_address }}&nbsp; @if ($order->location_url)
+                                                {{ $order->shipping_address }}&nbsp; @if ($order->location_url || $order->customer->location_url)
                                                     <a class="clickable-link" target="_blanck"
-                                                        href="{{ $order->location_url }}"><iconify-icon
+                                                        href="{{ $order->location_url ?? $order->customer->location_url }}"><iconify-icon
                                                             icon="mdi:location" width="1.2em"
                                                             height="1.2em"></iconify-icon>Location</a>
                                                 @endif
                                             </div>
+                                            @if ($order->customer_phone || $order->customer->phone)
+                                                <div class="text-sm font-medium text-slate-900 dark:text-white">
+                                                    {{ $order->customer_phone ?? $order->customer->phone }}&nbsp;
+                                                    <a class="clickable-link" target="_blanck"
+                                                        href="{{ $order->customer_phone ?? $order->customer->phone }}"></a>
+                                                </div>
+                                            @endif
 
                                         </div>
                                     </div>
@@ -219,18 +226,6 @@
                                                     <small>KG</small>
                                                 </div>
                                             </div>
-
-                                            @if (!auth()->user()->is_driver)
-                                                <div class="space-y-1  sm:mb-2 md:mb-0">
-                                                    <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
-                                                        Total Quantity
-                                                    </h4>
-                                                    <div class=" font-medium text-slate-900 dark:text-white">
-                                                        {{ $order->total_items }}
-                                                        <small>Product{{ $order->total_items > 1 ? 's' : '' }}</small>
-                                                    </div>
-                                                </div>
-                                            @endif
 
                                             <div class="space-y-1">
                                                 <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
@@ -401,7 +396,7 @@
                                             </div>
                                         </div>
                                     @endif
-                                    
+
                                     @foreach ($collectedFromPaymentTypes as $index => $priceCollected)
                                         @if ($priceCollected > 0)
                                             <div class="space-y-1">
@@ -415,7 +410,7 @@
                                         @endif
                                     @endforeach
 
-                                    
+
 
                                 </div>
                             </div>

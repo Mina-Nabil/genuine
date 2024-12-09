@@ -144,7 +144,7 @@
                                                 <div>
                                                     <h6
                                                         class="text-slate-600 pb-2 dark:text-slate-300 overflow-hidden text-ellipsis whitespace-nowrap">
-                                                        {{ $orderProduct->product->name }}
+                                                        {{ $orderProduct->product?->name }}
                                                     </h6>
                                                 </div>
                                                 <div class="flex text-sm">
@@ -161,7 +161,7 @@
                                             <div class=" flex text-sm justify-between">
                                                 <span
                                                     class="badge bg-secondary-500 bg-opacity-30 text-slate-900 dark:text-white rounded-3xl">Weight:
-                                                    {{ $orderProduct->product->weight }} gm</span>
+                                                    {{ $orderProduct->product?->weight }} gm</span>
 
                                             </div>
                                             @if ($orderProduct->combo)
