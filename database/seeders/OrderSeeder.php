@@ -25,7 +25,7 @@ class OrderSeeder extends Seeder
      */
     public function run(): void
     {
-        Log::info("START ORDER SEED");
+        // Log::info("START ORDER SEED");
         for ($i = self::START; $i < self::END; $i += self::STEP) {
             dispatch(fn() => self::importOrders($i, $i + self::STEP));
         }
@@ -33,7 +33,7 @@ class OrderSeeder extends Seeder
 
     public static function importOrders($from, $to)
     {
-        Log::info("Job from $from $to started");
+        // Log::info("Job from $from $to started");
 
         /**  Create an Instance of our Read Filter  **/
         $filterSubset = new MyReadFilter($from, $to);
@@ -205,7 +205,7 @@ class OrderSeeder extends Seeder
                     "combo_id"  =>  null
                 ]);
 
-            Log::info("Adding order $i");
+            // Log::info("Adding order $i");
             Order::newOrder(
                 $customer->id,
                 $customer->name,
