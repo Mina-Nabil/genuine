@@ -131,10 +131,10 @@
                                                     class="h-[10px] w-[10px] block m-auto opacity-0"></span>
                                         </label>
                                     </div>
-                                    <a href="{{ route('product.show', $inventory->inventoryable->id) }}"> <span
+                                    <a href="{{ route('product.show', $inventory->inventoryable?->id) }}"> <span
                                             class="hover-underline">
                                             <b>
-                                                {{ $inventory->inventoryable->name }}
+                                                {{ $inventory->inventoryable?->name }}
                                             </b>
                                         </span>
                                     </a>
@@ -161,7 +161,7 @@
                                 </td>
 
                                 <td class="table-td">
-                                    <a href="\transactions?product_id={{ $inventory->inventoryable->id }}" target="_blanck" class="btn inline-flex justify-center mx-2 mt-3 btn-light active btn-sm">View transactions</a>
+                                    <a href="\transactions?product_id={{ $inventory->inventoryable?->id }}" target="_blanck" class="btn inline-flex justify-center mx-2 mt-3 btn-light active btn-sm">View transactions</a>
                                 </td>
 
                             </tr>
