@@ -198,9 +198,17 @@
                             </span>
                         </a>
                     </li>
+                    <li>
+                        <a href="{{ url('/calendar') }}"
+                            class="navItem">
+                            <span class="flex items-center">
+                                <iconify-icon class=" nav-icon" icon="ic:round-add-task">
+                                </iconify-icon>
+                                <span>To-do</span>
+                            </span>
+                        </a>
+                    </li>
 
-
-                    <li class="sidebar-menu-title">CRM</li>
 
                     {{-- <li>
                         <a href="{{ url('/pets') }}" class="navItem {{ $pets ?? '' }}">
