@@ -61,6 +61,11 @@ class CustomerShow extends Component
     public $AddedIsNowPaymentDate = true;
     public $AddedPaymentNote;
 
+    //comments
+    public $comments;
+    public $addedComment;
+    public $visibleCommentsCount = 5; // Initially show 5 comments
+
     //monthy weight target
     public $isOpenSetWeightTarget = false;
     public $monthlyWeightTarget;
@@ -434,12 +439,45 @@ class CustomerShow extends Component
         }
     }
 
+    public function loadMore()
+    {
+        $this->visibleCommentsCount += 5; // Load 5 more comments
+    }
+
+    public function showLess()
+    {
+        $this->visibleCommentsCount = max(5, $this->visibleCommentsCount - 5); // Show less but minimum 5
+    }
+
+    public function addComment()
+    {
+        $this->authorize('update', $this->customer);
+
+        $this->validate([
+            'addedComment' => 'required|string',
+        ]);
+        $this->customer->addComment($this->addedComment);
+        $this->addedComment = null;
+        $this->alertSuccess('Comment added !');
+        $this->comments = $this->customer
+            ->comments()
+            ->latest()
+            ->take($this->visibleCommentsCount)
+            ->get();
+    }
+
     public function render()
     {
         $ZONES = Zone::select('id', 'name')->get();
         $PET_CATEGORIES = Pet::CATEGORIES;
         $PAYMENT_METHODS = CustomerPayment::PAYMENT_METHODS;
         $orders = $this->customer->orders->take(5);
+
+        $this->comments = $this->customer
+            ->comments()
+            ->latest()
+            ->take($this->visibleCommentsCount)
+            ->get();
 
         $PET_TYPES = Pet::getDistinctPetTypes($this->petCategory);
         return view('livewire.customers.customer-show', [
