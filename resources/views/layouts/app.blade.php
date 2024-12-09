@@ -149,6 +149,17 @@
                         </a>
                     </li>
 
+                    <li>
+                        <a href="{{ auth()->user()->can('viewAny', App\Models\Orders\Order::class)? url('/orders/pastdue'): '#' }}"
+                            class="navItem {{ $ordersPastDue ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Orders\Order::class)? '': 'disabled' }}">
+                            <span class="flex items-center">
+                                <iconify-icon class=" nav-icon" icon="lsicon:order-abnormal-outline">
+                                </iconify-icon>
+                                <span>الطلبات المتأخرة</span>
+                            </span>
+                        </a>
+                    </li>
+
                     <li class="sidebar-menu-title">Inventory</li>
 
                     <li>
