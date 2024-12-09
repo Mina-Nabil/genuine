@@ -40,6 +40,24 @@ class OrderDriverShift extends Component
     //collected
     public $collectedFromPaymentTypes = [];
 
+    public function moveOrderUp($id){
+        $res = Order::findOrFail($id)->moveUp();
+        if ($res) {
+            $this->alertSuccess('Order Changed');
+        }else{
+            $this->alertFailed();
+        }
+    }
+
+    public function moveOrderDown($id){
+        $res = Order::findOrFail($id)->moveDown();
+        if ($res) {
+            $this->alertSuccess('Order Changed');
+        }else{
+            $this->alertFailed();
+        }
+    }
+
     public function openEditOrderNote($order_id){
         $this->editedOrderNoteSec = $order_id;
         $this->editedOrderNote = Order::findOrFail($order_id)->note;
@@ -166,7 +184,7 @@ class OrderDriverShift extends Component
 
     public function render()
     {
-        $orders = Order::search(searchText: $this->search, deliveryDate: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneId: $this->zone?->id)->confirmed()->openOrders()->withTotalQuantity()->sortByZone()->paginate(50);
+        $orders = Order::search(searchText: $this->search, deliveryDate: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneId: $this->zone?->id)->confirmed()->openOrders()->withTotalQuantity()->orderByRaw('driver_order IS NULL, driver_order ASC')->sortByZone()->paginate(50);
 
         $totalZones = Order::getTotalZonesForOrders($orders);
         $PAYMENT_METHODS = CustomerPayment::PAYMENT_METHODS;

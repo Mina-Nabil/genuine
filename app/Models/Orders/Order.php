@@ -36,7 +36,7 @@ class Order extends Model
         'delivery_date' => 'date',
     ];
 
-    protected $fillable = ['order_number', 'customer_id', 'customer_name', 'shipping_address', 'location_url', 'customer_phone', 'status', 'zone_id', 'driver_id', 'periodic_option', 'total_amount', 'delivery_amount', 'discount_amount', 'delivery_date', 'is_paid', 'is_confirmed', 'note', 'driver_note', 'created_by', 'is_delivered', 'driver_payment_type'];
+    protected $fillable = ['order_number', 'customer_id', 'customer_name', 'shipping_address', 'location_url', 'customer_phone', 'status', 'zone_id', 'driver_id', 'periodic_option', 'total_amount', 'delivery_amount', 'discount_amount', 'delivery_date', 'is_paid', 'is_confirmed', 'note', 'driver_note', 'created_by', 'is_delivered', 'driver_payment_type','driver_order'];
 
     const PERIODIC_OPTIONS = [self::PERIODIC_WEEKLY, self::PERIODIC_BI_WEEKLY, self::PERIODIC_MONTHLY];
     const PERIODIC_WEEKLY = 'weekly';
@@ -1000,6 +1000,109 @@ class Order extends Model
             AppLog::error('Failed to toggle delivery status for order', $e->getMessage());
             return false;
         }
+    }
+
+    public static function setDriverOrder($driverId, $deliveryDate)
+    {
+        // Find the highest driver_order for this driver and delivery_date
+        $highestOrder = self::where('driver_id', $driverId)
+            ->where('delivery_date', $deliveryDate)
+            ->max('driver_order');
+
+        // Set the new driver_order, which is the next highest order number
+        return $highestOrder ? $highestOrder + 1 : 1; // If no existing order, set it to 1
+    }
+
+    public function moveUp()
+    {
+        // Start a transaction to ensure consistency
+        return DB::transaction(function () {
+
+            // Find the previous order with the same driver and earlier driver_order
+            $previousOrder = self::where('driver_id', $this->driver_id)
+                ->where('delivery_date', $this->delivery_date)
+                ->when($this->driver_order, function ($query, $driver_order) {
+                    $query->where('driver_order', $driver_order - 1);
+                })
+                // ->where('driver_order', '<=', $this->driver_order)
+                ->orderBy('driver_order', 'desc')
+                ->whereNotNull('driver_order')
+                ->first();
+                
+            if ($previousOrder) {
+                // Swap the driver_order values
+                $tmpOrder = $previousOrder->driver_order; 
+                if (!$this->driver_order) {
+                    $this->driver_order = $tmpOrder + 1;
+                }else{
+                    $previousOrder->driver_order = $this->driver_order;
+                    $this->driver_order = $tmpOrder;
+                }
+
+                // Save both orders
+                $this->save();
+                $previousOrder->save();
+
+                return true;
+            }
+
+            // If no previous order exists, set the current order to the first position
+            $this->driver_order = 1;
+            $this->save();
+
+            return true;
+        });
+    }
+
+    /**
+     * Move this order down (increase the driver_order).
+     *
+     * @return bool
+     */
+    public function moveDown()
+    {
+        // Start a transaction to ensure consistency
+        return DB::transaction(function () {
+
+            // Find the next order with the same driver and later driver_order
+            $nextOrder = self::where('driver_id', $this->driver_id)
+                ->where('delivery_date', $this->delivery_date)
+                ->when($this->driver_order, function ($query, $driver_order) {
+                    $query->where('driver_order', $driver_order + 1);
+                })
+                // ->whereNotNull('driver_order')
+                ->orderBy('driver_order', 'asc')
+                ->first();
+
+            if ($nextOrder && $nextOrder->driver_order) {
+                // Swap the driver_order values
+                $tmpOrder = $nextOrder->driver_order;
+                if (!$this->driver_order) {
+                    $this->driver_order = $tmpOrder - 1;
+                }else{
+                    $nextOrder->driver_order = $this->driver_order;
+                    $this->driver_order = $tmpOrder;
+                }
+
+                // Save both orders
+                $this->save();
+                $nextOrder->save();
+
+                return true;
+            }elseif(!$nextOrder && !$this->driver_order){
+                return true;
+            }elseif(!$nextOrder && $this->driver_order){
+                return true;
+            }elseif($nextOrder && !$nextOrder->driver_order){
+                return true;
+            }
+
+            // If no previous order exists, set the current order to the first position
+            $this->driver_order = 1;
+            $this->save();
+
+            return false;
+        });
     }
 
     public function updateDriverPaymentType(?string $paymentType = null): bool

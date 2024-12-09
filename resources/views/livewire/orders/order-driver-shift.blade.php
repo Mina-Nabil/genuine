@@ -73,9 +73,15 @@
 
                                     <div class="p-3 md:col-span-2">
                                         <div class="flex justify-between">
+
                                             <a href="{{ route('orders.show', $order->id) }}"> <span
                                                     class="hover-underline">
                                                     <b>
+                                                        <span
+                                                            class="w-5 h-5 inline-flex items-center justify-center bg-slate-900 text-slate-100 rounded-md font-Inter text-xs ltr:ml-1 rtl:mr-1 relative top-[2px]">
+                                                            {{ $order->driver_order }}
+                                                        </span>&nbsp;&nbsp;
+
                                                         #{{ $order->order_number }} • {{ $order->customer->name }}
                                                     </b>
                                                 </span>
@@ -301,21 +307,33 @@
                                                 </div>
                                             </div>
                                         @else
-                                            <div class="mt-2">
-                                                @if ($order->is_delivered)
-                                                    <span
-                                                        class="badge bg-success-500 text-white capitalize">Delivered</span>
-                                                @else
-                                                    <span class="badge bg-secondary-500 text-white capitalize">Not
-                                                        Delivered</span>
-                                                @endif
-                                                @if ($order->driver_payment_type)
-                                                    <span class="badge bg-success-500 text-white capitalize">Paid:
-                                                        {{ ucwords(str_replace('_', ' ', $order->driver_payment_type)) }}</span>
-                                                @else
-                                                    <span class="badge bg-secondary-500 text-white capitalize">Not
-                                                        Paid</span>
-                                                @endif
+                                            <div class="flex justify-between">
+                                                <div class="mt-2">
+                                                    @if ($order->is_delivered)
+                                                        <span
+                                                            class="badge bg-success-500 text-white capitalize">Delivered</span>
+                                                    @else
+                                                        <span class="badge bg-secondary-500 text-white capitalize">Not
+                                                            Delivered</span>
+                                                    @endif
+                                                    @if ($order->driver_payment_type)
+                                                        <span class="badge bg-success-500 text-white capitalize">Paid:
+                                                            {{ ucwords(str_replace('_', ' ', $order->driver_payment_type)) }}</span>
+                                                    @else
+                                                        <span class="badge bg-secondary-500 text-white capitalize">Not
+                                                            Paid</span>
+                                                    @endif
+                                                </div>
+                                                <div class="flex mt-2">
+                                                    <button wire:click='moveOrderUp({{ $order->id }})'
+                                                        class="action-btn" type="button">
+                                                        <iconify-icon icon="mingcute:up-fill"></iconify-icon>
+                                                    </button>
+                                                    <button wire:click='moveOrderDown({{ $order->id }})'
+                                                        class="action-btn" type="button">
+                                                        <iconify-icon icon="mingcute:down-fill"></iconify-icon>
+                                                    </button>
+                                                </div>
                                             </div>
                                         @endif
 
