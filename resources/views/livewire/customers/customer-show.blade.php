@@ -218,7 +218,120 @@
                         </div>
                     </div>
 
-
+                    <div class="mb-5 text-wrap mt-5">
+                        <div class="col-span-4">
+                            <div class="mb-5">
+                                <h3 class="card-title text-slate-900 dark:text-white">Timeline</h3>
+                                <ol class="timeline">
+                                    <li class="timeline-item">
+                                        <span class="timeline-item-icon | avatar-icon">
+                                            <span
+                                                class="block w-full h-full object-cover text-center leading-10 text-lg user-initial">
+                                                {{ strtoupper(substr(Auth::user()->username, 0, 1)) }}
+                                            </span>
+                                        </span>
+                                        <div class="new-comment">
+                                            <input type="text" wire:model="addedComment" wire:keydown.enter="addComment"
+                                                placeholder="Add a comment..." />
+                                        </div>
+                                    </li>
+            
+                                    @forelse ($comments as $comment)
+                                        @if ($comment->level === 'info')
+                                            <li class="timeline-item">
+                                                <span class="timeline-item-icon | faded-icon">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24"
+                                                        height="24">
+                                                        <path fill="none" d="M0 0h24v24H0z" />
+                                                        <path fill="currentColor"
+                                                            d="M12.9 6.858l4.242 4.243L7.242 21H3v-4.243l9.9-9.9zm1.414-1.414l2.121-2.122a1 1 0 0 1 1.414 0l2.829 2.829a1 1 0 0 1 0 1.414l-2.122 2.121-4.242-4.242z" />
+                                                    </svg>
+                                                </span>
+                                                <div class="timeline-item-description">
+                                                    <span class="avatar | small">
+                                                        <span
+                                                            class="block w-full h-full object-cover text-center text-lg user-initial"
+                                                            style="font-size: 12px">
+                                                            {{ strtoupper(substr($comment->user?->username, 0, 1)) }}
+                                                        </span>
+                                                    </span>
+                                                    <span><a href="#">{{ $comment->user?->full_name }}</a>
+                                                        {{ $comment->title }}
+                                                        <time datetime="21-01-2021">
+                                                            @if ($comment->created_at->isToday())
+                                                                Today {{ $comment->created_at->format('h:i A') }}
+                                                            @elseif($comment->created_at->isYesterday())
+                                                                Yesterday {{ $comment->created_at->format('h:i A') }}
+                                                            @else
+                                                                on {{ $comment->created_at->format('M d, Y') }}
+                                                            @endif
+                                                        </time></span>
+                                                </div>
+                                            </li>
+                                        @elseif($comment->level === 'comment')
+                                            <li class="timeline-item">
+                                                <span class="timeline-item-icon | filled-icon">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24"
+                                                        height="24">
+                                                        <path fill="none" d="M0 0h24v24H0z" />
+                                                        <path fill="currentColor"
+                                                            d="M6.455 19L2 22.5V4a1 1 0 0 1 1-1h18a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H6.455zM7 10v2h2v-2H7zm4 0v2h2v-2h-2zm4 0v2h2v-2h-2z" />
+                                                    </svg>
+                                                </span>
+            
+                                                <div class="timeline-item-wrapper w-full">
+                                                    <div class="timeline-item-description">
+                                                        <span class="avatar | small">
+                                                            <span
+                                                                class="block w-full h-full object-cover text-center text-lg user-initial"
+                                                                style="font-size: 12px">
+                                                                {{ strtoupper(substr($comment->user?->username, 0, 1)) }}
+                                                            </span>
+                                                        </span>
+                                                        <span><a href="#">{{ $comment->user?->full_name }}</a> commented
+                                                            <time datetime="20-01-2021">
+                                                                @if ($comment->created_at->isToday())
+                                                                    Today at {{ $comment->created_at->format('h:m') }}
+                                                                @elseif($comment->created_at->isYesterday())
+                                                                    Yesterday at {{ $comment->created_at->format('h:m') }}
+                                                                @else
+                                                                    on {{ $comment->created_at->format('M d, Y') }}
+                                                                @endif
+                                                            </time>
+                                                        </span>
+                                                    </div>
+                                                    <div class="comment">
+                                                        <p>{{ $comment->title }}</p>
+                                                    </div>
+                                                </div>
+            
+                                            </li>
+                                        @endif
+                                    @empty
+                                        <li class="timeline-item">
+                                            <span class="timeline-item-icon | faded-icon">
+                                                <iconify-icon icon="material-symbols:info-outline" width="1.2em"
+                                                    height="1.2em"></iconify-icon>
+                                            </span>
+                                            <div class="timeline-item-description">
+                                                <span>No comments added yet.</span>
+                                            </div>
+                                        </li>
+                                    @endforelse
+                                </ol>
+                                <div class="flex justify-between">
+                                    @if ($visibleCommentsCount < $customer->comments()->count())
+                                        <button wire:click="loadMore"><small class="clickable-link">See More</small></button>
+                                    @endif
+            
+                                    @if ($visibleCommentsCount > 5)
+                                        <button wire:click="showLess"><small class="clickable-link">Show Less</small></button>
+                                    @endif
+                                </div>
+            
+                            </div>
+                        </div>
+                    </div>
 
                 </div>
 

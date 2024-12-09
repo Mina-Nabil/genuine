@@ -268,6 +268,11 @@ class Customer extends Model
         }
     }
 
+    public function addComment(string $comment): void
+    {
+        AppLog::comment($comment, $desc = null, loggable: $this);
+    }
+
     public function canDeductFromBalance($amount)
     {
         // Check if the customer has enough balance
@@ -310,6 +315,11 @@ class Customer extends Model
         return $this->hasMany(CustomerPayment::class);
     }
 
+    public function comments(): HasMany
+    {
+        return $this->hasMany(AppLog::class, 'loggable_id')->where('loggable_type', self::MORPH_TYPE);
+    }
+    
     public function transactions(): HasMany
     {
         return $this->hasMany(BalanceTransaction::class);
