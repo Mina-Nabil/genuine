@@ -202,7 +202,7 @@
                         <a href="{{ url('/calendar') }}"
                             class="navItem">
                             <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="ic:round-add-task">
+                                <iconify-icon class=" nav-icon" icon="grommet-icons:calendar">
                                 </iconify-icon>
                                 <span>To-do</span>
                             </span>
