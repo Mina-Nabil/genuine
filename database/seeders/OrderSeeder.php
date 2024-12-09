@@ -205,7 +205,7 @@ class OrderSeeder extends Seeder
                     "combo_id"  =>  null
                 ]);
 
-
+            Log::info("Adding order $i");
             Order::newOrder(
                 $customer->id,
                 $customer->name,
