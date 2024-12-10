@@ -37,7 +37,7 @@ class Order extends Model
         'delivery_date' => 'date',
     ];
 
-    protected $fillable = ['order_number', 'customer_id', 'customer_name', 'shipping_address', 'location_url', 'customer_phone', 'status', 'zone_id', 'driver_id', 'periodic_option', 'total_amount', 'delivery_amount', 'discount_amount', 'delivery_date', 'is_paid', 'is_confirmed', 'note', 'driver_note', 'created_by', 'is_delivered', 'driver_payment_type','driver_order'];
+    protected $fillable = ['order_number', 'customer_id', 'customer_name', 'shipping_address', 'location_url', 'customer_phone', 'status', 'zone_id', 'driver_id', 'periodic_option', 'total_amount', 'delivery_amount', 'discount_amount', 'delivery_date', 'is_paid', 'is_confirmed', 'note', 'driver_note', 'created_by', 'is_delivered', 'driver_payment_type', 'driver_order'];
 
     const PERIODIC_OPTIONS = [self::PERIODIC_WEEKLY, self::PERIODIC_BI_WEEKLY, self::PERIODIC_MONTHLY];
     const PERIODIC_WEEKLY = 'weekly';
@@ -285,8 +285,6 @@ class Order extends Model
                 } else {
                     AppLog::warning('Order not found', ['order_id' => $orderId]);
                 }
-
-                
             }
 
             DB::commit();
@@ -298,7 +296,6 @@ class Order extends Model
             return false;
         }
     }
-
 
     /**
      * Bulk set a delivery date for multiple orders.
@@ -928,7 +925,7 @@ class Order extends Model
             $message .= "\n• {$product->product->name}: {$weightInKg} كيلو";
         }
 
-        $deliveryDate = $this->convertDayToArabic($this->delivery_date->format('l')).' '.$this->delivery_date->format('d/m/Y');
+        $deliveryDate = $this->convertDayToArabic($this->delivery_date->format('l')) . ' ' . $this->delivery_date->format('d/m/Y');
         $message .= "\n\nتـاريخ توصيل الطلـب: {$deliveryDate}";
 
         $message .= "\n\nتفاصيل المندوب:\n";
@@ -961,13 +958,13 @@ class Order extends Model
     {
         // Mapping of English weekdays to Arabic
         $daysMapping = [
-            'Monday'    => 'الاثنين',
-            'Tuesday'   => 'الثلاثاء',
+            'Monday' => 'الاثنين',
+            'Tuesday' => 'الثلاثاء',
             'Wednesday' => 'الأربعاء',
-            'Thursday'  => 'الخميس',
-            'Friday'    => 'الجمعة',
-            'Saturday'  => 'السبت',
-            'Sunday'    => 'الأحد',
+            'Thursday' => 'الخميس',
+            'Friday' => 'الجمعة',
+            'Saturday' => 'السبت',
+            'Sunday' => 'الأحد',
         ];
 
         // Normalize the input to ensure proper mapping
@@ -1050,7 +1047,6 @@ class Order extends Model
     {
         // Start a transaction to ensure consistency
         return DB::transaction(function () {
-
             // Find the previous order with the same driver and earlier driver_order
             $previousOrder = self::where('driver_id', $this->driver_id)
                 ->where('delivery_date', $this->delivery_date)
@@ -1061,13 +1057,13 @@ class Order extends Model
                 ->orderBy('driver_order', 'desc')
                 ->whereNotNull('driver_order')
                 ->first();
-                
+
             if ($previousOrder) {
                 // Swap the driver_order values
-                $tmpOrder = $previousOrder->driver_order; 
+                $tmpOrder = $previousOrder->driver_order;
                 if (!$this->driver_order) {
                     $this->driver_order = $tmpOrder + 1;
-                }else{
+                } else {
                     $previousOrder->driver_order = $this->driver_order;
                     $this->driver_order = $tmpOrder;
                 }
@@ -1096,7 +1092,6 @@ class Order extends Model
     {
         // Start a transaction to ensure consistency
         return DB::transaction(function () {
-
             // Find the next order with the same driver and later driver_order
             $nextOrder = self::where('driver_id', $this->driver_id)
                 ->where('delivery_date', $this->delivery_date)
@@ -1112,7 +1107,7 @@ class Order extends Model
                 $tmpOrder = $nextOrder->driver_order;
                 if (!$this->driver_order) {
                     $this->driver_order = $tmpOrder - 1;
-                }else{
+                } else {
                     $nextOrder->driver_order = $this->driver_order;
                     $this->driver_order = $tmpOrder;
                 }
@@ -1122,11 +1117,11 @@ class Order extends Model
                 $nextOrder->save();
 
                 return true;
-            }elseif(!$nextOrder && !$this->driver_order){
+            } elseif (!$nextOrder && !$this->driver_order) {
                 return true;
-            }elseif(!$nextOrder && $this->driver_order){
+            } elseif (!$nextOrder && $this->driver_order) {
                 return true;
-            }elseif($nextOrder && !$nextOrder->driver_order){
+            } elseif ($nextOrder && !$nextOrder->driver_order) {
                 return true;
             }
 
@@ -1375,6 +1370,16 @@ class Order extends Model
             $query->whereNotIn('status', [self::STATUS_DONE, self::STATUS_RETURNED, self::STATUS_CANCELLED])->orWhere(function (Builder $query) {
                 $query->whereNotIn('status', [self::STATUS_RETURNED, self::STATUS_CANCELLED])->where('is_paid', false);
             });
+        });
+    }
+
+    public function scopeClosedOrders(Builder $query): Builder
+    {
+        return $query->where(function (Builder $query) {
+            $query->whereIn('status', [self::STATUS_DONE, self::STATUS_RETURNED, self::STATUS_CANCELLED])
+                ->where(function (Builder $query) {
+                    $query->where('status', '!=', self::STATUS_DONE)->orWhere('is_paid', true);
+                });
         });
     }
 

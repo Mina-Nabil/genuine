@@ -9,12 +9,6 @@
             </button>
             <ul class="dropdown-menu min-w-max absolute text-sm text-slate-700 dark:text-white hidden bg-white dark:bg-slate-700 shadow z-[2] float-left overflow-hidden list-none text-left rounded-lg mt-1 m-0 bg-clip-padding border-none"
                 style="">
-                @if ($AvailableToSetDriver)
-                    <li wire:click='openSetDriver'
-                        class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
-                        Set Driver
-                    </li>
-                @endif
                 <li wire:click='openSetDeliveryDate'
                     class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
                     Set delivery date
@@ -49,7 +43,7 @@
     <div class="flex justify-between flex-wrap items-center">
         <div class="md:mb-6 mb-4 flex space-x-3 rtl:space-x-reverse">
             <h4 class="font-medium lg:text-2xl text-xl capitalize text-slate-900 inline-block ltr:pr-4 rtl:pl-4">
-                Active Orders
+                Closed Orders
             </h4>
         </div>
         <div class="flex sm:space-x-4 space-x-2 sm:justify-end items-center md:mb-6 mb-4 rtl:space-x-reverse">
@@ -65,10 +59,6 @@
                     <li wire:click='openFilteryDeliveryDate'
                         class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
                         Delivery Date
-                    </li>
-                    <li wire:click='openFilteryStatus'
-                        class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
-                        Status
                     </li>
                     <li wire:click='openFilteryDriver'
                         class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
@@ -101,86 +91,6 @@
                 wire:model.live.debounce.400ms="search">
         </header>
 
-        @if ($driver)
-            <header class="dark-card-header noborder bg-dark">
-                <div class="space-y-1">
-                    <h4 class="text-slate-400 dark:text-slate-200 text-xs font-normal">
-                        Driver Weight Limit
-                    </h4>
-                    <div class="text-sm font-medium text-white dark:text-slate-900">
-                        {{ $totalWeight > 0 ? number_format($totalWeight / 1000, 3) : 0 }} /
-                        {{ number_format($driver->weight_limit / 1000, 3) }} KG
-                    </div>
-                    <div class=" text-xs font-normal">
-                        @if (($totalWeight / $driver->weight_limit) * 100 <= 50)
-                            <span
-                                class="text-danger-500">({{ number_format(($totalWeight / $driver->weight_limit) * 100, 0) }}%)
-                                In-sufficient</span>
-                        @elseif (($totalWeight / $driver->weight_limit) * 100 > 50 && ($totalWeight / $driver->weight_limit) * 100 <= 70)
-                            <span class="text-warning-500">
-                                ({{ number_format(($totalWeight / $driver->weight_limit) * 100, 0) }}%) Nearly
-                                Sufficient</span>
-                        @elseif (($totalWeight / $driver->weight_limit) * 100 > 70 && ($totalWeight / $driver->weight_limit) * 100 <= 100)
-                            <span
-                                class="text-success-500">({{ number_format(($totalWeight / $driver->weight_limit) * 100, 0) }}%)
-                                Sufficient</span>
-                        @elseif (($totalWeight / $driver->weight_limit) * 100 > 100)
-                            <span
-                                class="text-danger-500">({{ number_format(($totalWeight / $driver->weight_limit) * 100, 0) }}%)
-                                Overload</span>
-                        @endif
-                    </div>
-                </div>
-                <div class="space-y-1">
-                    <h4 class="text-slate-400 dark:text-slate-200 text-xs font-normal">
-                        Total Orders Limit
-                    </h4>
-                    <div class="text-sm font-medium text-white dark:text-slate-900">
-                        {{ $ordersCount ?? 0 }} / {{ $driver->order_quantity_limit }} Orders
-                    </div>
-                    <div class=" text-xs font-normal">
-                        @if (($ordersCount / $driver->order_quantity_limit) * 100 <= 50)
-                            <span
-                                class="text-danger-500">({{ number_format(($ordersCount / $driver->order_quantity_limit) * 100, 0) }}%)
-                                In-sufficient</span>
-                        @elseif (
-                            ($ordersCount / $driver->order_quantity_limit) * 100 > 50 &&
-                                ($ordersCount / $driver->order_quantity_limit) * 100 <= 70)
-                            <span class="text-warning-500">
-                                ({{ number_format(($ordersCount / $driver->order_quantity_limit) * 100, 0) }}%) Nearly
-                                Sufficient</span>
-                        @elseif (
-                            ($ordersCount / $driver->order_quantity_limit) * 100 > 70 &&
-                                ($ordersCount / $driver->order_quantity_limit) * 100 <= 100)
-                            <span
-                                class="text-success-500">({{ number_format(($ordersCount / $driver->order_quantity_limit) * 100, 0) }}%)
-                                Sufficient</span>
-                        @elseif (($ordersCount / $driver->order_quantity_limit) * 100 > 100)
-                            <span
-                                class="text-danger-500">({{ number_format(($ordersCount / $driver->weight_limit) * 100, 0) }}%)
-                                Overload</span>
-                        @endif
-                    </div>
-                </div>
-                <div class="space-y-1">
-                    <h4 class="text-slate-400 dark:text-slate-200 text-xs font-normal">
-                        Total Zones
-                    </h4>
-                    <div class="text-sm font-medium text-white dark:text-slate-900">
-                        {{ $totalZones }}
-                    </div>
-                </div>
-                <div class="space-y-1">
-                    <h4 class="text-slate-400 dark:text-slate-200 text-xs font-normal">
-                        Amount to Collect
-                    </h4>
-                    <div class="text-sm font-medium text-white dark:text-slate-900">
-                        {{ number_format($orders->sum('remaining_to_pay'), 2) }}<small>&nbsp;EGP</small>
-                    </div>
-                </div>
-            </header>
-        @endif
-
         <header class="card-header cust-card-header noborder">
             <div>
                 @if ($deliveryDate)
@@ -200,18 +110,6 @@
                         &nbsp;&nbsp;<iconify-icon wire:click="clearProperty('deliveryDate')"
                             icon="material-symbols:close" class="cursor-pointer" width="1.2em"
                             height="1.2em"></iconify-icon>
-                    </span>
-                @endif
-                @if ($status)
-                    <span class="badge bg-slate-900 text-white capitalize">
-                        <span class="cursor-pointer" wire:click='openFilteryStatus'>
-                            <span class="text-secondary-500 ">Status:</span>&nbsp;
-                            {{ ucwords(str_replace('_', ' ', $status)) }}
-
-                        </span>
-
-                        &nbsp;&nbsp;<iconify-icon wire:click="clearProperty('status')" icon="material-symbols:close"
-                            class="cursor-pointer" width="1.2em" height="1.2em"></iconify-icon>
                     </span>
                 @endif
                 @if ($driver)
@@ -249,16 +147,6 @@
                             <th scope="col"
                                 class="table-th  flex items-center border-t border-slate-100 dark:border-slate-800 bg-slate-200 dark:bg-slate-700"
                                 style="position: sticky; left: -25px;  z-index: 10;">
-                                <div class="checkbox-area">
-                                    <label class="inline-flex items-center cursor-pointer">
-                                        <input type="checkbox" wire:model.live="selectAll" class="hidden"
-                                            id="select-all">
-                                        <span
-                                            class="h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 bg-slate-100 dark:bg-slate-900">
-                                            <img src="{{ asset('assets/images/icon/ck-white.svg') }}" alt=""
-                                                class="h-[10px] w-[10px] block m-auto opacity-0"></span>
-                                    </label>
-                                </div>
                                 Order
                             </th>
                             @if ($selectAll)
@@ -456,75 +344,6 @@
     </div>
 
 
-
-    {{-- @can('create', App\Models\Products\Product::class) --}}
-    @if ($setDriverSection)
-        <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
-            tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
-            style="display: block;">
-            <div class="modal-dialog relative w-auto pointer-events-none">
-                <div
-                    class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
-                    <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
-                        <!-- Modal header -->
-                        <div
-                            class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
-                            <h3 class="text-xl font-medium text-white dark:text-white capitalize">
-                                Set Driver
-                            </h3>
-                            <button wire:click="closeSetDriver" type="button"
-                                class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
-                                data-bs-dismiss="modal">
-                                <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path fill-rule="evenodd"
-                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                        clip-rule="evenodd"></path>
-                                </svg>
-                                <span class="sr-only">Close modal</span>
-                            </button>
-                        </div>
-
-                        <!-- Modal body -->
-                        <div class="p-6 space-y-4">
-
-                            <div class="from-group">
-                                <div class="input-area">
-                                    <label for="driverId" class="form-label">Driver*</label>
-                                    <select name="category_id" id="driverId"
-                                        class="form-control w-full mt-2 @error('driverId') !border-danger-500 @enderror"
-                                        wire:model="driverId" autocomplete="off">
-                                        <option value="">Select driver</option>
-                                        @foreach ($drivers as $driver)
-                                            <option value="{{ $driver->id }}">
-                                                {{ $driver->user->full_name }} • {{ $driver->shift_title }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                @error('driverId')
-                                    <span
-                                        class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
-                                @enderror
-                            </div>
-
-                        </div>
-
-                        <!-- Modal footer -->
-                        <div class="flex items-center justify-end p-6 border-t border-slate-200 rounded-b">
-                            <button wire:click="setDriver" data-bs-dismiss="modal"
-                                class="btn inline-flex justify-center text-white bg-black-500">
-                                <span wire:loading.remove wire:target="setDriver">Submit</span>
-                                <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
-                                    wire:loading wire:target="setDriver"
-                                    icon="line-md:loading-twotone-loop"></iconify-icon>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-    @endif
-    {{-- @endcan --}}
-
     {{-- @can('create', App\Models\Products\Product::class) --}}
     @if ($setDeliveryDateSection)
         <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
@@ -693,73 +512,6 @@
                                 <span wire:loading.remove wire:target="setFilteryDeliveryDate">Submit</span>
                                 <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
                                     wire:loading wire:target="setFilteryDeliveryDate"
-                                    icon="line-md:loading-twotone-loop"></iconify-icon>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-    @endif
-
-    @if ($Edited_status_sec)
-        <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
-            tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
-            style="display: block;">
-            <div class="modal-dialog relative w-auto pointer-events-none">
-                <div
-                    class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
-                    <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
-                        <!-- Modal header -->
-                        <div
-                            class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
-                            <h3 class="text-xl font-medium text-white dark:text-white capitalize">
-                                Filter Status
-                            </h3>
-                            <button wire:click="closeFilteryStatus" type="button"
-                                class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
-                                data-bs-dismiss="modal">
-                                <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path fill-rule="evenodd"
-                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                        clip-rule="evenodd"></path>
-                                </svg>
-                                <span class="sr-only">Close modal</span>
-                            </button>
-                        </div>
-
-                        <!-- Modal body -->
-                        <div class="p-6 space-y-4">
-
-                            <div class="from-group">
-                                <div class="input-area">
-                                    <label for="Edited_status" class="form-label">Status*</label>
-                                    <select name="category_id" id="Edited_status"
-                                        class="form-control w-full mt-2 @error('Edited_status') !border-danger-500 @enderror"
-                                        wire:model="Edited_status" autocomplete="off">
-                                        <option value="">Select status</option>
-                                        @foreach ($STATUSES as $ONE_STATUSES)
-                                            <option value="{{ $ONE_STATUSES }}">
-                                                {{ ucwords(str_replace('_', ' ', $ONE_STATUSES)) }}</option>
-                                        @endforeach
-                                    </select>
-
-                                </div>
-                                @error('Edited_status')
-                                    <span
-                                        class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
-                                @enderror
-                            </div>
-
-                        </div>
-
-                        <!-- Modal footer -->
-                        <div class="flex items-center justify-end p-6 border-t border-slate-200 rounded-b">
-                            <button wire:click="setFilterStatus" data-bs-dismiss="modal"
-                                class="btn inline-flex justify-center text-white bg-black-500">
-                                <span wire:loading.remove wire:target="setFilterStatus">Submit</span>
-                                <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
-                                    wire:loading wire:target="setFilterStatus"
                                     icon="line-md:loading-twotone-loop"></iconify-icon>
                             </button>
                         </div>

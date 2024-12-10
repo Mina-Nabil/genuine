@@ -7,6 +7,7 @@ use App\Livewire\Customers\CustomerIndex;
 use App\Livewire\Customers\CustomerShow;
 use App\Livewire\Customers\FollowupIndex;
 use App\Livewire\Customers\ZoneIndex;
+use App\Livewire\Orders\ClosedOrderIndex;
 use App\Livewire\Orders\FollowupReport;
 use App\Livewire\Orders\OrderCreate;
 use App\Livewire\Orders\OrderDriverShift;
@@ -75,6 +76,7 @@ Route::middleware(['auth', 'no_driver'])->group(function () {
 
     Route::get('/orders', OrderIndex::class)->name('orders.index');
     Route::get('/orders/pastdue', PastDueOrderIndex::class)->name('orders.past.due');
+    Route::get('/orders/closed', ClosedOrderIndex::class)->name('orders.closed');
     Route::get('/orders/periodic', PeriodicOrderIndex::class)->name('orders.periodic.index');
     Route::get('/orders/inventory', OrderInventory::class)->name('orders.inventory');
     Route::get('/orders/{id}', OrderShow::class)->name('orders.show');

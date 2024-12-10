@@ -12,10 +12,11 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Url;
 
-class OrderIndex extends Component
+
+class ClosedOrderIndex extends Component
 {
     use AlertFrontEnd, WithPagination;
-    public $page_title = '• Orders';
+    public $page_title = '• Closed Orders';
 
     public $fetched_orders_IDs;
     public $search;
@@ -30,12 +31,6 @@ class OrderIndex extends Component
     public $setDeliveryDateSection = false;
     public $bulkDeliveryDate;
     public $availableBulkStatuses = [];
-
-    //Filter
-    #[Url]
-    public $status;
-    public $Edited_status;
-    public $Edited_status_sec;
 
     #[Url]
     public $driver;
@@ -88,21 +83,6 @@ class OrderIndex extends Component
         $this->closeFilteryDeliveryDate();
     }
 
-    public function openFilteryStatus(){
-        $this->Edited_status_sec = true;
-        $this->Edited_status = $this->status;
-    }
-
-    public function closeFilteryStatus(){
-        $this->Edited_status_sec = false;
-        $this->Edited_status = null;
-    }
-
-    public function setFilterStatus(){
-        $this->status = $this->Edited_status;
-        $this->closeFilteryStatus();
-    }
-
     public function openFilteryDriver(){
         $this->Edited_driverId_sec = true;
         $this->Edited_driverId = $this->driver?->id;
@@ -131,12 +111,6 @@ class OrderIndex extends Component
     public function setFilterZone(){
         $this->zone = Zone::findOrFail($this->Edited_zoneId);
         $this->closeFilteryZone();
-    }
-
-    public function mount()
-    {
-        $this->deliveryDate = Carbon::tomorrow();
-
     }
 
     public function clearProperty(string $propertyName)
@@ -229,34 +203,6 @@ class OrderIndex extends Component
         }
     }
 
-    public function openSetDriver()
-    {
-        $this->setDriverSection = true;
-    }
-
-    public function closeSetDriver()
-    {
-        $this->reset(['setDriverSection', 'driverId']);
-    }
-
-    public function setDriver()
-    {
-        $this->validate([
-            'driverId' => 'required|exists:drivers,id',
-        ]);
-        $res = Order::assignDriverToOrders($this->selectedOrders, $this->driverId);
-
-        if ($res) {
-            $this->resetPage();
-            $this->closeSetDriver();
-            $this->selectedOrders = [];
-            $this->selectAll = false;
-            $this->alertSuccess('Driver set!');
-        } else {
-            $this->alertFailed();
-        }
-    }
-
     public function updatedSelectAll($value)
     {
         if ($value) {
@@ -269,7 +215,7 @@ class OrderIndex extends Component
     public function selectAllOrders()
     {
         $this->selectedAllOrders = true;
-        $this->selectedOrders = Order::OpenOrders()->pluck('id')->toArray();
+        $this->selectedOrders = Order::ClosedOrders()->pluck('id')->toArray();
     }
 
     public function undoSelectAllOrders()
@@ -280,12 +226,7 @@ class OrderIndex extends Component
 
     public function render()
     {
-        $orders = Order::search(searchText: $this->search, deliveryDate: $this->deliveryDate,status:$this->status,driverId: $this->driver?->id ,zoneId:$this->zone?->id)->OpenOrders()->withTotalQuantity()->paginate(50);
-
-        $totalWeight = 0;
-        foreach($orders as $order){
-            $totalWeight = $totalWeight + $order->total_weight;
-        }
+        $orders = Order::search(searchText: $this->search, deliveryDate: $this->deliveryDate,driverId: $this->driver?->id ,zoneId:$this->zone?->id)->ClosedOrders()->withTotalQuantity()->paginate(50);
 
         $totalZones = Order::getTotalZonesForOrders($orders);
         $ordersCount = count($orders);
@@ -296,18 +237,15 @@ class OrderIndex extends Component
         $drivers = Driver::all();
         $PAYMENT_METHODS = CustomerPayment::PAYMENT_METHODS;
 
-        
-        $this->fetched_orders_IDs = $orders->pluck('id')->toArray();
-        return view('livewire.orders.order-index', [
+        return view('livewire.orders.closed-order-index',[
             'orders' => $orders,
             'drivers' => $drivers,
             'STATUSES' => $STATUSES,
             'DRIVERS' => $DRIVERS,
             'ZONES' => $ZONES,
-            'totalWeight' => $totalWeight,
             'totalZones' => $totalZones,
             'ordersCount' => $ordersCount,
             'PAYMENT_METHODS' => $PAYMENT_METHODS,
-        ])->layout('layouts.app', ['page_title' => $this->page_title, 'orders' => 'active']);
+        ])->layout('layouts.app', ['page_title' => $this->page_title, 'ordersClosed' => 'active']);
     }
 }
