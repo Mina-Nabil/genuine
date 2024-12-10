@@ -161,7 +161,7 @@ class UserIndex extends Component
         $carLicenseDocUrl = $this->CarLicenceDoc ? $this->CarLicenceDoc->store(User::FILES_DIRECTORY, 's3') : null;
 
         // Create a new user with the validated data and document URLs
-        $res = User::newUser($this->newUsername, $this->newFirstName, $this->newLastName, $this->newType, $this->newPassword, $this->newEmail, $this->newPhone, $this->IdNumber, $idDocUrl, $this->DrivingLicenceNo, $drivingLicenseDocUrl, $this->CarLicenceNo, $carLicenseDocUrl, null, $this->shiftTitle, $this->weight_limit ? $this->weight_limit * 1000 : null , $this->orderQuantityLimit, $this->carType, $this->carModel,$this->startTime,$this->endTime);
+        $res = User::newUser($this->newUsername, $this->newFirstName, $this->newLastName, $this->newType, $this->newPassword, $this->newEmail, $this->newPhone, $this->IdNumber, $idDocUrl, $this->DrivingLicenceNo, $drivingLicenseDocUrl, $this->CarLicenceNo, $carLicenseDocUrl, null, $this->shiftTitle, $this->weightLimit ? $this->weightLimit * 1000 : null , $this->orderQuantityLimit, $this->carType, $this->carModel,$this->startTime,$this->endTime);
 
         // Check if the user was created successfully
         if ($res) {
