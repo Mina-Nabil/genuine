@@ -112,23 +112,26 @@
                         {{ number_format($driver->weight_limit / 1000, 3) }} KG
                     </div>
                     <div class=" text-xs font-normal">
-                        @if (($totalWeight / $driver->weight_limit) * 100 <= 50)
-                            <span
-                                class="text-danger-500">({{ number_format(($totalWeight / $driver->weight_limit) * 100, 0) }}%)
-                                In-sufficient</span>
-                        @elseif (($totalWeight / $driver->weight_limit) * 100 > 50 && ($totalWeight / $driver->weight_limit) * 100 <= 70)
-                            <span class="text-warning-500">
-                                ({{ number_format(($totalWeight / $driver->weight_limit) * 100, 0) }}%) Nearly
-                                Sufficient</span>
-                        @elseif (($totalWeight / $driver->weight_limit) * 100 > 70 && ($totalWeight / $driver->weight_limit) * 100 <= 100)
-                            <span
-                                class="text-success-500">({{ number_format(($totalWeight / $driver->weight_limit) * 100, 0) }}%)
-                                Sufficient</span>
-                        @elseif (($totalWeight / $driver->weight_limit) * 100 > 100)
-                            <span
-                                class="text-danger-500">({{ number_format(($totalWeight / $driver->weight_limit) * 100, 0) }}%)
-                                Overload</span>
+                        @if ($driver->weight_limit)
+                            @if (($totalWeight / $driver->weight_limit) * 100 <= 50)
+                                <span
+                                    class="text-danger-500">({{ number_format(($totalWeight / $driver->weight_limit) * 100, 0) }}%)
+                                    In-sufficient</span>
+                            @elseif (($totalWeight / $driver->weight_limit) * 100 > 50 && ($totalWeight / $driver->weight_limit) * 100 <= 70)
+                                <span class="text-warning-500">
+                                    ({{ number_format(($totalWeight / $driver->weight_limit) * 100, 0) }}%) Nearly
+                                    Sufficient</span>
+                            @elseif (($totalWeight / $driver->weight_limit) * 100 > 70 && ($totalWeight / $driver->weight_limit) * 100 <= 100)
+                                <span
+                                    class="text-success-500">({{ number_format(($totalWeight / $driver->weight_limit) * 100, 0) }}%)
+                                    Sufficient</span>
+                            @elseif (($totalWeight / $driver->weight_limit) * 100 > 100)
+                                <span
+                                    class="text-danger-500">({{ number_format(($totalWeight / $driver->weight_limit) * 100, 0) }}%)
+                                    Overload</span>
+                            @endif
                         @endif
+
                     </div>
                 </div>
                 <div class="space-y-1">
@@ -136,30 +139,34 @@
                         Total Orders Limit
                     </h4>
                     <div class="text-sm font-medium text-white dark:text-slate-900">
-                        {{ $ordersCount ?? 0 }} / {{ $driver->order_quantity_limit }} Orders
+                        {{ $ordersCount ?? 0 }} / {{ $driver->order_quantity_limit ?? 'No Limit' }} Orders
                     </div>
                     <div class=" text-xs font-normal">
-                        @if (($ordersCount / $driver->order_quantity_limit) * 100 <= 50)
-                            <span
-                                class="text-danger-500">({{ number_format(($ordersCount / $driver->order_quantity_limit) * 100, 0) }}%)
-                                In-sufficient</span>
-                        @elseif (
-                            ($ordersCount / $driver->order_quantity_limit) * 100 > 50 &&
-                                ($ordersCount / $driver->order_quantity_limit) * 100 <= 70)
-                            <span class="text-warning-500">
-                                ({{ number_format(($ordersCount / $driver->order_quantity_limit) * 100, 0) }}%) Nearly
-                                Sufficient</span>
-                        @elseif (
-                            ($ordersCount / $driver->order_quantity_limit) * 100 > 70 &&
-                                ($ordersCount / $driver->order_quantity_limit) * 100 <= 100)
-                            <span
-                                class="text-success-500">({{ number_format(($ordersCount / $driver->order_quantity_limit) * 100, 0) }}%)
-                                Sufficient</span>
-                        @elseif (($ordersCount / $driver->order_quantity_limit) * 100 > 100)
-                            <span
-                                class="text-danger-500">({{ number_format(($ordersCount / $driver->weight_limit) * 100, 0) }}%)
-                                Overload</span>
+                        @if ($driver->order_quantity_limit)
+                            @if (($ordersCount / $driver->order_quantity_limit) * 100 <= 50)
+                                <span
+                                    class="text-danger-500">({{ number_format(($ordersCount / $driver->order_quantity_limit) * 100, 0) }}%)
+                                    In-sufficient</span>
+                            @elseif (
+                                ($ordersCount / $driver->order_quantity_limit) * 100 > 50 &&
+                                    ($ordersCount / $driver->order_quantity_limit) * 100 <= 70)
+                                <span class="text-warning-500">
+                                    ({{ number_format(($ordersCount / $driver->order_quantity_limit) * 100, 0) }}%)
+                                    Nearly
+                                    Sufficient</span>
+                            @elseif (
+                                ($ordersCount / $driver->order_quantity_limit) * 100 > 70 &&
+                                    ($ordersCount / $driver->order_quantity_limit) * 100 <= 100)
+                                <span
+                                    class="text-success-500">({{ number_format(($ordersCount / $driver->order_quantity_limit) * 100, 0) }}%)
+                                    Sufficient</span>
+                            @elseif (($ordersCount / $driver->order_quantity_limit) * 100 > 100)
+                                <span
+                                    class="text-danger-500">({{ number_format(($ordersCount / $driver->weight_limit) * 100, 0) }}%)
+                                    Overload</span>
+                            @endif
                         @endif
+
                     </div>
                 </div>
                 <div class="space-y-1">

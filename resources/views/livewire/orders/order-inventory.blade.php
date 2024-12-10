@@ -6,9 +6,27 @@
             </h4>
         </div>
         <div class="flex sm:space-x-4 space-x-2 sm:justify-end items-center md:mb-6 mb-4 rtl:space-x-reverse">
+
+            <div class="dropdown relative">
+                <button class="btn inline-flex justify-center btn-dark items-center btn-sm" type="button"
+                    id="darkDropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                    Filter
+                    <iconify-icon class="text-xl ltr:ml-2 rtl:mr-2" icon="ic:round-keyboard-arrow-down"></iconify-icon>
+                </button>
+                <ul
+                    class=" dropdown-menu min-w-max absolute text-sm text-slate-700 dark:text-white hidden bg-white dark:bg-slate-700 shadow
+                            z-[2] float-left overflow-hidden list-none text-left rounded-lg mt-1 m-0 bg-clip-padding border-none">
+                    <li wire:click='openFilteryDriver'
+                        class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
+                        Driver
+                    </li>
+                </ul>
+            </div>
+
             @can('create', App\Models\Orders\Order::class)
                 <a href="{{ route('orders.create') }}">
-                    <button class="btn inline-flex justify-center btn-dark dark:bg-slate-700 dark:text-slate-300 m-1 btn-sm">
+                    <button
+                        class="btn inline-flex justify-center btn-dark dark:bg-slate-700 dark:text-slate-300 m-1 btn-sm">
                         Create order
                     </button>
                 </a>
@@ -29,6 +47,18 @@
                                 ? 'Tomorrow'
                                 : $deliveryDate->format('l d-m-Y'))) }}
                 </span>
+            </span>
+        @endif
+        @if ($driver)
+            <span class="badge bg-slate-900 text-white capitalize">
+                <span class="cursor-pointer" wire:click='openFilteryDriver'>
+                    <span class="text-secondary-500 ">Driver:</span>&nbsp;
+                    {{ ucwords($driver->user->full_name) }} • {{ $driver->shift_title }}
+
+                </span>
+
+                &nbsp;&nbsp;<iconify-icon wire:click="clearProperty('driver')" icon="material-symbols:close"
+                    class="cursor-pointer" width="1.2em" height="1.2em"></iconify-icon>
             </span>
         @endif
     </div>
@@ -66,7 +96,7 @@
                                             </a>
                                         </div>
 
-                                        <div class="mt-2">
+                                        <div class="mt-2 flex justify-between">
                                             @if ($order->status === App\Models\Orders\Order::STATUS_NEW)
                                                 <span
                                                     class="badge bg-info-500 text-dark-500 bg-opacity-50 capitalize  btn-outline-info"
@@ -100,7 +130,23 @@
                                                     {{ ucwords(str_replace('_', ' ', $order->status)) }}
                                                 </span>
                                             @endif
+                                            <div class="flex items-center text-xs">
+                                                @if ($order->driver)
+                                                    <iconify-icon icon="healthicons:truck-driver" width="15"
+                                                        height="15"></iconify-icon>
+                                                @endif
+                                                <b>&nbsp;{{ $order->driver?->user->full_name }}</b>
+                                            </div>
+                                            
+
                                         </div>
+                                        @if ($order->status === App\Models\Orders\Order::STATUS_READY)
+                                                <button wire:click='setAsInDelivery({{ $order->id }})' class="btn inline-flex justify-center btn-primary block-btn mt-2 btn-sm">
+                                                    <span class="flex items-center">
+                                                        <span>Set as in delivery</span>
+                                                    </span>
+                                                </button>
+                                            @endif
 
 
 
@@ -364,6 +410,74 @@
                                 <span wire:loading.remove wire:target="setFilteryDeliveryDate">Submit</span>
                                 <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
                                     wire:loading wire:target="setFilteryDeliveryDate"
+                                    icon="line-md:loading-twotone-loop"></iconify-icon>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    @endif
+
+    @if ($Edited_driverId_sec)
+        <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+            tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
+            style="display: block;">
+            <div class="modal-dialog relative w-auto pointer-events-none">
+                <div
+                    class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
+                    <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
+                        <!-- Modal header -->
+                        <div
+                            class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
+                            <h3 class="text-xl font-medium text-white dark:text-white capitalize">
+                                Filter Driver
+                            </h3>
+                            <button wire:click="closeFilteryDriver" type="button"
+                                class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
+                                data-bs-dismiss="modal">
+                                <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd"
+                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                <span class="sr-only">Close modal</span>
+                            </button>
+                        </div>
+
+                        <!-- Modal body -->
+                        <div class="p-6 space-y-4">
+
+                            <div class="from-group">
+                                <div class="input-area">
+                                    <label for="Edited_driverId" class="form-label">Driver*</label>
+                                    <select name="Edited_driverId" id="Edited_status"
+                                        class="form-control w-full mt-2 @error('Edited_driverId') !border-danger-500 @enderror"
+                                        wire:model="Edited_driverId" autocomplete="off">
+                                        <option value="">Select driver</option>
+                                        @foreach ($DRIVERS as $ONE_DRIVERS)
+                                            <option value="{{ $ONE_DRIVERS->id }}">
+                                                {{ $ONE_DRIVERS->user->full_name }} • {{ $ONE_DRIVERS->shift_title }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+
+                                </div>
+                                @error('Edited_driverId')
+                                    <span
+                                        class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                        </div>
+
+                        <!-- Modal footer -->
+                        <div class="flex items-center justify-end p-6 border-t border-slate-200 rounded-b">
+                            <button wire:click="setFilterDriver" data-bs-dismiss="modal"
+                                class="btn inline-flex justify-center text-white bg-black-500">
+                                <span wire:loading.remove wire:target="setFilterDriver">Submit</span>
+                                <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
+                                    wire:loading wire:target="setFilterDriver"
                                     icon="line-md:loading-twotone-loop"></iconify-icon>
                             </button>
                         </div>
