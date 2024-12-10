@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Locale;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class Order extends Model
@@ -927,6 +928,9 @@ class Order extends Model
             $message .= "\n• {$product->product->name}: {$weightInKg} كيلو";
         }
 
+        $deliveryDate = $this->convertDayToArabic($this->delivery_date->format('l')).' '.$this->delivery_date->format('d/m/Y');
+        $message .= "\n\nتـاريخ توصيل الطلـب: {$deliveryDate}";
+
         $message .= "\n\nتفاصيل المندوب:\n";
         if (!empty($this->driver->user->full_name)) {
             $message .= "الاسم: {$this->driver->user->full_name}\n";
@@ -951,6 +955,26 @@ class Order extends Model
         }
 
         return "https://wa.me/{$phoneNumber}?text={$encodedMessage}";
+    }
+
+    function convertDayToArabic(string $day): string
+    {
+        // Mapping of English weekdays to Arabic
+        $daysMapping = [
+            'Monday'    => 'الاثنين',
+            'Tuesday'   => 'الثلاثاء',
+            'Wednesday' => 'الأربعاء',
+            'Thursday'  => 'الخميس',
+            'Friday'    => 'الجمعة',
+            'Saturday'  => 'السبت',
+            'Sunday'    => 'الأحد',
+        ];
+
+        // Normalize the input to ensure proper mapping
+        $day = ucfirst(strtolower(trim($day)));
+
+        // Return the Arabic day or an error message for invalid input
+        return $daysMapping[$day] ?? 'Invalid day input';
     }
 
     /**
