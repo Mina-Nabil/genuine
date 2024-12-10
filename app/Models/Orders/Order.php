@@ -382,6 +382,28 @@ class Order extends Model
         }
     }
 
+    public function setWhstappMsgAsSent($status = true): bool
+    {
+        /** @var User */
+        $loggedInUser = Auth::user();
+        if ($loggedInUser && !$loggedInUser->can('update', $this)) {
+            return false;
+        }
+
+        try {
+            $this->is_whatsapp_sent = $status;
+            $this->save();
+
+            AppLog::info('Whatsapp message sent', loggable: $this);
+
+            return true;
+        } catch (Exception $e) {
+            report($e);
+            AppLog::error('Failed to send whatsapp messsage', $e->getMessage());
+            return false;
+        }
+    }
+
     public static function checkStatusConsistency(array $orderIds)
     {
         $result = DB::table('orders')

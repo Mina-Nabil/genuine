@@ -68,6 +68,26 @@ class OrderShow extends Component
 
     public $isOpenDeleteSection = false;
 
+    public $isOpenRemoveWhatsappMsgSection = false;
+
+    public function toggleConfirmRemoveWAmsg(){
+        $this->toggle($this->isOpenRemoveWhatsappMsgSection);
+    }
+
+    public function sendWhatsappMessage($status = true){
+        $res = $this->order->setWhstappMsgAsSent($status);
+        if ($res) {
+            if (!$status) {
+                $this->toggleConfirmRemoveWAmsg();
+                $this->alertInfo('Message removed!');
+            }else{
+                $this->alertSuccess('Message sent!');
+            }
+        } else {
+            $this->alertFailed();
+        }
+    }
+
     public function toggleDelete()
     {
         $this->toggle($this->isOpenDeleteSection);
