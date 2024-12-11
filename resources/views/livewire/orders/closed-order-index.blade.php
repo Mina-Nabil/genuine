@@ -195,7 +195,8 @@
                                                     class="h-[10px] w-[10px] block m-auto opacity-0"></span>
                                         </label>
                                     </div>
-                                    <a href="{{ route('orders.show', $order->id) }}" target="_blanck"> <span class="hover-underline">
+                                    <a href="{{ route('orders.show', $order->id) }}" target="_blanck"> <span
+                                            class="hover-underline">
                                             <b>
                                                 #{{ $order->order_number }}
                                             </b>
@@ -219,8 +220,14 @@
                                 </td>
 
                                 <td class="table-td text-start overflow-hidden text-ellipsis whitespace-nowrap">
-                                    @if ($order->status === App\Models\Orders\Order::STATUS_NEW || $order->status === App\Models\Orders\Order::STATUS_READY)
+                                    @if ($order->status === App\Models\Orders\Order::STATUS_NEW)
                                         <span class="badge bg-info-500 text-dark-500 bg-opacity-50 capitalize">
+                                            <iconify-icon icon="octicon:dot-16" width="1.2em"
+                                                height="1.2em"></iconify-icon>
+                                            {{ ucwords(str_replace('_', ' ', $order->status)) }}
+                                        </span>
+                                    @elseif ($order->status === App\Models\Orders\Order::STATUS_READY)
+                                        <span class="badge bg-[#EAE5FF] text-dark-500 capitalize">
                                             <iconify-icon icon="octicon:dot-16" width="1.2em"
                                                 height="1.2em"></iconify-icon>
                                             {{ ucwords(str_replace('_', ' ', $order->status)) }}
