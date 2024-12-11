@@ -149,8 +149,8 @@
                     </li>
 
                     <li>
-                        <a href="{{ auth()->user()->can('viewAny', App\Models\Orders\Order::class)? url('/orders/inventory'): '#' }}"
-                            class="navItem {{ $ordersInventory ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Orders\Order::class)? '': 'disabled' }}">
+                        <a href="{{ auth()->user()->can('viewOrderInventory', App\Models\Products\Order::class)? url('/orders/inventory'): '#' }}"
+                            class="navItem {{ $ordersInventory ?? '' }} {{ auth()->user()->can('viewOrderInventory', App\Models\Orders\Order::class)? '': 'disabled' }}">
                             <span class="flex items-center">
                                 <iconify-icon class=" nav-icon" icon="gridicons:product">
                                 </iconify-icon>
