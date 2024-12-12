@@ -28,22 +28,45 @@ class OrderInventory extends Component
     public $Edited_driverId_sec;
 
     #[Url]
-    public $deliveryDate;
+    public $deliveryDate = [];
     public $Edited_deliveryDate;
     public $Edited_deliveryDate_sec;
+    public $selectedDeliveryDates = [];
+
+    public function updatedEditedDeliveryDate($value)
+    {
+        foreach($this->selectedDeliveryDates as $date){
+            if ($date->toDateString() === $value) {
+                return;
+            }
+        }
+        $this->selectedDeliveryDates[] = Carbon::parse($value);
+        $this->Edited_deliveryDate = null;
+    }
+
+    public function removeSelectedDate($index)
+    {
+        unset($this->selectedDeliveryDates[$index]);
+        $this->selectedDeliveryDates = array_values($this->selectedDeliveryDates); // Reset array keys
+    }
 
     public function openFilteryDeliveryDate(){
         $this->Edited_deliveryDate_sec = true;
-        $this->Edited_deliveryDate = $this->deliveryDate?->toDateString();
+
+        foreach ($this->deliveryDate as $date) {
+            $this->selectedDeliveryDates[] = $date;
+        }
     }
 
     public function closeFilteryDeliveryDate(){
         $this->Edited_deliveryDate_sec = false;
         $this->Edited_deliveryDate = null;
+        $this->selectedDeliveryDates = [];
     }
 
     public function setFilteryDeliveryDate(){
-        $this->deliveryDate = Carbon::parse($this->Edited_deliveryDate);
+
+        $this->deliveryDate = $this->selectedDeliveryDates;
         $this->closeFilteryDeliveryDate();
     }
 
@@ -94,13 +117,13 @@ class OrderInventory extends Component
     public function mount()
     {
         $this->authorize('viewOrderInventory',Order::class);
-        $this->deliveryDate = Carbon::tomorrow();
+        $this->deliveryDate = [Carbon::tomorrow()];
     }
 
     public function render()
     {
         $DRIVERS = Driver::all();
-        $orders = Order::search(searchText: $this->search, deliveryDate: $this->deliveryDate,status:$this->status,driverId: $this->driver?->id ,zoneId:$this->zone?->id)->withTotalQuantity()->paginate(50);
+        $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate,status:$this->status,driverId: $this->driver?->id ,zoneId:$this->zone?->id)->withTotalQuantity()->paginate(50);
         return view('livewire.orders.order-inventory',[
             'orders' => $orders,
             'DRIVERS' => $DRIVERS,

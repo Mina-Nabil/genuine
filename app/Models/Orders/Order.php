@@ -1359,7 +1359,7 @@ class Order extends Model
         return ($hasPayments || $hasBalanceTransactions) && ($this->remaining_to_pay > 0 && $this->remaining_to_pay < $this->total_amount);
     }
 
-    public function scopeSearch(Builder $query, string $searchText = null, string $deliveryDate = null, string $status = null, int $zoneId = null, int $driverId = null, bool $isPaid = null): Builder
+    public function scopeSearch(Builder $query, string $searchText = null, array $deliveryDates = [], string $status = null, int $zoneId = null, int $driverId = null, bool $isPaid = null): Builder
     {
         return $query
             ->when($searchText, function ($query, $searchText) {
@@ -1369,8 +1369,8 @@ class Order extends Model
                         ->orWhere('customer_phone', 'like', '%' . $searchText . '%');
                 });
             })
-            ->when($deliveryDate, function ($query, $deliveryDate) {
-                $query->whereDate('delivery_date', $deliveryDate);
+            ->when(!empty($deliveryDates), function ($query) use ($deliveryDates) {
+                $query->whereIn('delivery_date', $deliveryDates);
             })
             ->when($status, function ($query, $status) {
                 $query->where('status', $status);

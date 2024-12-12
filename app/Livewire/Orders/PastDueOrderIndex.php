@@ -44,9 +44,10 @@ class PastDueOrderIndex extends Component
     public $Edited_zoneId_sec;
 
     #[Url]
-    public $deliveryDate;
+    public $deliveryDate = [];
     public $Edited_deliveryDate;
     public $Edited_deliveryDate_sec;
+    public $selectedDeliveryDates = [];
 
     public $AvailableToPay = false;
     public $AvailableToSetDriver = false;
@@ -68,18 +69,49 @@ class PastDueOrderIndex extends Component
         }
     }
 
-    public function openFilteryDeliveryDate(){
-        $this->Edited_deliveryDate_sec = true;
-        $this->Edited_deliveryDate = $this->deliveryDate?->toDateString();
-    }
-
-    public function closeFilteryDeliveryDate(){
-        $this->Edited_deliveryDate_sec = false;
+    public function updatedEditedDeliveryDate($value)
+    {
+        foreach ($this->selectedDeliveryDates as $date) {
+            if ($date->toDateString() === $value) {
+                return;
+            }
+        }
+        $this->selectedDeliveryDates[] = Carbon::parse($value);
         $this->Edited_deliveryDate = null;
     }
 
-    public function setFilteryDeliveryDate(){
-        $this->deliveryDate = Carbon::parse($this->Edited_deliveryDate);
+    public function removeSelectedDate($index)
+    {
+        if (count($this->selectedDeliveryDates) > 1) {
+            unset($this->selectedDeliveryDates[$index]);
+            $this->selectedDeliveryDates = array_values($this->selectedDeliveryDates); // Reset array keys
+        }
+    }
+
+    public function clearDeliveryDate()
+    {
+        $this->deliveryDate = [];
+    }
+
+    public function openFilteryDeliveryDate()
+    {
+        $this->Edited_deliveryDate_sec = true;
+
+        foreach ($this->deliveryDate as $date) {
+            $this->selectedDeliveryDates[] = $date;
+        }
+    }
+
+    public function closeFilteryDeliveryDate()
+    {
+        $this->Edited_deliveryDate_sec = false;
+        $this->Edited_deliveryDate = null;
+        $this->selectedDeliveryDates = [];
+    }
+
+    public function setFilteryDeliveryDate()
+    {
+        $this->deliveryDate = $this->selectedDeliveryDates;
         $this->closeFilteryDeliveryDate();
     }
 
@@ -254,7 +286,7 @@ class PastDueOrderIndex extends Component
 
     public function render()
     {
-        $orders = Order::search(searchText: $this->search, deliveryDate: $this->deliveryDate,driverId: $this->driver?->id ,zoneId:$this->zone?->id)->OpenOrders()->PastDeliveryDate()->withTotalQuantity()->paginate(50);
+        $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate,driverId: $this->driver?->id ,zoneId:$this->zone?->id)->OpenOrders()->PastDeliveryDate()->withTotalQuantity()->paginate(50);
 
         $totalZones = Order::getTotalZonesForOrders($orders);
         $ordersCount = count($orders);
