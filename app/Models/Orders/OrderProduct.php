@@ -61,6 +61,23 @@ class OrderProduct extends Model
         }
     }
 
+    public function toggleDeletedProductReady()
+    {
+        try {
+
+            $this->is_ready = !$this->is_ready;
+            $this->save();
+
+            AppLog::info('product '.$this->product->name.' set to '.(!$this->is_ready ? 'not' : '') .' ready', loggable: $this->order);
+
+            return true;
+        } catch (Exception $e) {
+            report($e);
+            AppLog::error('Failed to toggle order product ready', $e->getMessage());
+            return false;
+        }
+    }
+
     /**
      * Scope for production planning
      *

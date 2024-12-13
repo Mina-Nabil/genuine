@@ -1400,8 +1400,8 @@ class Order extends Model
         return $query->where(function (Builder $query) {
             $query->whereIn('status', [self::STATUS_DONE, self::STATUS_RETURNED, self::STATUS_CANCELLED])
                 ->where(function (Builder $query) {
-                    $query->where('status', '!=', self::STATUS_DONE)->orWhere('is_paid', true);
-                });
+                $query->where('status', '!=', self::STATUS_DONE)->orWhere('is_paid', true);
+            });
         });
     }
 
@@ -1535,6 +1535,18 @@ class Order extends Model
     {
         return self::whereIn('id', $orders->pluck('id'))->distinct('zone_id')->count('zone_id');
     }
+
+    public function scopeWithCancelledReadyProducts(Builder $query): Builder
+{
+    return $query->where('status', 'cancelled')
+        ->whereHas('products', function ($q) {
+            $q->withTrashed()
+                ->where('is_ready', true)
+                ->whereNotNull('deleted_at'); // Filter for soft-deleted products
+        });
+}
+
+
 
     // relations
     public function products(): HasMany

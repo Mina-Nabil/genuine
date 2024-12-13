@@ -114,19 +114,47 @@ class OrderInventory extends Component
         }
     }
 
+    public function toggleDeletedReady($id){
+        $orderProduct = OrderProduct::withTrashed()->findOrFail($id);
+        $res = $orderProduct->toggleDeletedProductReady();
+
+        if ($res) {
+            $this->alertSuccess('Product swtiched');
+        }else{
+            $this->alertFailed();
+        }
+    }
+
     public function mount()
     {
         $this->authorize('viewOrderInventory',Order::class);
         $this->deliveryDate = [Carbon::tomorrow()];
     }
 
+    
+
     public function render()
     {
         $DRIVERS = Driver::all();
-        $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate,status:$this->status,driverId: $this->driver?->id ,zoneId:$this->zone?->id)->withTotalQuantity()->paginate(50);
+        $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate,status:$this->status,driverId: $this->driver?->id ,zoneId:$this->zone?->id)->withTotalQuantity()->openOrders()->paginate(50);
+
+        
+        $cancelledOrders = Order::search(
+            searchText: $this->search,
+            status: $this->status,
+            driverId: $this->driver?->id,
+            zoneId: $this->zone?->id
+        )
+        ->withCancelledReadyProducts()
+        ->with(['products' => function ($query) {
+            $query->withTrashed(); // Include trashed products in the eager loading
+        }])
+        ->get();
+
         return view('livewire.orders.order-inventory',[
             'orders' => $orders,
             'DRIVERS' => $DRIVERS,
+            'cancelledOrders' => $cancelledOrders
         ])->layout('layouts.app', ['page_title' => $this->page_title, 'ordersInventory' => 'active']);
     }
 }

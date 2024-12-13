@@ -69,11 +69,255 @@
         @endif
     </div>
 
+    @if (!$cancelledOrders->isEmpty())
+        <div>
+            <div class="md:flex-1 rounded-md overlay md:col-span-2" style="min-width: 400px;">
+                <div class="flex-1 rounded-md col-span-2">
+                    <div
+                        class="card-body flex flex-col justify-center  bg-no-repeat bg-center bg-cover card p-4 active">
+                        <div class="card-text flex flex-col justify-between h-full menu-open">
+                            <p class="text-danger-500 mb-5">
+                                <span class="text-lg"></span><b>Cancelled Orders</b><br>
+                                <span class="text-xs">* You can restore the ready products from cancelled orders to
+                                    remove these orders from the list.</span>
+                            </p>
+                            @foreach ($cancelledOrders as $order)
+                                <div class="card-body flex flex-col justify-between border rounded-lg h-full menu-open p-0 mb-5"
+                                    style="border-color:rgb(224, 224, 224)">
+                                    <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-4">
+
+                                        <div class="p-3">
+                                            <div class="flex">
+                                                <div class="checkbox-area">
+                                                    <label class="inline-flex items-center cursor-pointer">
+                                                        <input type="checkbox" wire:model.live="selectedOrders"
+                                                            value="{{ $order->id }}" class="hidden" id="select-all">
+                                                        <span
+                                                            class="h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 bg-slate-100 dark:bg-slate-900">
+                                                            <img src="{{ asset('assets/images/icon/ck-white.svg') }}"
+                                                                alt=""
+                                                                class="h-[10px] w-[10px] block m-auto opacity-0"></span>
+                                                    </label>
+                                                </div>
+                                                <a href="{{ route('orders.show', $order->id) }}"> <span
+                                                        class="hover-underline">
+                                                        <b>
+                                                            #{{ $order->order_number }} • {{ $order->customer->name }}
+                                                        </b>
+                                                    </span>
+                                                </a>
+                                            </div>
+
+                                            <div class="mt-2 flex justify-between">
+                                                @if ($order->status === App\Models\Orders\Order::STATUS_NEW)
+                                                    <span
+                                                        class="badge bg-info-500 text-dark-500 bg-opacity-50 capitalize  btn-outline-info"
+                                                        style="padding-top: 3px;padding-bottom: 3px">
+                                                        {{ ucwords(str_replace('_', ' ', $order->status)) }}
+                                                    </span>
+                                                @elseif ($order->status === App\Models\Orders\Order::STATUS_IN_DELIVERY)
+                                                    <span
+                                                        class="badge bg-warning-500 text-dark-500 bg-opacity-50 capitalize  btn-outline-warning"
+                                                        style="padding-top: 3px;padding-bottom: 3px">
+                                                        {{ ucwords(str_replace('_', ' ', $order->status)) }}
+                                                    </span>
+                                                @elseif (
+                                                    $order->status === App\Models\Orders\Order::STATUS_RETURNED ||
+                                                        $order->status === App\Models\Orders\Order::STATUS_CANCELLED)
+                                                    <span
+                                                        class="badge bg-secondary-500 text-dark-500 bg-opacity-50 capitalize   btn-outline-danger"
+                                                        style="padding-top: 3px;padding-bottom: 3px">
+                                                        {{ ucwords(str_replace('_', ' ', $order->status)) }}
+                                                    </span>
+                                                @elseif ($order->status === App\Models\Orders\Order::STATUS_DONE || $order->status === App\Models\Orders\Order::STATUS_READY)
+                                                    <span
+                                                        class="badge bg-success-500 text-dark-500 bg-opacity-50 capitalize btn-outline-success"
+                                                        style="padding-top: 3px;padding-bottom: 3px">
+                                                        {{ ucwords(str_replace('_', ' ', $order->status)) }}
+                                                    </span>
+                                                @else
+                                                    <span
+                                                        class="badge bg-secondary-500 text-dark-500 bg-opacity-50 capitalize  btn-outline-secondary"
+                                                        style="padding-top: 3px;padding-bottom: 3px">
+                                                        {{ ucwords(str_replace('_', ' ', $order->status)) }}
+                                                    </span>
+                                                @endif
+                                                <div class="flex items-center text-xs">
+                                                    @if ($order->driver)
+                                                        <iconify-icon icon="healthicons:truck-driver" width="15"
+                                                            height="15"></iconify-icon>
+                                                    @endif
+                                                    <b>&nbsp;{{ $order->driver?->user->full_name }}</b>
+                                                </div>
+
+
+                                            </div>
+                                            @if ($order->status === App\Models\Orders\Order::STATUS_READY)
+                                                <button wire:click='setAsInDelivery({{ $order->id }})'
+                                                    class="btn inline-flex justify-center btn-primary block-btn mt-2 btn-sm">
+                                                    <span class="flex items-center">
+                                                        <span>Set as in delivery</span>
+                                                    </span>
+                                                </button>
+                                            @endif
+
+
+
+
+                                        </div>
+
+                                        <div class="border-l p-3 md:col-span-2">
+
+                                            <table
+                                                class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700">
+                                                <tbody class="bg-white dark:bg-slate-800 no-wrap">
+                                                    @foreach ($order->products as $orderProduct)
+                                                        <tr>
+                                                            <td class=" ">
+                                                                <div class="flex">
+                                                                    <div class="checkbox-area">
+                                                                        <label
+                                                                            class="inline-flex items-center cursor-pointer">
+                                                                            <input type="checkbox"
+                                                                                wire:model.live="selectedOrderProducts"
+                                                                                value="{{ $orderProduct->id }}"
+                                                                                class="hidden" id="select-all">
+                                                                            <span
+                                                                                class="h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 bg-slate-100 dark:bg-slate-900">
+                                                                                <img src="{{ asset('assets/images/icon/ck-white.svg') }}"
+                                                                                    alt=""
+                                                                                    class="h-[10px] w-[10px] block m-auto opacity-0"></span>
+                                                                        </label>
+                                                                    </div>
+
+                                                                    <div
+                                                                        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xs:mb-2 sm:mb-0">
+                                                                        <a
+                                                                            href="{{ route('product.show', $orderProduct->product->id) }}">
+                                                                            <span class="hover-underline">
+                                                                                <div class="text-start overflow-hidden text-ellipsis whitespace-nowrap"
+                                                                                    style="max-width: 150px;">
+                                                                                    <div
+                                                                                        class="text-sm text-slate-600 dark:text-slate-300 overflow-hidden text-ellipsis whitespace-nowrap">
+                                                                                        <b>
+                                                                                            {{ $orderProduct->product->name }}
+                                                                                        </b>
+                                                                                    </div>
+                                                                                </div>
+
+                                                                            </span>
+                                                                        </a>
+                                                                        <p class="card-text mx-2">
+
+                                                                            <small>{{ $orderProduct->quantity }} x
+                                                                                @if ($orderProduct->product->weight < 1000)
+                                                                                    {{ $orderProduct->product->weight }}gm
+                                                                                @else
+                                                                                    {{ $orderProduct->product->weight / 1000 }}kg
+                                                                                @endif
+
+                                                                            </small>
+
+                                                                            {{-- <small>KG</small> --}}
+                                                                        </p>
+                                                                    </div>
+
+                                                                </div>
+                                                            </td>
+
+
+                                                            @can('update', $order)
+                                                                @if ($order->status !== App\Models\Orders\Order::STATUS_READY)
+                                                                    <td class="float-right ml-5">
+                                                                        @if ($orderProduct->is_ready)
+                                                                            <button
+                                                                                wire:click='toggleDeletedReady({{ $orderProduct->id }})'
+                                                                                class="btn inline-flex justify-center btn-outline-secondary btn-sm"
+                                                                                style="padding-top: 3px;padding-bottom: 3px">
+                                                                                Click to Restore
+                                                                            </button>
+                                                                        @else
+                                                                                <button
+                                                                                    wire:click='toggleDeletedReady({{ $orderProduct->id }})'
+                                                                                    class="btn inline-flex justify-center btn-outline-success btn-sm"
+                                                                                    style="padding-top: 3px;padding-bottom: 3px">
+                                                                                    Restored
+                                                                                </button>
+                                                                        @endif
+                                                                    </td>
+                                                                @endif
+                                                            @endcan
+
+                                                            <td class="float-right">
+                                                                <p class="card-text">
+                                                                    {{ number_format($orderProduct->quantity * ($orderProduct->product->weight / 1000), 3) }}
+                                                                    <small>KG</small>
+                                                                </p>
+                                                            </td>
+
+
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+
+
+                                        </div>
+
+                                        <div class="border-l p-3">
+                                            <div
+                                                class="bg-slate-50 dark:bg-slate-900 rounded p-2 flex justify-between flex-wrap">
+                                                <div class="space-y-1">
+                                                    <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
+                                                        Total Weight
+                                                    </h4>
+                                                    <div class="text-sm font-medium text-slate-900 dark:text-white">
+                                                        {{ number_format($order->total_weight / 1000, 2) }}
+                                                        <small>KG</small>
+                                                    </div>
+                                                </div>
+                                                <div class="space-y-1">
+                                                    <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
+                                                        Total Quantity
+                                                    </h4>
+                                                    <div class="text-sm font-medium text-slate-900 dark:text-white">
+                                                        {{ $order->total_items }}
+                                                        <small>Product{{ $order->total_items > 1 ? 's' : '' }}</small>
+                                                    </div>
+                                                </div>
+                                                <div class="space-y-1">
+                                                    <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
+                                                        Total Price
+                                                    </h4>
+                                                    <div class="text-sm font-medium text-slate-900 dark:text-white">
+                                                        {{ number_format($order->total_amount, 2) }} <small>EGP</small>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr>
+        </div>
+    @endif
+
     <div>
         <div class="md:flex-1 rounded-md overlay md:col-span-2" style="min-width: 400px;">
             <div class="flex-1 rounded-md col-span-2">
                 <div class="card-body flex flex-col justify-center  bg-no-repeat bg-center bg-cover card p-4 active">
                     <div class="card-text flex flex-col justify-between h-full menu-open">
+
+                        <p class="mb-5">
+                            <span class="text-lg"></span><b>Active Orders</b><br>
+                            <span class="text-xs">* Mark the products as ready to prepare them for processing.</span>
+                        </p>
 
                         @forelse ($orders as $order)
                             <div class="card-body flex flex-col justify-between border rounded-lg h-full menu-open p-0 mb-5"
@@ -186,7 +430,7 @@
 
                                                                 <div
                                                                     class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xs:mb-2 sm:mb-0">
-                                                                    {{-- <a
+                                                                    <a
                                                                         href="{{ route('product.show', $orderProduct->product->id) }}">
                                                                         <span class="hover-underline">
                                                                             <div class="text-start overflow-hidden text-ellipsis whitespace-nowrap"
@@ -200,7 +444,7 @@
                                                                             </div>
 
                                                                         </span>
-                                                                    </a> --}}
+                                                                    </a>
                                                                     <p class="card-text mx-2">
 
                                                                         <small>{{ $orderProduct->quantity }} x
@@ -218,6 +462,7 @@
 
                                                             </div>
                                                         </td>
+
 
                                                         @can('update', $order)
                                                             @if ($order->status !== App\Models\Orders\Order::STATUS_READY)
@@ -401,7 +646,8 @@
                                 <div class="input-area">
                                     <label for="Edited_deliveryDate" class="form-label">Delivery date*</label>
                                     <p class="text-gray-600 text-xs mb-2">
-                                        *You can select multiple dates by clicking on the date. Once done, click "Submit" to apply the filter.
+                                        *You can select multiple dates by clicking on the date. Once done, click
+                                        "Submit" to apply the filter.
                                     </p>
                                     <input name="Edited_deliveryDate" id="Edited_deliveryDate" type="date"
                                         class="form-control w-full mt-2 @error('Edited_deliveryDate') !border-danger-500 @enderror"
