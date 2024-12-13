@@ -5,6 +5,7 @@ namespace App\Livewire\Customers;
 use App\Models\Customers\Customer;
 use App\Models\Customers\Followup;
 use App\Models\Customers\Zone;
+use App\Models\Orders\PeriodicOrder;
 use App\Models\Payments\CustomerPayment;
 use App\Models\Pets\Pet;
 use Livewire\Component;
@@ -439,6 +440,17 @@ class CustomerShow extends Component
         }
     }
 
+    public function setPeriodicAsDefault($id){
+        $periodicOrder =  PeriodicOrder::findOrFail($id);
+        $res = $periodicOrder->setAsDefault();
+        if ($res) {
+            $this->alert('success', 'Periodic Order updated');
+            $this->mount($this->customer->id);
+        } else {
+            $this->alert('failed', 'server error');
+        }
+    }
+
     public function loadMore()
     {
         $this->visibleCommentsCount += 5; // Load 5 more comments
@@ -472,6 +484,7 @@ class CustomerShow extends Component
         $PET_CATEGORIES = Pet::CATEGORIES;
         $PAYMENT_METHODS = CustomerPayment::PAYMENT_METHODS;
         $orders = $this->customer->orders->take(5);
+        $periodcOrders = $this->customer->periodicOrders;
 
         $this->comments = $this->customer
             ->comments()
@@ -486,6 +499,7 @@ class CustomerShow extends Component
             'PET_TYPES' => $PET_TYPES,
             'PAYMENT_METHODS' => $PAYMENT_METHODS,
             'orders' => $orders,
+            'periodcOrders' => $periodcOrders,
         ])->layout('layouts.app', ['page_title' => $this->page_title, 'customers' => 'active']);
     }
 }
