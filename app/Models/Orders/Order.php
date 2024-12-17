@@ -705,6 +705,7 @@ class Order extends Model
 
                 $orderProduct = $this->products()
                     ->where('product_id', $product['product_id'])
+                    ->whereNull('combo_id')
                     ->first();
 
                 if ($orderProduct) {
@@ -1223,7 +1224,7 @@ class Order extends Model
 
     private static function generateNextOrderNumber(): string
     {
-        $latestOrder = self::orderBy('id', 'desc')->first();
+        $latestOrder = self::orderBy('id', 'desc')->withTrashed()->first();
 
         // Determine the next order number based on the latest order
         if ($latestOrder) {

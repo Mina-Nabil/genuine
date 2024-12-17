@@ -269,8 +269,8 @@ class OrderCreate extends Component
 
         foreach ($combo->products as $product) {
             // Check if the product already exists in fetchedProducts by its ID
-            $existingIndex = collect($this->fetchedProducts)->search(function ($fetchedProduct) use ($product) {
-                return $fetchedProduct['id'] == $product->id;
+            $existingIndex = collect($this->fetchedProducts)->search(function ($fetchedProduct) use ($product,$combo) {
+                return ($fetchedProduct['id'] == $product->id) && ($fetchedProduct['combo_id'] == $combo->id);
             });
 
             if ($existingIndex !== false) {
@@ -289,9 +289,9 @@ class OrderCreate extends Component
             ];
 
             // Ensure the product ID is also in selectedProducts
-            if (!in_array($product->id, $this->selectedProducts)) {
-                $this->selectedProducts[] = $product->id;
-            }
+            // if (!in_array($product->id, $this->selectedProducts)) {
+            //     $this->selectedProducts[] = $product->id;
+            // }
         }
 
         foreach ($this->fetchedProducts as $product) {
@@ -320,7 +320,7 @@ class OrderCreate extends Component
     {
         foreach ($this->selectedProducts as $productId) {
             // If the product is not in a combo, check if it exists individually
-            $existsIndividually = collect($this->fetchedProducts)->contains('id', $productId);
+            $existsIndividually = false;
 
             if (!$existsIndividually) {
                 $product = Product::findOrFail($productId);

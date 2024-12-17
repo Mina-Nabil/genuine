@@ -22,6 +22,7 @@ class OrderProduct extends Model
     protected $fillable = [
         'order_id', // Foreign key to the order
         'product_id', // Foreign key to the product
+        'combo_id',
         'quantity', // Quantity of the product
         'price', // Price of the product
         'is_ready',
