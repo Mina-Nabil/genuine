@@ -1483,6 +1483,7 @@ class Order extends Model
                         'monthly_weight_target' => $monthlyWeightTarget,
                         'last_order_id' => $customer->orders()->latest()->first()->id,
                         'customer_id' => $customer_id,
+                        'default_periodic_order' => $customer->periodicOrders()->default()->first(),
                         'weekly_weights' => [],
                     ];
                 }
