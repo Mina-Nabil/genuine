@@ -300,7 +300,10 @@ class Customer extends Model
         return $query->where(function ($q) use ($term) {
             $q->where('name', 'like', $term)
                 ->orWhere('address', 'like', $term)
-                ->orWhere('phone', 'like', $term);
+                ->orWhere('phone', 'like', $term)
+                ->orWhereHas('zone', function ($zoneQuery) use ($term) {
+                    $zoneQuery->where('name', 'like', $term);
+                });
         });
     }
 
