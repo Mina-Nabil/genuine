@@ -220,8 +220,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="{{ url('/calendar') }}"
-                            class="navItem">
+                        <a href="{{ url('/calendar') }}" class="navItem">
                             <span class="flex items-center">
                                 <iconify-icon class=" nav-icon" icon="grommet-icons:calendar">
                                 </iconify-icon>
@@ -254,17 +253,18 @@
 
 
                     {{-- @can('viewReports', App\Models\Orders\Order::class) --}}
-                        <li class="sidebar-menu-title">Reports</li>
-                        <li>
-                            <a href="{{ url('/report/followup') }}"
-                                class="navItem {{ $followupReport ?? '' }}  {{ auth()->user()->can('viewReports', App\Models\Orders\Order::class)? '': 'disabled' }}">
-                                <span class="flex items-center">
-                                    <iconify-icon class=" nav-icon" icon="material-symbols:order-approve-outline-sharp">
-                                    </iconify-icon>
-                                    <span>متابعه عملاء</span>
-                                </span>
-                            </a>
-                        </li>
+                    <li class="sidebar-menu-title">Reports</li>
+                    <li>
+                        <a href="{{ url('/report/followup') }}"
+                            class="navItem {{ $followupReport ?? '' }}"  >
+                                <span class="flex
+                            items-center">
+                            <iconify-icon class=" nav-icon" icon="material-symbols:order-approve-outline-sharp">
+                            </iconify-icon>
+                            <span>متابعه عملاء</span>
+                            </span>
+                        </a>
+                    </li>
                     {{-- @endcan --}}
 
 
