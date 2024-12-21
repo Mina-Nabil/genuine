@@ -436,9 +436,6 @@ class OrderCreate extends Component
         // Re-index the selectedProducts array to maintain sequential numeric keys
         $this->selectedProducts = array_values($this->selectedProducts);
         $this->fetchedProducts = array_values($this->fetchedProducts);
-        
-        Log::info("Fetched Count " . count($this->fetchedProducts));
-        Log::info("Selected Count " .  count($this->selectedProducts));
 
         $this->fetchedCombos = array_filter($this->fetchedCombos, function ($comboArr) {
             foreach ($this->fetchedProducts as $prod) {
