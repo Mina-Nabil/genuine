@@ -22,6 +22,7 @@ class OrderProduct extends Model
     protected $fillable = [
         'order_id', // Foreign key to the order
         'product_id', // Foreign key to the product
+        'combo_id',
         'quantity', // Quantity of the product
         'price', // Price of the product
         'is_ready',
@@ -52,6 +53,23 @@ class OrderProduct extends Model
                 }
                 $this->order->setStatus(Order::STATUS_READY);
             }
+
+            return true;
+        } catch (Exception $e) {
+            report($e);
+            AppLog::error('Failed to toggle order product ready', $e->getMessage());
+            return false;
+        }
+    }
+
+    public function toggleDeletedProductReady()
+    {
+        try {
+
+            $this->is_ready = !$this->is_ready;
+            $this->save();
+
+            AppLog::info('product '.$this->product->name.' set to '.(!$this->is_ready ? 'not' : '') .' ready', loggable: $this->order);
 
             return true;
         } catch (Exception $e) {

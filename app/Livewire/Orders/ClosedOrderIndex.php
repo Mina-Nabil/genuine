@@ -13,10 +13,10 @@ use Livewire\WithPagination;
 use Livewire\Attributes\Url;
 
 
-class PastDueOrderIndex extends Component
+class ClosedOrderIndex extends Component
 {
     use AlertFrontEnd, WithPagination;
-    public $page_title = '• Past Due Orders';
+    public $page_title = '• Closed Orders';
 
     public $fetched_orders_IDs;
     public $search;
@@ -71,7 +71,7 @@ class PastDueOrderIndex extends Component
 
     public function updatedEditedDeliveryDate($value)
     {
-        foreach ($this->selectedDeliveryDates as $date) {
+        foreach($this->selectedDeliveryDates as $date){
             if ($date->toDateString() === $value) {
                 return;
             }
@@ -82,19 +82,15 @@ class PastDueOrderIndex extends Component
 
     public function removeSelectedDate($index)
     {
-        if (count($this->selectedDeliveryDates) > 1) {
-            unset($this->selectedDeliveryDates[$index]);
-            $this->selectedDeliveryDates = array_values($this->selectedDeliveryDates); // Reset array keys
-        }
+        unset($this->selectedDeliveryDates[$index]);
+        $this->selectedDeliveryDates = array_values($this->selectedDeliveryDates); // Reset array keys
     }
 
-    public function clearDeliveryDate()
-    {
+    public function clearDeliveryDate(){
         $this->deliveryDate = [];
     }
 
-    public function openFilteryDeliveryDate()
-    {
+    public function openFilteryDeliveryDate(){
         $this->Edited_deliveryDate_sec = true;
 
         foreach ($this->deliveryDate as $date) {
@@ -102,15 +98,14 @@ class PastDueOrderIndex extends Component
         }
     }
 
-    public function closeFilteryDeliveryDate()
-    {
+    public function closeFilteryDeliveryDate(){
         $this->Edited_deliveryDate_sec = false;
         $this->Edited_deliveryDate = null;
         $this->selectedDeliveryDates = [];
     }
 
-    public function setFilteryDeliveryDate()
-    {
+    public function setFilteryDeliveryDate(){
+
         $this->deliveryDate = $this->selectedDeliveryDates;
         $this->closeFilteryDeliveryDate();
     }
@@ -235,34 +230,6 @@ class PastDueOrderIndex extends Component
         }
     }
 
-    public function openSetDriver()
-    {
-        $this->setDriverSection = true;
-    }
-
-    public function closeSetDriver()
-    {
-        $this->reset(['setDriverSection', 'driverId']);
-    }
-
-    public function setDriver()
-    {
-        $this->validate([
-            'driverId' => 'required|exists:drivers,id',
-        ]);
-        $res = Order::assignDriverToOrders($this->selectedOrders, $this->driverId);
-
-        if ($res) {
-            $this->resetPage();
-            $this->closeSetDriver();
-            $this->selectedOrders = [];
-            $this->selectAll = false;
-            $this->alertSuccess('Driver set!');
-        } else {
-            $this->alertFailed();
-        }
-    }
-
     public function updatedSelectAll($value)
     {
         if ($value) {
@@ -275,7 +242,7 @@ class PastDueOrderIndex extends Component
     public function selectAllOrders()
     {
         $this->selectedAllOrders = true;
-        $this->selectedOrders = Order::pluck('id')->toArray();
+        $this->selectedOrders = Order::ClosedOrders()->pluck('id')->toArray();
     }
 
     public function undoSelectAllOrders()
@@ -286,7 +253,7 @@ class PastDueOrderIndex extends Component
 
     public function render()
     {
-        $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate,driverId: $this->driver?->id ,zoneId:$this->zone?->id)->OpenOrders()->PastDeliveryDate()->withTotalQuantity()->paginate(50);
+        $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate,driverId: $this->driver?->id ,zoneId:$this->zone?->id)->ClosedOrders()->withTotalQuantity()->paginate(50);
 
         $totalZones = Order::getTotalZonesForOrders($orders);
         $ordersCount = count($orders);
@@ -297,7 +264,7 @@ class PastDueOrderIndex extends Component
         $drivers = Driver::all();
         $PAYMENT_METHODS = CustomerPayment::PAYMENT_METHODS;
 
-        return view('livewire.orders.past-due-order-index',[
+        return view('livewire.orders.closed-order-index',[
             'orders' => $orders,
             'drivers' => $drivers,
             'STATUSES' => $STATUSES,
@@ -306,6 +273,6 @@ class PastDueOrderIndex extends Component
             'totalZones' => $totalZones,
             'ordersCount' => $ordersCount,
             'PAYMENT_METHODS' => $PAYMENT_METHODS,
-        ])->layout('layouts.app', ['page_title' => $this->page_title, 'ordersPastDue' => 'active']);
+        ])->layout('layouts.app', ['page_title' => $this->page_title, 'ordersClosed' => 'active']);
     }
 }

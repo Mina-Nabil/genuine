@@ -10,8 +10,8 @@
         <header class="card-header cust-card-header noborder">
             <div>
 
-                <span wire:click='openSetZoneSec' class="badge bg-slate-900 text-white capitalize" type="button" id="secondaryFlatDropdownMenuButton"
-                    data-bs-toggle="dropdown" aria-expanded="false">
+                <span wire:click='openSetZoneSec' class="badge bg-slate-900 text-white capitalize" type="button"
+                    id="secondaryFlatDropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
                     <span class="cursor-pointer">
                         <span class="text-secondary-500 ">Zone:</span>&nbsp;
                         {{ $zone->name }}
@@ -150,6 +150,15 @@
                                             <span><iconify-icon icon="radix-icons:reload"></iconify-icon> Repeat Last
                                                 Order</span>
                                         </div>
+                                        @if ($weights['default_periodic_order'])
+                                        <a target="_blanck" href="{{ route('orders.periodic.show' ,$weights['default_periodic_order']['id']) }}">
+                                            <div wire:click='reorderLastOrder({{ $weights['last_order_id'] }})'
+                                            class="text-xs font-normal text-slate-600 dark:text-slate-400 clickable-link">
+                                            <span><iconify-icon icon="mdi:cursor-default-click"></iconify-icon> Default Periodic Order</span>
+                                        </div>
+                                        </a>
+                                        @endif
+
                                     </div>
                                 </td>
                                 @foreach ($weeks as $week)

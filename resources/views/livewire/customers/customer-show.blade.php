@@ -218,6 +218,105 @@
                         </div>
                     </div>
 
+                    <div class="card-body flex flex-col justify-center bg-cover card p-4 mt-4">
+                        <div class="card-text flex flex-col justify-between  menu-open">
+                            <p>
+                                <b>Periodic Orders</b>
+                            </p>
+                            <br>
+                            <div class="card mb-5">
+
+                                <div class="card-body flex flex-col justify-between border rounded-lg h-full menu-open p-0 mb-5 "
+                                    style="border-color:rgb(224, 224, 224);">
+                                    @forelse ($periodcOrders as $order)
+                                        <div class="p-3">
+                                            <div class="flex justify-between">
+
+                                                <div>
+                                                    <div
+                                                        class="text-slate-600 pb-2 dark:text-slate-300 overflow-hidden text-ellipsis whitespace-nowrap flex">
+                                                        <h6 class="clickable-link mr-3">
+                                                            <a href="{{ route('orders.periodic.show', $order->id) }}">
+                                                                {{ $order->title }}
+                                                            </a>
+                                                        </h6>
+
+                                                        <div class="mr-2 flex gap-2">
+                                                            @if ($order->periodic_option)
+                                                                <span
+                                                                    class="badge bg-black-500 text-slate-100 bg-opacity-50 capitalize">
+                                                                    <iconify-icon icon="grommet-icons:cycle"
+                                                                        width="1.2em" height="1.2em"></iconify-icon>
+                                                                    &nbsp;{{ ucwords(str_replace('_', ' ', $order->periodic_option)) }}
+                                                                    •
+                                                                    @if ($order->periodic_option === App\Models\Orders\PeriodicOrder::PERIODIC_MONTHLY)
+                                                                        Day: {{ $order->order_day }}
+                                                                    @else
+                                                                        {{ ucwords(str_replace('_', ' ', App\Models\Orders\PeriodicOrder::daysOfWeek[$order->order_day])) }}
+                                                                    @endif
+                                                                </span>
+                                                            @endif
+                                                            @if ($order->is_default)
+                                                                <span
+                                                                    class="badge bg-info-500 text-slate-900 bg-opacity-50 capitalize">
+                                                                    Default
+                                                                </span>
+                                                            @endif
+                                                            </div>
+
+                                                    </div>
+                                                </div>
+                                                <div class="flex">
+                                                    <div class="dropdown relative">
+                                                        <button class="text-xl text-center block w-full " type="button"
+                                                            id="tableDropdownMenuButton1" data-bs-toggle="dropdown"
+                                                            aria-expanded="false">
+                                                            <iconify-icon
+                                                                icon="heroicons-outline:dots-vertical"></iconify-icon>
+                                                        </button>
+                                                        <ul
+                                                            class=" dropdown-menu min-w-[120px] absolute text-sm text-slate-700 dark:text-white hidden bg-white dark:bg-slate-700 shadow z-[2] float-left overflow-hidden list-none text-left rounded-lg mt-1 m-0 bg-clip-padding border-none">
+        
+                                                                <li>
+                                                                    <button wire:click="setPeriodicAsDefault({{ $order->id }})"
+                                                                        class="text-slate-600 dark:text-white block font-Inter font-normal px-4  w-full text-left py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white">
+                                                                        Set as default</button>
+                                                                </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                            <div class=" flex text-sm justify-between">
+                                                <span>
+                                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                                        <b>{{ $order->total_items }}</b> {{ $order->total_items > 1 ? 'items' : 'item' }}
+                                                    </p>
+                                                </span>
+                                            </div>
+                                            <div class=" flex text-sm justify-between">
+                                                <span>
+                                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Created
+                                                        {{ $order->created_at->format('F j, Y \a\t g:i a') }}</p>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        @if (!$loop->last)
+                                            <hr>
+                                        @endif
+                                    @empty
+                                        <div
+                                            class="text-slate-600 dark:text-slate-300 overflow-hidden text-ellipsis whitespace-nowrap text-center p-5">
+                                            <p class="text-xs">No periodic orders for this customer.</p>
+
+                                        </div>
+                                    @endforelse
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="mb-5 text-wrap mt-5">
                         <div class="col-span-4">
                             <div class="mb-5">
@@ -231,17 +330,17 @@
                                             </span>
                                         </span>
                                         <div class="new-comment">
-                                            <input type="text" wire:model="addedComment" wire:keydown.enter="addComment"
-                                                placeholder="Add a comment..." />
+                                            <input type="text" wire:model="addedComment"
+                                                wire:keydown.enter="addComment" placeholder="Add a comment..." />
                                         </div>
                                     </li>
-            
+
                                     @forelse ($comments as $comment)
                                         @if ($comment->level === 'info')
                                             <li class="timeline-item">
                                                 <span class="timeline-item-icon | faded-icon">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24"
-                                                        height="24">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                                        width="24" height="24">
                                                         <path fill="none" d="M0 0h24v24H0z" />
                                                         <path fill="currentColor"
                                                             d="M12.9 6.858l4.242 4.243L7.242 21H3v-4.243l9.9-9.9zm1.414-1.414l2.121-2.122a1 1 0 0 1 1.414 0l2.829 2.829a1 1 0 0 1 0 1.414l-2.122 2.121-4.242-4.242z" />
@@ -271,14 +370,14 @@
                                         @elseif($comment->level === 'comment')
                                             <li class="timeline-item">
                                                 <span class="timeline-item-icon | filled-icon">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24"
-                                                        height="24">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                                        width="24" height="24">
                                                         <path fill="none" d="M0 0h24v24H0z" />
                                                         <path fill="currentColor"
                                                             d="M6.455 19L2 22.5V4a1 1 0 0 1 1-1h18a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H6.455zM7 10v2h2v-2H7zm4 0v2h2v-2h-2zm4 0v2h2v-2h-2z" />
                                                     </svg>
                                                 </span>
-            
+
                                                 <div class="timeline-item-wrapper w-full">
                                                     <div class="timeline-item-description">
                                                         <span class="avatar | small">
@@ -288,12 +387,14 @@
                                                                 {{ strtoupper(substr($comment->user?->username, 0, 1)) }}
                                                             </span>
                                                         </span>
-                                                        <span><a href="#">{{ $comment->user?->full_name }}</a> commented
+                                                        <span><a href="#">{{ $comment->user?->full_name }}</a>
+                                                            commented
                                                             <time datetime="20-01-2021">
                                                                 @if ($comment->created_at->isToday())
                                                                     Today at {{ $comment->created_at->format('h:m') }}
                                                                 @elseif($comment->created_at->isYesterday())
-                                                                    Yesterday at {{ $comment->created_at->format('h:m') }}
+                                                                    Yesterday at
+                                                                    {{ $comment->created_at->format('h:m') }}
                                                                 @else
                                                                     on {{ $comment->created_at->format('M d, Y') }}
                                                                 @endif
@@ -304,7 +405,7 @@
                                                         <p>{{ $comment->title }}</p>
                                                     </div>
                                                 </div>
-            
+
                                             </li>
                                         @endif
                                     @empty
@@ -321,14 +422,16 @@
                                 </ol>
                                 <div class="flex justify-between">
                                     @if ($visibleCommentsCount < $customer->comments()->count())
-                                        <button wire:click="loadMore"><small class="clickable-link">See More</small></button>
+                                        <button wire:click="loadMore"><small class="clickable-link">See
+                                                More</small></button>
                                     @endif
-            
+
                                     @if ($visibleCommentsCount > 5)
-                                        <button wire:click="showLess"><small class="clickable-link">Show Less</small></button>
+                                        <button wire:click="showLess"><small class="clickable-link">Show
+                                                Less</small></button>
                                     @endif
                                 </div>
-            
+
                             </div>
                         </div>
                     </div>
@@ -1537,8 +1640,7 @@
                             <div class="from-group">
                                 <div class="input-area">
                                     <label for="editedCustomerNote" class="form-label">Note</label>
-                                    <textarea id="editedCustomerNote"
-                                        class="form-control @error('editedCustomerNote') !border-danger-500 @enderror"
+                                    <textarea id="editedCustomerNote" class="form-control @error('editedCustomerNote') !border-danger-500 @enderror"
                                         wire:model="editedCustomerNote"></textarea>
                                 </div>
                                 @error('editedCustomerNote')
@@ -1588,7 +1690,7 @@
                                         xmlns="http://www.w3.org/2000/svg">
                                         <path fill-rule="evenodd"
                                             d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10
-                                                            11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                                                11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
                                             clip-rule="evenodd"></path>
                                     </svg>
                                     <span class="sr-only">Close modal</span>

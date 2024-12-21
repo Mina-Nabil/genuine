@@ -23,9 +23,10 @@ class OrderDriverShift extends Component
     public $driver;
     public $zone;
 
-    public $deliveryDate;
+    public $deliveryDate = [];
     public $Edited_deliveryDate;
     public $Edited_deliveryDate_sec;
+    public $selectedDeliveryDates = [];
 
     public $setDriverSection = false;
     public $Edited_driverId;
@@ -39,6 +40,24 @@ class OrderDriverShift extends Component
 
     //collected
     public $collectedFromPaymentTypes = [];
+
+    public function moveOrderUp($id){
+        $res = Order::findOrFail($id)->moveUp();
+        if ($res) {
+            $this->alertSuccess('Order Changed');
+        }else{
+            $this->alertFailed();
+        }
+    }
+
+    public function moveOrderDown($id){
+        $res = Order::findOrFail($id)->moveDown();
+        if ($res) {
+            $this->alertSuccess('Order Changed');
+        }else{
+            $this->alertFailed();
+        }
+    }
 
     public function openEditOrderNote($order_id){
         $this->editedOrderNoteSec = $order_id;
@@ -99,37 +118,50 @@ class OrderDriverShift extends Component
 
     protected $queryString = ['deliveryDate'];
 
-    public function openFilteryDeliveryDate()
+    public function updatedEditedDeliveryDate($value)
     {
-        $this->Edited_deliveryDate_sec = true;
-        $this->Edited_deliveryDate = $this->deliveryDate?->toDateString();
-    }
-
-    public function closeFilteryDeliveryDate()
-    {
-        $this->Edited_deliveryDate_sec = false;
+        foreach($this->selectedDeliveryDates as $date){
+            if ($date->toDateString() === $value) {
+                return;
+            }
+        }
+        $this->selectedDeliveryDates[] = Carbon::parse($value);
         $this->Edited_deliveryDate = null;
     }
 
-    public function setFilteryDeliveryDate()
+    public function removeSelectedDate($index)
     {
-        $this->deliveryDate = Carbon::parse($this->Edited_deliveryDate);
-        $this->closeFilteryDeliveryDate();
+        unset($this->selectedDeliveryDates[$index]);
+        $this->selectedDeliveryDates = array_values($this->selectedDeliveryDates); // Reset array keys
     }
 
-    public function setDriverPaymentType($orderId, $method = null){
-        $res = Order::findOrFail($orderId)->updateDriverPaymentType($method ?? null);
+    public function clearDeliveryDate(){
+        $this->deliveryDate = [];
+    }
 
-        if ($res) {
-            $this->alertSuccess('updated!');
-        }else{
-            $this->alertFailed();
+    public function openFilteryDeliveryDate(){
+        $this->Edited_deliveryDate_sec = true;
+
+        foreach ($this->deliveryDate as $date) {
+            $this->selectedDeliveryDates[] = $date;
         }
+    }
+
+    public function closeFilteryDeliveryDate(){
+        $this->Edited_deliveryDate_sec = false;
+        $this->Edited_deliveryDate = null;
+        $this->selectedDeliveryDates = [];
+    }
+
+    public function setFilteryDeliveryDate(){
+
+        $this->deliveryDate = $this->selectedDeliveryDates;
+        $this->closeFilteryDeliveryDate();
     }
 
     public function mount()
     {
-        $this->deliveryDate = Carbon::today();
+        $this->deliveryDate = [Carbon::today()];
         // dd(auth()->id());
         if (Auth::user()->type === User::TYPE_DRIVER) {
             $this->driver = Driver::getDriverWithMostOrders($this->deliveryDate, auth()->id());
@@ -166,7 +198,7 @@ class OrderDriverShift extends Component
 
     public function render()
     {
-        $orders = Order::search(searchText: $this->search, deliveryDate: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneId: $this->zone?->id)->confirmed()->openOrders()->withTotalQuantity()->sortByZone()->paginate(50);
+        $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneId: $this->zone?->id)->confirmed()->openOrders()->withTotalQuantity()->orderByRaw('driver_order IS NULL, driver_order ASC')->sortByZone()->paginate(50);
 
         $totalZones = Order::getTotalZonesForOrders($orders);
         $PAYMENT_METHODS = CustomerPayment::PAYMENT_METHODS;

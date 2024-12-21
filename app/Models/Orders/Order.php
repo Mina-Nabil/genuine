@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Locale;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class Order extends Model
@@ -36,7 +37,7 @@ class Order extends Model
         'delivery_date' => 'date',
     ];
 
-    protected $fillable = ['order_number', 'customer_id', 'customer_name', 'shipping_address', 'location_url', 'customer_phone', 'status', 'zone_id', 'driver_id', 'periodic_option', 'total_amount', 'delivery_amount', 'discount_amount', 'delivery_date', 'is_paid', 'is_confirmed', 'note', 'driver_note', 'created_by', 'is_delivered', 'driver_payment_type'];
+    protected $fillable = ['order_number', 'customer_id', 'customer_name', 'shipping_address', 'location_url', 'customer_phone', 'status', 'zone_id', 'driver_id', 'periodic_option', 'total_amount', 'delivery_amount', 'discount_amount', 'delivery_date', 'is_paid', 'is_confirmed', 'note', 'driver_note', 'created_by', 'is_delivered', 'driver_payment_type', 'driver_order'];
 
     const PERIODIC_OPTIONS = [self::PERIODIC_WEEKLY, self::PERIODIC_BI_WEEKLY, self::PERIODIC_MONTHLY];
     const PERIODIC_WEEKLY = 'weekly';
@@ -249,6 +250,11 @@ class Order extends Model
                 return false;
             }
             $this->driver_id = $driverId;
+
+            if ($this->driver_id !== $driverId) {
+                $this->driver_order = null;
+            }
+
             $this->save();
             AppLog::info('Order Assigned to driver', loggable: $this);
             return true;
@@ -271,6 +277,10 @@ class Order extends Model
                 if ($order) {
                     if (!$order->assignDriverToOrder($driverId)) {
                         throw new Exception("Failed to assign driver to order ID: {$orderId}");
+                    }
+                    if ($order->driver_id !== $driverId) {
+                        $order->driver_order = null;
+                        $order->save();
                     }
                 } else {
                     AppLog::warning('Order not found', ['order_id' => $orderId]);
@@ -306,6 +316,9 @@ class Order extends Model
                 // Proceed if the order exists
                 if ($order) {
                     $order->delivery_date = $deliveryDate;
+                    if ($order->delivery_date !== $deliveryDate) {
+                        $order->driver_order = null;
+                    }
                     $order->save();
                     AppLog::info('Delivery date set for order', loggable: $order);
                 }
@@ -331,6 +344,11 @@ class Order extends Model
 
         try {
             $this->delivery_date = $deliveryDate;
+
+            if ($this->delivery_date !== $deliveryDate) {
+                $this->driver_order = null;
+            }
+
             $this->save();
 
             AppLog::info('Delivery date updated', loggable: $this);
@@ -360,6 +378,28 @@ class Order extends Model
         } catch (Exception $e) {
             report($e);
             AppLog::error('Failed to toggle confirmation for order', $e->getMessage());
+            return false;
+        }
+    }
+
+    public function setWhstappMsgAsSent($status = true): bool
+    {
+        /** @var User */
+        $loggedInUser = Auth::user();
+        if ($loggedInUser && !$loggedInUser->can('update', $this)) {
+            return false;
+        }
+
+        try {
+            $this->is_whatsapp_sent = $status;
+            $this->save();
+
+            AppLog::info('Whatsapp message sent', loggable: $this);
+
+            return true;
+        } catch (Exception $e) {
+            report($e);
+            AppLog::error('Failed to send whatsapp messsage', $e->getMessage());
             return false;
         }
     }
@@ -665,6 +705,7 @@ class Order extends Model
 
                 $orderProduct = $this->products()
                     ->where('product_id', $product['product_id'])
+                    ->whereNull('combo_id')
                     ->first();
 
                 if ($orderProduct) {
@@ -907,6 +948,9 @@ class Order extends Model
             $message .= "\n• {$product->product->name}: {$weightInKg} كيلو";
         }
 
+        $deliveryDate = $this->convertDayToArabic($this->delivery_date->format('l')) . ' ' . $this->delivery_date->format('d/m/Y');
+        $message .= "\n\nتـاريخ توصيل الطلـب: {$deliveryDate}";
+
         $message .= "\n\nتفاصيل المندوب:\n";
         if (!empty($this->driver->user->full_name)) {
             $message .= "الاسم: {$this->driver->user->full_name}\n";
@@ -931,6 +975,26 @@ class Order extends Model
         }
 
         return "https://wa.me/{$phoneNumber}?text={$encodedMessage}";
+    }
+
+    function convertDayToArabic(string $day): string
+    {
+        // Mapping of English weekdays to Arabic
+        $daysMapping = [
+            'Monday' => 'الاثنين',
+            'Tuesday' => 'الثلاثاء',
+            'Wednesday' => 'الأربعاء',
+            'Thursday' => 'الخميس',
+            'Friday' => 'الجمعة',
+            'Saturday' => 'السبت',
+            'Sunday' => 'الأحد',
+        ];
+
+        // Normalize the input to ensure proper mapping
+        $day = ucfirst(strtolower(trim($day)));
+
+        // Return the Arabic day or an error message for invalid input
+        return $daysMapping[$day] ?? 'Invalid day input';
     }
 
     /**
@@ -1002,6 +1066,96 @@ class Order extends Model
         }
     }
 
+    public function moveUp()
+    {
+        // Start a transaction to ensure consistency
+        return DB::transaction(function () {
+            // Find the previous order with the same driver and earlier driver_order
+            $previousOrder = self::where('driver_id', $this->driver_id)
+                ->where('delivery_date', $this->delivery_date)
+                ->when($this->driver_order, function ($query, $driver_order) {
+                    $query->where('driver_order', $driver_order - 1);
+                })
+                // ->where('driver_order', '<=', $this->driver_order)
+                ->orderBy('driver_order', 'desc')
+                ->whereNotNull('driver_order')
+                ->first();
+
+            if ($previousOrder) {
+                // Swap the driver_order values
+                $tmpOrder = $previousOrder->driver_order;
+                if (!$this->driver_order) {
+                    $this->driver_order = $tmpOrder + 1;
+                } else {
+                    $previousOrder->driver_order = $this->driver_order;
+                    $this->driver_order = $tmpOrder;
+                }
+
+                // Save both orders
+                $this->save();
+                $previousOrder->save();
+
+                return true;
+            }
+
+            // If no previous order exists, set the current order to the first position
+            $this->driver_order = 1;
+            $this->save();
+
+            return true;
+        });
+    }
+
+    /**
+     * Move this order down (increase the driver_order).
+     *
+     * @return bool
+     */
+    public function moveDown()
+    {
+        // Start a transaction to ensure consistency
+        return DB::transaction(function () {
+            // Find the next order with the same driver and later driver_order
+            $nextOrder = self::where('driver_id', $this->driver_id)
+                ->where('delivery_date', $this->delivery_date)
+                ->when($this->driver_order, function ($query, $driver_order) {
+                    $query->where('driver_order', $driver_order + 1);
+                })
+                // ->whereNotNull('driver_order')
+                ->orderBy('driver_order', 'asc')
+                ->first();
+
+            if ($nextOrder && $nextOrder->driver_order) {
+                // Swap the driver_order values
+                $tmpOrder = $nextOrder->driver_order;
+                if (!$this->driver_order) {
+                    $this->driver_order = $tmpOrder - 1;
+                } else {
+                    $nextOrder->driver_order = $this->driver_order;
+                    $this->driver_order = $tmpOrder;
+                }
+
+                // Save both orders
+                $this->save();
+                $nextOrder->save();
+
+                return true;
+            } elseif (!$nextOrder && !$this->driver_order) {
+                return true;
+            } elseif (!$nextOrder && $this->driver_order) {
+                return true;
+            } elseif ($nextOrder && !$nextOrder->driver_order) {
+                return true;
+            }
+
+            // If no previous order exists, set the current order to the first position
+            $this->driver_order = 1;
+            $this->save();
+
+            return false;
+        });
+    }
+
     public function updateDriverPaymentType(?string $paymentType = null): bool
     {
         /** @var User */
@@ -1070,7 +1224,7 @@ class Order extends Model
 
     private static function generateNextOrderNumber(): string
     {
-        $latestOrder = self::orderBy('id', 'desc')->first();
+        $latestOrder = self::orderBy('id', 'desc')->withTrashed()->first();
 
         // Determine the next order number based on the latest order
         if ($latestOrder) {
@@ -1206,7 +1360,7 @@ class Order extends Model
         return ($hasPayments || $hasBalanceTransactions) && ($this->remaining_to_pay > 0 && $this->remaining_to_pay < $this->total_amount);
     }
 
-    public function scopeSearch(Builder $query, string $searchText = null, string $deliveryDate = null, string $status = null, int $zoneId = null, int $driverId = null, bool $isPaid = null): Builder
+    public function scopeSearch(Builder $query, string $searchText = null, array $deliveryDates = [], string $status = null, int $zoneId = null, int $driverId = null, bool $isPaid = null): Builder
     {
         return $query
             ->when($searchText, function ($query, $searchText) {
@@ -1216,8 +1370,8 @@ class Order extends Model
                         ->orWhere('customer_phone', 'like', '%' . $searchText . '%');
                 });
             })
-            ->when($deliveryDate, function ($query, $deliveryDate) {
-                $query->whereDate('delivery_date', $deliveryDate);
+            ->when(!empty($deliveryDates), function ($query) use ($deliveryDates) {
+                $query->whereIn('delivery_date', $deliveryDates);
             })
             ->when($status, function ($query, $status) {
                 $query->where('status', $status);
@@ -1238,6 +1392,16 @@ class Order extends Model
         return $query->where(function (Builder $query) {
             $query->whereNotIn('status', [self::STATUS_DONE, self::STATUS_RETURNED, self::STATUS_CANCELLED])->orWhere(function (Builder $query) {
                 $query->whereNotIn('status', [self::STATUS_RETURNED, self::STATUS_CANCELLED])->where('is_paid', false);
+            });
+        });
+    }
+
+    public function scopeClosedOrders(Builder $query): Builder
+    {
+        return $query->where(function (Builder $query) {
+            $query->whereIn('status', [self::STATUS_DONE, self::STATUS_RETURNED, self::STATUS_CANCELLED])
+                ->where(function (Builder $query) {
+                $query->where('status', '!=', self::STATUS_DONE)->orWhere('is_paid', true);
             });
         });
     }
@@ -1319,6 +1483,7 @@ class Order extends Model
                         'monthly_weight_target' => $monthlyWeightTarget,
                         'last_order_id' => $customer->orders()->latest()->first()->id,
                         'customer_id' => $customer_id,
+                        'default_periodic_order' => $customer->periodicOrders()->default()->first(),
                         'weekly_weights' => [],
                     ];
                 }
@@ -1372,6 +1537,18 @@ class Order extends Model
     {
         return self::whereIn('id', $orders->pluck('id'))->distinct('zone_id')->count('zone_id');
     }
+
+    public function scopeWithCancelledReadyProducts(Builder $query): Builder
+{
+    return $query->where('status', 'cancelled')
+        ->whereHas('products', function ($q) {
+            $q->withTrashed()
+                ->where('is_ready', true)
+                ->whereNotNull('deleted_at'); // Filter for soft-deleted products
+        });
+}
+
+
 
     // relations
     public function products(): HasMany

@@ -123,10 +123,6 @@
                                 </th>
 
                                 <th scope="col" class=" table-th ">
-                                    Type
-                                </th>
-
-                                <th scope="col" class=" table-th ">
                                     Status
                                 </th>
 
@@ -184,13 +180,6 @@
 
                                     <td class="table-td" >
                                         {{ $task->title }}
-                                    </td>
-
-                                    <td class="table-td ">
-                                        {{ $task->taskable_type }}
-                                        @if ($task->file_url)
-                                            <iconify-icon icon="bx:file"></iconify-icon>
-                                        @endif
                                     </td>
 
                                     <td class="table-td">

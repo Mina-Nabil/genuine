@@ -24,7 +24,7 @@ class OrderPolicy
 
     public function viewOrderInventory(User $user): bool
     {
-        return true;
+        return $user->is_admin || $user->is_inventory;
     }
 
     /**

@@ -102,18 +102,23 @@
                 @if ($deliveryDate)
                     <span class="badge bg-slate-900 text-white capitalize">
                         <span class="cursor-pointer" wire:click='openFilteryDeliveryDate'>
-                            <span class="text-secondary-500 ">Delivery Date:</span>&nbsp;
-                            {{ $deliveryDate->isToday()
-                                ? 'Today'
-                                : ($deliveryDate->isYesterday()
-                                    ? 'Yesterday'
-                                    : ($deliveryDate->isTomorrow()
-                                        ? 'Tomorrow'
-                                        : $deliveryDate->format('l d-m-Y'))) }}
-
+                            <span class="text-secondary-500 ">Delivery Date:</span>
+                            @foreach ($deliveryDate as $sDdate)
+                                &nbsp;
+                                {{ $sDdate->isToday()
+                                    ? 'Today'
+                                    : ($sDdate->isYesterday()
+                                        ? 'Yesterday'
+                                        : ($sDdate->isTomorrow()
+                                            ? 'Tomorrow'
+                                            : $sDdate->format('l d-m-Y'))) }}
+                                @if (!$loop->last)
+                                    ,
+                                @endif
+                            @endforeach
                         </span>
 
-                        &nbsp;&nbsp;<iconify-icon wire:click="clearProperty('deliveryDate')"
+                        &nbsp;&nbsp;<iconify-icon wire:click="clearDeliveryDate(closed)"
                             icon="material-symbols:close" class="cursor-pointer" width="1.2em"
                             height="1.2em"></iconify-icon>
                     </span>
@@ -211,7 +216,8 @@
                                                     class="h-[10px] w-[10px] block m-auto opacity-0"></span>
                                         </label>
                                     </div>
-                                    <a href="{{ route('orders.show', $order->id) }}"> <span class="hover-underline">
+                                    <a href="{{ route('orders.show', $order->id) }}" target="_blanck"> <span
+                                            class="hover-underline">
                                             <b>
                                                 #{{ $order->order_number }}
                                             </b>
@@ -235,8 +241,14 @@
                                 </td>
 
                                 <td class="table-td text-start overflow-hidden text-ellipsis whitespace-nowrap">
-                                    @if ($order->status === App\Models\Orders\Order::STATUS_NEW || $order->status === App\Models\Orders\Order::STATUS_READY)
+                                    @if ($order->status === App\Models\Orders\Order::STATUS_NEW)
                                         <span class="badge bg-info-500 text-dark-500 bg-opacity-50 capitalize">
+                                            <iconify-icon icon="octicon:dot-16" width="1.2em"
+                                                height="1.2em"></iconify-icon>
+                                            {{ ucwords(str_replace('_', ' ', $order->status)) }}
+                                        </span>
+                                    @elseif ($order->status === App\Models\Orders\Order::STATUS_READY)
+                                        <span class="badge bg-[#EAE5FF] text-dark-500 capitalize">
                                             <iconify-icon icon="octicon:dot-16" width="1.2em"
                                                 height="1.2em"></iconify-icon>
                                             {{ ucwords(str_replace('_', ' ', $order->status)) }}
@@ -556,7 +568,10 @@
                         <div
                             class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
                             <h3 class="text-xl font-medium text-white dark:text-white capitalize">
-                                Filter delivery date
+                                Filter delivery date 
+                                <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
+                                wire:loading wire:target="removeSelectedDate,Edited_deliveryDate"
+                                icon="line-md:loading-twotone-loop"></iconify-icon>
                             </h3>
                             <button wire:click="closeFilteryDeliveryDate" type="button"
                                 class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
@@ -577,16 +592,36 @@
                             <div class="from-group">
                                 <div class="input-area">
                                     <label for="Edited_deliveryDate" class="form-label">Delivery date*</label>
+                                    <p class="text-gray-600 text-xs mb-2">
+                                        *You can select multiple dates by clicking on the date. Once done, click "Submit" to apply the filter.
+                                    </p>
                                     <input name="Edited_deliveryDate" id="Edited_deliveryDate" type="date"
                                         class="form-control w-full mt-2 @error('Edited_deliveryDate') !border-danger-500 @enderror"
-                                        wire:model="Edited_deliveryDate" autocomplete="off">
-
+                                        wire:model.live="Edited_deliveryDate" autocomplete="off">
                                 </div>
                                 @error('Edited_deliveryDate')
                                     <span
                                         class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
                                 @enderror
                             </div>
+
+                            @foreach ($selectedDeliveryDates as $index => $date)
+                                <span class="badge bg-slate-900 text-white capitalize">
+                                    <span class="cursor-pointer">
+                                        {{ $date->isToday()
+                                            ? 'Today'
+                                            : ($date->isYesterday()
+                                                ? 'Yesterday'
+                                                : ($date->isTomorrow()
+                                                    ? 'Tomorrow'
+                                                    : $date->format('l d-m-Y'))) }}
+                                    </span>
+
+                                    &nbsp;&nbsp;<iconify-icon wire:click="removeSelectedDate({{ $index }})"
+                                        icon="material-symbols:close" class="cursor-pointer" width="1.2em"
+                                        height="1.2em"></iconify-icon>
+                                </span>
+                            @endforeach
 
                         </div>
 

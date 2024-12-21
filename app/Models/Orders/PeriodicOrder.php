@@ -36,7 +36,7 @@ class PeriodicOrder extends Model
         'Saturday', //7
     ];
 
-    protected $fillable = ['customer_id', 'customer_name', 'shipping_address', 'location_url', 'customer_phone', 'zone_id', 'order_name', 'periodic_option', 'order_day', 'last_order_id', 'note', 'is_active'];
+    protected $fillable = ['customer_id', 'customer_name', 'shipping_address', 'location_url', 'customer_phone', 'zone_id', 'order_name', 'periodic_option', 'order_day', 'last_order_id', 'note', 'is_active', 'is_default'];
 
     public function getIsActiveAttribute($value): bool
     {
@@ -170,6 +170,26 @@ class PeriodicOrder extends Model
         }
     }
 
+    public function setAsDefault()
+    {
+        try {
+            DB::transaction(function () {
+                DB::table('periodic_orders')
+                    ->where('customer_id', $this->customer_id)
+                    ->update([
+                        'is_default' => false,
+                    ]);
+                $this->is_default = true;
+                $this->save();
+            });
+            return true;
+        } catch (Exception $e) {
+            report($e);
+            AppLog::error('Can\'t set periodic order as default', desc: $e->getMessage(), loggable: $this);
+            return false;
+        }
+    }
+
     // Determine the next order creation date based on frequency and last order
     public function calculateNextOrderDate(): ?\Carbon\Carbon
     {
@@ -280,6 +300,16 @@ class PeriodicOrder extends Model
                 $query->select(DB::raw('SUM(quantity)'));
             },
         ]);
+    }
+
+    public function scopeDefault($query)
+    {
+        return $query->where('is_default', true)->first();
+    }
+
+    public function getTotalItemsAttribute()
+    {
+        return $this->products->sum('quantity');
     }
 
     public function getTitleAttribute()
