@@ -476,7 +476,7 @@
 
 
                                                         @can('update', $order)
-                                                            @if ($order->status !== App\Models\Orders\Order::STATUS_READY)
+                                                            @if ($order->status === App\Models\Orders\Order::STATUS_NEW)
                                                                 <td class="float-right ml-5">
                                                                     @if ($orderProduct->is_ready)
                                                                         <button
