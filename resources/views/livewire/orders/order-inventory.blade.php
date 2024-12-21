@@ -409,6 +409,17 @@
                                         <table
                                             class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700">
                                             <tbody class="bg-white dark:bg-slate-800 no-wrap">
+                                                @can('update', $order)
+                                                @if ($order->status === App\Models\Orders\Order::STATUS_NEW)
+                                                <button
+                                                wire:click='setAllReady({{$order->id}})'
+                                                class="btn inline-flex justify-center btn-outline-success btn-sm"
+                                                style="padding-top: 3px;padding-bottom: 3px">
+                                                All Ready
+                                            </button>
+                                                @endif
+                                                @endcan
+
                                                 @foreach ($order->products as $orderProduct)
                                                     <tr>
                                                         <td class=" ">

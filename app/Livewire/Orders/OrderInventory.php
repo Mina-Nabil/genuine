@@ -14,7 +14,7 @@ use Livewire\Attributes\Url;
 
 class OrderInventory extends Component
 {
-    use WithPagination , AlertFrontEnd;
+    use WithPagination, AlertFrontEnd;
     public $page_title = '• Orders • Inventory';
     public $search;
     public $status;
@@ -35,7 +35,7 @@ class OrderInventory extends Component
 
     public function updatedEditedDeliveryDate($value)
     {
-        foreach($this->selectedDeliveryDates as $date){
+        foreach ($this->selectedDeliveryDates as $date) {
             if ($date->toDateString() === $value) {
                 return;
             }
@@ -50,7 +50,8 @@ class OrderInventory extends Component
         $this->selectedDeliveryDates = array_values($this->selectedDeliveryDates); // Reset array keys
     }
 
-    public function openFilteryDeliveryDate(){
+    public function openFilteryDeliveryDate()
+    {
         $this->Edited_deliveryDate_sec = true;
 
         foreach ($this->deliveryDate as $date) {
@@ -58,29 +59,34 @@ class OrderInventory extends Component
         }
     }
 
-    public function closeFilteryDeliveryDate(){
+    public function closeFilteryDeliveryDate()
+    {
         $this->Edited_deliveryDate_sec = false;
         $this->Edited_deliveryDate = null;
         $this->selectedDeliveryDates = [];
     }
 
-    public function setFilteryDeliveryDate(){
+    public function setFilteryDeliveryDate()
+    {
 
         $this->deliveryDate = $this->selectedDeliveryDates;
         $this->closeFilteryDeliveryDate();
     }
 
-    public function openFilteryDriver(){
+    public function openFilteryDriver()
+    {
         $this->Edited_driverId_sec = true;
         $this->Edited_driverId = $this->driver?->id;
     }
 
-    public function closeFilteryDriver(){
+    public function closeFilteryDriver()
+    {
         $this->Edited_driverId_sec = false;
         $this->Edited_driverId = null;
     }
 
-    public function setFilterDriver(){
+    public function setFilterDriver()
+    {
         $this->driver = Driver::findOrFail($this->Edited_driverId);
         $this->closeFilteryDriver();
     }
@@ -93,65 +99,85 @@ class OrderInventory extends Component
         }
     }
 
-    public function setAsInDelivery($order_id){
+    public function setAsInDelivery($order_id)
+    {
         $res = Order::findOrFail($order_id)->setStatus(Order::STATUS_IN_DELIVERY);
         if ($res) {
             $this->alertSuccess('Order delivered');
-        }else{
+        } else {
             $this->alertFailed();
         }
     }
 
-    public function toggleReady($id){
+    public function setAllReady($order_id)
+    {
+        $order = Order::findOrFail($order_id);
+        $this->authorize('update', $order);
+        $res = true;
+        /** @var OrderProduct */
+        foreach ($order->products as $p) {
+            $res &= $p->toggleReady();
+        }
+
+        if ($res) {
+            $this->alertSuccess('Products swtiched');
+        } else {
+            $this->alertFailed();
+        }
+    }
+
+    public function toggleReady($id)
+    {
         $orderProduct = OrderProduct::findOrFail($id);
-        $this->authorize('update',$orderProduct->order);
+        $this->authorize('update', $orderProduct->order);
         $res = $orderProduct->toggleReady();
 
         if ($res) {
             $this->alertSuccess('Product swtiched');
-        }else{
+        } else {
             $this->alertFailed();
         }
     }
 
-    public function toggleDeletedReady($id){
+    public function toggleDeletedReady($id)
+    {
         $orderProduct = OrderProduct::withTrashed()->findOrFail($id);
         $res = $orderProduct->toggleDeletedProductReady();
 
         if ($res) {
             $this->alertSuccess('Product swtiched');
-        }else{
+        } else {
             $this->alertFailed();
         }
     }
 
     public function mount()
     {
-        $this->authorize('viewOrderInventory',Order::class);
+        $this->authorize('viewOrderInventory', Order::class);
         $this->deliveryDate = [Carbon::tomorrow()];
     }
 
-    
+
 
     public function render()
     {
         $DRIVERS = Driver::all();
-        $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate,status:$this->status,driverId: $this->driver?->id ,zoneId:$this->zone?->id)->withTotalQuantity()->openOrders()->paginate(50);
+        $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneId: $this->zone?->id)->withTotalQuantity()->openOrders()->paginate(50);
 
-        
+
         $cancelledOrders = Order::search(
             searchText: $this->search,
             status: $this->status,
             driverId: $this->driver?->id,
             zoneId: $this->zone?->id
         )
-        ->withCancelledReadyProducts()
-        ->with(['products' => function ($query) {
-            $query->withTrashed(); // Include trashed products in the eager loading
-        }])
-        ->get();
+            ->withCancelledReadyProducts()
+            ->with(['products' => function ($query) {
+                $query->withTrashed(); // Include trashed products in the eager loading
+            }])
+            ->get();
 
-        return view('livewire.orders.order-inventory',[
+        return view('livewire.orders.order-inventory', [
             'orders' => $orders,
             'DRIVERS' => $DRIVERS,
             'cancelledOrders' => $cancelledOrders
