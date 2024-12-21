@@ -3,10 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\Customers\Customer;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Faker\Factory as Faker;
-use Illuminate\Support\Facades\App;
 
 class CustomersTableSeeder extends Seeder
 {
