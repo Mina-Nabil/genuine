@@ -540,7 +540,7 @@ class OrderCreate extends Component
     public function render()
     {
         $products = Product::search($this->productsSearchText)
-            // ->limit(10)
+            ->limit(20)
             ->get();
 
         $drivers = Driver::search($this->driversSearchText)
