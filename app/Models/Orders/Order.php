@@ -1362,10 +1362,12 @@ class Order extends Model
     public function scopeSearch(Builder $query, string $searchText = null, array $deliveryDates = [], string $status = null, int $zoneId = null, int $driverId = null, bool $isPaid = null): Builder
     {
         return $query
+            ->join('zones', 'zones.id', '=', 'orders.zone_id')
             ->when($searchText, function ($query, $searchText) {
                 $query->where(function ($q) use ($searchText) {
                     $q->where('order_number', 'like', '%' . $searchText . '%')
                         ->orWhere('customer_name', 'like', '%' . $searchText . '%')
+                        ->orWhere('zones.name', 'like', '%' . $searchText . '%')
                         ->orWhere('customer_phone', 'like', '%' . $searchText . '%');
                 });
             })
