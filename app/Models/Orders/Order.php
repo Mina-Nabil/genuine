@@ -943,10 +943,9 @@ class Order extends Model
         الاوردر:
         EOD;
 
-        foreach ($this->products as $product) {
-            $weightInKg = ($product->product->weight * $product->quantity) / 1000;
-            $message .= "\n• {$product->product->name}: {$weightInKg} كيلو";
-        }
+        foreach ($this->products as $product)
+            $message .= "\n• {$product->product->name}: {$product->quantity} ";
+
 
         $deliveryDate = $this->convertDayToArabic($this->delivery_date->format('l')) . ' ' . $this->delivery_date->format('d/m/Y');
         $message .= "\n\nتـاريخ توصيل الطلـب: {$deliveryDate}";
@@ -1401,8 +1400,8 @@ class Order extends Model
         return $query->where(function (Builder $query) {
             $query->whereIn('status', [self::STATUS_DONE, self::STATUS_RETURNED, self::STATUS_CANCELLED])
                 ->where(function (Builder $query) {
-                $query->where('status', '!=', self::STATUS_DONE)->orWhere('is_paid', true);
-            });
+                    $query->where('status', '!=', self::STATUS_DONE)->orWhere('is_paid', true);
+                });
         });
     }
 
@@ -1539,14 +1538,14 @@ class Order extends Model
     }
 
     public function scopeWithCancelledReadyProducts(Builder $query): Builder
-{
-    return $query->where('status', 'cancelled')
-        ->whereHas('products', function ($q) {
-            $q->withTrashed()
-                ->where('is_ready', true)
-                ->whereNotNull('deleted_at'); // Filter for soft-deleted products
-        });
-}
+    {
+        return $query->where('status', 'cancelled')
+            ->whereHas('products', function ($q) {
+                $q->withTrashed()
+                    ->where('is_ready', true)
+                    ->whereNotNull('deleted_at'); // Filter for soft-deleted products
+            });
+    }
 
 
 
