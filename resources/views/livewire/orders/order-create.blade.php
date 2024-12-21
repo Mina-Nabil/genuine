@@ -528,17 +528,15 @@
                                     </thead>
                                     <tbody
                                         class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700 no-wrap">
-
                                         @foreach ($products as $product)
                                             <tr>
-
                                                 <td class="table-td flex items-center sticky-column bg-white dark:bg-slate-800 colomn-shadow"
                                                     style="position: sticky; left: -25px;  z-index: 10;">
-                                                    <div class="checkbox-area">
+                                                    <div  wire:key="{{ $product->id }}" class="checkbox-area">
                                                         <label class="inline-flex items-center cursor-pointer">
                                                             <input type="checkbox" wire:model="selectedProducts"
                                                                 value="{{ $product->id }}" class="hidden"
-                                                                id="select-all">
+                                                               >
                                                             <span
                                                                 class="h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 bg-slate-100 dark:bg-slate-900">
                                                                 <img src="{{ asset('assets/images/icon/ck-white.svg') }}"

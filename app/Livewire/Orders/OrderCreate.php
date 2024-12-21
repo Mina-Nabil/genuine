@@ -10,6 +10,7 @@ use App\Models\Products\Product;
 use App\Models\Users\Driver;
 use App\Traits\AlertFrontEnd;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 use Illuminate\Http\Request;
@@ -539,7 +540,7 @@ class OrderCreate extends Component
     public function render()
     {
         $products = Product::search($this->productsSearchText)
-            ->limit(10)
+            // ->limit(10)
             ->get();
 
         $drivers = Driver::search($this->driversSearchText)
