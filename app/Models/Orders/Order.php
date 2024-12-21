@@ -1364,12 +1364,15 @@ class Order extends Model
         return $query
             ->join('zones', 'zones.id', '=', 'orders.zone_id')
             ->when($searchText, function ($query, $searchText) {
-                $query->where(function ($q) use ($searchText) {
-                    $q->where('order_number', 'like', '%' . $searchText . '%')
-                        ->orWhere('customer_name', 'like', '%' . $searchText . '%')
-                        ->orWhere('zones.name', 'like', '%' . $searchText . '%')
-                        ->orWhere('customer_phone', 'like', '%' . $searchText . '%');
-                });
+                $words = explode(' ', $searchText);
+                foreach ($words as $w) {
+                    $query->where(function ($q) use ($w) {
+                        $q->where('order_number', 'like', '%' . $w . '%')
+                            ->orWhere('customer_name', 'like', '%' . $w . '%')
+                            ->orWhere('zones.name', 'like', '%' . $w . '%')
+                            ->orWhere('customer_phone', 'like', '%' . $w . '%');
+                    });
+                }
             })
             ->when(!empty($deliveryDates), function ($query) use ($deliveryDates) {
                 $query->whereIn('delivery_date', $deliveryDates);
