@@ -232,7 +232,7 @@
                     </li> --}}
 
 
-                    @can('viewReports', App\Models\Orders\Order::class)
+                    {{-- @can('viewReports', App\Models\Orders\Order::class) --}}
                         <li class="sidebar-menu-title">Reports</li>
                         <li>
                             <a href="{{ auth()->user()->can('viewReports', App\Models\Orders\Order::class)? url('/report/followup'): '#' }}"
@@ -244,7 +244,7 @@
                                 </span>
                             </a>
                         </li>
-                    @endcan
+                    {{-- @endcan --}}
 
                     <li>
                         <a href="{{ auth()->user()->can('viewAny', App\Models\Customers\Followup::class)? url('/followups'): '#' }}"
