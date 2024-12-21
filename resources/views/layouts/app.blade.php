@@ -230,6 +230,17 @@
                         </a>
                     </li>
 
+                    <li>
+                        <a href="{{ auth()->user()->can('viewAny', App\Models\Customers\Followup::class)? url('/followups'): '#' }}"
+                            class="navItem {{ $followups ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Customers\Followup::class)? '': 'disabled' }}">
+                            <span class="flex items-center">
+                                <iconify-icon class=" nav-icon" icon="icon-park-outline:cycle-arrow">
+                                </iconify-icon>
+                                <span>Follow-ups</span>
+                            </span>
+                        </a>
+                    </li>
+
 
                     {{-- <li>
                         <a href="{{ url('/pets') }}" class="navItem {{ $pets ?? '' }}">
@@ -245,7 +256,7 @@
                     {{-- @can('viewReports', App\Models\Orders\Order::class) --}}
                         <li class="sidebar-menu-title">Reports</li>
                         <li>
-                            <a href="{{ auth()->user()->can('viewReports', App\Models\Orders\Order::class)? url('/report/followup'): '#' }}"
+                            <a href="{{ url('/report/followup') }}"
                                 class="navItem {{ $followupReport ?? '' }}  {{ auth()->user()->can('viewReports', App\Models\Orders\Order::class)? '': 'disabled' }}">
                                 <span class="flex items-center">
                                     <iconify-icon class=" nav-icon" icon="material-symbols:order-approve-outline-sharp">
@@ -256,16 +267,6 @@
                         </li>
                     {{-- @endcan --}}
 
-                    <li>
-                        <a href="{{ auth()->user()->can('viewAny', App\Models\Customers\Followup::class)? url('/followups'): '#' }}"
-                            class="navItem {{ $followups ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Customers\Followup::class)? '': 'disabled' }}">
-                            <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="icon-park-outline:cycle-arrow">
-                                </iconify-icon>
-                                <span>Follow-ups</span>
-                            </span>
-                        </a>
-                    </li>
 
                     <li class="sidebar-menu-title">Database</li>
 
