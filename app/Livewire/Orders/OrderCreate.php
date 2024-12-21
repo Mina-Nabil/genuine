@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class OrderCreate extends Component
 {
@@ -71,6 +72,7 @@ class OrderCreate extends Component
 
     public function updatedFetchedProducts()
     {
+        Log::info($this->fetchedProducts);
         $this->refreshPayments();
     }
 
@@ -270,7 +272,7 @@ class OrderCreate extends Component
 
         foreach ($combo->products as $product) {
             // Check if the product already exists in fetchedProducts by its ID
-            $existingIndex = collect($this->fetchedProducts)->search(function ($fetchedProduct) use ($product,$combo) {
+            $existingIndex = collect($this->fetchedProducts)->search(function ($fetchedProduct) use ($product, $combo) {
                 return ($fetchedProduct['id'] == $product->id) && ($fetchedProduct['combo_id'] == $combo->id);
             });
 
@@ -360,7 +362,8 @@ class OrderCreate extends Component
                 'fetchedProducts.*.price' => 'Each order item must have a price',
             ],
         );
-        $this->fetchedProducts[$index]['total'] = $this->fetchedProducts[$index]['quantity'] * $this->fetchedProducts[$index]['price'];
+        if (array_key_exists($index, $this->fetchedProducts))
+            $this->fetchedProducts[$index]['total'] = $this->fetchedProducts[$index]['quantity'] * $this->fetchedProducts[$index]['price'];
     }
 
     public function openProductsSection()
@@ -404,33 +407,46 @@ class OrderCreate extends Component
         $this->total = $subtotal + $shippingFee - $this->discountAmount;
     }
 
-    public function removeProduct($productId)
+    public function removeProduct($fetchedProductIndex)
     {
-        // Find the product being removed
-        $productToRemove = collect($this->fetchedProducts)->firstWhere('id', $productId);
 
-        // Check if the product has a combo_id
-        if ($productToRemove && isset($productToRemove['combo_id'])) {
-            $comboId = $productToRemove['combo_id'];
+        $prod = $this->fetchedProducts[$fetchedProductIndex];
+        unset($this->fetchedProducts[$fetchedProductIndex]);
 
-            // Remove all products with the same combo_id from fetchedProducts
-            $this->fetchedProducts = array_filter($this->fetchedProducts, function ($product) use ($comboId) {
-                return !isset($product['combo_id']) || $product['combo_id'] !== $comboId; // Keep products not matching the combo_id
-            });
-        } else {
-            // If no combo_id, just remove the single product
-            $this->fetchedProducts = array_filter($this->fetchedProducts, function ($product) use ($productId) {
-                return isset($product['id']) && $product['id'] != $productId; // Retain products not matching the ID
-            });
-        }
+        // //////////Removing Item by item no need to check for combo 
+        // // Check if the product has a combo_id
+        // if ($productToRemove && isset($productToRemove['combo_id'])) {
+        //     $comboId = $productToRemove['combo_id'];
+
+        //     // Remove all products with the same combo_id from fetchedProducts
+        //     $this->fetchedProducts = array_filter($this->fetchedProducts, function ($product) use ($comboId) {
+        //         return !isset($product['combo_id']) || $product['combo_id'] !== $comboId; // Keep products not matching the combo_id
+        //     });
+        // } else {
+        //     $this->fetchedProducts = array_filter($this->fetchedProducts, function ($product) use ($productId) {
+        //         return isset($product['id']) && $product['id'] != $productId; // Retain products not matching the ID
+        //     });
+        // }
 
         // Remove the product ID from selectedProducts
-        $this->selectedProducts = array_filter($this->selectedProducts, function ($id) use ($productId) {
-            return $id != $productId; // Retain IDs not matching the product ID
+        $this->selectedProducts = array_filter($this->selectedProducts, function ($id) use ($prod) {
+            return $id != $prod['id']; // Retain IDs not matching the product ID
         });
 
         // Re-index the selectedProducts array to maintain sequential numeric keys
         $this->selectedProducts = array_values($this->selectedProducts);
+        $this->fetchedProducts = array_values($this->fetchedProducts);
+        
+        Log::info("Fetched Count " . count($this->fetchedProducts));
+        Log::info("Selected Count " .  count($this->selectedProducts));
+
+        $this->fetchedCombos = array_filter($this->fetchedCombos, function ($comboArr) {
+            foreach ($this->fetchedProducts as $prod) {
+                if ($prod['combo_id'] == $comboArr['combo_id']) return true;
+            }
+            return false;
+        });
+
         $this->refreshPayments();
     }
 

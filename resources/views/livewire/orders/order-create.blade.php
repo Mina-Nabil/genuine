@@ -109,6 +109,8 @@
                                                     </thead>
                                                     <tbody
                                                         class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
+                                                        {{ Illuminate\Support\Facades\Log::info("MEL PAGE") }}
+                                                        {{ Illuminate\Support\Facades\Log::info($fetchedProducts) }}
                                                         @foreach ($fetchedProducts as $index => $product)
                                                             <tr>
                                                                 <!-- Product Name Column -->
@@ -168,7 +170,7 @@
                                                                 </td>
                                                                 <td class="table-td imp-p-2">
                                                                     <button class="action-btn" type="button"
-                                                                        wire:click="removeProduct({{ $product['id'] }})">
+                                                                        wire:click="removeProduct({{ $index }})">
                                                                         <iconify-icon
                                                                             icon="heroicons:trash"></iconify-icon>
                                                                     </button>
