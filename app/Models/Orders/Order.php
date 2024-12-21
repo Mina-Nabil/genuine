@@ -1361,9 +1361,12 @@ class Order extends Model
 
     public function scopeSearch(Builder $query, string $searchText = null, array $deliveryDates = [], string $status = null, int $zoneId = null, int $driverId = null, bool $isPaid = null): Builder
     {
-        return $query
-            ->join('zones', 'zones.id', '=', 'orders.zone_id')
-            ->when($searchText, function ($query, $searchText) {
+        if (!joined($query, 'zones')) {
+            $query->join('zones', 'zones.id', '=', 'orders.zone_id');
+        }
+
+        return
+            $query->when($searchText, function ($query, $searchText) {
                 $words = explode(' ', $searchText);
                 foreach ($words as $w) {
                     $query->where(function ($q) use ($w) {
@@ -1529,7 +1532,11 @@ class Order extends Model
 
     public function scopeSortByZone(Builder $query, string $direction = 'asc'): Builder
     {
-        return $query->join('zones', 'orders.zone_id', '=', 'zones.id')->orderBy('zones.name', $direction)->select('orders.*');
+        if (!joined($query, 'zones')) {
+            $query->join('zones', 'zones.id', '=', 'orders.zone_id');
+        }
+
+        return $query->orderBy('zones.name', $direction)->select('orders.*');
     }
 
     public function getTotalWeightAttribute()

@@ -30,3 +30,24 @@ if (!function_exists('getWeekOfMonth')) {
         return "W" . (int) $weekNumber . " $monthName";
     }
 }
+/**
+ * Get the week of the month for a given date.
+ *
+ * @param string $date
+ * @return string
+ */
+if (!function_exists('joined')) {
+    function joined($query, $table)
+    {
+        $joins = $query->getQuery()->joins;
+        if ($joins == null) {
+            return false;
+        }
+        foreach ($joins as $join) {
+            if ($join->table == $table) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
