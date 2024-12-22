@@ -84,20 +84,7 @@ class Order extends Model
 
             foreach ($orders as $order) {
                 // Get the current status and check the allowed next statuses
-                $currentStatus = $order->status;
-                $allowedNextStatuses = self::getNextStatuses($currentStatus);
-
-                // If the new status is not allowed, throw an exception
-                if (!in_array($newStatus, $allowedNextStatuses, true)) {
-                    throw new Exception("Order ID {$order->id} cannot transition from {$currentStatus} to {$newStatus}");
-                }
-
-                if ($newStatus === self::STATUS_RETURNED || $newStatus === self::STATUS_CANCELLED) {
-                    $order->cancelAllProducts();
-                }
-
-                // Update the status
-                $order->status = $newStatus;
+                $order->setStatus($newStatus);
                 $order->save();
             }
             DB::commit();
@@ -142,6 +129,35 @@ class Order extends Model
         }
     }
 
+    public function resetStatus(): bool
+    {
+        DB::beginTransaction();
+
+        try {
+            if ($this->status === self::STATUS_READY || $this->status === self::STATUS_IN_DELIVERY) {
+                foreach ($this->products as $product) {
+                    $product->product->inventory->unfulfillCommit($product->quantity);
+                    $product->is_ready = false;
+                    $product->save();
+                }
+
+                $this->status = self::STATUS_NEW;
+                $this->save();
+
+                DB::commit();
+                return true;
+            } else {
+                DB::rollBack();
+                return false;
+            }
+        } catch (Exception $e) {
+            DB::rollBack();
+            report($e);
+            AppLog::error("Failed to reset status for Order ID {$this->id}", $e->getMessage());
+            return false;
+        }
+    }
+
     public function setStatus(string $newStatus, $skipCheck = false): bool
     {
         DB::beginTransaction();
@@ -154,6 +170,14 @@ class Order extends Model
             // If the new status is not allowed, throw an exception
             if (!in_array($newStatus, $allowedNextStatuses, true) && !$skipCheck) {
                 throw new Exception("Order ID {$this->id} cannot transition from {$currentStatus} to {$newStatus}");
+            }
+
+            if ($currentStatus === self::STATUS_NEW && $newStatus === self::STATUS_READY) {
+                foreach ($this->products as $product) {
+                    $product->product->inventory->fulfillCommit($product->quantity);
+                    $product->is_ready = true;
+                    $product->save();
+                }
             }
 
             // If the new status is returned or cancelled, handle product cancellation
@@ -943,9 +967,9 @@ class Order extends Model
         الاوردر:
         EOD;
 
-        foreach ($this->products as $product)
+        foreach ($this->products as $product) {
             $message .= "\n• {$product->product->name}: {$product->quantity} ";
-
+        }
 
         $deliveryDate = $this->convertDayToArabic($this->delivery_date->format('l')) . ' ' . $this->delivery_date->format('d/m/Y');
         $message .= "\n\nتـاريخ توصيل الطلـب: {$deliveryDate}";
@@ -1369,8 +1393,8 @@ class Order extends Model
             $query->where('created_by', Auth::id());
         }
 
-        return
-            $query->when($searchText, function ($query, $searchText) {
+        return $query
+            ->when($searchText, function ($query, $searchText) {
                 $words = explode(' ', $searchText);
                 foreach ($words as $w) {
                     $query->where(function ($q) use ($w) {
@@ -1410,10 +1434,9 @@ class Order extends Model
     public function scopeClosedOrders(Builder $query): Builder
     {
         return $query->where(function (Builder $query) {
-            $query->whereIn('status', [self::STATUS_DONE, self::STATUS_RETURNED, self::STATUS_CANCELLED])
-                ->where(function (Builder $query) {
-                    $query->where('status', '!=', self::STATUS_DONE)->orWhere('is_paid', true);
-                });
+            $query->whereIn('status', [self::STATUS_DONE, self::STATUS_RETURNED, self::STATUS_CANCELLED])->where(function (Builder $query) {
+                $query->where('status', '!=', self::STATUS_DONE)->orWhere('is_paid', true);
+            });
         });
     }
 
@@ -1555,15 +1578,10 @@ class Order extends Model
 
     public function scopeWithCancelledReadyProducts(Builder $query): Builder
     {
-        return $query->where('status', 'cancelled')
-            ->whereHas('products', function ($q) {
-                $q->withTrashed()
-                    ->where('is_ready', true)
-                    ->whereNotNull('deleted_at'); // Filter for soft-deleted products
-            });
+        return $query->where('status', 'cancelled')->whereHas('products', function ($q) {
+            $q->withTrashed()->where('is_ready', true)->whereNotNull('deleted_at'); // Filter for soft-deleted products
+        });
     }
-
-
 
     // relations
     public function products(): HasMany

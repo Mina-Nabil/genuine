@@ -251,6 +251,42 @@ class Inventory extends Model
         }
     }
 
+    public function unfulfillCommit($quantity)
+    {
+        /** @var User */
+        $user = Auth::user();
+        if (!$user->can('update', $this)) {
+            return false;
+        }
+
+        try {
+            DB::transaction(function () use ($quantity) {
+                // Ensure the quantity is positive
+                if ($quantity <= 0) {
+                    throw new \Exception('Quantity must be a positive number.');
+                }
+
+                // Increase committed and on-hand quantities
+                $this->committed += $quantity;
+                $this->on_hand += $quantity;
+
+                // Update available stock
+                $this->available = $this->on_hand - $this->committed;
+
+                // Save the inventory changes
+                $this->save();
+
+                // Log the action in AppLog
+            });
+            AppLog::info('Inventory unfulfill commit', loggable: $this->inventoryable);
+            return true;
+        } catch (\Exception $e) {
+            report($e);
+            AppLog::error('Inventory Unfulfill Commit Failed', $e->getMessage(), loggable: $this->inventoryable);
+            return false;
+        }
+    }
+
     /**
      * Commit or uncommit inventory and update available stock.
      *

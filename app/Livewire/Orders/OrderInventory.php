@@ -33,6 +33,26 @@ class OrderInventory extends Component
     public $Edited_deliveryDate_sec;
     public $selectedDeliveryDates = [];
 
+    public $resetStatusOrderID;
+
+    public function resetStatus($id){
+        $this->resetStatusOrderID = $id;
+    }
+
+    public function dismissResetStatus(){
+        $this->resetStatusOrderID = null;
+    }
+
+    public function confirmResetStatus(){
+        $res = Order::findOrFail($this->resetStatusOrderID)->resetStatus();
+        if ($res) {
+            $this->alertSuccess('Order updated');
+            $this->dismissResetStatus();
+        } else {
+            $this->alertFailed();
+        }
+    }
+
     public function updatedEditedDeliveryDate($value)
     {
         foreach ($this->selectedDeliveryDates as $date) {

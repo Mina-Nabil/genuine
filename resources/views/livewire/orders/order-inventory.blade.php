@@ -237,12 +237,12 @@
                                                                                 Click to Restore
                                                                             </button>
                                                                         @else
-                                                                                <button
-                                                                                    wire:click='toggleDeletedReady({{ $orderProduct->id }})'
-                                                                                    class="btn inline-flex justify-center btn-outline-success btn-sm"
-                                                                                    style="padding-top: 3px;padding-bottom: 3px">
-                                                                                    Restored
-                                                                                </button>
+                                                                            <button
+                                                                                wire:click='toggleDeletedReady({{ $orderProduct->id }})'
+                                                                                class="btn inline-flex justify-center btn-outline-success btn-sm"
+                                                                                style="padding-top: 3px;padding-bottom: 3px">
+                                                                                Restored
+                                                                            </button>
                                                                         @endif
                                                                     </td>
                                                                 @endif
@@ -391,12 +391,20 @@
 
                                         </div>
                                         @if ($order->status === App\Models\Orders\Order::STATUS_READY)
-                                            <button wire:click='setAsInDelivery({{ $order->id }})'
-                                                class="btn inline-flex justify-center btn-primary block-btn mt-2 btn-sm">
-                                                <span class="flex items-center">
-                                                    <span>Set as in delivery</span>
-                                                </span>
-                                            </button>
+                                            <div class="flex gap-2">
+                                                <button wire:click='setAsInDelivery({{ $order->id }})'
+                                                    class="btn inline-flex justify-center btn-primary block-btn mt-2 btn-sm">
+                                                    <span class="flex items-center">
+                                                        <span>Set as in delivery</span>
+                                                    </span>
+                                                </button>
+                                                <button wire:click='resetStatus({{ $order->id }})'
+                                                    class="btn inline-flex justify-center btn-outline-warning block-btn mt-2 btn-sm">
+                                                    <span class="flex items-center">
+                                                        <span>Reset Status</span>
+                                                    </span>
+                                                </button>
+                                            </div>
                                         @endif
 
 
@@ -410,14 +418,13 @@
                                             class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700">
                                             <tbody class="bg-white dark:bg-slate-800 no-wrap">
                                                 @can('update', $order)
-                                                @if ($order->status === App\Models\Orders\Order::STATUS_NEW)
-                                                <button
-                                                wire:click='setAllReady({{$order->id}})'
-                                                class="btn inline-flex justify-center btn-outline-success btn-sm"
-                                                style="padding-top: 3px;padding-bottom: 3px">
-                                                All Ready
-                                            </button>
-                                                @endif
+                                                    @if ($order->status === App\Models\Orders\Order::STATUS_NEW)
+                                                        <button wire:click='setAllReady({{ $order->id }})'
+                                                            class="btn inline-flex justify-center btn-outline-success btn-sm"
+                                                            style="padding-top: 3px;padding-bottom: 3px">
+                                                            All Ready
+                                                        </button>
+                                                    @endif
                                                 @endcan
 
                                                 @foreach ($order->products as $orderProduct)
@@ -774,4 +781,52 @@
                 </div>
             </div>
     @endif
+
+    @if ($resetStatusOrderID)
+                <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+                    tabindex="-1" aria-labelledby="dangerModalLabel" aria-modal="true" role="dialog"
+                    style="display: block;">
+                    <div class="modal-dialog relative w-auto pointer-events-none">
+                        <div
+                            class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding
+                                rounded-md outline-none text-current">
+                            <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
+                                <!-- Modal header -->
+                                <div
+                                    class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-warning-500">
+                                    <h3 class="text-base font-medium dark:text-white capitalize">
+                                        Reset order status
+                                    </h3>
+                                    <button wire:click="dismissResetStatus" type="button"
+                                        class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center
+                                            dark:hover:bg-slate-600 dark:hover:text-white"
+                                        data-bs-dismiss="modal">
+                                        <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <path fill-rule="evenodd"
+                                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10
+                                                    11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                                clip-rule="evenodd"></path>
+                                        </svg>
+                                        <span class="sr-only">Close modal</span>
+                                    </button>
+                                </div>
+                                <!-- Modal body -->
+                                <div class="p-6 space-y-4">
+                                    <h6 class="text-base text-slate-900 dark:text-white leading-6">
+                                        Are you sure ! you Want to reset this Order status ?
+                                    </h6>
+                                </div>
+                                <!-- Modal footer -->
+                                <div
+                                    class="flex items-center p-6 space-x-2 border-t border-slate-200 rounded-b dark:border-slate-600">
+                                    <button wire:click="confirmResetStatus" data-bs-dismiss="modal"
+                                        class="btn inline-flex justify-center bg-warning-500">Yes,
+                                        Reset</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
 </div>

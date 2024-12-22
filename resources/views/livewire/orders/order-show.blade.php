@@ -77,6 +77,13 @@
                                 Set as not Confirmed
                             </li>
                         @endif
+                        @if ($order->status === 'ready' || $order->status === 'in_delivery')
+                            <li wire:click='resetStatus'
+                                class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600
+                            dark:hover:text-white cursor-pointer">
+                                Reset Status
+                            </li>
+                        @endif
                         @if ($order->driver)
                             <a wire:click='sendWhatsappMessage' href="{{ $order->generateWhatsAppMessage() }}"
                                 target="_blanck">

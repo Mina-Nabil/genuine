@@ -88,6 +88,15 @@ class OrderShow extends Component
         }
     }
 
+    public function resetStatus(){
+        $res = $this->order->resetStatus();
+        if ($res) {
+            $this->alertSuccess('updated!');
+        } else {
+            $this->alertFailed();
+        }
+    }
+
     public function toggleDelete()
     {
         $this->toggle($this->isOpenDeleteSection);
