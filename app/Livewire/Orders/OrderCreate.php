@@ -217,14 +217,15 @@ class OrderCreate extends Component
 
         foreach ($lastOrder->products as $product) {
             // dd($product->product_id);
-
-            $this->fetchedProducts[] = [
-                'id' => $product->product_id,
-                'name' => Product::find($product->product_id)->name,
-                'combo_id' => $product->combo_id,
-                'quantity' => $product->quantity,
-                'price' => $product->price,
-            ];
+            $origProd = Product::find($product->product_id);
+            if ($origProd)
+                $this->fetchedProducts[] = [
+                    'id' => $product->product_id,
+                    'name' => $origProd->name,
+                    'combo_id' => $product->combo_id,
+                    'quantity' => $product->quantity,
+                    'price' => $product->price,
+                ];
         }
 
         $this->refreshPayments();
