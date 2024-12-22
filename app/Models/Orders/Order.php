@@ -1365,6 +1365,10 @@ class Order extends Model
             $query->join('zones', 'zones.id', '=', 'orders.zone_id');
         }
 
+        if (Auth::user()->is_sales) {
+            $query->where('created_by', Auth::id());
+        }
+
         return
             $query->when($searchText, function ($query, $searchText) {
                 $words = explode(' ', $searchText);
