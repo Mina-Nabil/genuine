@@ -19,29 +19,28 @@
     <div class="mb-5">
         @if ($deliveryDate)
 
-                    <span class="badge bg-slate-900 text-white capitalize">
-                        <span class="cursor-pointer" wire:click='openFilteryDeliveryDate'>
-                            <span class="text-secondary-500 ">Delivery Date:</span>
-                            @foreach ($deliveryDate as $sDdate)
-                                &nbsp;
-                                {{ $sDdate->isToday()
-                                    ? 'Today'
-                                    : ($sDdate->isYesterday()
-                                        ? 'Yesterday'
-                                        : ($sDdate->isTomorrow()
-                                            ? 'Tomorrow'
-                                            : $sDdate->format('l d-m-Y'))) }}
-                                @if (!$loop->last)
-                                    ,
-                                @endif
-                            @endforeach
-                        </span>
+            <span class="badge bg-slate-900 text-white capitalize">
+                <span class="cursor-pointer" wire:click='openFilteryDeliveryDate'>
+                    <span class="text-secondary-500 ">Delivery Date:</span>
+                    @foreach ($deliveryDate as $sDdate)
+                        &nbsp;
+                        {{ $sDdate->isToday()
+                            ? 'Today'
+                            : ($sDdate->isYesterday()
+                                ? 'Yesterday'
+                                : ($sDdate->isTomorrow()
+                                    ? 'Tomorrow'
+                                    : $sDdate->format('l d-m-Y'))) }}
+                        @if (!$loop->last)
+                            ,
+                        @endif
+                    @endforeach
+                </span>
 
-                        &nbsp;&nbsp;<iconify-icon wire:click="clearDeliveryDate(closed)"
-                            icon="material-symbols:close" class="cursor-pointer" width="1.2em"
-                            height="1.2em"></iconify-icon>
-                    </span>
-                @endif
+                &nbsp;&nbsp;<iconify-icon wire:click="clearDeliveryDate(closed)" icon="material-symbols:close"
+                    class="cursor-pointer" width="1.2em" height="1.2em"></iconify-icon>
+            </span>
+        @endif
         @if ($driver)
             <div class="dropdown relative" style="display: contents">
                 <span class="badge bg-slate-900 text-white capitalize"
@@ -83,15 +82,22 @@
                                 <div class="grid grid-cols-1 md:grid-cols-8 lg:grid-cols-8">
 
                                     <div class="p-3 md:col-span-2">
+                                        @if ($showDriverOrderId === $order->id)
+                                            <input wire:model='driverOrder' type="number"
+                                                wire:keydown.enter='setDriverOrder({{ $order->id }})'
+                                                class="form-control !py-1 mb-1 !text-xs">
+                                        @endif
+
                                         <div class="flex justify-between">
+                                            <span wire:click='showDriverOrder({{ $order->id }})'
+                                                class="w-5 h-5 inline-flex items-center justify-center bg-slate-900 text-slate-100 rounded-md font-Inter text-xs ltr:ml-1 rtl:mr-1 relative top-[2px]">
+                                                {{ $order->driver_order }}
+                                            </span>&nbsp;&nbsp;
 
                                             <a href="{{ route('orders.show', $order->id) }}"> <span
                                                     class="hover-underline">
                                                     <b>
-                                                        <span
-                                                            class="w-5 h-5 inline-flex items-center justify-center bg-slate-900 text-slate-100 rounded-md font-Inter text-xs ltr:ml-1 rtl:mr-1 relative top-[2px]">
-                                                            {{ $order->driver_order }}
-                                                        </span>&nbsp;&nbsp;
+
 
                                                         #{{ $order->order_number }} • {{ $order->customer->name }}
                                                     </b>
@@ -533,10 +539,10 @@
                         <div
                             class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
                             <h3 class="text-xl font-medium text-white dark:text-white capitalize">
-                                Filter delivery date 
+                                Filter delivery date
                                 <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
-                                wire:loading wire:target="removeSelectedDate,Edited_deliveryDate"
-                                icon="line-md:loading-twotone-loop"></iconify-icon>
+                                    wire:loading wire:target="removeSelectedDate,Edited_deliveryDate"
+                                    icon="line-md:loading-twotone-loop"></iconify-icon>
                             </h3>
                             <button wire:click="closeFilteryDeliveryDate" type="button"
                                 class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
@@ -558,7 +564,8 @@
                                 <div class="input-area">
                                     <label for="Edited_deliveryDate" class="form-label">Delivery date*</label>
                                     <p class="text-gray-600 text-xs mb-2">
-                                        *You can select multiple dates by clicking on the date. Once done, click "Submit" to apply the filter.
+                                        *You can select multiple dates by clicking on the date. Once done, click
+                                        "Submit" to apply the filter.
                                     </p>
                                     <input name="Edited_deliveryDate" id="Edited_deliveryDate" type="date"
                                         class="form-control w-full mt-2 @error('Edited_deliveryDate') !border-danger-500 @enderror"

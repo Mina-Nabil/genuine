@@ -36,6 +36,22 @@ class OrderDriverShift extends Component
     public $editedDriverNote;
     public $editedDriverNoteSec;
 
+    public $driverOrder;
+    public $showDriverOrderId;
+
+    public function showDriverOrder($id){
+        $this->showDriverOrderId = $id;
+    }
+
+    public function setDriverOrder($id){
+        $res = Order::findOrFail($id)->moveToPosition($this->driverOrder);
+        if ($res) {
+            $this->alertSuccess('Order Changed');
+            $this->showDriverOrderId = null;
+        } else {
+            $this->alertFailed();
+        }
+    }
     //collected
     public $collectedFromPaymentTypes = [];
 
