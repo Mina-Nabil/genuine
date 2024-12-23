@@ -44,7 +44,7 @@ class OrderDriverShift extends Component
     }
 
     public function setDriverOrder($id){
-        $res = Order::findOrFail($id)->moveToPosition($this->driverOrder);
+        $res = Order::findOrFail($id)->moveToPosition(is_string($this->driverOrder) ? NULL : $this->driverOrder);
         if ($res) {
             $this->alertSuccess('Order Changed');
             $this->showDriverOrderId = null;
