@@ -64,6 +64,18 @@ class OrderIndex extends Component
         $this->isOpenPayAlert = $paymentMethod;
     }
 
+    public function resetStatuses(){
+        $res = Order::resetBulkStatus($this->selectedOrders);
+        if ($res) {
+            $this->resetPage();
+            $this->selectedOrders = [];
+            $this->selectAll = false;
+            $this->alertSuccess('Status changed!');
+        } else {
+            $this->alertFailed();
+        }
+    }
+
     public function ProcceedBulkPayment()
     {
         $res = Order::bulkSetAsPaid($this->selectedOrders, Carbon::now(), $this->isOpenPayAlert, false);

@@ -158,6 +158,27 @@ class Order extends Model
         }
     }
 
+    public static function resetBulkStatus(array $orderIds): bool
+    {
+        DB::beginTransaction();
+
+        try {
+            $orders = self::whereIn('id', $orderIds)->get();
+
+            foreach ($orders as $order) {
+                $order->resetStatus();
+            }
+
+            DB::commit();
+            return true;
+        } catch (Exception $e) {
+            DB::rollBack();
+            report($e);
+            AppLog::error('Failed to reset bulk status for orders', $e->getMessage());
+            return false;
+        }
+    }
+
     public function setStatus(string $newStatus, $skipCheck = false): bool
     {
         DB::beginTransaction();
