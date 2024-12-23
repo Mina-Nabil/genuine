@@ -37,6 +37,12 @@ class OrderInventory extends Component
 
     public $resetStatusOrderID;
 
+    public $noOfBags = [];
+
+    public function updateNoOfBags($id){
+        Order::findOrFail($id)->updateNoOfBags($this->noOfBags[$id]);
+    }
+
     public function resetStatus($id){
         $this->resetStatusOrderID = $id;
     }
@@ -182,6 +188,10 @@ class OrderInventory extends Component
     {
         $this->authorize('viewOrderInventory', Order::class);
         $this->deliveryDate = [Carbon::tomorrow()];
+        $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneId: $this->zone?->id)->withTotalQuantity()->openOrders()->paginate(50);
+        foreach ($orders as $order) {
+            $this->noOfBags[$order->id] = $order->no_of_bags;
+        }
     }
 
 

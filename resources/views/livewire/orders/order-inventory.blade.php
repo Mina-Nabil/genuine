@@ -578,11 +578,10 @@
                                             class="bg-slate-50 dark:bg-slate-900 rounded p-2 flex justify-between flex-wrap">
                                             <div class="space-y-1">
                                                 <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
-                                                    Total Weight
+                                                    No of Bags
                                                 </h4>
                                                 <div class="text-sm font-medium text-slate-900 dark:text-white">
-                                                    {{ number_format($order->total_weight / 1000, 2) }}
-                                                    <small>KG</small>
+                                                    <input wire:model.live='noOfBags.{{ $order->id }}' wire:change='updateNoOfBags({{ $order->id }})' id="smallInput" type="number" style="width: 65px;" class="form-control !py-1 !text-xs">
                                                 </div>
                                             </div>
                                             <div class="space-y-1">
