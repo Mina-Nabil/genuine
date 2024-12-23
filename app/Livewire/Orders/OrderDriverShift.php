@@ -55,26 +55,6 @@ class OrderDriverShift extends Component
     //collected
     public $collectedFromPaymentTypes = [];
 
-    public function moveOrderUp($id)
-    {
-        $res = Order::findOrFail($id)->moveUp();
-        if ($res) {
-            $this->alertSuccess('Order Changed');
-        } else {
-            $this->alertFailed();
-        }
-    }
-
-    public function moveOrderDown($id)
-    {
-        $res = Order::findOrFail($id)->moveDown();
-        if ($res) {
-            $this->alertSuccess('Order Changed');
-        } else {
-            $this->alertFailed();
-        }
-    }
-
     public function setDriverPaymentType($orderId, $method = null)
     {
         $res = Order::findOrFail($orderId)->updateDriverPaymentType($method ?? null);
