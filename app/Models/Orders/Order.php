@@ -1200,9 +1200,14 @@ class Order extends Model
         });
     }
 
-    public function moveToPosition(int $newPosition)
+    public function moveToPosition(int $newPosition = null)
     {
         return DB::transaction(function () use ($newPosition) {
+
+            if ($newPosition == null) {
+                $this->driver_order = $newPosition;
+                $this->save();
+            }
 
             if ($newPosition <= 0) {
                 $newPosition = 1;
