@@ -13,7 +13,7 @@ class ComboPolicy
      */
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->is_admin;
     }
 
     /**
@@ -21,7 +21,7 @@ class ComboPolicy
      */
     public function view(User $user, Combo $combo): bool
     {
-        return true;
+        return $user->is_admin;
     }
 
     /**
@@ -29,7 +29,7 @@ class ComboPolicy
      */
     public function create(User $user): bool
     {
-        return true;
+        return $user->is_admin;
     }
 
     /**
@@ -37,12 +37,12 @@ class ComboPolicy
      */
     public function update(User $user, Combo $combo): bool
     {
-        return true;
+        return $user->is_admin;
     }
 
     public function updateProducts(User $user, Combo $combo): bool
     {
-        return true;
+        return $user->is_admin;
     }
 
     /**
@@ -50,7 +50,7 @@ class ComboPolicy
      */
     public function delete(User $user, Combo $combo): bool
     {
-        return true;
+        return $user->is_admin;
     }
 
     /**
@@ -58,7 +58,7 @@ class ComboPolicy
      */
     public function restore(User $user, Combo $combo): bool
     {
-        return true;
+        return $user->is_admin;
     }
 
     /**
@@ -66,6 +66,6 @@ class ComboPolicy
      */
     public function forceDelete(User $user, Combo $combo): bool
     {
-        return true;
+        return $user->is_admin;
     }
 }
