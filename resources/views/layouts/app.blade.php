@@ -158,54 +158,53 @@
                             </span>
                         </a>
                     </li>
+                    @can('viewOrderInventory', App\Models\Products\Order::class)
+                        <li class="sidebar-menu-title">Inventory</li>
+                        <li>
+                            <a href="{{ auth()->user()->can('viewOrderInventory', App\Models\Products\Order::class)? url('/orders/inventory'): '#' }}"
+                                class="navItem {{ $ordersInventory ?? '' }} {{ auth()->user()->can('viewOrderInventory', App\Models\Orders\Order::class)? '': 'disabled' }}">
+                                <span class="flex items-center">
+                                    <iconify-icon class=" nav-icon" icon="gridicons:product">
+                                    </iconify-icon>
+                                    <span>تحضير</span>
+                                </span>
+                            </a>
+                        </li>
 
-                    <li class="sidebar-menu-title">Inventory</li>
-                    <li>
-                        <a href="{{ auth()->user()->can('viewOrderInventory', App\Models\Products\Order::class)? url('/orders/inventory'): '#' }}"
-                            class="navItem {{ $ordersInventory ?? '' }} {{ auth()->user()->can('viewOrderInventory', App\Models\Orders\Order::class)? '': 'disabled' }}">
-                            <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="gridicons:product">
-                                </iconify-icon>
-                                <span>تحضير</span>
-                            </span>
-                        </a>
-                    </li>
-
-
-                    <li>
-                        <a href="{{ auth()->user()->can('viewAny', App\Models\Products\Inventory::class)? url('/productions'): '#' }}"
-                            class="navItem {{ $productions ?? '' }}
+                        <li>
+                            <a href="{{ auth()->user()->can('viewAny', App\Models\Products\Inventory::class)? url('/productions'): '#' }}"
+                                class="navItem {{ $productions ?? '' }}
                             {{ auth()->user()->can('viewAny', App\Models\Products\Inventory::class)? '': 'disabled' }}">
-                            <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="la:industry">
-                                </iconify-icon>
-                                <span>تقرير انتاجيه</span>
-                            </span>
-                        </a>
-                    </li>
+                                <span class="flex items-center">
+                                    <iconify-icon class=" nav-icon" icon="la:industry">
+                                    </iconify-icon>
+                                    <span>تقرير انتاجيه</span>
+                                </span>
+                            </a>
+                        </li>
 
-                    <li>
-                        <a href="{{ auth()->user()->can('viewAny', App\Models\Products\Inventory::class)? url('/inventories'): '#' }}"
-                            class="navItem {{ $inventories ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Products\Inventory::class)? '': 'disabled' }}">
-                            <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="ic:sharp-inventory">
-                                </iconify-icon>
-                                <span>انتاجيه اليوم</span>
-                            </span>
-                        </a>
-                    </li>
+                        <li>
+                            <a href="{{ auth()->user()->can('viewAny', App\Models\Products\Inventory::class)? url('/inventories'): '#' }}"
+                                class="navItem {{ $inventories ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Products\Inventory::class)? '': 'disabled' }}">
+                                <span class="flex items-center">
+                                    <iconify-icon class=" nav-icon" icon="ic:sharp-inventory">
+                                    </iconify-icon>
+                                    <span>انتاجيه اليوم</span>
+                                </span>
+                            </a>
+                        </li>
 
-                    <li>
-                        <a href="{{ auth()->user()->can('viewAny', App\Models\Products\Inventory::class)? url('/transactions'): '#' }}"
-                            class="navItem {{ $Trans ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Products\Inventory::class)? '': 'disabled' }}">
-                            <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="grommet-icons:transaction">
-                                </iconify-icon>
-                                <span>معاملات</span>
-                            </span>
-                        </a>
-                    </li>
-
+                        <li>
+                            <a href="{{ auth()->user()->can('viewAny', App\Models\Products\Inventory::class)? url('/transactions'): '#' }}"
+                                class="navItem {{ $Trans ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Products\Inventory::class)? '': 'disabled' }}">
+                                <span class="flex items-center">
+                                    <iconify-icon class=" nav-icon" icon="grommet-icons:transaction">
+                                    </iconify-icon>
+                                    <span>معاملات</span>
+                                </span>
+                            </a>
+                        </li>
+                    @endcan
 
                     <li class="sidebar-menu-title">Calendar</li>
 
@@ -255,13 +254,12 @@
                     {{-- @can('viewReports', App\Models\Orders\Order::class) --}}
                     <li class="sidebar-menu-title">Reports</li>
                     <li>
-                        <a href="{{ url('/report/followup') }}"
-                            class="navItem {{ $followupReport ?? '' }}"  >
-                                <span class="flex
+                        <a href="{{ url('/report/followup') }}" class="navItem {{ $followupReport ?? '' }}">
+                            <span class="flex
                             items-center">
-                            <iconify-icon class=" nav-icon" icon="material-symbols:order-approve-outline-sharp">
-                            </iconify-icon>
-                            <span>متابعه عملاء</span>
+                                <iconify-icon class=" nav-icon" icon="material-symbols:order-approve-outline-sharp">
+                                </iconify-icon>
+                                <span>متابعه عملاء</span>
                             </span>
                         </a>
                     </li>
