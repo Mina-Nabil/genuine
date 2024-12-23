@@ -5,15 +5,6 @@
                 Driver Shift
             </h4>
         </div>
-        <div class="flex sm:space-x-4 space-x-2 sm:justify-end items-center md:mb-6 mb-4 rtl:space-x-reverse">
-            @can('create', App\Models\Orders\Order::class)
-                <a href="{{ route('orders.create') }}">
-                    <button class="btn inline-flex justify-center btn-dark dark:bg-slate-700 dark:text-slate-300 m-1 btn-sm">
-                        Create order
-                    </button>
-                </a>
-            @endcan
-        </div>
     </div>
 
     <div class="mb-5">
@@ -75,7 +66,71 @@
             <div class="flex-1 rounded-md col-span-2">
                 <div class="card-body flex flex-col justify-center  bg-no-repeat bg-center bg-cover card p-4 active">
                     <div class="card-text flex flex-col justify-between h-full menu-open">
+                        <div class="card dark active">
+                            <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base menu-open">
+                                <div
+                                    class="bg-slate-50 dark:bg-slate-900 rounded mb-5 p-4 flex gap-5  overflow-x-auto no-wrap">
+                                    <div class="space-y-1">
+                                        <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
+                                            Total Weight
+                                        </h4>
+                                        <div class="text-sm font-medium text-slate-900 dark:text-white">
+                                            {{ number_format($orders->sum('total_weight') / 1000, 3) }}
+                                            <small>KG</small>
+                                        </div>
+                                    </div>
+                                    @if (!auth()->user()->is_driver)
+                                        <div class="space-y-1">
+                                            <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
+                                                Total Zones
+                                            </h4>
+                                            <div class="text-sm font-medium text-slate-900 dark:text-white">
+                                                {{ $totalZones }}
+                                                <small>Zones</small>
+                                            </div>
+                                        </div>
+                                    @endif
+                                    <div class="space-y-1">
+                                        <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
+                                            Price to Collect
+                                        </h4>
+                                        <div class="text-sm font-medium text-slate-900 dark:text-white">
+                                            {{ number_format($orders->sum('remaining_to_pay'), 2) }}<small>&nbsp;EGP</small>
+                                        </div>
+                                    </div>
 
+                                    @if (!auth()->user()->is_driver)
+                                        <div class="space-y-1">
+                                            <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
+                                                Total Orders
+                                            </h4>
+                                            <div class="text-sm font-medium text-slate-900 dark:text-white">
+                                                {{ $orders->count() }} <small>(
+                                                    {{ $orders->sum(fn($order) => $order->products->sum('quantity')) }}
+                                                    Items ) </small>
+                                            </div>
+                                        </div>
+                                    @endif
+
+                                    @foreach ($collectedFromPaymentTypes as $index => $priceCollected)
+                                        @if ($priceCollected > 0)
+                                            <div class="space-y-1">
+                                                <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
+                                                    {{ ucwords(str_replace('_', ' ', $index)) }} Collected
+                                                </h4>
+                                                <div class="text-sm font-medium text-slate-900 dark:text-white">
+                                                    {{ number_format($priceCollected, 2) }}<small>&nbsp;EGP</small>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    @endforeach
+
+
+
+                                </div>
+                            </div>
+                        </div>
+                        
                         @forelse ($orders as $order)
                             <div class="card-body flex flex-col justify-between border rounded-lg h-full menu-open p-0 mb-5"
                                 style="border-color:rgb(224, 224, 224)">
@@ -341,16 +396,6 @@
                                                             Paid</span>
                                                     @endif
                                                 </div>
-                                                <div class="flex mt-2">
-                                                    <button wire:click='moveOrderUp({{ $order->id }})'
-                                                        class="action-btn" type="button">
-                                                        <iconify-icon icon="mingcute:up-fill"></iconify-icon>
-                                                    </button>
-                                                    <button wire:click='moveOrderDown({{ $order->id }})'
-                                                        class="action-btn" type="button">
-                                                        <iconify-icon icon="mingcute:down-fill"></iconify-icon>
-                                                    </button>
-                                                </div>
                                             </div>
                                         @endif
 
@@ -386,70 +431,7 @@
 
 
 
-                        <div class="card dark active">
-                            <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base menu-open">
-                                <div
-                                    class="bg-slate-50 dark:bg-slate-900 rounded p-4 mt-8 flex gap-5  overflow-x-auto no-wrap">
-                                    <div class="space-y-1">
-                                        <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
-                                            Total Weight
-                                        </h4>
-                                        <div class="text-sm font-medium text-slate-900 dark:text-white">
-                                            {{ number_format($orders->sum('total_weight') / 1000, 3) }}
-                                            <small>KG</small>
-                                        </div>
-                                    </div>
-                                    @if (!auth()->user()->is_driver)
-                                        <div class="space-y-1">
-                                            <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
-                                                Total Zones
-                                            </h4>
-                                            <div class="text-sm font-medium text-slate-900 dark:text-white">
-                                                {{ $totalZones }}
-                                                <small>Zones</small>
-                                            </div>
-                                        </div>
-                                    @endif
-                                    <div class="space-y-1">
-                                        <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
-                                            Price to Collect
-                                        </h4>
-                                        <div class="text-sm font-medium text-slate-900 dark:text-white">
-                                            {{ number_format($orders->sum('remaining_to_pay'), 2) }}<small>&nbsp;EGP</small>
-                                        </div>
-                                    </div>
-
-                                    @if (!auth()->user()->is_driver)
-                                        <div class="space-y-1">
-                                            <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
-                                                Total Orders
-                                            </h4>
-                                            <div class="text-sm font-medium text-slate-900 dark:text-white">
-                                                {{ $orders->count() }} <small>(
-                                                    {{ $orders->sum(fn($order) => $order->products->sum('quantity')) }}
-                                                    Items ) </small>
-                                            </div>
-                                        </div>
-                                    @endif
-
-                                    @foreach ($collectedFromPaymentTypes as $index => $priceCollected)
-                                        @if ($priceCollected > 0)
-                                            <div class="space-y-1">
-                                                <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
-                                                    {{ ucwords(str_replace('_', ' ', $index)) }} Collected
-                                                </h4>
-                                                <div class="text-sm font-medium text-slate-900 dark:text-white">
-                                                    {{ number_format($priceCollected, 2) }}<small>&nbsp;EGP</small>
-                                                </div>
-                                            </div>
-                                        @endif
-                                    @endforeach
-
-
-
-                                </div>
-                            </div>
-                        </div>
+                        
                     </div>
                 </div>
             </div>
