@@ -242,10 +242,10 @@
 
                                             <div class="space-y-1">
                                                 <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
-                                                    Total Weight
+                                                    Bags
                                                 </h4>
                                                 <div class=" font-medium text-slate-900 dark:text-white">
-                                                    {{ number_format($order->total_weight / 1000, 2) }}
+                                                    {{ $order->no_of_bags }}
                                                     <small>KG</small>
                                                 </div>
                                             </div>
@@ -390,6 +390,15 @@
                             <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base menu-open">
                                 <div
                                     class="bg-slate-50 dark:bg-slate-900 rounded p-4 mt-8 flex gap-5  overflow-x-auto no-wrap">
+                                    <div class="space-y-1">
+                                        <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
+                                            Bags
+                                        </h4>
+                                        <div class="text-sm font-medium text-slate-900 dark:text-white">
+                                            {{ $orders->sum('no_of_bags') }}
+                                            <small>KG</small>
+                                        </div>
+                                    </div>
                                     <div class="space-y-1">
                                         <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
                                             Total Weight

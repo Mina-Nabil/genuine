@@ -1236,6 +1236,22 @@ class Order extends Model
         });
     }
 
+    public function updateNoOfBags(int $bags_count)
+    {
+        /** @var User */
+        $loggedInUser = Auth::user();
+
+        // Check if the user has permission to update the order
+        if ($loggedInUser && !$loggedInUser->can('update', $this)) {
+            return false;
+        }
+
+        $this->no_of_bags = $bags_count;
+        $this->save();
+        $this->addComment("Number of bags set to $bags_count");
+        return true;
+    }
+
     public function updateDriverPaymentType(?string $paymentType = null): bool
     {
         /** @var User */
