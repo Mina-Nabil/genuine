@@ -753,7 +753,7 @@ class Order extends Model
                     ->whereNull('combo_id')
                     ->first();
 
-                if ($orderProduct) {
+                if ($orderProduct && !$product['combo_id']) {
                     // Update the existing order product with the additional quantity and updated
                     $orderProduct->quantity = $product['quantity'];
                     $orderProduct->price = $product['price']; // Update price if provided
