@@ -239,19 +239,6 @@
                         </a>
                     </li>
 
-
-                    {{-- <li>
-                        <a href="{{ url('/pets') }}" class="navItem {{ $pets ?? '' }}">
-                            <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="streamline:pets-allowed-solid">
-                                </iconify-icon>
-                                <span>Pets</span>
-                            </span>
-                        </a>
-                    </li> --}}
-
-
-                    {{-- @can('viewReports', App\Models\Orders\Order::class) --}}
                     <li class="sidebar-menu-title">Reports</li>
                     <li>
                         <a href="{{ url('/report/followup') }}" class="navItem {{ $followupReport ?? '' }}">
@@ -263,76 +250,89 @@
                             </span>
                         </a>
                     </li>
-                    {{-- @endcan --}}
 
 
                     <li class="sidebar-menu-title">Database</li>
 
-                    <li>
-                        <a href="{{ auth()->user()->can('viewAny', App\Models\Products\Product::class)? url('/products'): '#' }}"
-                            class="navItem {{ $products ?? '' }} 
+                    @can('viewAny', App\Models\Products\Product::class)
+                        <li>
+                            <a href="{{ auth()->user()->can('viewAny', App\Models\Products\Product::class)? url('/products'): '#' }}"
+                                class="navItem {{ $products ?? '' }} 
                             {{ auth()->user()->can('viewAny', App\Models\Products\Product::class)? '': 'disabled' }}">
-                            <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="flowbite:tag-outline">
-                                </iconify-icon>
-                                <span>Products</span>
-                            </span>
-                        </a>
-                    </li>
+                                <span class="flex items-center">
+                                    <iconify-icon class=" nav-icon" icon="flowbite:tag-outline">
+                                    </iconify-icon>
+                                    <span>Products</span>
+                                </span>
+                            </a>
+                        </li>
+                    @endcan
 
-                    <li>
-                        <a href="{{ auth()->user()->can('viewAny', App\Models\Customers\Customer::class)? url('/customers'): '#' }}"
-                            class="navItem {{ $customers ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Customers\Customer::class)? '': 'disabled' }}">
-                            <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="mdi:user">
-                                </iconify-icon>
-                                <span>Customers</span>
-                            </span>
-                        </a>
-                    </li>
+                    @can('viewAny', App\Models\Customers\Customer::class)
+                        <li>
+                            <a href="{{ auth()->user()->can('viewAny', App\Models\Customers\Customer::class)? url('/customers'): '#' }}"
+                                class="navItem {{ $customers ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Customers\Customer::class)? '': 'disabled' }}">
+                                <span class="flex items-center">
+                                    <iconify-icon class=" nav-icon" icon="mdi:user">
+                                    </iconify-icon>
+                                    <span>Customers</span>
+                                </span>
+                            </a>
+                        </li>
+                    @endcan
 
-                    <li>
-                        <a href="{{ auth()->user()->can('viewAny', App\Models\Products\Combo::class)? url('/combos'): '#' }}"
-                            class="navItem {{ $combos ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Products\Combo::class)? '': 'disabled' }}">
-                            <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="mage:box-3d-plus">
-                                </iconify-icon>
-                                <span>Offers</span>
-                            </span>
-                        </a>
-                    </li>
+                    @can('viewAny', App\Models\Customers\Combo::class)
+                        <li>
+                            <a href="{{ auth()->user()->can('viewAny', App\Models\Products\Combo::class)? url('/combos'): '#' }}"
+                                class="navItem {{ $combos ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Products\Combo::class)? '': 'disabled' }}">
+                                <span class="flex items-center">
+                                    <iconify-icon class=" nav-icon" icon="mage:box-3d-plus">
+                                    </iconify-icon>
+                                    <span>Offers</span>
+                                </span>
+                            </a>
+                        </li>
+                    @endcan
 
+                    @can('viewAny', App\Models\Customers\User::class)
+                        <li>
+                            <a href="{{ auth()->user()->can('viewAny', App\Models\Users\User::class)? route('profile', auth()->id()): '#' }}"
+                                class="navItem {{ $profile ?? '' }}  {{ auth()->user()->can('viewAny', App\Models\Users\User::class)? '': 'disabled' }}">
+                                <span class="flex items-center">
+                                    <iconify-icon class=" nav-icon" icon="ph:user-bold">
+                                    </iconify-icon>
+                                    <span>Profile</span>
+                                </span>
+                            </a>
+                        </li>
+                    @endcan
 
-                    <li>
-                        <a href="{{ auth()->user()->can('viewAny', App\Models\Users\User::class)? route('profile', auth()->id()): '#' }}"
-                            class="navItem {{ $profile ?? '' }}  {{ auth()->user()->can('viewAny', App\Models\Users\User::class)? '': 'disabled' }}">
-                            <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="ph:user-bold">
-                                </iconify-icon>
-                                <span>Profile</span>
-                            </span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ auth()->user()->can('viewAny', App\Models\Users\User::class)? url('/users'): '#' }}"
-                            class="navItem {{ $users ?? '' }}  {{ auth()->user()->can('viewAny', App\Models\Users\User::class)? '': 'disabled' }}">
-                            <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="material-symbols-light:account-tree-rounded">
-                                </iconify-icon>
-                                <span>Users</span>
-                            </span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ auth()->user()->can('viewAny', App\Models\Customers\Zone::class)? url('/zones'): '#' }}"
-                            class="navItem {{ $zones ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Customers\Zone::class)? '': 'disabled' }}">
-                            <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="ri:time-zone-line">
-                                </iconify-icon>
-                                <span>Zones</span>
-                            </span>
-                        </a>
-                    </li>
+                    @can('viewAny', App\Models\Customers\User::class)
+                        <li>
+                            <a href="{{ auth()->user()->can('viewAny', App\Models\Users\User::class)? url('/users'): '#' }}"
+                                class="navItem {{ $users ?? '' }}  {{ auth()->user()->can('viewAny', App\Models\Users\User::class)? '': 'disabled' }}">
+                                <span class="flex items-center">
+                                    <iconify-icon class=" nav-icon" icon="material-symbols-light:account-tree-rounded">
+                                    </iconify-icon>
+                                    <span>Users</span>
+                                </span>
+                            </a>
+                        </li>
+                    @endcan
+
+                    @can('viewAny', App\Models\Customers\Zone::class)
+                        <li>
+                            <a href="{{ auth()->user()->can('viewAny', App\Models\Customers\Zone::class)? url('/zones'): '#' }}"
+                                class="navItem {{ $zones ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Customers\Zone::class)? '': 'disabled' }}">
+                                <span class="flex items-center">
+                                    <iconify-icon class=" nav-icon" icon="ri:time-zone-line">
+                                    </iconify-icon>
+                                    <span>Zones</span>
+                                </span>
+                            </a>
+                        </li>
+                    @endcan
+
                 </ul>
             </div>
         </div>
