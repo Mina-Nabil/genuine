@@ -1157,9 +1157,9 @@ class Order extends Model
             return false;
         }
 
-        $this->no_of_bags = $bags_count;
+        $this->no_of_bags = $bags_count ?? 0;
         $this->save();
-        $this->addComment("Number of bags set to $bags_count");
+        $this->addComment("Number of bags set to $this->no_of_bags");
         return true;
     }
 
