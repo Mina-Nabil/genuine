@@ -76,7 +76,6 @@
                                         </h4>
                                         <div class="text-sm font-medium text-slate-900 dark:text-white">
                                             {{ $orders->sum('no_of_bags') }}
-                                            <small>KG</small>
                                         </div>
                                     </div>
                                     <div class="space-y-1">
@@ -310,7 +309,6 @@
                                                 </h4>
                                                 <div class=" font-medium text-slate-900 dark:text-white">
                                                     {{ $order->no_of_bags }}
-                                                    <small>KG</small>
                                                 </div>
                                             </div>
 
