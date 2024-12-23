@@ -1111,42 +1111,37 @@ class Order extends Model
     }
 
 
-    public function moveToPosition(int $newPosition)
+    public function moveToPosition(int $newPosition = null)
     {
         return DB::transaction(function () use ($newPosition) {
+
+            if ($newPosition == null) {
+                $this->driver_order = NULL;
+                $this->save();
+            }
+
             if ($newPosition <= 0) {
                 $newPosition = 1;
             }
 
-            if (!$this->driver_order) {
-                $this->driver_order =
-                    self::where('driver_id', $this->driver_id)
-                        ->where('delivery_date', $this->delivery_date)
-                        ->max('driver_order') + 1;
-            }
-
-            $currentPosition = $this->driver_order;
-
-            if ($currentPosition === $newPosition) {
-                $this->driver_order = $newPosition;
-                $this->save();
+            if ($this->driver_order === $newPosition) {
                 return true;
             }
-
-            if ($currentPosition > $newPosition) {
-                self::where('driver_id', $this->driver_id)
-                    ->where('delivery_date', $this->delivery_date)
-                    ->whereBetween('driver_order', [$newPosition, $currentPosition - 1])
-                    ->increment('driver_order');
-            } else {
-                self::where('driver_id', $this->driver_id)
-                    ->where('delivery_date', $this->delivery_date)
-                    ->whereBetween('driver_order', [$currentPosition + 1, $newPosition])
-                    ->decrement('driver_order');
-            }
-
             $this->driver_order = $newPosition;
             $this->save();
+
+            $dayOrderedOrders = self::where('driver_id', $this->driver_id)
+                ->whereDate('delivery_date', $this->delivery_date)
+                ->whereNotNull('driver_order')
+                ->orderBy('driver_order')
+                ->whereNot('id', $this->id)
+                ->get();
+
+
+            foreach ($dayOrderedOrders as $index => $or) {
+                $or->driver_order = ($index + ($newPosition <= $index ? 1 : 0)) + 1;
+                $or->save();
+            }
 
             return true;
         });
