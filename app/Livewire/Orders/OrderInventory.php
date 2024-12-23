@@ -39,19 +39,24 @@ class OrderInventory extends Component
 
     public $noOfBags = [];
 
-    public function updateNoOfBags($id){
-        Order::findOrFail($id)->updateNoOfBags($this->noOfBags[$id]);
+    public function updateNoOfBags($id)
+    {
+        if ($this->noOfBags[$id] !== null)
+            Order::findOrFail($id)->updateNoOfBags($this->noOfBags[$id]);
     }
 
-    public function resetStatus($id){
+    public function resetStatus($id)
+    {
         $this->resetStatusOrderID = $id;
     }
 
-    public function dismissResetStatus(){
+    public function dismissResetStatus()
+    {
         $this->resetStatusOrderID = null;
     }
 
-    public function confirmResetStatus(){
+    public function confirmResetStatus()
+    {
         $res = Order::findOrFail($this->resetStatusOrderID)->resetStatus();
         if ($res) {
             $this->alertSuccess('Order updated');
@@ -202,7 +207,7 @@ class OrderInventory extends Component
         $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneId: $this->zone?->id)->withTotalQuantity()->openOrders()->paginate(50);
 
         $todayShifts = Driver::hasOrdersOn($this->deliveryDate)->get();
-        
+
         $cancelledOrders = Order::search(
             searchText: $this->search,
             status: $this->status,
