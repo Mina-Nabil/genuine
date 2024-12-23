@@ -1228,7 +1228,7 @@ class Order extends Model
 
 
             foreach ($dayOrderedOrders as $index => $or) {
-                $or->driver_order = $index + ($newPosition <= $index ? 1 : 0);
+                $or->driver_order = ($index + ($newPosition <= $index ? 1 : 0)) + 1;
                 $or->save();
             }
 
