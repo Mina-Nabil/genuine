@@ -530,7 +530,7 @@
                                     {{ $order->delivery_date ? $order->delivery_date->format('l, F j, Y') : 'No delivery date set for order' }}
                                 </p>
                             </div>
-                            <div class="input-area w-full">
+                            <div class="input-area w-full mb-5">
                                 <div class="flex justify-bewwteen">
                                     <label for="phone" class="form-label"><b>Notes</b></label>
                                     <button wire:click='openUpdateNote' class="action-btn" type="button">
@@ -538,6 +538,12 @@
                                     </button>
                                 </div>
                                 <p class="text-xs">{{ $order->note ?? 'No notes for order' }}</p>
+                            </div>
+                            <div class="input-area w-full">
+                                <div class="flex justify-bewwteen">
+                                    <label for="phone" class="form-label"><b>Driver Notes</b></label>
+                                </div>
+                                <p class="text-xs">{{ $order->driver_note ?? 'No driver notes for order' }}</p>
                             </div>
                         </div>
                     </div>
