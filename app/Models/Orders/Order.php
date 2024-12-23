@@ -1147,7 +1147,7 @@ class Order extends Model
         });
     }
 
-    public function updateNoOfBags(int $bags_count)
+    public function updateNoOfBags(int $bags_count = null)
     {
         /** @var User */
         $loggedInUser = Auth::user();

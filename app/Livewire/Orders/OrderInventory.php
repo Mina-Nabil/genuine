@@ -41,8 +41,7 @@ class OrderInventory extends Component
 
     public function updateNoOfBags($id)
     {
-        if ($this->noOfBags[$id])
-            Order::findOrFail($id)->updateNoOfBags($this->noOfBags[$id]);
+        Order::findOrFail($id)->updateNoOfBags($this->noOfBags[$id]);
     }
 
     public function resetStatus($id)
