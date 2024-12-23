@@ -1205,7 +1205,7 @@ class Order extends Model
         return DB::transaction(function () use ($newPosition) {
 
             if ($newPosition == null) {
-                $this->driver_order = $newPosition;
+                $this->driver_order = NULL;
                 $this->save();
             }
 
