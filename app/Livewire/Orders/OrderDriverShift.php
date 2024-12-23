@@ -4,7 +4,6 @@ namespace App\Livewire\Orders;
 
 use Livewire\Component;
 use App\Models\Orders\Order;
-use App\Models\Orders\OrderProduct;
 use App\Models\Payments\CustomerPayment;
 use App\Models\Users\Driver;
 use App\Models\Users\User;
@@ -12,7 +11,6 @@ use App\Traits\AlertFrontEnd;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\WithPagination;
-use Livewire\Attributes\Url;
 
 class OrderDriverShift extends Component
 {

@@ -3,6 +3,7 @@
 namespace App\Models\Users;
 
 use App\Models\Orders\Order;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -29,9 +30,9 @@ class Driver extends Model
     const CAR_TYPE_VAN = 'van';
     const CAR_TYPE_MOTORCYCLE = 'motorcycle';
 
-    protected $fillable = ['user_id', 'shift_title', 'weight_limit', 'order_quantity_limit','start_time','end_time', 'car_type', 'car_model', 'is_available'];
+    protected $fillable = ['user_id', 'shift_title', 'weight_limit', 'order_quantity_limit', 'start_time', 'end_time', 'car_type', 'car_model', 'is_available'];
 
-    public static function createDriver($shiftTitle, $userId, $start_time ,$end_time, $weightLimit = null, $orderQuantityLimit = null, $carType = null, $carModel = null)
+    public static function createDriver($shiftTitle, $userId, $start_time, $end_time, $weightLimit = null, $orderQuantityLimit = null, $carType = null, $carModel = null)
     {
         try {
             DB::beginTransaction();
@@ -91,7 +92,7 @@ class Driver extends Model
         }
     }
 
-    public function updateDriver($shiftTitle, $weightLimit, $start_time ,$end_time, $orderQuantityLimit, $carType, $carModel, $isAvailable)
+    public function updateDriver($shiftTitle, $weightLimit, $start_time, $end_time, $orderQuantityLimit, $carType, $carModel, $isAvailable)
     {
         try {
             DB::beginTransaction();
@@ -145,6 +146,18 @@ class Driver extends Model
         $date = $date ?? now()->toDateString();
 
         return $this->orders()->whereDate('delivery_date', $date)->count();
+    }
+
+    public function scopeHasOrdersOn($query, array $on = [])
+    {
+        $query->select('drivers.*')
+            ->join('orders', 'orders.driver_id', '=', 'drivers.id')
+            ->when(count($on), function ($q) use ($on) {
+                foreach ($on as $date) {
+                    $q->orWhereDate('orders.delivery_date', '=', $date->format('Y-m-d'));
+                }
+            })
+            ->groupBy('drivers.id');
     }
 
     public function scopeSearch($query, $searchTerm = null)

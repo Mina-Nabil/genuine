@@ -7,6 +7,7 @@ use App\Models\Orders\OrderProduct;
 use App\Models\Users\Driver;
 use App\Traits\AlertFrontEnd;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Url;
@@ -24,6 +25,7 @@ class OrderInventory extends Component
     public $selectedOrders = [];
     public $selectedOrderProducts = [];
 
+    public $driverRadio;
     public $Edited_driverId;
     public $Edited_driverId_sec;
 
@@ -62,6 +64,11 @@ class OrderInventory extends Component
         }
         $this->selectedDeliveryDates[] = Carbon::parse($value);
         $this->Edited_deliveryDate = null;
+    }
+
+    public function updatedDriverRadio($value)
+    {
+        $this->driver = Driver::findOrFail($value);
     }
 
     public function removeSelectedDate($index)
@@ -184,7 +191,8 @@ class OrderInventory extends Component
         $DRIVERS = Driver::all();
         $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneId: $this->zone?->id)->withTotalQuantity()->openOrders()->paginate(50);
 
-
+        $todayShifts = Driver::hasOrdersOn($this->deliveryDate)->get();
+        
         $cancelledOrders = Order::search(
             searchText: $this->search,
             status: $this->status,
@@ -199,6 +207,7 @@ class OrderInventory extends Component
 
         return view('livewire.orders.order-inventory', [
             'orders' => $orders,
+            'todayShifts' => $todayShifts,
             'DRIVERS' => $DRIVERS,
             'cancelledOrders' => $cancelledOrders
         ])->layout('layouts.app', ['page_title' => $this->page_title, 'ordersInventory' => 'active']);

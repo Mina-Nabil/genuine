@@ -69,6 +69,50 @@
         @endif
     </div>
 
+    <div>
+        <div class="md:flex-1 rounded-md overlay md:col-span-2 mb-5" style="min-width: 400px;">
+            <div class="flex-1 rounded-md col-span-2">
+                <div class="card-body flex flex-col justify-center  bg-no-repeat bg-center bg-cover card p-4 active">
+                    <div class="card-text flex flex-col justify-between h-full menu-open">
+                        <span class="text-lg"></span><b>Assigned Drivers on @foreach ($deliveryDate as $sDdate)
+                                {{ $sDdate->isToday()
+                                    ? 'Today'
+                                    : ($sDdate->isYesterday()
+                                        ? 'Yesterday'
+                                        : ($sDdate->isTomorrow()
+                                            ? 'Tomorrow'
+                                            : $sDdate->format('l d-m-Y'))) }}
+                                @if (!$loop->last)
+                                    ,
+                                @endif
+                            @endforeach
+                        </b>
+                        @foreach ($todayShifts as $d)
+                            <div class="basicRadio">
+                                <label class="flex items-center cursor-pointer">
+                                    <input wire:model.live="driverRadio" type="radio" class="hidden" name="driverRadios"
+                                        value="{{ $d->id }}" @checked($driver?->id === $d->id)>
+                                    <span
+                                        class="flex-none bg-white dark:bg-slate-500 rounded-full border inline-flex ltr:mr-2 rtl:ml-2 relative transition-all
+                                        duration-150 h-[16px] w-[16px] border-slate-400 dark:border-slate-600 dark:ring-slate-700"></span>
+                                    <span @class([
+                                        'text-sm',
+                                        'leading-6',
+                                        'capitalize',
+                                        'text-secondary-500' => $driver?->id != $d->id,
+                                        'text-primary-500' => $driver?->id == $d->id,
+                                    ])>
+                                        {{ ucwords($d->user->full_name) }} • {{ $d->shift_title }}
+                                    </span>
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     @if (!$cancelledOrders->isEmpty())
         <div>
             <div class="md:flex-1 rounded-md overlay md:col-span-2" style="min-width: 400px;">
@@ -783,50 +827,50 @@
     @endif
 
     @if ($resetStatusOrderID)
-                <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
-                    tabindex="-1" aria-labelledby="dangerModalLabel" aria-modal="true" role="dialog"
-                    style="display: block;">
-                    <div class="modal-dialog relative w-auto pointer-events-none">
-                        <div
-                            class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding
+        <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+            tabindex="-1" aria-labelledby="dangerModalLabel" aria-modal="true" role="dialog"
+            style="display: block;">
+            <div class="modal-dialog relative w-auto pointer-events-none">
+                <div
+                    class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding
                                 rounded-md outline-none text-current">
-                            <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
-                                <!-- Modal header -->
-                                <div
-                                    class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-warning-500">
-                                    <h3 class="text-base font-medium dark:text-white capitalize">
-                                        Reset order status
-                                    </h3>
-                                    <button wire:click="dismissResetStatus" type="button"
-                                        class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center
+                    <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
+                        <!-- Modal header -->
+                        <div
+                            class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-warning-500">
+                            <h3 class="text-base font-medium dark:text-white capitalize">
+                                Reset order status
+                            </h3>
+                            <button wire:click="dismissResetStatus" type="button"
+                                class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center
                                             dark:hover:bg-slate-600 dark:hover:text-white"
-                                        data-bs-dismiss="modal">
-                                        <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
-                                            xmlns="http://www.w3.org/2000/svg">
-                                            <path fill-rule="evenodd"
-                                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10
+                                data-bs-dismiss="modal">
+                                <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd"
+                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10
                                                     11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                                clip-rule="evenodd"></path>
-                                        </svg>
-                                        <span class="sr-only">Close modal</span>
-                                    </button>
-                                </div>
-                                <!-- Modal body -->
-                                <div class="p-6 space-y-4">
-                                    <h6 class="text-base text-slate-900 dark:text-white leading-6">
-                                        Are you sure ! you Want to reset this Order status ?
-                                    </h6>
-                                </div>
-                                <!-- Modal footer -->
-                                <div
-                                    class="flex items-center p-6 space-x-2 border-t border-slate-200 rounded-b dark:border-slate-600">
-                                    <button wire:click="confirmResetStatus" data-bs-dismiss="modal"
-                                        class="btn inline-flex justify-center bg-warning-500">Yes,
-                                        Reset</button>
-                                </div>
-                            </div>
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                <span class="sr-only">Close modal</span>
+                            </button>
+                        </div>
+                        <!-- Modal body -->
+                        <div class="p-6 space-y-4">
+                            <h6 class="text-base text-slate-900 dark:text-white leading-6">
+                                Are you sure ! you Want to reset this Order status ?
+                            </h6>
+                        </div>
+                        <!-- Modal footer -->
+                        <div
+                            class="flex items-center p-6 space-x-2 border-t border-slate-200 rounded-b dark:border-slate-600">
+                            <button wire:click="confirmResetStatus" data-bs-dismiss="modal"
+                                class="btn inline-flex justify-center bg-warning-500">Yes,
+                                Reset</button>
                         </div>
                     </div>
                 </div>
-            @endif
+            </div>
+        </div>
+    @endif
 </div>
