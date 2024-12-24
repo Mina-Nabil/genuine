@@ -1456,6 +1456,11 @@ class Order extends Model
         return $query->whereDate('delivery_date', '<', Carbon::today());
     }
 
+    public function scopeSortByDeliveryDate(Builder $query): Builder
+    {
+        return $query->orderBy('delivery_date');
+    }
+
     public function scopeNotPaid(Builder $query): Builder
     {
         return $query->where('is_paid', false);

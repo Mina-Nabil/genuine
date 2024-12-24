@@ -333,7 +333,9 @@ class OrderIndex extends Component
 
     public function render()
     {
-        $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneId: $this->zone?->id)->OpenOrders()->paginate(50);
+        $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneId: $this->zone?->id)->OpenOrders()
+        ->sortByDeliveryDate()
+        ->paginate(50);
 
         $totalWeight = 0;
         foreach ($orders as $order) {
