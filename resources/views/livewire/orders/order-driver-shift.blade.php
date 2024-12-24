@@ -333,15 +333,15 @@
                                                 <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
                                                     Weight
                                                 </h4>
-                                                <div class=" font-medium text-success-500 dark:text-white">
-                                                    <b>{{ number_format($order->total_weight, 2) }}</b>
-                                                    <small>EGP</small>
+                                                <div class=" font-medium dark:text-white">
+                                                    {{ number_format($order->total_weight / 1000, 2) }}
+                                                    <small>KG</small>
                                                 </div>
                                             </div>
 
                                             <div class="space-y-1">
                                                 <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
-                                                    Price to Collect
+                                                    Collect
                                                 </h4>
                                                 <div class=" font-medium text-success-500 dark:text-white">
                                                     <b>{{ number_format($order->remaining_to_pay, 2) }}</b>
