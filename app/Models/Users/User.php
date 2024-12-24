@@ -18,6 +18,8 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
+    const MORPH_TYPE = 'user';
+
     const FILES_DIRECTORY = 'users/';
 
     const TYPE_ADMIN = 'admin';

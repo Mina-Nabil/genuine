@@ -8,12 +8,14 @@ use App\Models\Orders\Order;
 use App\Models\Products\Combo;
 use App\Models\Products\Product;
 use App\Models\Users\Driver;
+use App\Models\Users\User;
 use App\Traits\AlertFrontEnd;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class OrderCreate extends Component
@@ -35,6 +37,8 @@ class OrderCreate extends Component
     public $customersSearchText;
     public $isOpenSelectCustomerSec;
     public $dummyProductsSearch;
+
+    public $creator_id;
 
     public $paymentMethod;
     public $periodicOption;
@@ -515,6 +519,7 @@ class OrderCreate extends Component
                 'discountAmount' => 'nullable|numeric|min:0',
                 'ddate' => 'required|date',
                 'note' => 'nullable|string|max:500',
+                'creator_id' => 'nullable|exists:users,id',
                 'fetchedProducts.*.id' => 'required|exists:products,id',
                 'fetchedProducts.*.combo_id' => 'nullable|exists:combos,id',
                 'fetchedProducts.*.quantity' => 'required|integer|min:1',
@@ -530,7 +535,7 @@ class OrderCreate extends Component
         $driverID = null;
         $this->driver ? ($driverID = $this->driver->id) : null;
 
-        $res = Order::newOrder($customerId, $this->customerName, $this->shippingAddress, $this->customerPhone, $this->zoneId, $this->locationURL, $driverID, $this->total, $this->shippingFee, $this->discountAmount, $this->ddate ? Carbon::parse($this->ddate) : null, $this->note, $this->fetchedProducts, $detuctFromBalance);
+        $res = Order::newOrder($customerId, $this->customerName, $this->shippingAddress, $this->customerPhone, $this->zoneId, $this->locationURL, $driverID, $this->total, $this->shippingFee, $this->discountAmount, $this->ddate ? Carbon::parse($this->ddate) : null, $this->note, $this->fetchedProducts, $detuctFromBalance, creator_id:$this->creator_id);
 
         if ($res) {
             $this->alertSuccess('order added!');
@@ -549,6 +554,8 @@ class OrderCreate extends Component
             $this->selectCustomer($order->customer_id);
             $this->reorderLastOrder();
         }
+
+        $this->creator_id = Auth::id();
     }
 
     public function render()
@@ -571,12 +578,15 @@ class OrderCreate extends Component
             ->limit(10)
             ->get();
 
+        $users = User::all();
+
         return view('livewire.orders.order-create', [
             'products' => $products,
             'drivers' => $drivers,
             'customers' => $customers,
             'zones' => $zones,
             'combos' => $combos,
+            'users' => $users
         ])->layout('layouts.app', ['page_title' => $this->page_title, 'orders' => 'active']);
     }
 }

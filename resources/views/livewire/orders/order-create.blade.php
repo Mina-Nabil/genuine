@@ -325,7 +325,6 @@
                                                 </span>
                                             </button>
                                         @endif
-
                                     @elseif($customerIsNew)
                                         <div class="mb-2">
                                             <label for="customerName" class="form-label !m-0">Name</label>
@@ -453,6 +452,19 @@
                                     @endif
                                 </div>
 
+                                <div class="input-area w-full mt-5">
+                                    <label for="ddate" class="form-label"><b>Creator</b></label>
+                                    <select name="creator_id" id="creator_id"
+                                        class="form-control w-full @error('creator_id') !border-danger-500 @enderror"
+                                        wire:model.live="creator_id" autocomplete="off">
+                                        @foreach ($users as $user)
+                                            <option value="{{ $user->id }}">
+                                                {{ $user->full_name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
                             </div>
                         </div>
                     </div>
@@ -532,11 +544,10 @@
                                             <tr>
                                                 <td class="table-td flex items-center sticky-column bg-white dark:bg-slate-800 colomn-shadow"
                                                     style="position: sticky; left: -25px;  z-index: 10;">
-                                                    <div  wire:key="{{ $product->id }}" class="checkbox-area">
+                                                    <div wire:key="{{ $product->id }}" class="checkbox-area">
                                                         <label class="inline-flex items-center cursor-pointer">
                                                             <input type="checkbox" wire:model="selectedProducts"
-                                                                value="{{ $product->id }}" class="hidden"
-                                                               >
+                                                                value="{{ $product->id }}" class="hidden">
                                                             <span
                                                                 class="h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 bg-slate-100 dark:bg-slate-900">
                                                                 <img src="{{ asset('assets/images/icon/ck-white.svg') }}"
