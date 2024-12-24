@@ -72,6 +72,14 @@
                                     class="bg-slate-50 dark:bg-slate-900 rounded mb-5 p-4 flex gap-5  overflow-x-auto no-wrap">
                                     <div class="space-y-1">
                                         <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
+                                            Orders
+                                        </h4>
+                                        <div class="text-sm font-medium text-slate-900 dark:text-white">
+                                            {{ $orders->count() }}
+                                        </div>
+                                    </div>
+                                    <div class="space-y-1">
+                                        <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
                                             Bags
                                         </h4>
                                         <div class="text-sm font-medium text-slate-900 dark:text-white">
@@ -307,17 +315,26 @@
                                                 <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
                                                     Bags
                                                 </h4>
-                                                <div class=" font-medium text-slate-900 dark:text-white">
-                                                    {{ $order->no_of_bags }}
+                                                <div class="text-sm font-medium text-slate-900 dark:text-white">
+                                                    <input wire:model.live='noOfBags.{{ $order->id }}' wire:change='updateNoOfBags({{ $order->id }})' id="smallInput" type="number" style="width: 65px;" class="form-control !py-1 !text-xs">
                                                 </div>
                                             </div>
 
                                             <div class="space-y-1">
                                                 <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
-                                                    Total Price
+                                                    Price
                                                 </h4>
                                                 <div class=" font-medium text-success-500 dark:text-white">
                                                     <b>{{ number_format($order->total_amount, 2) }}</b>
+                                                    <small>EGP</small>
+                                                </div>
+                                            </div>
+                                            <div class="space-y-1">
+                                                <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
+                                                    Weight
+                                                </h4>
+                                                <div class=" font-medium text-success-500 dark:text-white">
+                                                    <b>{{ number_format($order->total_weight, 2) }}</b>
                                                     <small>EGP</small>
                                                 </div>
                                             </div>

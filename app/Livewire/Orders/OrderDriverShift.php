@@ -38,7 +38,13 @@ class OrderDriverShift extends Component
 
     public $driverOrder;
     public $showDriverOrderId;
+    public $noOfBags = [];
 
+    public function updateNoOfBags($id)
+    {
+        Order::findOrFail($id)->updateNoOfBags(!is_numeric($this->noOfBags[$id]) ? 0 : $this->noOfBags[$id]);
+    }
+    
     public function showDriverOrder($id){
         $this->showDriverOrderId = $id;
     }
