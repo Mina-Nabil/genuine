@@ -224,7 +224,7 @@ class Order extends Model
     }
 
     // Function to create a new order
-    public static function newOrder(int $customerId, string $customerName, string $shippingAddress, string $customerPhone, int $zoneId, $locationURL = null, int $driverId = null, float $totalAmount = 0, float $deliveryAmount = 0, float $discountAmount = 0, Carbon $deliveryDate = null, string $note = null, array $products, $detuctFromBalance = false, $migrated = false): Order|bool
+    public static function newOrder(int $customerId, string $customerName, string $shippingAddress, string $customerPhone, int $zoneId, $locationURL = null, int $driverId = null, float $totalAmount = 0, float $deliveryAmount = 0, float $discountAmount = 0, Carbon $deliveryDate = null, string $note = null, array $products, $detuctFromBalance = false, $migrated = false, $creator_id = null): Order|bool
     {
         /** @var User */
         $loggedInUser = Auth::user();
@@ -258,7 +258,7 @@ class Order extends Model
             $order->delivery_date = $deliveryDate;
             $order->is_paid = false;
             $order->note = $note;
-            $order->created_by = $migrated ? 1 : $loggedInUser->id;
+            $order->created_by = $creator_id ?? $loggedInUser->id;
 
             $order->save();
 
@@ -287,6 +287,21 @@ class Order extends Model
         } catch (Exception $e) {
             report($e);
             AppLog::error('Failed to create new order', $e->getMessage());
+            return false;
+        }
+    }
+
+    public function assignToUser(int $user_id): bool
+    {
+        try {
+            $this->created_by = $user_id;
+            $user = User::findOrFail($user_id);
+            $this->save();
+            AppLog::info('Order Assigned to User '.$user->full_name, loggable: $this);
+            return true;
+        } catch (Exception $e) {
+            report($e);
+            AppLog::error('Failed to assign order to user', $e->getMessage());
             return false;
         }
     }

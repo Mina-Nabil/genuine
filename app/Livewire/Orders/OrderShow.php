@@ -9,6 +9,7 @@ use App\Models\Payments\CustomerPayment;
 use App\Models\Products\Combo;
 use App\Models\Products\Product;
 use App\Models\Users\Driver;
+use App\Models\Users\User;
 use App\Traits\AlertFrontEnd;
 use App\Traits\ToggleSectionLivewire;
 use Carbon\Carbon;
@@ -62,6 +63,11 @@ class OrderShow extends Component
     public $searchAddProducts = ''; //search term
     public $productsToAdd = [];
 
+    //creator
+    public $isOpenCreatorSec = false;
+    public $creator_id;
+    public $users;
+
     public $NextStatuses;
 
     //pay from balance
@@ -70,6 +76,32 @@ class OrderShow extends Component
     public $isOpenDeleteSection = false;
 
     public $isOpenRemoveWhatsappMsgSection = false;
+
+    public function openSetCreatorSection(){
+        $this->isOpenCreatorSec = true;
+        $this->users = User::all();
+        $this->creator_id = $this->order->created_by;
+    }
+
+    public function closeSetCreatorSection(){
+        $this->isOpenCreatorSec = false;
+        $this->creator_id = null;
+    }
+
+    public function setCreator(){
+        $this->validate([
+            'creator_id' => 'required|exists:users,id',
+        ]);
+
+        $res = $this->order->assignToUser($this->creator_id);
+        if ($res) {
+                $this->closeSetCreatorSection();
+                $this->alertInfo('Creator updated!');
+        } else {
+            $this->alertFailed();
+        }
+    }
+
 
     //combo 
     public $isOpenSelectComboSec = false;
@@ -108,7 +140,6 @@ class OrderShow extends Component
     {
         $this->isOpenSelectComboSec = true;
     }
-
     public function toggleConfirmRemoveWAmsg(){
         $this->toggle($this->isOpenRemoveWhatsappMsgSection);
     }

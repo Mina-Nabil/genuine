@@ -631,6 +631,28 @@
                     </div>
                 </div>
 
+                <div class="card mt-5">
+                    <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base">
+                        <div class="items-center p-5">
+                            <div class="input-area w-full">
+                                <div class="flex justify-between">
+                                    <label for="phone" class="form-label"><b>Creator</b></label>
+                                        <button wire:click='openSetCreatorSection' class="action-btn" type="button">
+                                            <iconify-icon icon="heroicons:pencil-square"></iconify-icon>
+                                        </button>
+                                </div>
+
+                                    <p class="text-xs">
+                                        <a class="clickable-link"
+                                            href="{{ route('profile', $order->creator->id) }}">
+                                            {{ $order->creator->full_name }}
+                                        </a>
+                                    </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-6 gap-5 mb-5 text-wrap">
@@ -852,6 +874,74 @@
                                     <span wire:loading.remove wire:target="updateShippingDetails">Submit</span>
                                     <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
                                         wire:loading wire:target="updateShippingDetails"
+                                        icon="line-md:loading-twotone-loop"></iconify-icon>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        @endif
+    @endcan
+
+    @can('update', $order)
+        @if ($isOpenCreatorSec)
+            <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+                tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
+                style="display: block;">
+                <div class="modal-dialog relative w-auto pointer-events-none">
+                    <div
+                        class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
+                        <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
+                            <!-- Modal header -->
+                            <div
+                                class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
+                                <h3 class="text-xl font-medium text-white dark:text-white capitalize">
+                                    Edit Creator
+                                </h3>
+                                <button wire:click="closeSetCreatorSection" type="button"
+                                    class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
+                                    data-bs-dismiss="modal">
+                                    <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd"
+                                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                            clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span class="sr-only">Close modal</span>
+                                </button>
+                            </div>
+
+                            <!-- Modal body -->
+                            <div class="p-6 space-y-4">
+
+                                <div class="from-group">
+                                    <div class="input-area">
+                                        <label for="creator_id" class="form-label">Creator*</label>
+                                        <select name="creator_id" id="creator_id"
+                                            class="form-control w-full mt-2 @error('creator_id') !border-danger-500 @enderror"
+                                            wire:model="creator_id" autocomplete="off">
+                                            @foreach ($users as $user)
+                                                <option value="{{ $user->id }}">
+                                                    {{ $user->full_name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    @error('creator_id')
+                                        <span
+                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                            </div>
+
+                            <!-- Modal footer -->
+                            <div class="flex items-center justify-end p-6 border-t border-slate-200 rounded-b">
+                                <button wire:click="setCreator" data-bs-dismiss="modal"
+                                    class="btn inline-flex justify-center text-white bg-black-500">
+                                    <span wire:loading.remove wire:target="setCreator">Submit</span>
+                                    <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
+                                        wire:loading wire:target="setCreator"
                                         icon="line-md:loading-twotone-loop"></iconify-icon>
                                 </button>
                             </div>

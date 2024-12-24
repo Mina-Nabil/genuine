@@ -11,6 +11,7 @@ use App\Models\Products\Product;
 use App\Models\Tasks\TaskWatcher;
 use App\Models\Users\AppLog;
 use App\Models\Users\Driver;
+use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
 
@@ -39,6 +40,7 @@ class AppServiceProvider extends ServiceProvider
             Zone::MORPH_TYPE => Zone::class,
             Driver::MORPH_TYPE => Driver::class,
             TaskWatcher::MORPH_TYPE => TaskWatcher::class,
+            User::MORPH_TYPE => User::class,
         ]);
     }
 }
