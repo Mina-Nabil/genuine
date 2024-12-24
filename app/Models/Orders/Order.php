@@ -192,7 +192,7 @@ class Order extends Model
                 throw new Exception("Order ID {$this->id} cannot transition from {$currentStatus} to {$newStatus}");
             }
 
-            if ($this->remaining_to_pay != 0 && $newStatus == self::STATUS_DONE) {
+            if ($this->remaining_to_pay != 0 && $newStatus == self::STATUS_DONE && !$skipCheck) {
                 throw new Exception("Can't set order to done, pending payment");
             }
 
@@ -730,7 +730,7 @@ class Order extends Model
                 if ($this->remaining_to_pay == 0) {
                     $this->is_paid = true;
                     $this->save();
-                    if ($this->is_in_delivery) {
+                    if ($this->is_in_delivery || $this->is_delivered) {
                         $this->is_delivered = true;
                         $this->setStatus(self::STATUS_DONE, true);
                     }
