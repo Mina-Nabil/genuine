@@ -113,20 +113,7 @@
                                         <div class="text-sm font-medium text-slate-900 dark:text-white">
                                             {{ number_format($orders->sum('remaining_to_pay'), 2) }}<small>&nbsp;EGP</small>
                                         </div>
-                                    </div>
-
-                                    @if (!auth()->user()->is_driver)
-                                        <div class="space-y-1">
-                                            <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
-                                                Total Orders
-                                            </h4>
-                                            <div class="text-sm font-medium text-slate-900 dark:text-white">
-                                                {{ $orders->count() }} <small>(
-                                                    {{ $orders->sum(fn($order) => $order->products->sum('quantity')) }}
-                                                    Items ) </small>
-                                            </div>
-                                        </div>
-                                    @endif
+                                    </div>  
 
                                     @foreach ($collectedFromPaymentTypes as $index => $priceCollected)
                                         @if ($priceCollected > 0)
