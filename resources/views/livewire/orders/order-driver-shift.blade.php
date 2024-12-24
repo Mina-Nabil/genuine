@@ -482,9 +482,6 @@
                                         @foreach ($DRIVERS as $ONE_DRIVERS)
                                             <option value="{{ $ONE_DRIVERS->id }}">
                                                 {{ $ONE_DRIVERS->user->full_name }} • {{ $ONE_DRIVERS->shift_title }}
-                                                @if ($ONE_DRIVERS->countOrders())
-                                                    • {{ $ONE_DRIVERS->countOrders($deliveryDate) }} Orders
-                                                @endif
                                             </option>
                                         @endforeach
                                     </select>
