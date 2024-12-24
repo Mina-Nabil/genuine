@@ -44,12 +44,14 @@ class OrderDriverShift extends Component
     {
         Order::findOrFail($id)->updateNoOfBags(!is_numeric($this->noOfBags[$id]) ? 0 : $this->noOfBags[$id]);
     }
-    
-    public function showDriverOrder($id){
+
+    public function showDriverOrder($id)
+    {
         $this->showDriverOrderId = $id;
     }
 
-    public function setDriverOrder($id){
+    public function setDriverOrder($id)
+    {
         $res = Order::findOrFail($id)->moveToPosition(!is_numeric($this->driverOrder) ? NULL : $this->driverOrder);
         if ($res) {
             $this->alertSuccess('Order Changed');
@@ -192,6 +194,11 @@ class OrderDriverShift extends Component
         } else {
             $this->driver = Driver::getDriverWithMostOrders($this->deliveryDate);
         }
+        $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneId: $this->zone?->id)
+            ->confirmed()->openOrders()->withTotalQuantity()->orderByRaw('driver_order IS NULL, driver_order ASC')->sortByZone()->paginate(50);
+        foreach ($orders as $order) {
+            $this->noOfBags[$order->id] = $order->no_of_bags;
+        }
     }
 
     public function ChangeDriverShift($id)
@@ -225,7 +232,8 @@ class OrderDriverShift extends Component
 
     public function render()
     {
-        $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneId: $this->zone?->id)->confirmed()->openOrders()->withTotalQuantity()->orderByRaw('driver_order IS NULL, driver_order ASC')->sortByZone()->paginate(50);
+        $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneId: $this->zone?->id)
+            ->confirmed()->openOrders()->withTotalQuantity()->orderByRaw('driver_order IS NULL, driver_order ASC')->sortByZone()->paginate(50);
 
         $totalZones = Order::getTotalZonesForOrders($orders);
         $PAYMENT_METHODS = CustomerPayment::PAYMENT_METHODS;
