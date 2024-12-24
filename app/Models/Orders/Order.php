@@ -1367,13 +1367,13 @@ class Order extends Model
         return ($hasPayments || $hasBalanceTransactions) && ($this->remaining_to_pay > 0 && $this->remaining_to_pay < $this->total_amount);
     }
 
-    public function scopeSearch(Builder $query, string $searchText = null, array $deliveryDates = [], string $status = null, int $zoneId = null, int $driverId = null, bool $isPaid = null): Builder
+    public function scopeSearch(Builder $query, string $searchText = null, array $deliveryDates = [], string $status = null, int $zoneId = null, int $driverId = null, bool $isPaid = null, $skipUserCheck = false): Builder
     {
         if (!joined($query, 'zones')) {
             $query->join('zones', 'zones.id', '=', 'orders.zone_id');
         }
 
-        if (Auth::user()->is_sales) {
+        if (!$skipUserCheck && Auth::user()->is_sales) {
             $query->where('created_by', Auth::id());
         }
 
