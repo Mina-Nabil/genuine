@@ -13,7 +13,7 @@ class InventoryPolicy
      */
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->is_admin || $user->is_inventory;
     }
 
     /**
@@ -21,7 +21,7 @@ class InventoryPolicy
      */
     public function view(User $user, Inventory $inventory): bool
     {
-        return true;
+        return $user->is_admin || $user->is_inventory;
     }
 
     /**
@@ -29,7 +29,7 @@ class InventoryPolicy
      */
     public function create(User $user): bool
     {
-        return true;
+        return $user->is_admin || $user->is_inventory;
     }
 
     /**
@@ -37,7 +37,7 @@ class InventoryPolicy
      */
     public function update(User $user, Inventory $inventory): bool
     {
-        return true;
+        return $user->is_admin || $user->is_inventory;
     }
 
     /**
@@ -45,7 +45,7 @@ class InventoryPolicy
      */
     public function delete(User $user, Inventory $inventory): bool
     {
-        return true;
+        return $user->is_admin || $user->is_inventory;
     }
 
     /**
@@ -53,7 +53,7 @@ class InventoryPolicy
      */
     public function restore(User $user, Inventory $inventory): bool
     {
-        return true;
+        return $user->is_admin || $user->is_inventory;
     }
 
     /**
@@ -61,6 +61,6 @@ class InventoryPolicy
      */
     public function forceDelete(User $user, Inventory $inventory): bool
     {
-        return true;
+        return $user->is_admin || $user->is_inventory;
     }
 }

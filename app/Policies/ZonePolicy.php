@@ -13,7 +13,7 @@ class ZonePolicy
      */
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->is_admin;
     }
 
     /**
@@ -21,7 +21,7 @@ class ZonePolicy
      */
     public function view(User $user, Zone $zone): bool
     {
-        return true;
+        return $user->is_admin;
     }
 
     /**
@@ -29,7 +29,7 @@ class ZonePolicy
      */
     public function create(User $user): bool
     {
-        return true;
+        return $user->is_admin;
     }
 
     /**
@@ -37,7 +37,7 @@ class ZonePolicy
      */
     public function update(User $user, Zone $zone): bool
     {
-        return true;
+        return $user->is_admin;
     }
 
     /**
@@ -45,7 +45,7 @@ class ZonePolicy
      */
     public function delete(User $user, Zone $zone): bool
     {
-        return true;
+        return $user->is_admin;
     }
 
     /**
@@ -53,7 +53,7 @@ class ZonePolicy
      */
     public function restore(User $user, Zone $zone): bool
     {
-        return true;
+        return $user->is_admin;
     }
 
     /**
@@ -61,6 +61,6 @@ class ZonePolicy
      */
     public function forceDelete(User $user, Zone $zone): bool
     {
-        return true;
+        return $user->is_admin;
     }
 }

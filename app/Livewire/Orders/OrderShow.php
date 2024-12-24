@@ -6,6 +6,7 @@ use App\Models\Customers\Zone;
 use App\Models\Orders\Order;
 use App\Models\Orders\OrderRemovedProduct;
 use App\Models\Payments\CustomerPayment;
+use App\Models\Products\Combo;
 use App\Models\Products\Product;
 use App\Models\Users\Driver;
 use App\Models\Users\User;
@@ -101,6 +102,44 @@ class OrderShow extends Component
         }
     }
 
+
+    //combo 
+    public $isOpenSelectComboSec = false;
+    public $combosSearchText;
+
+    public function selectCombo($id){
+        $products = [];
+        $combo = Combo::findOrFail($id);
+
+        foreach ($combo->products as $product) {
+            $products[] = [
+                'product_id' => $product->id,
+                'quantity' =>   $product->pivot->quantity,
+                'price' =>  $product->pivot->price,
+                'combo_id' =>   $combo->id,
+            ];
+        }
+        
+        $res = $this->order->addProducts($products);
+
+        if($res){
+            $this->closeCombosSection();
+            $this->alertSuccess('Combo Added');
+        }else{
+            $this->alertFailed();
+        }
+    }
+
+    public function closeCombosSection()
+    {
+        $this->isOpenSelectComboSec = false;
+        $this->combosSearchText = null;
+    }
+
+    public function openCombosSection()
+    {
+        $this->isOpenSelectComboSec = true;
+    }
     public function toggleConfirmRemoveWAmsg(){
         $this->toggle($this->isOpenRemoveWhatsappMsgSection);
     }
@@ -495,6 +534,10 @@ class OrderShow extends Component
 
         $drivers = Driver::search($this->searchDrivers)->get();
 
+        $combos = Combo::search($this->combosSearchText)
+            ->limit(10)
+            ->get();
+
         $this->comments = $this->order
             ->comments()
             ->latest()
@@ -504,6 +547,7 @@ class OrderShow extends Component
             'PAYMENT_METHODS' => $PAYMENT_METHODS,
             'products' => $products,
             'drivers' => $drivers,
+            'combos' => $combos,
         ])->layout('layouts.app', ['page_title' => $this->page_title, 'orders' => 'active']);
     }
 }

@@ -13,12 +13,12 @@ class ProductPolicy
      */
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->is_admin;
     }
 
     public function viewProductionPlanning(User $user): bool
     {
-        return true;
+        return $user->is_admin || $user->is_inventory;
     }
 
     /**
@@ -26,7 +26,7 @@ class ProductPolicy
      */
     public function view(User $user, Product $product): bool
     {
-        return true;
+        return $user->is_admin;
     }
 
     /**
@@ -34,7 +34,7 @@ class ProductPolicy
      */
     public function create(User $user): bool
     {
-        return true;
+        return $user->is_admin;
     }
 
     /**
@@ -42,7 +42,7 @@ class ProductPolicy
      */
     public function update(User $user, Product $product): bool
     {
-        return true;
+        return $user->is_admin;
     }
 
     /**
@@ -50,7 +50,7 @@ class ProductPolicy
      */
     public function delete(User $user, Product $product): bool
     {
-        return true;
+        return $user->is_admin;
     }
 
     /**
@@ -58,7 +58,7 @@ class ProductPolicy
      */
     public function restore(User $user, Product $product): bool
     {
-        return true;
+        return $user->is_admin;
     }
 
     /**

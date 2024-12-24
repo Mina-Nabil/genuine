@@ -158,6 +158,27 @@ class Order extends Model
         }
     }
 
+    public static function resetBulkStatus(array $orderIds): bool
+    {
+        DB::beginTransaction();
+
+        try {
+            $orders = self::whereIn('id', $orderIds)->get();
+
+            foreach ($orders as $order) {
+                $order->resetStatus();
+            }
+
+            DB::commit();
+            return true;
+        } catch (Exception $e) {
+            DB::rollBack();
+            report($e);
+            AppLog::error('Failed to reset bulk status for orders', $e->getMessage());
+            return false;
+        }
+    }
+
     public function setStatus(string $newStatus, $skipCheck = false): bool
     {
         DB::beginTransaction();
@@ -747,7 +768,7 @@ class Order extends Model
                     ->whereNull('combo_id')
                     ->first();
 
-                if ($orderProduct) {
+                if ($orderProduct && !$product['combo_id']) {
                     // Update the existing order product with the additional quantity and updated
                     $orderProduct->quantity = $product['quantity'];
                     $orderProduct->price = $product['price']; // Update price if provided
@@ -1104,94 +1125,57 @@ class Order extends Model
         }
     }
 
-    public function moveUp()
+
+    public function moveToPosition(int $newPosition = null)
     {
-        // Start a transaction to ensure consistency
-        return DB::transaction(function () {
-            // Find the previous order with the same driver and earlier driver_order
-            $previousOrder = self::where('driver_id', $this->driver_id)
-                ->where('delivery_date', $this->delivery_date)
-                ->when($this->driver_order, function ($query, $driver_order) {
-                    $query->where('driver_order', $driver_order - 1);
-                })
-                // ->where('driver_order', '<=', $this->driver_order)
-                ->orderBy('driver_order', 'desc')
-                ->whereNotNull('driver_order')
-                ->first();
+        return DB::transaction(function () use ($newPosition) {
 
-            if ($previousOrder) {
-                // Swap the driver_order values
-                $tmpOrder = $previousOrder->driver_order;
-                if (!$this->driver_order) {
-                    $this->driver_order = $tmpOrder + 1;
-                } else {
-                    $previousOrder->driver_order = $this->driver_order;
-                    $this->driver_order = $tmpOrder;
-                }
-
-                // Save both orders
+            if ($newPosition == null) {
+                $this->driver_order = NULL;
                 $this->save();
-                $previousOrder->save();
-
-                return true;
             }
 
-            // If no previous order exists, set the current order to the first position
-            $this->driver_order = 1;
+            if ($newPosition <= 0) {
+                $newPosition = 1;
+            }
+
+            if ($this->driver_order === $newPosition) {
+                return true;
+            }
+            $this->driver_order = $newPosition;
             $this->save();
+
+            $dayOrderedOrders = self::where('driver_id', $this->driver_id)
+                ->whereDate('delivery_date', $this->delivery_date)
+                ->whereNotNull('driver_order')
+                ->orderBy('driver_order')
+                ->whereNot('id', $this->id)
+                ->get();
+
+
+            foreach ($dayOrderedOrders as $index => $or) {
+                $or->driver_order = ($index + ($newPosition <= $index ? 1 : 0)) + 1;
+                $or->save();
+            }
 
             return true;
         });
     }
 
-    /**
-     * Move this order down (increase the driver_order).
-     *
-     * @return bool
-     */
-    public function moveDown()
+    public function updateNoOfBags(int $bags_count = null)
     {
-        // Start a transaction to ensure consistency
-        return DB::transaction(function () {
-            // Find the next order with the same driver and later driver_order
-            $nextOrder = self::where('driver_id', $this->driver_id)
-                ->where('delivery_date', $this->delivery_date)
-                ->when($this->driver_order, function ($query, $driver_order) {
-                    $query->where('driver_order', $driver_order + 1);
-                })
-                // ->whereNotNull('driver_order')
-                ->orderBy('driver_order', 'asc')
-                ->first();
+        /** @var User */
+        $loggedInUser = Auth::user();
 
-            if ($nextOrder && $nextOrder->driver_order) {
-                // Swap the driver_order values
-                $tmpOrder = $nextOrder->driver_order;
-                if (!$this->driver_order) {
-                    $this->driver_order = $tmpOrder - 1;
-                } else {
-                    $nextOrder->driver_order = $this->driver_order;
-                    $this->driver_order = $tmpOrder;
-                }
-
-                // Save both orders
-                $this->save();
-                $nextOrder->save();
-
-                return true;
-            } elseif (!$nextOrder && !$this->driver_order) {
-                return true;
-            } elseif (!$nextOrder && $this->driver_order) {
-                return true;
-            } elseif ($nextOrder && !$nextOrder->driver_order) {
-                return true;
-            }
-
-            // If no previous order exists, set the current order to the first position
-            $this->driver_order = 1;
-            $this->save();
-
+        // Check if the user has permission to update the order
+        if ($loggedInUser && !$loggedInUser->can('update', $this)) {
             return false;
-        });
+        }
+
+        $this->no_of_bags = $bags_count ?? 0;
+        $this->save();
+        $this->addComment("Number of bags set to $this->no_of_bags");
+        return true;
     }
 
     public function updateDriverPaymentType(?string $paymentType = null): bool
@@ -1398,13 +1382,13 @@ class Order extends Model
         return ($hasPayments || $hasBalanceTransactions) && ($this->remaining_to_pay > 0 && $this->remaining_to_pay < $this->total_amount);
     }
 
-    public function scopeSearch(Builder $query, string $searchText = null, array $deliveryDates = [], string $status = null, int $zoneId = null, int $driverId = null, bool $isPaid = null): Builder
+    public function scopeSearch(Builder $query, string $searchText = null, array $deliveryDates = [], string $status = null, int $zoneId = null, int $driverId = null, bool $isPaid = null, $skipUserCheck = false): Builder
     {
         if (!joined($query, 'zones')) {
             $query->join('zones', 'zones.id', '=', 'orders.zone_id');
         }
 
-        if (Auth::user()->is_sales) {
+        if (!$skipUserCheck && Auth::user()->is_sales) {
             $query->where('created_by', Auth::id());
         }
 

@@ -5,43 +5,33 @@
                 Driver Shift
             </h4>
         </div>
-        <div class="flex sm:space-x-4 space-x-2 sm:justify-end items-center md:mb-6 mb-4 rtl:space-x-reverse">
-            @can('create', App\Models\Orders\Order::class)
-                <a href="{{ route('orders.create') }}">
-                    <button class="btn inline-flex justify-center btn-dark dark:bg-slate-700 dark:text-slate-300 m-1 btn-sm">
-                        Create order
-                    </button>
-                </a>
-            @endcan
-        </div>
     </div>
 
     <div class="mb-5">
         @if ($deliveryDate)
 
-                    <span class="badge bg-slate-900 text-white capitalize">
-                        <span class="cursor-pointer" wire:click='openFilteryDeliveryDate'>
-                            <span class="text-secondary-500 ">Delivery Date:</span>
-                            @foreach ($deliveryDate as $sDdate)
-                                &nbsp;
-                                {{ $sDdate->isToday()
-                                    ? 'Today'
-                                    : ($sDdate->isYesterday()
-                                        ? 'Yesterday'
-                                        : ($sDdate->isTomorrow()
-                                            ? 'Tomorrow'
-                                            : $sDdate->format('l d-m-Y'))) }}
-                                @if (!$loop->last)
-                                    ,
-                                @endif
-                            @endforeach
-                        </span>
+            <span class="badge bg-slate-900 text-white capitalize">
+                <span class="cursor-pointer" wire:click='openFilteryDeliveryDate'>
+                    <span class="text-secondary-500 ">Delivery Date:</span>
+                    @foreach ($deliveryDate as $sDdate)
+                        &nbsp;
+                        {{ $sDdate->isToday()
+                            ? 'Today'
+                            : ($sDdate->isYesterday()
+                                ? 'Yesterday'
+                                : ($sDdate->isTomorrow()
+                                    ? 'Tomorrow'
+                                    : $sDdate->format('l d-m-Y'))) }}
+                        @if (!$loop->last)
+                            ,
+                        @endif
+                    @endforeach
+                </span>
 
-                        &nbsp;&nbsp;<iconify-icon wire:click="clearDeliveryDate(closed)"
-                            icon="material-symbols:close" class="cursor-pointer" width="1.2em"
-                            height="1.2em"></iconify-icon>
-                    </span>
-                @endif
+                &nbsp;&nbsp;<iconify-icon wire:click="clearDeliveryDate(closed)" icon="material-symbols:close"
+                    class="cursor-pointer" width="1.2em" height="1.2em"></iconify-icon>
+            </span>
+        @endif
         @if ($driver)
             <div class="dropdown relative" style="display: contents">
                 <span class="badge bg-slate-900 text-white capitalize"
@@ -76,6 +66,78 @@
             <div class="flex-1 rounded-md col-span-2">
                 <div class="card-body flex flex-col justify-center  bg-no-repeat bg-center bg-cover card p-4 active">
                     <div class="card-text flex flex-col justify-between h-full menu-open">
+                        <div class="card dark active">
+                            <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base menu-open">
+                                <div
+                                    class="bg-slate-50 dark:bg-slate-900 rounded mb-5 p-4 flex gap-5  overflow-x-auto no-wrap">
+                                    <div class="space-y-1">
+                                        <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
+                                            Bags
+                                        </h4>
+                                        <div class="text-sm font-medium text-slate-900 dark:text-white">
+                                            {{ $orders->sum('no_of_bags') }}
+                                        </div>
+                                    </div>
+                                    <div class="space-y-1">
+                                        <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
+                                            Total Weight
+                                        </h4>
+                                        <div class="text-sm font-medium text-slate-900 dark:text-white">
+                                            {{ number_format($orders->sum('total_weight') / 1000, 3) }}
+                                            <small>KG</small>
+                                        </div>
+                                    </div>
+                                    @if (!auth()->user()->is_driver)
+                                        <div class="space-y-1">
+                                            <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
+                                                Total Zones
+                                            </h4>
+                                            <div class="text-sm font-medium text-slate-900 dark:text-white">
+                                                {{ $totalZones }}
+                                                <small>Zones</small>
+                                            </div>
+                                        </div>
+                                    @endif
+                                    <div class="space-y-1">
+                                        <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
+                                            Price to Collect
+                                        </h4>
+                                        <div class="text-sm font-medium text-slate-900 dark:text-white">
+                                            {{ number_format($orders->sum('remaining_to_pay'), 2) }}<small>&nbsp;EGP</small>
+                                        </div>
+                                    </div>
+
+                                    @if (!auth()->user()->is_driver)
+                                        <div class="space-y-1">
+                                            <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
+                                                Total Orders
+                                            </h4>
+                                            <div class="text-sm font-medium text-slate-900 dark:text-white">
+                                                {{ $orders->count() }} <small>(
+                                                    {{ $orders->sum(fn($order) => $order->products->sum('quantity')) }}
+                                                    Items ) </small>
+                                            </div>
+                                        </div>
+                                    @endif
+
+                                    @foreach ($collectedFromPaymentTypes as $index => $priceCollected)
+                                        @if ($priceCollected > 0)
+                                            <div class="space-y-1">
+                                                <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
+                                                    {{ ucwords(str_replace('_', ' ', $index)) }} Collected
+                                                </h4>
+                                                <div class="text-sm font-medium text-slate-900 dark:text-white">
+                                                    {{ number_format($priceCollected, 2) }}<small>&nbsp;EGP</small>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    @endforeach
+
+
+
+                                </div>
+                            </div>
+                        </div>
 
                         @forelse ($orders as $order)
                             <div class="card-body flex flex-col justify-between border rounded-lg h-full menu-open p-0 mb-5"
@@ -83,15 +145,22 @@
                                 <div class="grid grid-cols-1 md:grid-cols-8 lg:grid-cols-8">
 
                                     <div class="p-3 md:col-span-2">
+                                        @if ($showDriverOrderId === $order->id)
+                                            <input wire:model='driverOrder' type="number"
+                                                wire:keydown.enter='setDriverOrder({{ $order->id }})'
+                                                class="form-control !py-1 mb-1 !text-xs">
+                                        @endif
+
                                         <div class="flex justify-between">
+                                            <span wire:click='showDriverOrder({{ $order->id }})'
+                                                class="w-5 h-5 inline-flex items-center justify-center bg-slate-900 text-slate-100 rounded-md font-Inter text-xs ltr:ml-1 rtl:mr-1 relative top-[2px]">
+                                                {{ $order->driver_order }}
+                                            </span>&nbsp;&nbsp;
 
                                             <a href="{{ route('orders.show', $order->id) }}"> <span
                                                     class="hover-underline">
                                                     <b>
-                                                        <span
-                                                            class="w-5 h-5 inline-flex items-center justify-center bg-slate-900 text-slate-100 rounded-md font-Inter text-xs ltr:ml-1 rtl:mr-1 relative top-[2px]">
-                                                            {{ $order->driver_order }}
-                                                        </span>&nbsp;&nbsp;
+
 
                                                         #{{ $order->order_number }} • {{ $order->customer->name }}
                                                     </b>
@@ -236,11 +305,10 @@
 
                                             <div class="space-y-1">
                                                 <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
-                                                    Total Weight
+                                                    Bags
                                                 </h4>
                                                 <div class=" font-medium text-slate-900 dark:text-white">
-                                                    {{ number_format($order->total_weight / 1000, 2) }}
-                                                    <small>KG</small>
+                                                    {{ $order->no_of_bags }}
                                                 </div>
                                             </div>
 
@@ -335,16 +403,6 @@
                                                             Paid</span>
                                                     @endif
                                                 </div>
-                                                <div class="flex mt-2">
-                                                    <button wire:click='moveOrderUp({{ $order->id }})'
-                                                        class="action-btn" type="button">
-                                                        <iconify-icon icon="mingcute:up-fill"></iconify-icon>
-                                                    </button>
-                                                    <button wire:click='moveOrderDown({{ $order->id }})'
-                                                        class="action-btn" type="button">
-                                                        <iconify-icon icon="mingcute:down-fill"></iconify-icon>
-                                                    </button>
-                                                </div>
                                             </div>
                                         @endif
 
@@ -378,72 +436,6 @@
                             </div>
                         @endforelse
 
-
-
-                        <div class="card dark active">
-                            <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base menu-open">
-                                <div
-                                    class="bg-slate-50 dark:bg-slate-900 rounded p-4 mt-8 flex gap-5  overflow-x-auto no-wrap">
-                                    <div class="space-y-1">
-                                        <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
-                                            Total Weight
-                                        </h4>
-                                        <div class="text-sm font-medium text-slate-900 dark:text-white">
-                                            {{ number_format($orders->sum('total_weight') / 1000, 3) }}
-                                            <small>KG</small>
-                                        </div>
-                                    </div>
-                                    @if (!auth()->user()->is_driver)
-                                        <div class="space-y-1">
-                                            <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
-                                                Total Zones
-                                            </h4>
-                                            <div class="text-sm font-medium text-slate-900 dark:text-white">
-                                                {{ $totalZones }}
-                                                <small>Zones</small>
-                                            </div>
-                                        </div>
-                                    @endif
-                                    <div class="space-y-1">
-                                        <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
-                                            Price to Collect
-                                        </h4>
-                                        <div class="text-sm font-medium text-slate-900 dark:text-white">
-                                            {{ number_format($orders->sum('remaining_to_pay'), 2) }}<small>&nbsp;EGP</small>
-                                        </div>
-                                    </div>
-
-                                    @if (!auth()->user()->is_driver)
-                                        <div class="space-y-1">
-                                            <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
-                                                Total Orders
-                                            </h4>
-                                            <div class="text-sm font-medium text-slate-900 dark:text-white">
-                                                {{ $orders->count() }} <small>(
-                                                    {{ $orders->sum(fn($order) => $order->products->sum('quantity')) }}
-                                                    Items ) </small>
-                                            </div>
-                                        </div>
-                                    @endif
-
-                                    @foreach ($collectedFromPaymentTypes as $index => $priceCollected)
-                                        @if ($priceCollected > 0)
-                                            <div class="space-y-1">
-                                                <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
-                                                    {{ ucwords(str_replace('_', ' ', $index)) }} Collected
-                                                </h4>
-                                                <div class="text-sm font-medium text-slate-900 dark:text-white">
-                                                    {{ number_format($priceCollected, 2) }}<small>&nbsp;EGP</small>
-                                                </div>
-                                            </div>
-                                        @endif
-                                    @endforeach
-
-
-
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -490,9 +482,6 @@
                                         @foreach ($DRIVERS as $ONE_DRIVERS)
                                             <option value="{{ $ONE_DRIVERS->id }}">
                                                 {{ $ONE_DRIVERS->user->full_name }} • {{ $ONE_DRIVERS->shift_title }}
-                                                @if ($ONE_DRIVERS->countOrders())
-                                                    • {{ $ONE_DRIVERS->countOrders($deliveryDate) }} Orders
-                                                @endif
                                             </option>
                                         @endforeach
                                     </select>
@@ -533,10 +522,10 @@
                         <div
                             class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
                             <h3 class="text-xl font-medium text-white dark:text-white capitalize">
-                                Filter delivery date 
+                                Filter delivery date
                                 <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
-                                wire:loading wire:target="removeSelectedDate,Edited_deliveryDate"
-                                icon="line-md:loading-twotone-loop"></iconify-icon>
+                                    wire:loading wire:target="removeSelectedDate,Edited_deliveryDate"
+                                    icon="line-md:loading-twotone-loop"></iconify-icon>
                             </h3>
                             <button wire:click="closeFilteryDeliveryDate" type="button"
                                 class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
@@ -558,7 +547,8 @@
                                 <div class="input-area">
                                     <label for="Edited_deliveryDate" class="form-label">Delivery date*</label>
                                     <p class="text-gray-600 text-xs mb-2">
-                                        *You can select multiple dates by clicking on the date. Once done, click "Submit" to apply the filter.
+                                        *You can select multiple dates by clicking on the date. Once done, click
+                                        "Submit" to apply the filter.
                                     </p>
                                     <input name="Edited_deliveryDate" id="Edited_deliveryDate" type="date"
                                         class="form-control w-full mt-2 @error('Edited_deliveryDate') !border-danger-500 @enderror"

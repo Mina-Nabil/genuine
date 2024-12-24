@@ -7,6 +7,7 @@ use App\Models\Orders\OrderProduct;
 use App\Models\Users\Driver;
 use App\Traits\AlertFrontEnd;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Url;
@@ -24,6 +25,7 @@ class OrderInventory extends Component
     public $selectedOrders = [];
     public $selectedOrderProducts = [];
 
+    public $driverRadio;
     public $Edited_driverId;
     public $Edited_driverId_sec;
 
@@ -35,15 +37,25 @@ class OrderInventory extends Component
 
     public $resetStatusOrderID;
 
-    public function resetStatus($id){
+    public $noOfBags = [];
+
+    public function updateNoOfBags($id)
+    {
+        Order::findOrFail($id)->updateNoOfBags(!is_numeric($this->noOfBags[$id]) ? 0 : $this->noOfBags[$id]);
+    }
+
+    public function resetStatus($id)
+    {
         $this->resetStatusOrderID = $id;
     }
 
-    public function dismissResetStatus(){
+    public function dismissResetStatus()
+    {
         $this->resetStatusOrderID = null;
     }
 
-    public function confirmResetStatus(){
+    public function confirmResetStatus()
+    {
         $res = Order::findOrFail($this->resetStatusOrderID)->resetStatus();
         if ($res) {
             $this->alertSuccess('Order updated');
@@ -62,6 +74,11 @@ class OrderInventory extends Component
         }
         $this->selectedDeliveryDates[] = Carbon::parse($value);
         $this->Edited_deliveryDate = null;
+    }
+
+    public function updatedDriverRadio($value)
+    {
+        $this->driver = Driver::findOrFail($value);
     }
 
     public function removeSelectedDate($index)
@@ -174,7 +191,11 @@ class OrderInventory extends Component
     public function mount()
     {
         $this->authorize('viewOrderInventory', Order::class);
-        $this->deliveryDate = [Carbon::tomorrow()];
+        $this->deliveryDate = [Carbon::today()];
+        $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneId: $this->zone?->id)->withTotalQuantity()->openOrders()->paginate(50);
+        foreach ($orders as $order) {
+            $this->noOfBags[$order->id] = $order->no_of_bags;
+        }
     }
 
 
@@ -184,6 +205,7 @@ class OrderInventory extends Component
         $DRIVERS = Driver::all();
         $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneId: $this->zone?->id)->withTotalQuantity()->openOrders()->paginate(50);
 
+        $todayShifts = Driver::hasOrdersOn($this->deliveryDate)->get();
 
         $cancelledOrders = Order::search(
             searchText: $this->search,
@@ -199,6 +221,7 @@ class OrderInventory extends Component
 
         return view('livewire.orders.order-inventory', [
             'orders' => $orders,
+            'todayShifts' => $todayShifts,
             'DRIVERS' => $DRIVERS,
             'cancelledOrders' => $cancelledOrders
         ])->layout('layouts.app', ['page_title' => $this->page_title, 'ordersInventory' => 'active']);

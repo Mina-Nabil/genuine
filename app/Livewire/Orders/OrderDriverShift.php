@@ -4,7 +4,6 @@ namespace App\Livewire\Orders;
 
 use Livewire\Component;
 use App\Models\Orders\Order;
-use App\Models\Orders\OrderProduct;
 use App\Models\Payments\CustomerPayment;
 use App\Models\Users\Driver;
 use App\Models\Users\User;
@@ -12,7 +11,6 @@ use App\Traits\AlertFrontEnd;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\WithPagination;
-use Livewire\Attributes\Url;
 
 class OrderDriverShift extends Component
 {
@@ -38,37 +36,49 @@ class OrderDriverShift extends Component
     public $editedDriverNote;
     public $editedDriverNoteSec;
 
+    public $driverOrder;
+    public $showDriverOrderId;
+
+    public function showDriverOrder($id){
+        $this->showDriverOrderId = $id;
+    }
+
+    public function setDriverOrder($id){
+        $res = Order::findOrFail($id)->moveToPosition(!is_numeric($this->driverOrder) ? NULL : $this->driverOrder);
+        if ($res) {
+            $this->alertSuccess('Order Changed');
+            $this->showDriverOrderId = null;
+        } else {
+            $this->alertFailed();
+        }
+    }
     //collected
     public $collectedFromPaymentTypes = [];
 
-    public function moveOrderUp($id){
-        $res = Order::findOrFail($id)->moveUp();
+    public function setDriverPaymentType($orderId, $method = null)
+    {
+        $res = Order::findOrFail($orderId)->updateDriverPaymentType($method ?? null);
         if ($res) {
-            $this->alertSuccess('Order Changed');
-        }else{
+            $this->alertSuccess('updated!');
+        } else {
             $this->alertFailed();
         }
     }
 
-    public function moveOrderDown($id){
-        $res = Order::findOrFail($id)->moveDown();
-        if ($res) {
-            $this->alertSuccess('Order Changed');
-        }else{
-            $this->alertFailed();
-        }
-    }
 
-    public function openEditOrderNote($order_id){
+    public function openEditOrderNote($order_id)
+    {
         $this->editedOrderNoteSec = $order_id;
         $this->editedOrderNote = Order::findOrFail($order_id)->note;
     }
 
-    public function closeEditOrderNote(){
-        $this->reset(['editedOrderNoteSec','editedOrderNote']);
+    public function closeEditOrderNote()
+    {
+        $this->reset(['editedOrderNoteSec', 'editedOrderNote']);
     }
 
-    public function  EditOrderNote(){
+    public function  EditOrderNote()
+    {
         $this->validate([
             'editedOrderNote' => 'nullable|string|max:255',
         ]);
@@ -78,21 +88,24 @@ class OrderDriverShift extends Component
         if ($res) {
             $this->closeEditOrderNote();
             $this->alertSuccess('Note updated');
-        }else{
+        } else {
             $this->alertFailed();
         }
     }
 
-    public function openEditDriverNote($order_id){
+    public function openEditDriverNote($order_id)
+    {
         $this->editedDriverNoteSec = $order_id;
         $this->editedDriverNote = Order::findOrFail($order_id)->driver_note;
     }
 
-    public function closeEditDriverNote(){
-        $this->reset(['editedDriverNoteSec','editedDriverNote']);
+    public function closeEditDriverNote()
+    {
+        $this->reset(['editedDriverNoteSec', 'editedDriverNote']);
     }
 
-    public function  EditDriverNote(){
+    public function  EditDriverNote()
+    {
         $this->validate([
             'editedDriverNote' => 'nullable|string|max:255',
         ]);
@@ -102,16 +115,17 @@ class OrderDriverShift extends Component
         if ($res) {
             $this->closeEditDriverNote();
             $this->alertSuccess('Note updated');
-        }else{
+        } else {
             $this->alertFailed();
         }
     }
 
-    public function toggleIsDelivered($id){
+    public function toggleIsDelivered($id)
+    {
         $res = Order::findOrFail($id)->toggleIsDelivered();
         if ($res) {
             $this->alertSuccess('updated!');
-        }else{
+        } else {
             $this->alertFailed();
         }
     }
@@ -120,7 +134,7 @@ class OrderDriverShift extends Component
 
     public function updatedEditedDeliveryDate($value)
     {
-        foreach($this->selectedDeliveryDates as $date){
+        foreach ($this->selectedDeliveryDates as $date) {
             if ($date->toDateString() === $value) {
                 return;
             }
@@ -135,11 +149,13 @@ class OrderDriverShift extends Component
         $this->selectedDeliveryDates = array_values($this->selectedDeliveryDates); // Reset array keys
     }
 
-    public function clearDeliveryDate(){
+    public function clearDeliveryDate()
+    {
         $this->deliveryDate = [];
     }
 
-    public function openFilteryDeliveryDate(){
+    public function openFilteryDeliveryDate()
+    {
         $this->Edited_deliveryDate_sec = true;
 
         foreach ($this->deliveryDate as $date) {
@@ -147,13 +163,15 @@ class OrderDriverShift extends Component
         }
     }
 
-    public function closeFilteryDeliveryDate(){
+    public function closeFilteryDeliveryDate()
+    {
         $this->Edited_deliveryDate_sec = false;
         $this->Edited_deliveryDate = null;
         $this->selectedDeliveryDates = [];
     }
 
-    public function setFilteryDeliveryDate(){
+    public function setFilteryDeliveryDate()
+    {
 
         $this->deliveryDate = $this->selectedDeliveryDates;
         $this->closeFilteryDeliveryDate();
@@ -179,19 +197,22 @@ class OrderDriverShift extends Component
         }
     }
 
-    public function openFilteryDriver(){
+    public function openFilteryDriver()
+    {
         $this->Edited_driverId_sec = true;
         $this->Edited_driverId = $this->driver?->id;
         $this->DRIVERS = Driver::all();
     }
 
-    public function closeFilteryDriver(){
+    public function closeFilteryDriver()
+    {
         $this->Edited_driverId_sec = false;
         $this->Edited_driverId = null;
         $this->DRIVERS = null;
     }
 
-    public function setFilterDriver(){
+    public function setFilterDriver()
+    {
         $this->driver = Driver::findOrFail($this->Edited_driverId);
         $this->closeFilteryDriver();
     }
