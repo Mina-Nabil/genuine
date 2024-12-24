@@ -191,7 +191,7 @@ class OrderInventory extends Component
     public function mount()
     {
         $this->authorize('viewOrderInventory', Order::class);
-        $this->deliveryDate = [Carbon::tomorrow()];
+        $this->deliveryDate = [Carbon::today()];
         $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneId: $this->zone?->id)->withTotalQuantity()->openOrders()->paginate(50);
         foreach ($orders as $order) {
             $this->noOfBags[$order->id] = $order->no_of_bags;
