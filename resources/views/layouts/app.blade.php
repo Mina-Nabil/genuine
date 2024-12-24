@@ -148,7 +148,7 @@
                         </a>
                     </li>
 
-                    <li>
+                    {{-- <li>
                         <a href="{{ auth()->user()->can('viewAny', App\Models\Orders\Order::class)? url('/orders/pastdue'): '#' }}"
                             class="navItem {{ $ordersPastDue ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Orders\Order::class)? '': 'disabled' }}">
                             <span class="flex items-center">
@@ -157,7 +157,7 @@
                                 <span>الطلبات المتأخرة</span>
                             </span>
                         </a>
-                    </li>
+                    </li> --}}
                     @can('viewOrderInventory', App\Models\Products\Order::class)
                         <li class="sidebar-menu-title">Inventory</li>
                         <li>

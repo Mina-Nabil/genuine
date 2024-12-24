@@ -45,7 +45,7 @@
                 @if (in_array('in_delivery', $availableBulkStatuses) || in_array('done', $availableBulkStatuses))
                     <li wire:click='resetStatuses'
                         class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
-                        Reset Orders Status 
+                        Reset Orders Status
                     </li>
                 @endif
             </ul>
@@ -293,14 +293,12 @@
                                             All Orders</span></th>
                                 @endif
                             @else
+                                <th scope="col" class="table-th">Delivery</th>
+                                <th scope="col" class="table-th">Zone</th>
                                 <th scope="col" class="table-th">Customer</th>
-                                <th scope="col" class="table-th">Delivery Date</th>
                                 <th scope="col" class="table-th">Total</th>
                                 <th scope="col" class="table-th">Status</th>
-                                <th scope="col" class="table-th">Payment Status</th>
-                                <th scope="col" class="table-th">Items</th>
-                                <th scope="col" class="table-th">Phone</th>
-                                <th scope="col" class="table-th">Zone</th>
+                                <th scope="col" class="table-th">Payment</th>
                                 <th scope="col" class="table-th">Driver</th>
                                 <th scope="col" class="table-th">Creator</th>
                             @endif
@@ -334,13 +332,22 @@
 
                                 </td>
 
-
                                 <td class="table-td">
-                                    {{ $order->customer->name }}
+                                    @if ($order->delivery_date->isPast())
+                                        <span
+                                            class="h-[6px] w-[6px] bg-danger-500 rounded-full inline-block ring-4 ring-opacity-30 ring-danger-500"
+                                            style="vertical-align: middle;"></span> &nbsp;
+                                    @endif
+
+                                    {{ $order->delivery_date->isToday() ? 'Today' : ($order->delivery_date->isYesterday() ? 'Yesterday' : $order->delivery_date->format('D d-m')) }}
                                 </td>
 
                                 <td class="table-td">
-                                    {{ $order->delivery_date->isToday() ? 'Today' : ($order->delivery_date->isYesterday() ? 'Yesterday' : $order->delivery_date->format('l Y-m-d')) }}
+                                    {{ $order->zone->name }}
+                                </td>
+
+                                <td class="table-td">
+                                    {{ $order->customer->name }}
                                 </td>
 
 
@@ -349,6 +356,12 @@
                                 </td>
 
                                 <td class="table-td text-start overflow-hidden text-ellipsis whitespace-nowrap">
+                                    @if ($order->is_confirmed)
+                                        <span class="badge bg-success-500 text-white capitalize rounded-3xl">
+                                            <iconify-icon icon="line-md:check-all" width="1.2em"
+                                                height="1.2em"></iconify-icon>&nbsp;
+                                            Confirmed</span>
+                                    @endif
                                     @if ($order->status === App\Models\Orders\Order::STATUS_NEW)
                                         <span class="badge bg-info-500 text-dark-500 bg-opacity-50 capitalize">
                                             <iconify-icon icon="octicon:dot-16" width="1.2em"
@@ -356,12 +369,27 @@
                                             {{ ucwords(str_replace('_', ' ', $order->status)) }}
                                         </span>
                                     @elseif ($order->status === App\Models\Orders\Order::STATUS_READY)
+                                        <span class="badge bg-info-500 text-dark-500 bg-opacity-50 capitalize">
+                                            <iconify-icon icon="octicon:dot-16" width="1.2em"
+                                                height="1.2em"></iconify-icon>
+                                            {{ ucwords(str_replace('_', ' ', App\Models\Orders\Order::STATUS_NEW)) }}
+                                        </span>
                                         <span class="badge bg-[#EAE5FF] text-dark-500 capitalize">
                                             <iconify-icon icon="octicon:dot-16" width="1.2em"
                                                 height="1.2em"></iconify-icon>
                                             {{ ucwords(str_replace('_', ' ', $order->status)) }}
                                         </span>
                                     @elseif ($order->status === App\Models\Orders\Order::STATUS_IN_DELIVERY)
+                                        <span class="badge bg-info-500 text-dark-500 bg-opacity-50 capitalize">
+                                            <iconify-icon icon="octicon:dot-16" width="1.2em"
+                                                height="1.2em"></iconify-icon>
+                                            {{ ucwords(str_replace('_', ' ', App\Models\Orders\Order::STATUS_NEW)) }}
+                                        </span>
+                                        <span class="badge bg-[#EAE5FF] text-dark-500 capitalize">
+                                            <iconify-icon icon="octicon:dot-16" width="1.2em"
+                                                height="1.2em"></iconify-icon>
+                                            {{ ucwords(str_replace('_', ' ', App\Models\Orders\Order::STATUS_READY)) }}
+                                        </span>
                                         <span class="badge bg-warning-500 text-dark-500 bg-opacity-50 capitalize">
                                             <iconify-icon icon="octicon:dot-16" width="1.2em"
                                                 height="1.2em"></iconify-icon>
@@ -389,12 +417,7 @@
                                         </span>
                                     @endif
 
-                                    @if ($order->is_confirmed)
-                                        <span class="badge bg-success-500 text-white capitalize rounded-3xl">
-                                            <iconify-icon icon="line-md:check-all" width="1.2em"
-                                                height="1.2em"></iconify-icon>&nbsp;
-                                            Confirmed</span>
-                                    @endif
+
 
 
                                 </td>
@@ -415,21 +438,9 @@
                                         <span class="badge bg-warning-500 text-dark-500 bg-opacity-50 capitalize">
                                             <iconify-icon icon="octicon:dot-16" width="1.2em"
                                                 height="1.2em"></iconify-icon>
-                                            Payment pending
+                                            Pending
                                         </span>
                                     @endif
-                                </td>
-
-                                <td class="table-td">
-                                    {{ $order->total_quantity }} item{{ $order->total_quantity > 1 ? 's' : '' }}
-                                </td>
-
-                                <td class="table-td">
-                                    {{ $order->customer_phone }}
-                                </td>
-
-                                <td class="table-td">
-                                    {{ $order->zone->name }}
                                 </td>
 
                                 <td class="table-td text-start overflow-hidden text-ellipsis whitespace-nowrap">

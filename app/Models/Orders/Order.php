@@ -85,7 +85,6 @@ class Order extends Model
             foreach ($orders as $order) {
                 // Get the current status and check the allowed next statuses
                 $order->setStatus($newStatus);
-                $order->save();
             }
             DB::commit();
             return true;
@@ -191,6 +190,10 @@ class Order extends Model
             // If the new status is not allowed, throw an exception
             if (!in_array($newStatus, $allowedNextStatuses, true) && !$skipCheck) {
                 throw new Exception("Order ID {$this->id} cannot transition from {$currentStatus} to {$newStatus}");
+            }
+
+            if ($this->remaining_to_pay != 0 && $newStatus == self::STATUS_DONE) {
+                throw new Exception("Can't set order to done, pending payment");
             }
 
             if ($currentStatus === self::STATUS_NEW && $newStatus === self::STATUS_READY) {
@@ -712,6 +715,10 @@ class Order extends Model
                 if ($this->remaining_to_pay == 0) {
                     $this->is_paid = true;
                     $this->save();
+                    if ($this->is_in_delivery) {
+                        $this->is_delivered = true;
+                        $this->setStatus(self::STATUS_DONE, true);
+                    }
                 }
 
                 // Log successful payment
@@ -1348,6 +1355,11 @@ class Order extends Model
         return $this->status === self::STATUS_NEW;
     }
 
+    public function getIsInDeliveryAttribute(): bool
+    {
+        return $this->status === self::STATUS_IN_DELIVERY;
+    }
+
     public function areAllProductsReady(): bool
     {
         return $this->products()->where('is_ready', false)->doesntExist();
@@ -1377,7 +1389,7 @@ class Order extends Model
             $query->where('created_by', Auth::id());
         }
 
-        return $query
+        return $query->select('orders.*')
             ->when($searchText, function ($query, $searchText) {
                 $words = explode(' ', $searchText);
                 foreach ($words as $w) {
@@ -1547,7 +1559,7 @@ class Order extends Model
             $query->join('zones', 'zones.id', '=', 'orders.zone_id');
         }
 
-        return $query->orderBy('zones.name', $direction)->select('orders.*');
+        return $query->orderBy('zones.name', $direction);
     }
 
     public function getTotalWeightAttribute()
