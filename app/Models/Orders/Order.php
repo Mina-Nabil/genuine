@@ -1181,7 +1181,7 @@ class Order extends Model
 
         $this->no_of_bags = $bags_count ?? 0;
         $this->save();
-        $this->addComment("Number of bags set to $this->no_of_bags");
+        AppLog::info("Number of bags set to $this->no_of_bags", loggable: $this);
         return true;
     }
 
