@@ -358,7 +358,6 @@
                                 <td class="table-td text-start overflow-hidden text-ellipsis whitespace-nowrap">
                                     @if ($order->status === App\Models\Orders\Order::STATUS_NEW)
                                         <span class="badge bg-info-500 text-dark-500 bg-opacity-50 capitalize">
-
                                             {{ ucwords(str_replace('_', ' ', $order->status)) }}
                                         </span>
                                         @if ($order->is_confirmed)
@@ -367,7 +366,6 @@
                                         @endif
                                     @elseif ($order->status === App\Models\Orders\Order::STATUS_READY)
                                         <span class="badge bg-info-500 text-dark-500 bg-opacity-50 capitalize">
-
                                             {{ ucwords(str_replace('_', ' ', App\Models\Orders\Order::STATUS_NEW)) }}
                                         </span>
                                         @if ($order->is_confirmed)
