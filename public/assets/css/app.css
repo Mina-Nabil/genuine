@@ -17614,11 +17614,11 @@ ul.custom-list ul {
 
 .clickable-header {
     cursor: pointer;
-    text-decoration: none; /* Remove the default underline if needed */
+    text-decoration: underline; /* Remove the default underline if needed */
 }
 
 .clickable-header:hover {
-    text-decoration: underline; /* Add underline on hover */
+    text-decoration: none; /* Add underline on hover */
 }
 
 

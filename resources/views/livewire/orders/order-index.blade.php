@@ -356,24 +356,30 @@
                                 </td>
 
                                 <td class="table-td text-start overflow-hidden text-ellipsis whitespace-nowrap">
-                                    @if ($order->is_confirmed)
-                                        <span class="badge bg-success-500 text-white capitalize rounded-3xl">
-                                            <iconify-icon icon="line-md:check-all" width="1.2em"
-                                                height="1.2em"></iconify-icon>&nbsp;
-                                            Confirmed</span>
-                                    @endif
                                     @if ($order->status === App\Models\Orders\Order::STATUS_NEW)
                                         <span class="badge bg-info-500 text-dark-500 bg-opacity-50 capitalize">
                                             <iconify-icon icon="octicon:dot-16" width="1.2em"
                                                 height="1.2em"></iconify-icon>
                                             {{ ucwords(str_replace('_', ' ', $order->status)) }}
                                         </span>
+                                        @if ($order->is_confirmed)
+                                            <span class="badge bg-success-500 text-white capitalize rounded-3xl">
+                                                <iconify-icon icon="line-md:check-all" width="1.2em"
+                                                    height="1.2em"></iconify-icon>&nbsp;
+                                                Confirmed</span>
+                                        @endif
                                     @elseif ($order->status === App\Models\Orders\Order::STATUS_READY)
                                         <span class="badge bg-info-500 text-dark-500 bg-opacity-50 capitalize">
                                             <iconify-icon icon="octicon:dot-16" width="1.2em"
                                                 height="1.2em"></iconify-icon>
                                             {{ ucwords(str_replace('_', ' ', App\Models\Orders\Order::STATUS_NEW)) }}
                                         </span>
+                                        @if ($order->is_confirmed)
+                                            <span class="badge bg-success-500 text-white capitalize rounded-3xl">
+                                                <iconify-icon icon="line-md:check-all" width="1.2em"
+                                                    height="1.2em"></iconify-icon>&nbsp;
+                                                Confirmed</span>
+                                        @endif
                                         <span class="badge bg-[#EAE5FF] text-dark-500 capitalize">
                                             <iconify-icon icon="octicon:dot-16" width="1.2em"
                                                 height="1.2em"></iconify-icon>
@@ -385,6 +391,12 @@
                                                 height="1.2em"></iconify-icon>
                                             {{ ucwords(str_replace('_', ' ', App\Models\Orders\Order::STATUS_NEW)) }}
                                         </span>
+                                        @if ($order->is_confirmed)
+                                            <span class="badge bg-success-500 text-white capitalize rounded-3xl">
+                                                <iconify-icon icon="line-md:check-all" width="1.2em"
+                                                    height="1.2em"></iconify-icon>&nbsp;
+                                                Confirmed</span>
+                                        @endif
                                         <span class="badge bg-[#EAE5FF] text-dark-500 capitalize">
                                             <iconify-icon icon="octicon:dot-16" width="1.2em"
                                                 height="1.2em"></iconify-icon>
@@ -415,6 +427,12 @@
                                                 height="1.2em"></iconify-icon>
                                             {{ ucwords(str_replace('_', ' ', $order->status)) }}
                                         </span>
+                                        @if ($order->is_confirmed)
+                                            <span class="badge bg-success-500 text-white capitalize rounded-3xl">
+                                                <iconify-icon icon="line-md:check-all" width="1.2em"
+                                                    height="1.2em"></iconify-icon>&nbsp;
+                                                Confirmed</span>
+                                        @endif
                                     @endif
 
 
