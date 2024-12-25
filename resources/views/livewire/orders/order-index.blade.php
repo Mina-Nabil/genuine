@@ -188,7 +188,7 @@
                         Amount to Collect
                     </h4>
                     <div class="text-sm font-medium text-white dark:text-slate-900">
-                        {{ number_format($orders->sum('remaining_to_pay'), 2) }}<small>&nbsp;EGP</small>
+                        {{ number_format($orders->sum('remaining_to_pay'), 2) }}
                     </div>
                 </div>
             </header>
@@ -352,7 +352,7 @@
 
 
                                 <td class="table-td">
-                                    {{ $order->total_amount }}<small>&nbsp;EGP</small>
+                                    {{ $order->total_amount }}
                                 </td>
 
                                 <td class="table-td text-start overflow-hidden text-ellipsis whitespace-nowrap">
