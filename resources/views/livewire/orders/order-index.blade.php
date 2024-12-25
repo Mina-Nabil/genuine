@@ -431,7 +431,7 @@
                                     @elseif ($order->isPartlyPaid())
                                         <span class="badge bg-warning-500 text-dark-500 bg-opacity-50 capitalize">
                                             Remaining:
-                                            {{ number_format($order->remaining_to_pay, 2) }}<small>&nbsp;EGP</small>
+                                            {{ number_format($order->remaining_to_pay, 2) }}
                                         </span>
                                     @else
                                         <span class="badge bg-warning-500 text-dark-500 bg-opacity-50 capitalize">
