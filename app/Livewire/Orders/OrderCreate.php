@@ -565,7 +565,7 @@ class OrderCreate extends Component
             ->get();
 
         $drivers = Driver::search($this->driversSearchText)
-            ->limit(10)
+            ->limit(20)
             ->get();
 
         $customers = Customer::search($this->customersSearchText)
