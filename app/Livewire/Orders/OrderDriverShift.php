@@ -38,11 +38,17 @@ class OrderDriverShift extends Component
 
     public $driverOrder;
     public $showDriverOrderId;
+    public $expandedId;
     public $noOfBags = [];
 
     public function updateNoOfBags($id)
     {
         Order::findOrFail($id)->updateNoOfBags(!is_numeric($this->noOfBags[$id]) ? 0 : $this->noOfBags[$id]);
+    }
+
+    public function setExpandedId($id=null)
+    {
+        $this->expandedId = $id;
     }
 
     public function showDriverOrder($id)
@@ -190,7 +196,7 @@ class OrderDriverShift extends Component
         $this->deliveryDate = [Carbon::today()];
         // dd(auth()->id());
         if (Auth::user()->type === User::TYPE_DRIVER) {
-            $this->driver = Driver::getDriverWithMostOrders($this->deliveryDate, auth()->id());
+            $this->driver = Driver::getDriverWithMostOrders($this->deliveryDate, Auth::id());
         } else {
             $this->driver = Driver::getDriverWithMostOrders($this->deliveryDate);
         }
