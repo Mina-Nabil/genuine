@@ -142,6 +142,7 @@
                                     <div class="p-3 md:col-span-2">
                                         @if ($showDriverOrderId === $order->id)
                                             <input wire:model='driverOrder' type="number"
+                                            wire:change.debounce.300ms='setDriverOrder({{ $order->id }})'
                                                 wire:keydown.enter='setDriverOrder({{ $order->id }})'
                                                 class="form-control !py-1 mb-1 !text-xs">
                                         @endif
