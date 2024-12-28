@@ -183,6 +183,10 @@ class Driver extends Model
         return $query;
     }
 
+    public function scopebyUserID($query, $user_id){
+        return $query->where('drivers.user_id', $user_id);
+    }
+
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);

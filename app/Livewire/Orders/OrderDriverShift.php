@@ -10,6 +10,7 @@ use App\Models\Users\User;
 use App\Traits\AlertFrontEnd;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Livewire\WithPagination;
 
 class OrderDriverShift extends Component
@@ -195,11 +196,13 @@ class OrderDriverShift extends Component
     {
         $this->deliveryDate = [Carbon::today()];
         // dd(auth()->id());
-        if (Auth::user()->type === User::TYPE_DRIVER) {
+        if (Auth::user()->is_driver) {
             $this->driver = Driver::getDriverWithMostOrders($this->deliveryDate, Auth::id());
+            if(!$this->driver) $this->driver = Driver::byUserID(Auth::id())->first();
         } else {
             $this->driver = Driver::getDriverWithMostOrders($this->deliveryDate);
         }
+         Log::info( $this->driver);
         $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneId: $this->zone?->id)
             ->confirmed()->openOrders()->withTotalQuantity()->orderByRaw('driver_order IS NULL, driver_order ASC')->sortByZone()->paginate(50);
         foreach ($orders as $order) {
