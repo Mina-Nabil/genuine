@@ -66,6 +66,7 @@ class OrderDriverShift extends Component
         } else {
             $this->alertFailed();
         }
+        $this->driverOrder = null;
     }
     //collected
     public $collectedFromPaymentTypes = [];

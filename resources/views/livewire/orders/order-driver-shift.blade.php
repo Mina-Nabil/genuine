@@ -142,7 +142,7 @@
                                     <div class="p-3 md:col-span-2">
                                         @if ($showDriverOrderId === $order->id)
                                             <input wire:model='driverOrder' type="number"
-                                            wire:change.debounce.50ms='setDriverOrder({{ $order->id }})h'
+                                            wire:change.debounce.50ms='setDriverOrder({{ $order->id }})'
                                                 wire:keydown.enter='setDriverOrder({{ $order->id }})'
                                                 class="form-control !py-1 mb-1 !text-xs">
                                         @endif
@@ -315,7 +315,7 @@
                                                     </h4>
                                                     <div class="text-sm font-medium text-slate-900 dark:text-white">
                                                         <input wire:model.live='noOfBags.{{ $order->id }}'
-                                                            wire:change='updateNoOfBags({{ $order->id }})'
+                                                            wire:change.debounce.50ms='updateNoOfBags({{ $order->id }})'
                                                             id="smallInput" type="number" style="width: 65px;"
                                                             class="form-control !py-1 !text-xs">
                                                     </div>

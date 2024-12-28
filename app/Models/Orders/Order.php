@@ -297,7 +297,7 @@ class Order extends Model
             $this->created_by = $user_id;
             $user = User::findOrFail($user_id);
             $this->save();
-            AppLog::info('Order Assigned to User '.$user->full_name, loggable: $this);
+            AppLog::info('Order Assigned to User ' . $user->full_name, loggable: $this);
             return true;
         } catch (Exception $e) {
             report($e);
@@ -1137,9 +1137,9 @@ class Order extends Model
     {
         return DB::transaction(function () use ($newPosition) {
 
-            if ($newPosition == null) {
+            if ($newPosition == null || $newPosition <= 0) {
                 $this->driver_order = NULL;
-                $this->save();
+                return $this->save();
             }
 
             if ($newPosition <= 0) {
@@ -1161,7 +1161,19 @@ class Order extends Model
 
 
             foreach ($dayOrderedOrders as $index => $or) {
-                $or->driver_order = ($index + ($newPosition <= $index ? 1 : 0)) + 1;
+                $or->driver_order = (($index + 1) + ($newPosition <= ($index + 1) ? 1 : 0));
+                $or->save();
+            }
+
+            $dayOrderedOrders = self::where('driver_id', $this->driver_id)
+                ->whereDate('delivery_date', $this->delivery_date)
+                ->whereNotNull('driver_order')
+                ->orderBy('driver_order')
+                ->get();
+
+
+            foreach ($dayOrderedOrders as $index => $or) {
+                $or->driver_order = ($index + 1);
                 $or->save();
             }
 
