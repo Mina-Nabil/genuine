@@ -39,15 +39,22 @@ class OrderDriverShift extends Component
 
     public $driverOrder;
     public $showDriverOrderId;
+    public $showBagsId;
     public $expandedId;
     public $noOfBags = [];
 
     public function updateNoOfBags($id)
     {
-        Order::findOrFail($id)->updateNoOfBags(!is_numeric($this->noOfBags[$id]) ? 0 : $this->noOfBags[$id]);
+        $res = Order::findOrFail($id)->updateNoOfBags(!is_numeric($this->noOfBags[$id]) ? 0 : $this->noOfBags[$id]);
+        if ($res) {
+            $this->alertSuccess('Order Changed');
+            $this->showBagsId = null;
+        } else {
+            $this->alertFailed();
+        }
     }
 
-    public function setExpandedId($id=null)
+    public function setExpandedId($id = null)
     {
         $this->expandedId = $id;
     }
@@ -55,6 +62,11 @@ class OrderDriverShift extends Component
     public function showDriverOrder($id)
     {
         $this->showDriverOrderId = $id;
+    }
+
+    public function showBags($id)
+    {
+        $this->showBagsId = $id;
     }
 
     public function setDriverOrder($id)
@@ -199,11 +211,11 @@ class OrderDriverShift extends Component
         // dd(auth()->id());
         if (Auth::user()->is_driver) {
             $this->driver = Driver::getDriverWithMostOrders($this->deliveryDate, Auth::id());
-            if(!$this->driver) $this->driver = Driver::byUserID(Auth::id())->first();
+            if (!$this->driver) $this->driver = Driver::byUserID(Auth::id())->first();
         } else {
             $this->driver = Driver::getDriverWithMostOrders($this->deliveryDate);
         }
-         Log::info( $this->driver);
+        Log::info($this->driver);
         $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneId: $this->zone?->id)
             ->confirmed()->openOrders()->withTotalQuantity()->orderByRaw('driver_order IS NULL, driver_order ASC')->sortByZone()->paginate(50);
         foreach ($orders as $order) {

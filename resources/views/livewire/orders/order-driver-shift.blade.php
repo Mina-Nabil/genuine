@@ -141,11 +141,20 @@
 
                                     <div class="p-3 md:col-span-2">
                                         @if ($showDriverOrderId === $order->id)
-                                            <select name="zone_id" id="zone_id"
-                                                class="form-control !py-1 mb-1 !text-xs" wire:model="driverOrder"
+                                            <select class="form-control !py-1 mb-1 !text-xs" wire:model="driverOrder"
                                                 wire:change='setDriverOrder({{ $order->id }})'>
                                                 <option value="" selected>ترتيب</option>
                                                 @for ($i = 0; $i <= $orders->count(); $i++)
+                                                    <option value="{{ $i }}">{{ $i }}</option>
+                                                @endfor
+                                            </select>
+                                        @endif
+                                        @if ($showBagsId === $order->id)
+                                            <select class="form-control !py-1 mb-1 !text-xs"
+                                                wire:model="noOfBags.{{ $order->id }}"
+                                                wire:change='updateNoOfBags({{ $order->id }})'>
+                                                <option value="" selected>عدد الشنط</option>
+                                                @for ($i = 0; $i <= 30; $i++)
                                                     <option value="{{ $i }}">{{ $i }}</option>
                                                 @endfor
                                             </select>
@@ -155,6 +164,10 @@
                                             <span wire:click='showDriverOrder({{ $order->id }})'
                                                 class="w-5 h-5 inline-flex items-center justify-center bg-slate-900 text-slate-100 rounded-md font-Inter text-xs ltr:ml-1 rtl:mr-1 relative top-[2px]">
                                                 {{ $order->driver_order }}
+                                            </span>&nbsp;&nbsp;
+                                            <span wire:click='showBags({{ $order->id }})'
+                                                class="w-5 h-5 inline-flex items-center justify-center bg-slate-500 text-slate-100 rounded-md font-Inter text-xs ltr:ml-1 rtl:mr-1 relative top-[2px]">
+                                                {{ $order->no_of_bags }}
                                             </span>&nbsp;&nbsp;
                                             <a href="{{ route('orders.show', $order->id) }}"> <span
                                                     class="hover-underline">
@@ -312,18 +325,6 @@
                                         <div class="sm:border-l-0 md:border-l p-3 md:col-span-3">
                                             <div
                                                 class="bg-slate-50 dark:bg-slate-900 rounded p-2 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-5 flex-wrap">
-
-                                                <div class="space-y-1">
-                                                    <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
-                                                        Bags
-                                                    </h4>
-                                                    <div class="text-sm font-medium text-slate-900 dark:text-white">
-                                                        <input wire:model.live='noOfBags.{{ $order->id }}'
-                                                            wire:change.debounce.50ms='updateNoOfBags({{ $order->id }})'
-                                                            id="smallInput" type="number" style="width: 65px;"
-                                                            class="form-control !py-1 !text-xs">
-                                                    </div>
-                                                </div>
 
                                                 <div class="space-y-1">
                                                     <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
