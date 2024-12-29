@@ -141,10 +141,13 @@
 
                                     <div class="p-3 md:col-span-2">
                                         @if ($showDriverOrderId === $order->id)
-                                            <input wire:model='driverOrder' type="number"
-                                            wire:change.debounce.50ms='setDriverOrder({{ $order->id }})'
-                                                wire:keydown.enter='setDriverOrder({{ $order->id }})'
-                                                class="form-control !py-1 mb-1 !text-xs">
+                                            <select name="zone_id" id="zone_id"
+                                                class="form-control !py-1 mb-1 !text-xs" wire:model="driverOrder"
+                                                wire:change='setDriverOrder({{ $order->id }})'>
+                                                @for ($i = 0; $i <= $orders->count(); $i++)
+                                                    <option value="{{ $i }}">{{ $i }}</option>
+                                                @endfor
+                                            </select>
                                         @endif
 
                                         <div class="flex justify-between">

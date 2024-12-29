@@ -1142,13 +1142,6 @@ class Order extends Model
                 return $this->save();
             }
 
-            if ($newPosition <= 0) {
-                $newPosition = 1;
-            }
-
-            if ($this->driver_order === $newPosition) {
-                return true;
-            }
             $this->driver_order = $newPosition;
             $this->save();
 
