@@ -144,6 +144,7 @@
                                             <select name="zone_id" id="zone_id"
                                                 class="form-control !py-1 mb-1 !text-xs" wire:model="driverOrder"
                                                 wire:change='setDriverOrder({{ $order->id }})'>
+                                                <option value="" selected disabled>ترتيب</option>
                                                 @for ($i = 0; $i <= $orders->count(); $i++)
                                                     <option value="{{ $i }}">{{ $i }}</option>
                                                 @endfor
