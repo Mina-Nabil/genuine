@@ -135,7 +135,7 @@
                         </div>
 
                         @forelse ($orders as $order)
-                            <div @class(['card-body', 'flex', 'flex-col', 'justify-between', 'border', 'rounded-lg', 'h-full', 'menu-open', 'p-0', 'mb-5', 'bg-slate-50' => $loop->even])
+                            <div @class(['card-body', 'flex', 'flex-col', 'justify-between', 'border', 'rounded-lg', 'h-full', 'menu-open', 'p-0', 'mb-5', 'bg-slate-100' => $loop->odd])
                                 style="border-color:rgb(224, 224, 224) ">
                                 <div class="grid grid-cols-1 md:grid-cols-8 lg:grid-cols-8">
 
