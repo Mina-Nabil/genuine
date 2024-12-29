@@ -144,7 +144,7 @@
                                             <select class="form-control !py-1 mb-1 !text-xs" wire:model="driverOrder"
                                                 wire:change='setDriverOrder({{ $order->id }})'>
                                                 <option value="" selected>ترتيب</option>
-                                                @for ($i = 0; $i <= $orders->count(); $i++)
+                                                @for ($i = 0; $i <= 30; $i++)
                                                     <option value="{{ $i }}">{{ $i }}</option>
                                                 @endfor
                                             </select>
