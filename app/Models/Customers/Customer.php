@@ -39,7 +39,7 @@ class Customer extends Model
             $customer->zone_id = $zone_id;
 
             if ($customer->save()) {
-                AppLog::info('Customer created', "Customer $name created successfully.");
+                AppLog::info('Customer created', "Customer $name created successfully.",loggable:$customer);
                 return $customer;
             } else {
                 return false;
@@ -101,7 +101,7 @@ class Customer extends Model
             $this->zone_id = $zone_id;
 
             if ($this->save()) {
-                AppLog::info('Customer updated', "Customer $name updated successfully.");
+                AppLog::info('Customer updated', "Customer $name updated successfully." , loggable:$this);
                 return true;
             } else {
                 return false;
