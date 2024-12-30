@@ -452,7 +452,7 @@
                                     @endif
                                 </div>
 
-                                <div class="input-area w-full mt-5">
+                                {{-- <div class="input-area w-full mt-5">
                                     <label for="ddate" class="form-label"><b>Creator</b></label>
                                     <select name="creator_id" id="creator_id"
                                         class="form-control w-full @error('creator_id') !border-danger-500 @enderror"
@@ -463,7 +463,7 @@
                                             </option>
                                         @endforeach
                                     </select>
-                                </div>
+                                </div> --}}
 
                             </div>
                         </div>

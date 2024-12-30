@@ -1405,9 +1405,9 @@ class Order extends Model
             $query->join('zones', 'zones.id', '=', 'orders.zone_id');
         }
 
-        if (!$skipUserCheck && Auth::user()->is_sales) {
-            $query->where('created_by', Auth::id());
-        }
+        // if (!$skipUserCheck && Auth::user()->is_sales) {
+        //     $query->where('created_by', Auth::id());
+        // }
 
         return $query->select('orders.*')
             ->when($searchText, function ($query, $searchText) {

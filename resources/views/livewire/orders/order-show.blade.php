@@ -631,7 +631,7 @@
                     </div>
                 </div>
 
-                <div class="card mt-5">
+                {{-- <div class="card mt-5">
                     <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base">
                         <div class="items-center p-5">
                             <div class="input-area w-full">
@@ -651,7 +651,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> --}}
 
             </div>
         </div>
