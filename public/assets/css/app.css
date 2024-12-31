@@ -14484,6 +14484,10 @@ ul.custom-list ul {
     --tw-bg-opacity: 1;
     background-color: rgb(248 250 252 / var(--tw-bg-opacity));
 }
+.even\:bg-slate-100:nth-child(even) {
+    --tw-bg-opacity: 1;
+    background-color: rgb(241 245 249 / var(--tw-bg-opacity));
+}
 .even\:shadow-md:nth-child(even) {
     --tw-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1),
         0 2px 4px -2px rgb(0 0 0 / 0.1);
