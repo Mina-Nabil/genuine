@@ -128,6 +128,7 @@ class Driver extends Model
 
         $query = Driver::select('drivers.*', DB::raw('COUNT(orders.id) as total_orders'))
             ->leftJoin('orders', 'drivers.id', '=', 'orders.driver_id')
+            ->where('orders.is_confirmed', 1)
             ->where(function ($query) use ($date) {
                 $query->whereDate('orders.delivery_date', $date)->orWhereNull('orders.delivery_date');
             })
