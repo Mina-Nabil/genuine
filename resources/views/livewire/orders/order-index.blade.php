@@ -309,7 +309,8 @@
 
                         @foreach ($orders as $order)
                             <tr class="even:bg-slate-100 dark:even:bg-slate-700">
-                                <td class="table-td flex items-center sticky-column bg-white dark:bg-slate-800 colomn-shadow"
+
+                                <td class="table-td flex items-center sticky-column colomn-shadow"
                                     style="position: sticky; left: -25px;  z-index: 10;">
                                     <div class="checkbox-area">
                                         <label class="inline-flex items-center cursor-pointer">
