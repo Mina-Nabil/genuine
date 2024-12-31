@@ -65,7 +65,7 @@
                         </tbody>
                         <tfoot class="border-t border-slate-100 dark:border-slate-800 bg-slate-200 dark:bg-slate-700">
                                 <th scope="col" class="table-th">
-                                    Totals:
+                                    {{$totals->unique('shift_title')->count()}}
                                 </th>
                                 <th scope="col" class="table-th">
                                     {{$totals->unique('name')->count()}}
