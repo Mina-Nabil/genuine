@@ -250,6 +250,16 @@
                             </span>
                         </a>
                     </li>
+                    <li>
+                        <a href="{{ url('/report/daily-loading') }}" class="navItem {{ $followupReport ?? '' }}">
+                            <span class="flex
+                            items-center">
+                                <iconify-icon class=" nav-icon" icon="material-symbols:event">
+                                </iconify-icon>
+                                <span>يوميه تحميل</span>
+                            </span>
+                        </a>
+                    </li>
 
 
                     <li class="sidebar-menu-title">Database</li>
