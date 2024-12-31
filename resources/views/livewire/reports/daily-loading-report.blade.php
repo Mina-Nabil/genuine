@@ -36,28 +36,28 @@
                             class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700 no-wrap">
                             @foreach ($totals as $t)
                                 <tr>
-                                    <td class="table-td">
+                                    <td class="table-td border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
                                         {{ $t->shift_title }}
                                     </td>
-                                    <td class="table-td">
+                                    <td class="table-td border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
                                         {{ $t->name }}
                                     </td>
-                                    <td class="table-td">
+                                    <td class="table-td border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
                                         {{ $t->orders_count }}
                                     </td>
-                                    <td class="table-td">
+                                    <td class="table-td border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
                                         {{ $t->orders_total }}
                                     </td>
-                                    <td class="table-td">
+                                    <td class="table-td border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
                                         {{ $t->quantity_total }}
                                     </td>
-                                    <td class="table-td">
+                                    <td class="table-td border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
                                         {{ $t->total_cash }}
                                     </td>
-                                    <td class="table-td">
+                                    <td class="table-td border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
                                         {{ $t->total_wallet }}
                                     </td>
-                                    <td class="table-td">
+                                    <td class="table-td border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
                                         {{ $t->total_bank }}
                                     </td>
                                 </tr>
