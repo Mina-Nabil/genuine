@@ -63,29 +63,30 @@
                                 </tr>
                             @endforeach
                         </tbody>
-                        <tfoot>
-                            <td class="table-td">
-                            </td>
-                            <td class="table-td">
-                            </td>
-                            <td class="table-td">
-                                {{$totals->sum('orders_count')}}
-                            </td>
-                            <td class="table-td">
-                                {{$totals->sum('orders_total')}}
-                            </td>
-                            <td class="table-td">
-                                {{$totals->sum('quantity_total')}}
-                            </td>
-                            <td class="table-td">
-                                {{$totals->sum('total_cash')}}
-                            </td>
-                            <td class="table-td">
-                                {{$totals->sum('total_wallet')}}
-                            </td>
-                            <td class="table-td">
-                                {{$totals->sum('total_bank')}}
-                            </td>
+                        <tfoot class="border-t border-slate-100 dark:border-slate-800 bg-slate-200 dark:bg-slate-700">
+                                <th scope="col" class="table-th">
+                                    Totals:
+                                </th>
+                                <th scope="col" class="table-th">
+                                </th>
+                                <th scope="col" class="table-th">
+                                    {{ $totals->sum('orders_count') }}
+                                </th>
+                                <th scope="col" class="table-th">
+                                    {{ $totals->sum('orders_total') }}
+                                </th>
+                                <th scope="col" class="table-th">
+                                    {{ $totals->sum('quantity_total') }}
+                                </th>
+                                <th scope="col" class="table-th">
+                                    {{ $totals->sum('total_cash') }}
+                                </th>
+                                <th scope="col" class="table-th">
+                                    {{ $totals->sum('total_wallet') }}
+                                </th>
+                                <th scope="col" class="table-th">
+                                    {{ $totals->sum('total_bank') }}
+                                </th>
                         </tfoot>
                     </table>
 
