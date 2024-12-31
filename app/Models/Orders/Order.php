@@ -328,6 +328,29 @@ class Order extends Model
         }
     }
 
+    /** 
+     * load يوميه التحميل
+     */
+    public static function loadDailyLoadingReport(string $day)
+    {
+        $day = Carbon::parse($day);
+        return DB::table('orders as o1')
+        ->select('zones.name', 'drivers.shift_title')
+        ->selectRaw('COUNT(o1.id) as orders_count')
+        ->selectRaw('SUM(o1.total_amount) as orders_total')
+        ->selectRaw('SUM(order_products.quantity) as quantity_total')
+        ->selectRaw('(SELECT amount from customer_payments as c2 where o1.id = c2.order_id and customer_payments.payment_method = "' . CustomerPayment::PYMT_CASH . '") as total_cash ')
+        ->selectRaw('(SELECT amount from customer_payments as c2 where o1.id = c2.order_id and customer_payments.payment_method = "' . CustomerPayment::PYMT_BANK_TRANSFER . '") as total_bank ')
+        ->selectRaw('(SELECT amount from customer_payments as c2 where o1.id = c2.order_id and customer_payments.payment_method = "' . CustomerPayment::PYMT_WALLET . '") as total_wallet ')
+        ->join('drivers', 'drivers.id', '=', 'o1.driver_id')
+        ->join('zones', 'zones.id', '=', 'o1.zone_id')
+        ->join('order_products', 'o1.id', '=', 'order_products.order_id')
+        ->join('customer_payments', 'o1.id', '=', 'customer_payments.order_id')
+        ->where('o1.delivery_date', $day->format('Y-m-d'))
+        // ->where('o1.is_confirmed', 1)
+        ->get();
+    }
+
     // Static function for bulk assignment
     public static function assignDriverToOrders(array $orderIds, int $driverId): bool
     {

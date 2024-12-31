@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Reports;
 
+use App\Models\Orders\Order;
 use Livewire\Component;
 use Carbon\Carbon;
 use Livewire\WithPagination;
@@ -19,6 +20,11 @@ class DailyLoadingReport extends Component
 
     public function render()
     {
-        return view('livewire.reports.daily-loading-report')->layout('layouts.app', ['page_title' => $this->page_title, 'productions' => 'active']);;
+        $totals = Order::loadDailyLoadingReport($this->deliveryDate);
+        return view('livewire.reports.daily-loading-report', ['totals'  =>  $totals])
+            ->layout('layouts.app', [
+                'page_title'    => $this->page_title,
+                'productions'   => 'active'
+            ]);;
     }
 }

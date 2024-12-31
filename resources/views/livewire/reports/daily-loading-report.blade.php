@@ -12,7 +12,7 @@
                 <div class="input-area flex no-wrap">
                     <input id="deliveryDate" type="date"
                         class="form-control @error('deliveryDate') !border-danger-500 @enderror"
-                        wire:model.live="deliveryDate" autocomplete="off" min="{{ now()->toDateString() }}">
+                        wire:model.live="deliveryDate" autocomplete="off">
                 </div>
             </header>
 
@@ -21,58 +21,68 @@
                     <table class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700">
                         <thead class="border-t border-slate-100 dark:border-slate-800 bg-slate-200 dark:bg-slate-700">
                             <tr>
-                                <th scope="col" class="table-th">Phone</th>
+                                <th scope="col" class="table-th">Driver</th>
                                 <th scope="col" class="table-th">Zone</th>
-                                <th scope="col" class="table-th">Address</th>
-                                <th scope="col" class="table-th">Location</th>
+                                <th scope="col" class="table-th">Orders</th>
+                                <th scope="col" class="table-th">Total</th>
+                                <th scope="col" class="table-th">Quantity</th>
+                                <th scope="col" class="table-th">Cash</th>
+                                <th scope="col" class="table-th">Wallet</th>
+                                <th scope="col" class="table-th">Bank</th>
 
                             </tr>
                         </thead>
                         <tbody
                             class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700 no-wrap">
+                            @foreach ($totals as $t)
                                 <tr>
                                     <td class="table-td">
-                                        test
+                                        {{ $t->shift_title }}
                                     </td>
-
                                     <td class="table-td">
-                                        test
+                                        {{ $t->name }}
                                     </td>
-
                                     <td class="table-td">
-                                        test
+                                        {{ $t->orders_count }}
                                     </td>
-
                                     <td class="table-td">
-                                        test
+                                        {{ $t->orders_total }}
                                     </td>
-
+                                    <td class="table-td">
+                                        {{ $t->quantity_total }}
+                                    </td>
+                                    <td class="table-td">
+                                        {{ $t->total_cash }}
+                                    </td>
+                                    <td class="table-td">
+                                        {{ $t->total_wallet }}
+                                    </td>
+                                    <td class="table-td">
+                                        {{ $t->total_bank }}
+                                    </td>
                                 </tr>
-
+                            @endforeach
                         </tbody>
 
                     </table>
 
 
-                    {{-- @if ($customers->isEmpty())
+                    @if (!count($totals) || (count($totals) == 1 && $totals[0]->orders_count == 0))
                         <div class="card m-5 p-5">
                             <div class="card-body rounded-md bg-white dark:bg-slate-800">
                                 <div class="items-center text-center p-5">
                                     <h2>
                                         <iconify-icon icon="icon-park-outline:search"></iconify-icon>
                                     </h2>
-                                    <h2 class="card-title text-slate-900 dark:text-white mb-3">No customers with the
+                                    <h2 class="card-title text-slate-900 dark:text-white mb-3">No data with the
                                         applied
                                         filters</h2>
                                     <p class="card-text">Try changing the filters or search terms for this view.
                                     </p>
-                                    <a href="{{ url('/customers') }}"
-                                        class="btn inline-flex justify-center mx-2 mt-3 btn-primary active btn-sm">View
-                                        all customers</a>
                                 </div>
                             </div>
                         </div>
-                    @endif --}}
+                    @endif
 
 
                 </div>
