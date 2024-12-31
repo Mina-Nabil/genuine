@@ -349,6 +349,7 @@ class Order extends Model
         ->where('o1.delivery_date', $day->format('Y-m-d'))
         ->where('o1.is_confirmed', 1)
         ->groupBy('zones.id', 'drivers.id')
+        ->orderBy('drivers.id', ['orders_total' => 'desc'])
         ->get();
     }
 
