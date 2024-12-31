@@ -17587,6 +17587,7 @@ ul.custom-list ul {
     /* Sticky properties */
     position: sticky;
     left: 0;
+    background-color: white;
     z-index: 10;
     /* Transition for smooth appearance */
     transition: box-shadow 0.3s ease;
