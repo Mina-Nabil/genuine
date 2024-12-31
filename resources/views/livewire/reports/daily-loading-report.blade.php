@@ -37,7 +37,7 @@
                             @foreach ($totals as $t)
                                 <tr>
                                     <td class="table-td">
-                                        {{ $t->username }}
+                                        {{ $t->driver_name }}
                                     </td>
                                     <td class="table-td">
                                         {{ $t->name }}
