@@ -251,7 +251,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="{{ url('/report/daily-loading') }}" class="navItem {{ $followupReport ?? '' }}">
+                        <a href="{{ url('/report/daily-loading') }}" class="navItem {{ $dailyLoading ?? '' }}">
                             <span class="flex
                             items-center">
                                 <iconify-icon class=" nav-icon" icon="material-symbols:event">

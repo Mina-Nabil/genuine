@@ -350,7 +350,7 @@ class Order extends Model
         $day = Carbon::parse($day);
         return DB::table('orders as o1')
             ->select('zones.name', 'users.username')
-            ->selectRaw('CONCAT(users.first_name, " ", users.last_name) as driver_name')
+            ->selectRaw('drivers.shift_title')
             ->selectRaw('COUNT(o1.id) as orders_count')
             ->selectRaw('SUM(o1.total_amount) as orders_total')
             ->selectRaw('SUM(order_products.quantity) as quantity_total')
@@ -366,7 +366,7 @@ class Order extends Model
             ->where('o1.is_confirmed', 1)
             ->whereIn('o1.status', Order::OK_STATUSES)
             ->whereNull('o1.deleted_at')
-            ->groupBy('zones.id', 'users.id')
+            ->groupBy('zones.id', 'drivers.id')
             ->orderBy('drivers.shift_title')
             ->orderByDesc('orders_total')
             ->get();

@@ -24,7 +24,7 @@ class DailyLoadingReport extends Component
         return view('livewire.reports.daily-loading-report', ['totals'  =>  $totals])
             ->layout('layouts.app', [
                 'page_title'    => $this->page_title,
-                'productions'   => 'active'
+                'dailyLoading'   => 'active'
             ]);;
     }
 }
