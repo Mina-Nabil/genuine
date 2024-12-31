@@ -50,7 +50,21 @@ class Order extends Model
     const STATUS_DONE = 'done';
     const STATUS_RETURNED = 'returned';
     const STATUS_CANCELLED = 'cancelled';
-    const STATUSES = [self::STATUS_NEW, self::STATUS_READY, self::STATUS_IN_DELIVERY, self::STATUS_DONE, self::STATUS_RETURNED, self::STATUS_CANCELLED];
+    const OK_STATUSES = [
+        self::STATUS_NEW,
+        self::STATUS_READY,
+        self::STATUS_IN_DELIVERY,
+        self::STATUS_DONE
+    ];
+
+    const STATUSES = [
+        self::STATUS_NEW,
+        self::STATUS_READY,
+        self::STATUS_IN_DELIVERY,
+        self::STATUS_DONE,
+        self::STATUS_RETURNED,
+        self::STATUS_CANCELLED
+    ];
 
     public static function getNextStatuses(string $currentStatus): array
     {
@@ -335,25 +349,27 @@ class Order extends Model
     {
         $day = Carbon::parse($day);
         return DB::table('orders as o1')
-        ->select('zones.name', 'users.username')
-        ->selectRaw('CONCAT(users.first_name, " ", users.last_name) as driver_name'  )
-        ->selectRaw('COUNT(o1.id) as orders_count')
-        ->selectRaw('SUM(o1.total_amount) as orders_total')
-        ->selectRaw('SUM(order_products.quantity) as quantity_total')
-        ->selectRaw('(SELECT SUM(amount) from customer_payments as c2 where o1.id = c2.order_id and customer_payments.payment_method = "' . CustomerPayment::PYMT_CASH . '") as total_cash ')
-        ->selectRaw('(SELECT SUM(amount) from customer_payments as c2 where o1.id = c2.order_id and customer_payments.payment_method = "' . CustomerPayment::PYMT_BANK_TRANSFER . '") as total_bank ')
-        ->selectRaw('(SELECT SUM(amount) from customer_payments as c2 where o1.id = c2.order_id and customer_payments.payment_method = "' . CustomerPayment::PYMT_WALLET . '") as total_wallet ')
-        ->join('drivers', 'drivers.id', '=', 'o1.driver_id')
-        ->join('users', 'users.id', '=', 'drivers.user_id')
-        ->join('zones', 'zones.id', '=', 'o1.zone_id')
-        ->join('order_products', 'o1.id', '=', 'order_products.order_id')
-        ->leftjoin('customer_payments', 'o1.id', '=', 'customer_payments.order_id')
-        ->where('o1.delivery_date', $day->format('Y-m-d'))
-        ->where('o1.is_confirmed', 1)
-        ->groupBy('zones.id', 'users.id')
-        ->orderBy('drivers.shift_title')
-        ->orderByDesc('orders_total')
-        ->get();
+            ->select('zones.name', 'users.username')
+            ->selectRaw('CONCAT(users.first_name, " ", users.last_name) as driver_name')
+            ->selectRaw('COUNT(o1.id) as orders_count')
+            ->selectRaw('SUM(o1.total_amount) as orders_total')
+            ->selectRaw('SUM(order_products.quantity) as quantity_total')
+            ->selectRaw('(SELECT SUM(amount) from customer_payments as c2 where o1.id = c2.order_id and customer_payments.payment_method = "' . CustomerPayment::PYMT_CASH . '") as total_cash ')
+            ->selectRaw('(SELECT SUM(amount) from customer_payments as c2 where o1.id = c2.order_id and customer_payments.payment_method = "' . CustomerPayment::PYMT_BANK_TRANSFER . '") as total_bank ')
+            ->selectRaw('(SELECT SUM(amount) from customer_payments as c2 where o1.id = c2.order_id and customer_payments.payment_method = "' . CustomerPayment::PYMT_WALLET . '") as total_wallet ')
+            ->join('drivers', 'drivers.id', '=', 'o1.driver_id')
+            ->join('users', 'users.id', '=', 'drivers.user_id')
+            ->join('zones', 'zones.id', '=', 'o1.zone_id')
+            ->join('order_products', 'o1.id', '=', 'order_products.order_id')
+            ->join('customer_payments', 'o1.id', '=', 'customer_payments.order_id')
+            ->where('o1.delivery_date', $day->format('Y-m-d'))
+            ->where('o1.is_confirmed', 1)
+            ->whereIn('o1.status', Order::OK_STATUSES)
+            ->whereNull('o1.deleted_at')
+            ->groupBy('zones.id', 'users.id')
+            ->orderBy('drivers.shift_title')
+            ->orderByDesc('orders_total')
+            ->get();
     }
 
     // Static function for bulk assignment
