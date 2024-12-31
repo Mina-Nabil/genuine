@@ -347,7 +347,8 @@ class Order extends Model
         ->join('order_products', 'o1.id', '=', 'order_products.order_id')
         ->join('customer_payments', 'o1.id', '=', 'customer_payments.order_id')
         ->where('o1.delivery_date', $day->format('Y-m-d'))
-        // ->where('o1.is_confirmed', 1)
+        ->where('o1.is_confirmed', 1)
+        ->groupBy('zones.id', 'drivers.id')
         ->get();
     }
 
