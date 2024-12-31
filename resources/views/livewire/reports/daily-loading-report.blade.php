@@ -37,7 +37,7 @@
                             @foreach ($totals as $t)
                                 <tr>
                                     <td class="table-td">
-                                        {{ $t->shift_title }}
+                                        {{ $t->username }}
                                     </td>
                                     <td class="table-td">
                                         {{ $t->name }}
