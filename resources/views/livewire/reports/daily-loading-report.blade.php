@@ -68,7 +68,7 @@
                                     Totals:
                                 </th>
                                 <th scope="col" class="table-th">
-                                    {{$totals->unique()->count('name')}}
+                                    {{$totals->unique('name')->count()}}
                                 </th>
                                 <th scope="col" class="table-th">
                                     {{ $totals->sum('orders_count') }}
