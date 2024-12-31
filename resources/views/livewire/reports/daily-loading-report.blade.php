@@ -35,7 +35,7 @@
                         <tbody
                             class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700 no-wrap">
                             @foreach ($totals as $t)
-                                <tr class="even:bg-slate-50 dark:even:bg-slate-700">
+                                <tr class="even:bg-slate-100 dark:even:bg-slate-700">
                                     <td class="table-td border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
                                         {{ $t->shift_title }}
                                     </td>
