@@ -131,7 +131,7 @@
                     </thead>
                     <tbody class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700 no-wrap">
                         @foreach ($customerWeights as $customerName => $weights)
-                            <tr>
+                        <tr class="even:bg-slate-100 dark:even:bg-slate-700">
                                 <td class="table-td flex items-center sticky-column bg-white dark:bg-slate-800 colomn-shadow"
                                     style="position: sticky; left: -25px; z-index: 10;">
                                     <div class="flex-1 text-start">
