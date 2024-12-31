@@ -63,7 +63,30 @@
                                 </tr>
                             @endforeach
                         </tbody>
-
+                        <tfoot>
+                            <td class="table-td">
+                            </td>
+                            <td class="table-td">
+                            </td>
+                            <td class="table-td">
+                                {{$totals->sum('orders_count')}}
+                            </td>
+                            <td class="table-td">
+                                {{$totals->sum('orders_total')}}
+                            </td>
+                            <td class="table-td">
+                                {{$totals->sum('quantity_total')}}
+                            </td>
+                            <td class="table-td">
+                                {{$totals->sum('total_cash')}}
+                            </td>
+                            <td class="table-td">
+                                {{$totals->sum('total_wallet')}}
+                            </td>
+                            <td class="table-td">
+                                {{$totals->sum('total_bank')}}
+                            </td>
+                        </tfoot>
                     </table>
 
 
