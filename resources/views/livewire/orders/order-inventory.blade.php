@@ -23,14 +23,12 @@
                 </ul>
             </div>
 
-            @can('create', App\Models\Orders\Order::class)
-                <a href="{{ route('orders.create') }}">
-                    <button
+
+                    <button wire:click='printInventoryShift'
                         class="btn inline-flex justify-center btn-dark dark:bg-slate-700 dark:text-slate-300 m-1 btn-sm">
-                        Create order
+                        Print ({{$this->deliveryDate[0]?->format('d M')}}) Shift
                     </button>
-                </a>
-            @endcan
+
         </div>
     </div>
 
@@ -586,10 +584,8 @@
                                             </div>
                                         </div>
                                     </div>
-
                                 </div>
                             </div>
-
 
                         @empty
                             <div class="card m-5 p-5">

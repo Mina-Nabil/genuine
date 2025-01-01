@@ -136,6 +136,12 @@ class OrderInventory extends Component
         }
     }
 
+    public function printInventoryShift()
+    {
+        if (count($this->deliveryDate))
+            return Order::printPrepareDoc($this->deliveryDate[0]);
+    }
+
     public function setAsInDelivery($order_id)
     {
         $res = Order::findOrFail($order_id)->setStatus(Order::STATUS_IN_DELIVERY);

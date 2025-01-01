@@ -1360,6 +1360,42 @@ class Order extends Model
         }
     }
 
+    public static function printPrepareDoc(Carbon $day)
+    {
+
+        $template = IOFactory::load(storage_path('import/inventory_report.xlsx'));
+        if (!$template) {
+            throw new Exception('Failed to read template file');
+        }
+        $newFile = $template->copy();
+        $activeSheet = $newFile->getActiveSheet();
+
+        $todayShifts = Driver::hasOrdersOn([$day])->get();
+        $i = 2;
+        foreach($todayShifts as $s){
+            $orders = Order::with('products','products.product')->search(deliveryDates: [$day], driverId: $s->id)->get();
+            $activeSheet->getCell("A$i")->setValue($s->shift_title);
+            foreach ($orders as $o) {
+                $order_details_text = '';
+                foreach ($o->products as $product) {
+                    $order_details_text .= "• {$product->product->name}: {$product->quantity} \n";
+                }
+                $activeSheet->getCell("B$i")->setValue($o->customer->name);
+                $activeSheet->getCell("C$i")->setValue($order_details_text);
+                $activeSheet->getCell("D$i")->setValue($o->products->count());
+                $activeSheet->insertNewRowBefore(3);
+            }
+            $i++;
+        }
+
+        $writer = new Xlsx($newFile);
+        $file_path = "downloads/inventory_{$day->format('Y-m-d H:i')}.xlsx";
+        $public_file_path = storage_path($file_path);
+        $writer->save($public_file_path);
+
+        return response()->download($public_file_path)->deleteFileAfterSend(true);
+    }
+
     public static function exportReport($searchText, $zone_id = null, $driver_id = null, Carbon $created_from = null, Carbon $created_to = null, Carbon $delivery_from = null, Carbon $delivery_to = null, $creator_id = null, $status = null)
     {
         $orders = self::report(
