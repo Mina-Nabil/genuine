@@ -1422,7 +1422,7 @@ class Order extends Model
         }
 
         $writer = new Xlsx($newFile);
-        $file_path = "downloads/inventory_{$day->format('Y-m-d H:i')}.xlsx";
+        $file_path = "downloads/inventory_{$day->format('Md')}.xlsx";
         $public_file_path = storage_path($file_path);
         $writer->save($public_file_path);
 
