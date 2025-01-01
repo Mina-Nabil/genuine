@@ -266,7 +266,7 @@ class Order extends Model
             $order->customer_phone = $customerPhone;
             $order->zone_id = $zoneId;
             $order->driver_id = $driverId;
-            $order->total_amount = $totalAmount;
+            $order->total_amount = round($totalAmount);
             $order->delivery_amount = $deliveryAmount;
             $order->discount_amount = $discountAmount;
             $order->delivery_date = $deliveryDate;
@@ -1036,7 +1036,7 @@ class Order extends Model
     private function refreshTotalAmount()
     {
         $this->load('products');
-        $this->total_amount = round($this->total_items_price + $this->delivery_amount - $this->discount_amount);
+        $this->total_amount = round($this->total_items_price) + $this->delivery_amount - $this->discount_amount;
         $this->save();
     }
 
