@@ -407,7 +407,7 @@ class User extends Authenticatable
         return $this->hasMany(Notification::class)->latest();
     }
 
-    public function drivers():HasMany
+    public function drivers(): HasMany
     {
         return $this->hasMany(Driver::class);
     }

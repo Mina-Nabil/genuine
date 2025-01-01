@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class Customer extends Model
 {
@@ -26,7 +27,16 @@ class Customer extends Model
 
     const MORPH_TYPE = 'customer';
 
-    protected $fillable = ['name', 'address', 'phone', 'location_url', 'zone_id', 'monthly_weight_target', 'note'];
+    protected $fillable = [
+        'name',
+        'address',
+        'phone',
+        'location_url',
+        'zone_id',
+        'monthly_weight_target',
+        'note',
+        'creator_id'
+    ];
 
     // Create a new customer
     public static function newCustomer($name, $address = null, $phone, $location_url = null, $zone_id = null)
@@ -38,9 +48,10 @@ class Customer extends Model
             $customer->phone = $phone;
             $customer->location_url = $location_url;
             $customer->zone_id = $zone_id;
+            $customer->creator_id = Auth::id();
 
             if ($customer->save()) {
-                AppLog::info('Customer created', "Customer $name created successfully.",loggable:$customer);
+                AppLog::info('Customer created', "Customer $name created successfully.", loggable: $customer);
                 return $customer;
             } else {
                 return false;
@@ -74,7 +85,7 @@ class Customer extends Model
             $phone      = $activeSheet->getCell('L' . $i)->getValue();
             $address    = $activeSheet->getCell('M' . $i)->getValue();
 
-            if($phone && !str_starts_with($phone, '0')) $phone .= '0';
+            if ($phone && !str_starts_with($phone, '0')) $phone .= '0';
             if (!$name) {
                 continue;
             }
@@ -83,7 +94,7 @@ class Customer extends Model
             if ($zone_name) {
                 $zone = Zone::getZoneByName($zone_name, true);
             }
-            
+
             self::firstOrCreate([
                 "name"  =>  $name,
             ], [
@@ -106,7 +117,7 @@ class Customer extends Model
             $this->zone_id = $zone_id;
 
             if ($this->save()) {
-                AppLog::info('Customer updated', "Customer $name updated successfully." , loggable:$this);
+                AppLog::info('Customer updated', "Customer $name updated successfully.", loggable: $this);
                 return true;
             } else {
                 return false;
@@ -298,7 +309,54 @@ class Customer extends Model
         return $this->orders()->count();
     }
 
+    public static function exportReport($searchText, $zone_id = null, Carbon $created_from = null, Carbon $created_to = null, $creator_id = null)
+    {
+        $customers = self::report(
+            $searchText,
+            $zone_id,
+            $created_from,
+            $created_to,
+            $creator_id
+        )->get();
+
+        $template = IOFactory::load(resource_path('import/customers_report.xlsx'));
+        if (!$template) {
+            throw new Exception('Failed to read template file');
+        }
+        $newFile = $template->copy();
+        $activeSheet = $newFile->getActiveSheet();
+
+        $i = 2;
+        /** @var User */
+
+        foreach ($customers as $payment) {
+
+            $activeSheet->getCell('A' . $i)->setValue($payment->sold_policy->policy_number);
+
+
+            $i++;
+        }
+
+        $writer = new Xlsx($newFile);
+        $file_path = "'/downloads/payments_export.xlsx";
+        $public_file_path = storage_path($file_path);
+        $writer->save($public_file_path);
+
+        return response()->download($public_file_path)->deleteFileAfterSend(true);
+    }
+
     // Scopes
+    public function scopeReport($query, $searchText, $zone_id = null, Carbon $created_from = null, Carbon $created_to = null, $creator_id = null)
+    {
+        return $query->select('customers.*')
+            ->when($zone_id, fn($q) => $q->where('users.zone_id', $zone_id))
+            ->when($searchText, fn($q) => $q->search($searchText))
+            ->when($created_from, fn($q) => $q->where('users.created_at', '>=', $created_from->format('Y-m-d H:i')))
+            ->when($created_to, fn($q) => $q->where('users.created_at', '<=', $created_to->format('Y-m-d H:i')))
+            ->when($creator_id, fn($q) => $q->where('users.creator_id', $creator_id));
+    }
+
+
     public function scopeSearch($query, $term)
     {
         $term = "%{$term}%";
@@ -327,7 +385,7 @@ class Customer extends Model
     {
         return $this->hasMany(AppLog::class, 'loggable_id')->where('loggable_type', self::MORPH_TYPE);
     }
-    
+
     public function transactions(): HasMany
     {
         return $this->hasMany(BalanceTransaction::class);

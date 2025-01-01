@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Locale;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class Order extends Model
 {
@@ -1358,6 +1359,59 @@ class Order extends Model
             return false;
         }
     }
+
+    public static function exportReport($searchText, $zone_id = null, $driver_id = null, Carbon $created_from = null, Carbon $created_to = null, Carbon $delivery_from = null, Carbon $delivery_to = null, $creator_id = null, $status = null)
+    {
+        $orders = self::report(
+            $searchText,
+            $zone_id,
+            $driver_id,
+            $created_from,
+            $created_to,
+            $delivery_from,
+            $delivery_to,
+            $creator_id,
+            $status
+        )->get();
+
+        $template = IOFactory::load(resource_path('import/orders_report.xlsx'));
+        if (!$template) {
+            throw new Exception('Failed to read template file');
+        }
+        $newFile = $template->copy();
+        $activeSheet = $newFile->getActiveSheet();
+
+        $i = 2;
+
+        /** @var User */
+        foreach ($orders as $o) {
+
+            $activeSheet->getCell('A' . $i)->setValue($o);
+            $i++;
+        }
+
+        $writer = new Xlsx($newFile);
+        $file_path = "'/downloads/orders_export.xlsx";
+        $public_file_path = storage_path($file_path);
+        $writer->save($public_file_path);
+
+        return response()->download($public_file_path)->deleteFileAfterSend(true);
+    }
+
+    // Scopes
+    public function scopeReport($query, $searchText, $zone_id = null, $driver_id = null, Carbon $created_from = null, Carbon $created_to = null, Carbon $delivery_from = null, Carbon $delivery_to = null, $creator_id = null, $status = null)
+    {
+        return $query->select('orders.*')
+            ->when($searchText || $status, fn($q) => $q->search(searchText: $searchText, status: $status))
+            ->when($zone_id, fn($q) => $q->where('orders.zone_id', $zone_id))
+            ->when($driver_id, fn($q) => $q->where('orders.driver_id', $driver_id))
+            ->when($created_from, fn($q) => $q->where('orders.created_at', '>=', $created_from->format('Y-m-d H:i')))
+            ->when($created_to, fn($q) => $q->where('orders.created_at', '<=', $created_to->format('Y-m-d H:i')))
+            ->when($delivery_from, fn($q) => $q->where('orders.delivery_date', '>=', $delivery_from->format('Y-m-d H:i')))
+            ->when($delivery_to, fn($q) => $q->where('orders.delivery_date', '<=', $delivery_to->format('Y-m-d H:i')))
+            ->when($creator_id, fn($q) => $q->where('orders.created_by', $creator_id));
+    }
+
 
     public function scopeWithTotalQuantity(Builder $query)
     {
