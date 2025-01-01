@@ -25,7 +25,7 @@
                                 <th scope="col" class="table-th">Zone</th>
                                 <th scope="col" class="table-th">Orders</th>
                                 <th scope="col" class="table-th">Total</th>
-                                <th scope="col" class="table-th">Quantity</th>
+                                <th scope="col" class="table-th">KGs</th>
                                 <th scope="col" class="table-th">Cash</th>
                                 <th scope="col" class="table-th">Wallet</th>
                                 <th scope="col" class="table-th">Bank</th>
@@ -49,7 +49,7 @@
                                         {{ $t->orders_total }}
                                     </td>
                                     <td class="table-td border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
-                                        {{ $t->quantity_total }}
+                                        {{ $t->kgs_total }}
                                     </td>
                                     <td class="table-td border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
                                         {{ $t->total_cash }}
@@ -77,7 +77,7 @@
                                     {{ $totals->sum('orders_total') }}
                                 </th>
                                 <th scope="col" class="table-th">
-                                    {{ $totals->sum('quantity_total') }}
+                                    {{ $totals->sum('kgs_total') }}
                                 </th>
                                 <th scope="col" class="table-th">
                                     {{ $totals->sum('total_cash') }}
