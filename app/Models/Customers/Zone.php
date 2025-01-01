@@ -35,12 +35,13 @@ class Zone extends Model
             }
             self::newZone($name, $rate);
         }
-        
     }
 
-    public static function getZoneByName($name)
+    public static function getZoneByName($name, $create = false)
     {
-        return self::byName($name)->first();
+        $tmp = self::byName($name)->first();
+        if ($tmp) return $tmp;
+        if ($create) return self::create(['name' => $name, 'delivery_rate' => 0]);
     }
 
     // Create a new zone
@@ -146,7 +147,8 @@ class Zone extends Model
         return $query->where('name', 'like', $term)->orWhere('delivery_rate', 'like', $term);
     }
 
-    public function scopeByName($query, $name){
+    public function scopeByName($query, $name)
+    {
         return $query->where('zones.name', '=', $name);
     }
 

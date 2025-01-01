@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
@@ -64,21 +65,25 @@ class Customer extends Model
         if (!$spreadsheet) {
             throw new Exception('Failed to read files content');
         }
-        $activeSheet = $spreadsheet->getSheet(1);
+        $activeSheet = $spreadsheet->getSheet(0);
         $highestRow = $activeSheet->getHighestDataRow();
 
         for ($i = 2; $i <= $highestRow; $i++) {
-            $name       = $activeSheet->getCell('A' . $i)->getValue();
-            $zone_name  = $activeSheet->getCell('B' . $i)->getValue();
-            $phone      = '0' . $activeSheet->getCell('C' . $i)->getValue();
-            $address    = $activeSheet->getCell('D' . $i)->getValue();
+            $name       = $activeSheet->getCell('B' . $i)->getValue();
+            $zone_name  = $activeSheet->getCell('C' . $i)->getValue();
+            $phone      = $activeSheet->getCell('L' . $i)->getValue();
+            $address    = $activeSheet->getCell('M' . $i)->getValue();
 
+            if($phone && !str_starts_with($phone, '0')) $phone .= '0';
             if (!$name) {
                 continue;
             }
+            $zone = null;
+
             if ($zone_name) {
-                $zone = Zone::getZoneByName($zone_name);
+                $zone = Zone::getZoneByName($zone_name, true);
             }
+            
             self::firstOrCreate([
                 "name"  =>  $name,
             ], [

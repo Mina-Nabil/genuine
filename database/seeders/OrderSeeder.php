@@ -3,37 +3,42 @@
 namespace Database\Seeders;
 
 use App\Models\Customers\Customer;
+use App\Models\Customers\Zone;
 use App\Models\Orders\Order;
-use App\Models\Products\Product;
 use Carbon\Carbon;
 use Exception;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
-use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class OrderSeeder extends Seeder
 {
 
-    const START = 0;
-    const END = 20000;
-    const STEP = 50;
+    const START = 5;
+    const END = 3500;
+    const STEP = 10;
 
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        // Log::info("START ORDER SEED");
-        for ($i = self::START; $i < self::END; $i += self::STEP) {
-            dispatch(fn() => self::importOrders($i, $i + self::STEP));
+
+
+        for ($k = 1; $k < 13; $k++) {
+            if ($k != 11)
+                for ($i = self::START; $i < self::END; $i += self::STEP) {
+                    dispatch(fn() => self::importOrders(
+                        resource_path("import/orders/2024 ($k).xlsx"),
+                        $i,
+                        $i + self::STEP
+                    ));
+                }
         }
     }
 
-    public static function importOrders($from, $to)
+    public static function importOrders($filename, $from, $to)
     {
-        // Log::info("Job from $from $to started");
+        Log::info("Job from $from $to started");
 
         /**  Create an Instance of our Read Filter  **/
         $filterSubset = new MyReadFilter($from, $to);
@@ -43,15 +48,15 @@ class OrderSeeder extends Seeder
         /**  Tell the Reader that we want to use the Read Filter  **/
         $reader->setReadFilter($filterSubset);
         /**  Load only the rows and columns that match our filter to Spreadsheet  **/
-        Log::info("GEET HNA");
-        $spreadsheet = $reader->load(resource_path('import/Orders.xlsx'));
-        Log::info("WHNA");
+
+        $spreadsheet = $reader->load($filename);
+
         if (!$spreadsheet) {
             throw new Exception('Failed to read files content');
         }
 
-        $activeSheet = $spreadsheet->getActiveSheet();
-        // Log::info($activeSheet);
+        $activeSheet = $spreadsheet->getSheet(0);
+        $highestRow = $activeSheet->getHighestDataRow();
 
         for ($i = $from; $i <= $to; $i++) {
             $client_name = $activeSheet->getCell('D' . $i)->getValue();
@@ -86,8 +91,8 @@ class OrderSeeder extends Seeder
             $prod5Count = $activeSheet->getCell('V' . $i)->getValue();
             $prod5Price = $activeSheet->getCell('W' . $i)->getValue();
 
-            $prod20Count = $activeSheet->getCell('X' . $i)->getValue();
-            $prod20Price = $activeSheet->getCell('Y' . $i)->getValue();
+            $prod19Count = $activeSheet->getCell('X' . $i)->getValue();
+            $prod19Price = $activeSheet->getCell('Y' . $i)->getValue();
 
             $prod6Count = $activeSheet->getCell('Z' . $i)->getValue();
             $prod6Price = $activeSheet->getCell('AA' . $i)->getValue();
@@ -95,24 +100,60 @@ class OrderSeeder extends Seeder
             $prod18Count = $activeSheet->getCell('AB' . $i)->getValue();
             $prod18Price = $activeSheet->getCell('AC' . $i)->getValue();
 
-            $prod12Count = $activeSheet->getCell('AD' . $i)->getValue();
-            $prod12Price = $activeSheet->getCell('AE' . $i)->getValue();
+            $prod10Count = $activeSheet->getCell('AD' . $i)->getValue();
+            $prod10Price = $activeSheet->getCell('AE' . $i)->getValue();
 
-            $prod13Count = $activeSheet->getCell('AF' . $i)->getValue();
-            $prod13Price = $activeSheet->getCell('AG' . $i)->getValue();
+            $prod11Count = $activeSheet->getCell('AH' . $i)->getValue();
+            $prod11Price = $activeSheet->getCell('AI' . $i)->getValue();
 
-            $prod14Count = $activeSheet->getCell('AH' . $i)->getValue();
-            $prod14Price = $activeSheet->getCell('AI' . $i)->getValue();
+            $prod12Count = $activeSheet->getCell('AF' . $i)->getValue();
+            $prod12Price = $activeSheet->getCell('AG' . $i)->getValue();
+
+            $prod7Count = $activeSheet->getCell('AJ' . $i)->getValue();
+            $prod7Price = $activeSheet->getCell('AK' . $i)->getValue();
+
+            $prod14Count = $activeSheet->getCell('AN' . $i)->getValue();
+            $prod14Price = $activeSheet->getCell('AO' . $i)->getValue();
+
+            $prod15Count = $activeSheet->getCell('AP' . $i)->getValue();
+            $prod15Price = $activeSheet->getCell('AQ' . $i)->getValue();
+
+            $prod13Count = $activeSheet->getCell('AR' . $i)->getValue();
+            $prod13Price = $activeSheet->getCell('AS' . $i)->getValue();
+
+            $prod16Count = $activeSheet->getCell('AT' . $i)->getValue();
+            $prod16Price = $activeSheet->getCell('AU' . $i)->getValue();
+
+            $prod17Count = $activeSheet->getCell('AL' . $i)->getValue();
+            $prod17Price = $activeSheet->getCell('AM' . $i)->getValue();
+
+            $prod20Count = $activeSheet->getCell('AX' . $i)->getValue();
+            $prod20Price = $activeSheet->getCell('AY' . $i)->getValue();
+
+            $prod21Count = $activeSheet->getCell('AZ' . $i)->getValue();
+            $prod21Price = $activeSheet->getCell('BA' . $i)->getValue();
+
+            $prod22Count = $activeSheet->getCell('BB' . $i)->getValue();
+            $prod22Price = $activeSheet->getCell('BC' . $i)->getValue();
+
+            $prod23Count = $activeSheet->getCell('AV' . $i)->getValue();
+            $prod23Price = $activeSheet->getCell('AW' . $i)->getValue();
 
             if (!$client_name) {
                 continue;
             }
 
-            $customer = Customer::findByName($client_name);
-
-            if (!$customer || !$ddate) {
+            if (!$ddate) {
                 continue;
             }
+
+
+
+            $updates = [];
+            if ($client_address) $updates['address'] = $client_address;
+            $customer = Customer::firstOrCreate([
+                "name"   =>   $client_name,
+            ], $updates);
 
             $products = [];
             if ($prod1Count && $prod1Price)
@@ -157,6 +198,13 @@ class OrderSeeder extends Seeder
                     "price"     =>  $prod6Price,
                     "combo_id"  =>  null
                 ]);
+            if ($prod7Count && $prod7Price)
+                array_push($products, [
+                    "id"        =>  7,
+                    "quantity"  =>  $prod7Count,
+                    "price"     =>  $prod7Price,
+                    "combo_id"  =>  null
+                ]);
             if ($prod8Count && $prod8Price)
                 array_push($products, [
                     "id"        =>  8,
@@ -169,6 +217,20 @@ class OrderSeeder extends Seeder
                     "id"        =>  9,
                     "quantity"  =>  $prod9Count,
                     "price"     =>  $prod9Price,
+                    "combo_id"  =>  null
+                ]);
+            if ($prod10Count && $prod10Price)
+                array_push($products, [
+                    "id"        =>  10,
+                    "quantity"  =>  $prod10Count,
+                    "price"     =>  $prod10Price,
+                    "combo_id"  =>  null
+                ]);
+            if ($prod11Count && $prod11Price)
+                array_push($products, [
+                    "id"        =>  11,
+                    "quantity"  =>  $prod11Count,
+                    "price"     =>  $prod11Price,
                     "combo_id"  =>  null
                 ]);
             if ($prod12Count && $prod12Price)
@@ -192,11 +254,39 @@ class OrderSeeder extends Seeder
                     "price"     =>  $prod14Price,
                     "combo_id"  =>  null
                 ]);
+            if ($prod15Count && $prod15Price)
+                array_push($products, [
+                    "id"        =>  15,
+                    "quantity"  =>  $prod15Count,
+                    "price"     =>  $prod15Price,
+                    "combo_id"  =>  null
+                ]);
+            if ($prod16Count && $prod16Price)
+                array_push($products, [
+                    "id"        =>  16,
+                    "quantity"  =>  $prod16Count,
+                    "price"     =>  $prod16Price,
+                    "combo_id"  =>  null
+                ]);
+            if ($prod17Count && $prod17Price)
+                array_push($products, [
+                    "id"        =>  17,
+                    "quantity"  =>  $prod17Count,
+                    "price"     =>  $prod17Price,
+                    "combo_id"  =>  null
+                ]);
             if ($prod18Count && $prod18Price)
                 array_push($products, [
                     "id"        =>  18,
                     "quantity"  =>  $prod18Count,
                     "price"     =>  $prod18Price,
+                    "combo_id"  =>  null
+                ]);
+            if ($prod19Count && $prod19Price)
+                array_push($products, [
+                    "id"        =>  19,
+                    "quantity"  =>  $prod19Count,
+                    "price"     =>  $prod19Price,
                     "combo_id"  =>  null
                 ]);
             if ($prod20Count && $prod20Price)
@@ -206,22 +296,44 @@ class OrderSeeder extends Seeder
                     "price"     =>  $prod20Price,
                     "combo_id"  =>  null
                 ]);
+            if ($prod21Count && $prod21Price)
+                array_push($products, [
+                    "id"        =>  21,
+                    "quantity"  =>  $prod21Count,
+                    "price"     =>  $prod21Price,
+                    "combo_id"  =>  null
+                ]);
+            if ($prod22Count && $prod22Price)
+                array_push($products, [
+                    "id"        =>  22,
+                    "quantity"  =>  $prod22Count,
+                    "price"     =>  $prod22Price,
+                    "combo_id"  =>  null
+                ]);
+            if ($prod23Count && $prod23Price)
+                array_push($products, [
+                    "id"        =>  23,
+                    "quantity"  =>  $prod23Count,
+                    "price"     =>  $prod23Price,
+                    "combo_id"  =>  null
+                ]);
 
-            // Log::info("Adding order $i");
+            Log::info("Adding order $i");
             Order::newOrder(
                 $customer->id,
                 $customer->name,
                 $client_address ?? ($customer->address ?? "N/A"),
-                $customer->phone,
+                $customer->phone ?? "N/A",
                 $customer->zone_id ?? 1,
                 $customer->location_url,
                 driverId: null,
                 totalAmount: $totalAmount,
-                deliveryAmount: $deliveryAmount,
+                deliveryAmount: $deliveryAmount ?? 0,
                 discountAmount: 0,
                 deliveryDate: new Carbon($ddate),
                 note: $note,
                 products: $products,
+                creator_id: 1,
                 migrated: true
             );
         }

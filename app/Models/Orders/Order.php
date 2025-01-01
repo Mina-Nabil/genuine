@@ -295,6 +295,8 @@ class Order extends Model
             AppLog::info('Order Created successfuly', loggable: $order);
             if ($order && $migrated && $deliveryDate) {
                 $order->setAsPaid($deliveryDate, CustomerPayment::PYMT_CASH, migrated: $migrated);
+                $order->toggleConfirmation();
+                $order->toggleIsDelivered();
                 $order->setStatus(self::STATUS_DONE, true);
             }
             return $order;

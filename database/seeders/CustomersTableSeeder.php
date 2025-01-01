@@ -13,7 +13,7 @@ class CustomersTableSeeder extends Seeder
      */
     public function run()
     {
-        Customer::importData(resource_path('import/Genuine Data.xlsx'));
+        Customer::importData(resource_path('import/orders/customers.xlsx'));
         return;
 
         $faker = Faker::create();
