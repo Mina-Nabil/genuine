@@ -1382,7 +1382,7 @@ class Order extends Model
                 $activeSheet->getCell("B$i")->setValue($o->customer->name);
                 $activeSheet->getCell("C$i")->setValue($order_details_text);
                 $activeSheet->getCell("D$i")->setValue($o->products->count());
-                $activeSheet->insertNewRowBefore(2);
+                $activeSheet->insertNewRowBefore(3);
             }
             $activeSheet->getCell("A$i")->setValue($s->shift_title);
             $i++;
