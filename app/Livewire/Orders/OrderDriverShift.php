@@ -212,7 +212,7 @@ class OrderDriverShift extends Component
             $this->driver = Driver::getDriverWithMostOrders($this->deliveryDate, Auth::id());
             if (!$this->driver) $this->driver = Driver::byUserID(Auth::id())->first();
         } else {
-            $this->driver = Driver::getDriverWithMostOrders($this->deliveryDate);
+            $this->driver = Driver::first();
         }
         $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneId: $this->zone?->id)
             ->confirmed()->openOrders()->withTotalQuantity()->orderByRaw('driver_order IS NULL, driver_order ASC')->sortByZone()->paginate(50);
@@ -257,10 +257,6 @@ class OrderDriverShift extends Component
 
         $totalZones = Order::getTotalZonesForOrders($orders);
         $PAYMENT_METHODS = CustomerPayment::PAYMENT_METHODS;
-
-        if (!Auth::user()->is_driver) {
-            $this->driver = Driver::getDriverWithMostOrders($this->deliveryDate);
-        }
 
         $this->collectedFromPaymentTypes = [];
         foreach ($PAYMENT_METHODS as $PAYMENT_METHOD) {
