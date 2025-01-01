@@ -49,7 +49,7 @@
                                         {{ $t->orders_total }}
                                     </td>
                                     <td class="table-td border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
-                                        {{ $t->kgs_total }}
+                                        {{ number_format($t->kgs_total) }}
                                     </td>
                                     <td class="table-td border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
                                         {{ $t->total_cash }}
