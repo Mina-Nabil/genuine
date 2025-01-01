@@ -25,6 +25,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Locale;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Color;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class Order extends Model
@@ -1375,14 +1377,40 @@ class Order extends Model
         foreach($todayShifts as $s){
             $orders = Order::with('products','products.product')->search(deliveryDates: [$day], driverId: $s->id)->get();
             $activeSheet->getCell("A$i")->setValue($s->shift_title);
+           
+            $activeSheet->getStyle("A$i")->getBorders()
+            ->getOutline()
+            ->setBorderStyle(Border::BORDER_THICK)
+            ->setColor(new Color('00000000'));
+           
+            $activeSheet->getStyle("A$i")
+            ->getFill()
+            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+            ->getStartColor()
+            ->setARGB('D1DBF0');
+
             foreach ($orders as $o) {
                 $order_details_text = '';
                 foreach ($o->products as $product) {
                     $order_details_text .= "• {$product->product->name}: {$product->quantity} \n";
                 }
                 $activeSheet->getCell("B$i")->setValue($o->customer->name);
+                $activeSheet->getStyle("B$i")->getBorders()
+                ->getOutline()
+                ->setBorderStyle(Border::BORDER_THICK)
+                ->setColor(new Color('00000000'));
+
                 $activeSheet->getCell("C$i")->setValue($order_details_text);
+                $activeSheet->getStyle("C$i")->getBorders()
+                ->getOutline()
+                ->setBorderStyle(Border::BORDER_THICK)
+                ->setColor(new Color('00000000'));
+
                 $activeSheet->getCell("D$i")->setValue($o->products->count());
+                $activeSheet->getStyle("D$i")->getBorders()
+                ->getOutline()
+                ->setBorderStyle(Border::BORDER_THICK)
+                ->setColor(new Color('00000000'));
                 $i++;
             }
         }
