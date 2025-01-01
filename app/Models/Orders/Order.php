@@ -1036,7 +1036,7 @@ class Order extends Model
     private function refreshTotalAmount()
     {
         $this->load('products');
-        $this->total_amount = $this->total_items_price + $this->delivery_amount - $this->discount_amount;
+        $this->total_amount = round($this->total_items_price + $this->delivery_amount - $this->discount_amount);
         $this->save();
     }
 
@@ -1389,7 +1389,7 @@ class Order extends Model
         });
 
         // Step 3: Calculate the remaining amount by subtracting from total_amount
-        $remainingAmount = $this->total_amount - ($totalPayments + $totalBalanceTransactions);
+        $remainingAmount = round($this->total_amount - ($totalPayments + $totalBalanceTransactions));
 
         return $remainingAmount > 0 ? $remainingAmount : 0;
     }
