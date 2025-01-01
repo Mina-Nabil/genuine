@@ -1383,8 +1383,8 @@ class Order extends Model
                 $activeSheet->getCell("B$i")->setValue($o->customer->name);
                 $activeSheet->getCell("C$i")->setValue($order_details_text);
                 $activeSheet->getCell("D$i")->setValue($o->products->count());
+                $i++;
             }
-            $i++;
         }
 
         $writer = new Xlsx($newFile);
