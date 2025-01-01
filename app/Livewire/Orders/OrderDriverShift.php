@@ -258,6 +258,10 @@ class OrderDriverShift extends Component
         $totalZones = Order::getTotalZonesForOrders($orders);
         $PAYMENT_METHODS = CustomerPayment::PAYMENT_METHODS;
 
+        if (!Auth::user()->is_driver) {
+            $this->driver = Driver::getDriverWithMostOrders($this->deliveryDate);
+        }
+
         $this->collectedFromPaymentTypes = [];
         foreach ($PAYMENT_METHODS as $PAYMENT_METHOD) {
             $this->collectedFromPaymentTypes[$PAYMENT_METHOD] = 0; // Initialize each payment type with 0
