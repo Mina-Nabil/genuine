@@ -355,7 +355,7 @@ class Order extends Model
             ->selectRaw('drivers.shift_title')
             ->selectRaw('COUNT(o1.id) as orders_count')
             ->selectRaw('SUM(o1.total_amount) as orders_total')
-            ->selectRaw('(SELECT (SUM(order_products.quantity) * (products.weight/1000)) from order_products join products on order_products.product_id = products.id where o1.id = order_products.order_id ) as kgs_total')
+            ->selectRaw('(SELECT (SUM(order_products.quantity * products.weight/1000)) from order_products join products on order_products.product_id = products.id where o1.id = order_products.order_id ) as kgs_total')
             ->selectRaw('(SELECT SUM(amount) from customer_payments as c2 where o1.id = c2.order_id and c2.payment_method = "' . CustomerPayment::PYMT_CASH . '") as total_cash ')
             ->selectRaw('(SELECT SUM(amount) from customer_payments as c2 where o1.id = c2.order_id and c2.payment_method = "' . CustomerPayment::PYMT_BANK_TRANSFER . '") as total_bank ')
             ->selectRaw('(SELECT SUM(amount) from customer_payments as c2 where o1.id = c2.order_id and c2.payment_method = "' . CustomerPayment::PYMT_WALLET . '") as total_wallet ')
