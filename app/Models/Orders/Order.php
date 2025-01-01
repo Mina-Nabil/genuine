@@ -1380,7 +1380,7 @@ class Order extends Model
            
             $activeSheet->getStyle("A$i")->getBorders()
             ->getOutline()
-            ->setBorderStyle(Border::BORDER_THICK)
+            ->setBorderStyle(Border::BORDER_THIN)
             ->setColor(new Color('00000000'));
            
             $activeSheet->getStyle("A$i")
@@ -1390,26 +1390,32 @@ class Order extends Model
             ->setARGB('D1DBF0');
 
             foreach ($orders as $o) {
+                
                 $order_details_text = '';
                 foreach ($o->products as $product) {
                     $order_details_text .= "• {$product->product->name}: {$product->quantity} \n";
                 }
+                $activeSheet->getStyle("A$i")
+                ->getFill()
+                ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                ->getStartColor()
+                ->setARGB('D1DBF0');
                 $activeSheet->getCell("B$i")->setValue($o->customer->name);
                 $activeSheet->getStyle("B$i")->getBorders()
                 ->getOutline()
-                ->setBorderStyle(Border::BORDER_THICK)
+                ->setBorderStyle(Border::BORDER_THIN)
                 ->setColor(new Color('00000000'));
 
                 $activeSheet->getCell("C$i")->setValue($order_details_text);
                 $activeSheet->getStyle("C$i")->getBorders()
                 ->getOutline()
-                ->setBorderStyle(Border::BORDER_THICK)
+                ->setBorderStyle(Border::BORDER_THIN)
                 ->setColor(new Color('00000000'));
 
                 $activeSheet->getCell("D$i")->setValue($o->products->count());
                 $activeSheet->getStyle("D$i")->getBorders()
                 ->getOutline()
-                ->setBorderStyle(Border::BORDER_THICK)
+                ->setBorderStyle(Border::BORDER_THIN)
                 ->setColor(new Color('00000000'));
                 $i++;
             }
