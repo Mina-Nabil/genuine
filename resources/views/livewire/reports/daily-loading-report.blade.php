@@ -77,7 +77,7 @@
                                     {{ $totals->sum('orders_total') }}
                                 </th>
                                 <th scope="col" class="table-th">
-                                    {{ $totals->sum('kgs_total') }}
+                                    {{ number_format( $totals->sum('kgs_total') ) }}
                                 </th>
                                 <th scope="col" class="table-th">
                                     {{ $totals->sum('total_cash') }}
