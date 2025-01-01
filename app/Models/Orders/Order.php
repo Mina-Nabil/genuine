@@ -1374,6 +1374,7 @@ class Order extends Model
         $i = 2;
         foreach($todayShifts as $s){
             $orders = Order::with('products','products.product')->search(deliveryDates: [$day], driverId: $s->id)->get();
+            $activeSheet->getCell("A$i")->setValue($s->shift_title);
             foreach ($orders as $o) {
                 $order_details_text = '';
                 foreach ($o->products as $product) {
@@ -1382,9 +1383,7 @@ class Order extends Model
                 $activeSheet->getCell("B$i")->setValue($o->customer->name);
                 $activeSheet->getCell("C$i")->setValue($order_details_text);
                 $activeSheet->getCell("D$i")->setValue($o->products->count());
-                $activeSheet->insertNewRowBefore(3);
             }
-            $activeSheet->getCell("A$i")->setValue($s->shift_title);
             $i++;
         }
 
