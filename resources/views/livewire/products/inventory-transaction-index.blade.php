@@ -69,7 +69,7 @@
                                             All Inventories</span></th>
                                 @endif
                             @else
-                                <th scope="col" class="table-th">
+                                {{-- <th scope="col" class="table-th">
                                     <span wire:click="sortByColomn('on_hand')" class="clickable-header">
                                         On Hand
                                         @if ($sortColomn === 'on_hand')
@@ -80,7 +80,7 @@
                                             @endif
                                         @endif
                                     </span>
-                                </th>
+                                </th> --}}
 
                                 <th scope="col" class="table-th">
                                     <span wire:click="sortByColomn('committed')" class="clickable-header">
@@ -107,6 +107,8 @@
                                         @endif
                                     </span>
                                 </th>
+
+                                <th scope="col" class="table-th">New</th>
 
                                 <th scope="col" class="table-th"></th>
 
@@ -142,11 +144,11 @@
 
                                     </td>
 
-                                    <td class="table-td">
+                                    {{-- <td class="table-td">
                                         <input type="number" class="form-control" style="max-width: 100px;"
                                             wire:model="productsChanges.data.{{ $index }}.on_hand"
                                             wire:change="updateAvailable({{ $index }})" min="0">
-                                    </td>
+                                    </td> --}}
 
                                     <td class="table-td">
                                         <b>{{ number_format($inventory?->committed) }}</b>
@@ -159,6 +161,15 @@
                                         style="max-width: 100px; "
                                         wire:model="productsChanges.data.{{ $index }}.available"
                                         wire:change="updateOnHand({{ $index }})"> --}}
+                                    </td>
+
+                                    <td class="table-td">
+                                        <input type="number" 
+                                        class="form-control @error("productsChanges.data.$index.new") !border-danger-500 @enderror" 
+                                        style="max-width: 100px;" 
+                                        wire:model="productsChanges.data.{{ $index }}.new"
+                                        wire:change="updateNew({{ $index }})" 
+                                        min="0">
                                     </td>
 
                                     <td class="table-td">
@@ -266,12 +277,12 @@
 
                                         <th scope="col"
                                             class=" table-th border border-slate-100 dark:bg-slate-800 dark:border-slate-700 ">
-                                            On Hand
+                                            Available
                                         </th>
 
                                         <th scope="col"
                                             class=" table-th border border-slate-100 dark:bg-slate-800 dark:border-slate-700 ">
-                                            Available
+                                            New
                                         </th>
 
                                     </tr>
@@ -284,13 +295,12 @@
                                                 class="table-td border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
                                                 {{ $productChanged['product_name'] }}</td>
                                             <td
-                                                class="table-td border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
-                                                {{ $productChanged['from_on_hand'] }} ->
-                                                {{ $productChanged['to_on_hand'] }}</td>
-                                            <td
                                                 class="table-td border border-slate-100 dark:bg-slate-800 dark:border-slate-700 ">
                                                 {{ $productChanged['from_available'] }} ->
                                                 {{ $productChanged['to_available'] }}</td>
+                                            <td
+                                                class="table-td border border-slate-100 dark:bg-slate-800 dark:border-slate-700 ">
+                                                {{ $productChanged['to_available'] - $productChanged['from_available'] }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>

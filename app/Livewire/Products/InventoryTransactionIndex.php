@@ -122,6 +122,34 @@ class InventoryTransactionIndex extends Component
         $this->newChanges = [];
     }
 
+    public function updateNew($index)
+    {
+        if ($this->productsChanges['data'][$index]['available'] === '') {
+            $this->productsChanges['data'][$index]['available'] = 0;
+            $this->updateAvailable($index);
+            return;
+        }
+
+        if ($this->productsChanges['data'][$index]['new'] < 0) {
+            $this->addError("productsChanges.data.$index.new", 'The value must be positive.');
+            return;
+        }
+
+        $new = $this->productsChanges['data'][$index]['new'];
+        $oldAvailable = $this->oldproductsChanges['data'][$index]['available'];
+        $oldOnHand = $this->oldproductsChanges['data'][$index]['on_hand']; // Old value of on_hand
+        $newOnHand = $this->productsChanges['data'][$index]['on_hand']; // New value of on_hand
+        $available = $this->productsChanges['data'][$index]['available'];
+        $this->updateAvailable($index);
+
+        $difference = $oldOnHand - $oldAvailable;
+
+        $this->productsChanges['data'][$index]['available'] = $oldAvailable + $new;
+        $this->productsChanges['data'][$index]['on_hand'] = $oldOnHand + $new;
+        
+
+    }
+
     public function updateAvailable($index)
     {
         if ($this->productsChanges['data'][$index]['on_hand'] === '') {
