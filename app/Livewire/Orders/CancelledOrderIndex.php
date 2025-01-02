@@ -13,10 +13,10 @@ use Livewire\WithPagination;
 use Livewire\Attributes\Url;
 
 
-class ClosedOrderIndex extends Component
+class CancelledOrderIndex extends Component
 {
     use AlertFrontEnd, WithPagination;
-    public $page_title = '• Done Orders';
+    public $page_title = '• Cancelled Orders';
 
     public $fetched_orders_IDs;
     public $search;
@@ -242,7 +242,7 @@ class ClosedOrderIndex extends Component
     public function selectAllOrders()
     {
         $this->selectedAllOrders = true;
-        $this->selectedOrders = Order::DoneOrders()->pluck('id')->toArray();
+        $this->selectedOrders = Order::CancelledOrders()->pluck('id')->toArray();
     }
 
     public function undoSelectAllOrders()
@@ -253,7 +253,7 @@ class ClosedOrderIndex extends Component
 
     public function render()
     {
-        $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate,driverId: $this->driver?->id ,zoneId:$this->zone?->id)->DoneOrders()->withTotalQuantity()->paginate(50);
+        $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate,driverId: $this->driver?->id ,zoneId:$this->zone?->id)->CancelledOrders()->withTotalQuantity()->paginate(50);
 
         $totalZones = Order::getTotalZonesForOrders($orders);
         $ordersCount = count($orders);
@@ -273,6 +273,6 @@ class ClosedOrderIndex extends Component
             'totalZones' => $totalZones,
             'ordersCount' => $ordersCount,
             'PAYMENT_METHODS' => $PAYMENT_METHODS,
-        ])->layout('layouts.app', ['page_title' => $this->page_title, 'ordersClosed' => 'active']);
+        ])->layout('layouts.app', ['page_title' => $this->page_title, 'ordersCancelled' => 'active']);
     }
 }

@@ -148,16 +148,17 @@
                         </a>
                     </li>
 
-                    {{-- <li>
+                    <li>
                         <a href="{{ auth()->user()->can('viewAny', App\Models\Orders\Order::class)? url('/orders/pastdue'): '#' }}"
                             class="navItem {{ $ordersPastDue ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Orders\Order::class)? '': 'disabled' }}">
                             <span class="flex items-center">
                                 <iconify-icon class=" nav-icon" icon="lsicon:order-abnormal-outline">
                                 </iconify-icon>
-                                <span>الطلبات المتأخرة</span>
+                                <span>Debit Orders</span>
                             </span>
                         </a>
-                    </li> --}}
+                    </li>
+
                     @can('viewOrderInventory', App\Models\Products\Order::class)
                         <li class="sidebar-menu-title">Inventory</li>
                         <li>
@@ -257,6 +258,17 @@
                                 <iconify-icon class=" nav-icon" icon="material-symbols:event">
                                 </iconify-icon>
                                 <span>يوميه تحميل</span>
+                            </span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ auth()->user()->can('viewAny', App\Models\Orders\Order::class)? url('/orders/cancelled'): '#' }}"
+                            class="navItem {{ $ordersCancelled ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Orders\Order::class)? '': 'disabled' }}">
+                            <span class="flex items-center">
+                                <iconify-icon class=" nav-icon" icon="lsicon:order-abnormal-outline">
+                                </iconify-icon>
+                                <span>Cancelled Orders</span>
                             </span>
                         </a>
                     </li>

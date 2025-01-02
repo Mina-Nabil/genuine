@@ -203,7 +203,7 @@ class Order extends Model
 
             if ($currentStatus === self::STATUS_NEW && $newStatus === self::STATUS_READY) {
                 foreach ($this->products as $product) {
-                    if(!$product->is_ready){
+                    if (!$product->is_ready) {
                         $product->toggleReady();
                     }
                     $product->is_ready = true;
@@ -789,7 +789,7 @@ class Order extends Model
                 if ($this->remaining_to_pay == 0) {
                     $this->is_paid = true;
                     $this->save();
-                    if ($this->is_in_delivery || $this->is_delivered) {
+                    if ($this->is_confirmed || $this->is_in_delivery || $this->is_delivered) {
                         $this->is_delivered = true;
                         $this->setStatus(self::STATUS_DONE, true);
                     }
@@ -1625,10 +1625,19 @@ class Order extends Model
         });
     }
 
-    public function scopeClosedOrders(Builder $query): Builder
+    public function scopeCancelledOrders(Builder $query): Builder
     {
         return $query->where(function (Builder $query) {
-            $query->whereIn('status', [self::STATUS_DONE, self::STATUS_RETURNED, self::STATUS_CANCELLED])->where(function (Builder $query) {
+            $query->whereIn('status', [self::STATUS_RETURNED, self::STATUS_CANCELLED])->where(function (Builder $query) {
+                $query->where('status', '!=', self::STATUS_DONE)->orWhere('is_paid', true);
+            });
+        })->orderByDesc('delivery_date');
+    }
+
+    public function scopeDoneOrders(Builder $query): Builder
+    {
+        return $query->where(function (Builder $query) {
+            $query->where('status', self::STATUS_DONE)->where(function (Builder $query) {
                 $query->where('status', '!=', self::STATUS_DONE)->orWhere('is_paid', true);
             });
         })->orderByDesc('delivery_date');
