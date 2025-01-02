@@ -411,15 +411,10 @@
                                             {{ ucwords(str_replace('_', ' ', $order->status)) }}
                                         </span>
                                         @if ($order->is_confirmed)
-                                            <span class="badge bg-success-500 text-white capitalize rounded-3xl">
-                                           
+                                            <span class="badge bg-success-500 text-white capitalize rounded-3xl"> 
                                                 Confirmed</span>
                                         @endif
                                     @endif
-
-
-
-
                                 </td>
 
                                 <td class="table-td">
@@ -454,11 +449,8 @@
 
                             </tr>
                         @endforeach
-
                     </tbody>
-
                 </table>
-
 
                 @if ($orders->isEmpty())
                     {{-- START: empty filter result --}}
@@ -489,7 +481,6 @@
         </div>
 
     </div>
-
 
 
     {{-- @can('create', App\Models\Products\Product::class) --}}
