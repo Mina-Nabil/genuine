@@ -18,7 +18,7 @@ use Livewire\WithPagination;
 class CustomerReport extends Component
 {
     use WithFileUploads, AlertFrontEnd, WithPagination;
-    public $page_title = '• Customers';
+    public $page_title = '• Customers Report';
 
     public $fetched_customers_IDs;
     public $search;
@@ -169,6 +169,6 @@ class CustomerReport extends Component
             'customers' => $customers,
             'ZONES' => $ZONES,
             'users' => $users,
-        ])->layout('layouts.app', ['page_title' => $this->page_title, 'customers' => 'active']);
+        ])->layout('layouts.app', ['page_title' => $this->page_title, 'customerReport' => 'active']);
     }
 }

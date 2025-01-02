@@ -260,6 +260,16 @@
                             </span>
                         </a>
                     </li>
+                    <li>
+                        <a href="{{ url('/report/customers') }}" class="navItem {{ $customerReport ?? '' }}">
+                            <span class="flex
+                            items-center">
+                                <iconify-icon class=" nav-icon" icon="garden:customer-lists-fill-26">
+                                </iconify-icon>
+                                <span>تقرير عملاء</span>
+                            </span>
+                        </a>
+                    </li>
 
 
                     <li class="sidebar-menu-title">Database</li>
