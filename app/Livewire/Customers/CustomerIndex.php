@@ -33,6 +33,37 @@ class CustomerIndex extends Component
 
     public $pets = [];
 
+    public $zone;
+    public $Edited_zoneId_sec = false;
+    public $Edited_zoneId;
+
+
+    public function openFilteryZone()
+    {
+        $this->Edited_zoneId_sec = true;
+        $this->Edited_zoneId = $this->zone?->id;
+    }
+
+    public function closeFilteryZone()
+    {
+        $this->Edited_zoneId_sec = false;
+        $this->Edited_zoneId = null;
+    }
+
+    public function setFilterZone()
+    {
+        $this->zone = Zone::findOrFail($this->Edited_zoneId);
+        $this->closeFilteryZone();
+    }
+
+    public function clearProperty(string $propertyName)
+    {
+        // Check if the property exists before attempting to clear it
+        if (property_exists($this, $propertyName)) {
+            $this->$propertyName = null;
+        }
+    }
+
     public function mount()
     {
         /** @var User */
@@ -162,7 +193,7 @@ class CustomerIndex extends Component
     public function render()
     {
         $ZONES = Zone::select('id', 'name')->get();
-        $customers = Customer::when($this->search, fn($q) => $q->search($this->search))->paginate(50);
+        $customers = Customer::when($this->search, fn($q) => $q->search($this->search))->zone($this->zone?->id)->paginate(50);
         $this->fetched_customers_IDs = $customers->pluck('id')->toArray();
         $PET_CATEGORIES = Pet::CATEGORIES;
         return view('livewire.customers.customer-index', [
