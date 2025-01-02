@@ -1631,7 +1631,7 @@ class Order extends Model
             $query->whereIn('status', [self::STATUS_DONE, self::STATUS_RETURNED, self::STATUS_CANCELLED])->where(function (Builder $query) {
                 $query->where('status', '!=', self::STATUS_DONE)->orWhere('is_paid', true);
             });
-        });
+        })->orderByDesc('delivery_date');
     }
 
     public function scopePastDeliveryDate(Builder $query): Builder
