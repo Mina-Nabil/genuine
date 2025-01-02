@@ -356,6 +356,11 @@ class Customer extends Model
             ->when($creator_id, fn($q) => $q->where('customers.creator_id', $creator_id));
     }
 
+    public function scopeZone( $query, $zone_id = null)
+    {
+        return $query->when($zone_id, fn($q) => $q->where('customers.zone_id', $zone_id));
+    }
+
 
     public function scopeSearch($query, $term)
     {
