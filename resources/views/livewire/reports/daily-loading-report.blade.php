@@ -37,7 +37,7 @@
                             @foreach ($totals as $t)
                                 <tr class="even:bg-slate-100 dark:even:bg-slate-700">
                                     <td class="table-td border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
-                                        {{ $t->shift_title }}
+                                        {{ $t->shift_title ?? 'N/A' }}
                                     </td>
                                     <td class="table-td border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
                                         {{ $t->name }}

@@ -36,20 +36,16 @@ class OrderProduct extends Model
                 return false;
             }
 
-            
-            
             $this->is_ready = !$this->is_ready;
             $this->save();
 
-            AppLog::info('product '.$this->product->name.' set to '.(!$this->is_ready ? 'not' : '') .' ready', loggable: $this->order);
+            AppLog::info('product ' . $this->product->name . ' set to ' . (!$this->is_ready ? 'not' : '') . ' ready', loggable: $this->order);
 
-            if ($this->is_ready && $this->order->areAllProductsReady()) {
-                foreach($this->order->products as $product){
-                    if(!$product->product->inventory->fulfillCommit($product->quantity)){
-                        $this->is_ready = 0;
-                        $this->save();
-                        return false;
-                    }
+            if ($this->is_ready) {
+                if (!$this->product->inventory->fulfillCommit($this->quantity)) {
+                    $this->is_ready = 0;
+                    $this->save();
+                    return false;
                 }
                 $this->order->setStatus(Order::STATUS_READY);
             }
@@ -69,7 +65,7 @@ class OrderProduct extends Model
             $this->is_ready = !$this->is_ready;
             $this->save();
 
-            AppLog::info('product '.$this->product->name.' set to '.(!$this->is_ready ? 'not' : '') .' ready', loggable: $this->order);
+            AppLog::info('product ' . $this->product->name . ' set to ' . (!$this->is_ready ? 'not' : '') . ' ready', loggable: $this->order);
 
             return true;
         } catch (Exception $e) {
