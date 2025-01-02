@@ -25,6 +25,7 @@ use App\Livewire\Products\InventoryTransactionIndex;
 use App\Livewire\Products\ProductIndex;
 use App\Livewire\Products\ProductShow;
 use App\Livewire\Products\TransactionIndex;
+use App\Livewire\Reports\CustomerReport;
 use App\Livewire\Reports\DailyLoadingReport;
 use App\Livewire\Reports\ProductionPlanning;
 use App\Livewire\Tasks\TaskIndex;
@@ -84,6 +85,8 @@ Route::middleware(['auth', 'no_driver'])->group(function () {
 
     Route::get('/report/followup', FollowupReport::class)->name('reports.followup');
     Route::get('/report/daily-loading', DailyLoadingReport::class)->name('reports.daily.loading');
+    Route::get('/report/customers', CustomerReport::class)->name('reports.customers');
+
 
 
     Route::get('/productions', ProductionPlanning::class)->name('production.planning');

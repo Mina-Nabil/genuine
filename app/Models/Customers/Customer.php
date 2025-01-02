@@ -349,11 +349,11 @@ class Customer extends Model
     public function scopeReport($query, $searchText, $zone_id = null, Carbon $created_from = null, Carbon $created_to = null, $creator_id = null)
     {
         return $query->select('customers.*')
-            ->when($zone_id, fn($q) => $q->where('users.zone_id', $zone_id))
+            ->when($zone_id, fn($q) => $q->where('customers.zone_id', $zone_id))
             ->when($searchText, fn($q) => $q->search($searchText))
-            ->when($created_from, fn($q) => $q->where('users.created_at', '>=', $created_from->format('Y-m-d H:i')))
-            ->when($created_to, fn($q) => $q->where('users.created_at', '<=', $created_to->format('Y-m-d H:i')))
-            ->when($creator_id, fn($q) => $q->where('users.creator_id', $creator_id));
+            ->when($created_from, fn($q) => $q->where('customers.created_at', '>=', $created_from->format('Y-m-d H:i')))
+            ->when($created_to, fn($q) => $q->where('customers.created_at', '<=', $created_to->format('Y-m-d H:i')))
+            ->when($creator_id, fn($q) => $q->where('customers.creator_id', $creator_id));
     }
 
 
