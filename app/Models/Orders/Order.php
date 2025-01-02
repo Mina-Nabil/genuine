@@ -53,21 +53,9 @@ class Order extends Model
     const STATUS_DONE = 'done';
     const STATUS_RETURNED = 'returned';
     const STATUS_CANCELLED = 'cancelled';
-    const OK_STATUSES = [
-        self::STATUS_NEW,
-        self::STATUS_READY,
-        self::STATUS_IN_DELIVERY,
-        self::STATUS_DONE
-    ];
+    const OK_STATUSES = [self::STATUS_NEW, self::STATUS_READY, self::STATUS_IN_DELIVERY, self::STATUS_DONE];
 
-    const STATUSES = [
-        self::STATUS_NEW,
-        self::STATUS_READY,
-        self::STATUS_IN_DELIVERY,
-        self::STATUS_DONE,
-        self::STATUS_RETURNED,
-        self::STATUS_CANCELLED
-    ];
+    const STATUSES = [self::STATUS_NEW, self::STATUS_READY, self::STATUS_IN_DELIVERY, self::STATUS_DONE, self::STATUS_RETURNED, self::STATUS_CANCELLED];
 
     public static function getNextStatuses(string $currentStatus): array
     {
@@ -349,7 +337,29 @@ class Order extends Model
         }
     }
 
-    /** 
+    public function updateLocationUrl(string $locationUrl = null): bool
+    {
+        /** @var User */
+        $loggedInUser = Auth::user();
+        if ($loggedInUser && !$loggedInUser->can('update', $this)) {
+            return false;
+        }
+
+        try {
+            $this->location_url = $locationUrl;
+
+            $this->save();
+
+            AppLog::info('Location URL updated', loggable: $this);
+            return true;
+        } catch (Exception $e) {
+            report($e);
+            AppLog::error('Failed to update location URL for order', $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
      * load يوميه التحميل
      */
     public static function loadDailyLoadingReport(string $day)
@@ -1181,13 +1191,11 @@ class Order extends Model
         }
     }
 
-
     public function moveToPosition(int $newPosition = null)
     {
         return DB::transaction(function () use ($newPosition) {
-
             if ($newPosition == null || $newPosition <= 0) {
-                $this->driver_order = NULL;
+                $this->driver_order = null;
                 return $this->save();
             }
 
@@ -1201,9 +1209,8 @@ class Order extends Model
                 ->whereNot('id', $this->id)
                 ->get();
 
-
             foreach ($dayOrderedOrders as $index => $or) {
-                $or->driver_order = (($index + 1) + ($newPosition <= ($index + 1) ? 1 : 0));
+                $or->driver_order = $index + 1 + ($newPosition <= $index + 1 ? 1 : 0);
                 $or->save();
             }
 
@@ -1213,9 +1220,8 @@ class Order extends Model
                 ->orderBy('driver_order')
                 ->get();
 
-
             foreach ($dayOrderedOrders as $index => $or) {
-                $or->driver_order = ($index + 1);
+                $or->driver_order = $index + 1;
                 $or->save();
             }
 
@@ -1366,7 +1372,6 @@ class Order extends Model
 
     public static function printPrepareDoc(Carbon $day)
     {
-
         $template = IOFactory::load(storage_path('import/inventory_report.xlsx'));
         if (!$template) {
             throw new Exception('Failed to read template file');
@@ -1376,49 +1381,58 @@ class Order extends Model
 
         $todayShifts = Driver::hasOrdersOn([$day])->get();
         $i = 2;
-        foreach($todayShifts as $s){
-            $orders = Order::with('products','products.product')->search(deliveryDates: [$day], driverId: $s->id)->get();
+        foreach ($todayShifts as $s) {
+            $orders = Order::with('products', 'products.product')->search(deliveryDates: [$day], driverId: $s->id)->get();
             $activeSheet->getCell("A$i")->setValue($s->shift_title);
-           
-            $activeSheet->getStyle("A$i")->getBorders()
-            ->getOutline()
-            ->setBorderStyle(Border::BORDER_THIN)
-            ->setColor(new Color('00000000'));
-           
-            $activeSheet->getStyle("A$i")
-            ->getFill()
-            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
-            ->getStartColor()
-            ->setARGB('D1DBF0');
 
-            foreach ($orders as $o) {
-                
-                $order_details_text = '';
-                foreach ($o->products as $product) {
-                    $order_details_text .= "• {$product->product->name}: {$product->quantity} \n";
-                }
-                $activeSheet->getStyle("A$i")
+            $activeSheet
+                ->getStyle("A$i")
+                ->getBorders()
+                ->getOutline()
+                ->setBorderStyle(Border::BORDER_THIN)
+                ->setColor(new Color('00000000'));
+
+            $activeSheet
+                ->getStyle("A$i")
                 ->getFill()
                 ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
                 ->getStartColor()
                 ->setARGB('D1DBF0');
+
+            foreach ($orders as $o) {
+                $order_details_text = '';
+                foreach ($o->products as $product) {
+                    $order_details_text .= "• {$product->product->name}: {$product->quantity} \n";
+                }
+                $activeSheet
+                    ->getStyle("A$i")
+                    ->getFill()
+                    ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                    ->getStartColor()
+                    ->setARGB('D1DBF0');
                 $activeSheet->getCell("B$i")->setValue($o->customer->name);
-                $activeSheet->getStyle("B$i")->getBorders()
-                ->getOutline()
-                ->setBorderStyle(Border::BORDER_THIN)
-                ->setColor(new Color('00000000'));
+                $activeSheet
+                    ->getStyle("B$i")
+                    ->getBorders()
+                    ->getOutline()
+                    ->setBorderStyle(Border::BORDER_THIN)
+                    ->setColor(new Color('00000000'));
 
                 $activeSheet->getCell("C$i")->setValue($order_details_text);
-                $activeSheet->getStyle("C$i")->getBorders()
-                ->getOutline()
-                ->setBorderStyle(Border::BORDER_THIN)
-                ->setColor(new Color('00000000'));
+                $activeSheet
+                    ->getStyle("C$i")
+                    ->getBorders()
+                    ->getOutline()
+                    ->setBorderStyle(Border::BORDER_THIN)
+                    ->setColor(new Color('00000000'));
 
                 $activeSheet->getCell("D$i")->setValue($o->products->count());
-                $activeSheet->getStyle("D$i")->getBorders()
-                ->getOutline()
-                ->setBorderStyle(Border::BORDER_THIN)
-                ->setColor(new Color('00000000'));
+                $activeSheet
+                    ->getStyle("D$i")
+                    ->getBorders()
+                    ->getOutline()
+                    ->setBorderStyle(Border::BORDER_THIN)
+                    ->setColor(new Color('00000000'));
                 $i++;
             }
         }
@@ -1433,17 +1447,7 @@ class Order extends Model
 
     public static function exportReport($searchText, $zone_id = null, $driver_id = null, Carbon $created_from = null, Carbon $created_to = null, Carbon $delivery_from = null, Carbon $delivery_to = null, $creator_id = null, $status = null)
     {
-        $orders = self::report(
-            $searchText,
-            $zone_id,
-            $driver_id,
-            $created_from,
-            $created_to,
-            $delivery_from,
-            $delivery_to,
-            $creator_id,
-            $status
-        )->get();
+        $orders = self::report($searchText, $zone_id, $driver_id, $created_from, $created_to, $delivery_from, $delivery_to, $creator_id, $status)->get();
 
         $template = IOFactory::load(resource_path('import/orders_report.xlsx'));
         if (!$template) {
@@ -1456,7 +1460,6 @@ class Order extends Model
 
         /** @var User */
         foreach ($orders as $o) {
-
             $activeSheet->getCell('A' . $i)->setValue($o);
             $i++;
         }
@@ -1472,7 +1475,8 @@ class Order extends Model
     // Scopes
     public function scopeReport($query, $searchText, $zone_id = null, $driver_id = null, Carbon $created_from = null, Carbon $created_to = null, Carbon $delivery_from = null, Carbon $delivery_to = null, $creator_id = null, $status = null)
     {
-        return $query->select('orders.*')
+        return $query
+            ->select('orders.*')
             ->when($searchText || $status, fn($q) => $q->search(searchText: $searchText, status: $status))
             ->when($zone_id, fn($q) => $q->where('orders.zone_id', $zone_id))
             ->when($driver_id, fn($q) => $q->where('orders.driver_id', $driver_id))
@@ -1482,7 +1486,6 @@ class Order extends Model
             ->when($delivery_to, fn($q) => $q->where('orders.delivery_date', '<=', $delivery_to->format('Y-m-d H:i')))
             ->when($creator_id, fn($q) => $q->where('orders.created_by', $creator_id));
     }
-
 
     public function scopeWithTotalQuantity(Builder $query)
     {
@@ -1578,7 +1581,8 @@ class Order extends Model
         //     $query->where('created_by', Auth::id());
         // }
 
-        return $query->select('orders.*')
+        return $query
+            ->select('orders.*')
             ->when($searchText, function ($query, $searchText) {
                 $words = explode(' ', $searchText);
                 foreach ($words as $w) {

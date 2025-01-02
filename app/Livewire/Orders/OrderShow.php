@@ -68,6 +68,10 @@ class OrderShow extends Component
     public $creator_id;
     public $users;
 
+    //location
+    public $updateLocationSec = false;
+    public $location_url;
+
     public $NextStatuses;
 
     //pay from balance
@@ -471,6 +475,41 @@ class OrderShow extends Component
             $this->mount($this->order->id);
             $this->closeUpdateShippingDetails();
             $this->alertSuccess('Shipping updated');
+        } else {
+            $this->alertFailed();
+        }
+    }
+
+    public function openUpdateLocationUrl()
+    {
+        $this->authorize('update', $this->order);
+        $this->updateLocationSec = true;
+        $this->location_url = $this->order->location_url;
+    }
+
+    public function closeUpdateLocationUrl()
+    {
+        $this->reset(['updateLocationSec', 'location_url']);
+    }
+
+    public function updateLocationUrl()
+    {
+        $this->authorize('update', $this->order);
+        $this->validate(
+            [
+                'location_url' => 'nullable|string',
+            ],
+            attributes: [
+                'location_url' => 'location url',
+            ],
+        );
+
+        $res = $this->order->updateLocationUrl($this->location_url);
+
+        if ($res) {
+            $this->mount($this->order->id);
+            $this->closeUpdateLocationUrl();
+            $this->alertSuccess('Location updated');
         } else {
             $this->alertFailed();
         }
