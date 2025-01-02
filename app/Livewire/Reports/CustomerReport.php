@@ -160,8 +160,8 @@ class CustomerReport extends Component
         $customers = Customer::Report(
             $this->search,
             $this->zone?->id,
-            Carbon::parse($this->creation_date_from),
-            Carbon::parse($this->creation_date_to),
+            $this->creation_date_from ? Carbon::parse($this->creation_date_from) : null,
+            $this->creation_date_from ? Carbon::parse($this->creation_date_to) : null,
             $this->creator?->id
             )->paginate(50);
         $this->fetched_customers_IDs = $customers->pluck('id')->toArray();

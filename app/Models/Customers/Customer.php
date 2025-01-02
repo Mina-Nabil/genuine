@@ -346,7 +346,7 @@ class Customer extends Model
     }
 
     // Scopes
-    public function scopeReport($query, $searchText, $zone_id = null, Carbon $created_from = null, Carbon $created_to = null, $creator_id = null)
+    public function scopeReport($query, $searchText = null, $zone_id = null, Carbon $created_from = null, Carbon $created_to = null, $creator_id = null)
     {
         return $query->select('customers.*')
             ->when($zone_id, fn($q) => $q->where('customers.zone_id', $zone_id))

@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Customers\Customer;
+use App\Models\Payments\CustomerPayment;
 use Carbon\Carbon;
 
 /**
@@ -49,5 +51,25 @@ if (!function_exists('joined')) {
             }
         }
         return false;
+    }
+}
+
+/**
+ * Get the arabic name of each method
+ *
+ * @param string $date
+ * @return string
+ */
+if (!function_exists('methodInArabic')) {
+    function methodInArabic($method)
+    {
+        switch ($method) {
+            case CustomerPayment::PYMT_CASH:
+                return "كاش";
+            case CustomerPayment::PYMT_WALLET:
+                return "محفظه";
+            case CustomerPayment::PYMT_BANK_TRANSFER:
+                return "تحويل بنكي";
+        }
     }
 }
