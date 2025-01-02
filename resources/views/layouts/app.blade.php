@@ -270,6 +270,16 @@
                             </span>
                         </a>
                     </li>
+                    <li>
+                        <a href="{{ url('/report/orders') }}" class="navItem {{ $ordersReport ?? '' }}">
+                            <span class="flex
+                            items-center">
+                                <iconify-icon class=" nav-icon" icon="lsicon:work-order-abnormal-outline">
+                                </iconify-icon>
+                                <span>تقرير طلبلات</span>
+                            </span>
+                        </a>
+                    </li>
 
 
                     <li class="sidebar-menu-title">Database</li>
