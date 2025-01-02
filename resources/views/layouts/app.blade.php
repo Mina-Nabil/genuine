@@ -260,7 +260,8 @@
                             </span>
                         </a>
                     </li>
-                    <li>
+
+                    {{-- <li>
                         <a href="{{ url('/report/customers') }}" class="navItem {{ $customerReport ?? '' }}">
                             <span class="flex
                             items-center">
@@ -269,8 +270,7 @@
                                 <span>تقرير عملاء</span>
                             </span>
                         </a>
-                    </li>
-
+                    </li> --}}
 
                     <li class="sidebar-menu-title">Database</li>
 
