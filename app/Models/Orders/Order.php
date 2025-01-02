@@ -1547,6 +1547,11 @@ class Order extends Model
         return $this->status === self::STATUS_NEW;
     }
 
+    public function getIsReadyAttribute(): bool
+    {
+        return $this->status === self::STATUS_READY;
+    }
+
     public function getIsInDeliveryAttribute(): bool
     {
         return $this->status === self::STATUS_IN_DELIVERY;
