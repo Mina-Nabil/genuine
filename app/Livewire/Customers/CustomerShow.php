@@ -216,7 +216,7 @@ class CustomerShow extends Component
         $this->authorize('update', $this->customer);
         $this->validate([
             'fullName' => 'required|string|max:255',
-            'phone' => 'required|string|max:15',
+            'phone' => 'required|string',
             'zone_id' => 'nullable|exists:zones,id',
             'locationUrl' => 'nullable|url|max:255',
             'address' => 'nullable|string|max:255',

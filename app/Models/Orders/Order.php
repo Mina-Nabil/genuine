@@ -203,7 +203,9 @@ class Order extends Model
 
             if ($currentStatus === self::STATUS_NEW && $newStatus === self::STATUS_READY) {
                 foreach ($this->products as $product) {
-                    $product->product->inventory->fulfillCommit($product->quantity);
+                    if(!$product->is_ready){
+                        $product->toggleReady();
+                    }
                     $product->is_ready = true;
                     $product->save();
                 }
@@ -372,8 +374,8 @@ class Order extends Model
             ->selectRaw('(SELECT SUM(amount) from customer_payments as c2 where o1.id = c2.order_id and c2.payment_method = "' . CustomerPayment::PYMT_CASH . '") as total_cash ')
             ->selectRaw('(SELECT SUM(amount) from customer_payments as c2 where o1.id = c2.order_id and c2.payment_method = "' . CustomerPayment::PYMT_BANK_TRANSFER . '") as total_bank ')
             ->selectRaw('(SELECT SUM(amount) from customer_payments as c2 where o1.id = c2.order_id and c2.payment_method = "' . CustomerPayment::PYMT_WALLET . '") as total_wallet ')
-            ->join('drivers', 'drivers.id', '=', 'o1.driver_id')
-            ->join('users', 'users.id', '=', 'drivers.user_id')
+            ->leftjoin('drivers', 'drivers.id', '=', 'o1.driver_id')
+            ->leftjoin('users', 'users.id', '=', 'drivers.user_id')
             ->join('zones', 'zones.id', '=', 'o1.zone_id')
             ->where('o1.delivery_date', $day->format('Y-m-d'))
             ->where('o1.is_confirmed', 1)
