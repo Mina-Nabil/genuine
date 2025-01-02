@@ -439,7 +439,7 @@
                                 </td>
 
                                 <td class="table-td text-start overflow-hidden text-ellipsis whitespace-nowrap">
-                                    {{ $order->driver ? $order->driver->shift_title : '-' }} {{ ($order->driver && $order->driver_payment_type) ? ' • ' . $order->driver_payment_type : ''}}
+                                    {{ $order->driver ? $order->driver->shift_title : '-' }} {{ ($order->driver && $order->driver_payment_type) ? ' • ' . paymentMethodInArabic($order->driver_payment_type) : ''}}
                                 </td>
 
                                 <td class="table-td text-start overflow-hidden text-ellipsis whitespace-nowrap">
