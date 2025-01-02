@@ -1547,6 +1547,11 @@ class Order extends Model
         return $this->status === self::STATUS_NEW;
     }
 
+    public function getIsReadyAttribute(): bool
+    {
+        return $this->status === self::STATUS_READY;
+    }
+
     public function getIsInDeliveryAttribute(): bool
     {
         return $this->status === self::STATUS_IN_DELIVERY;
@@ -1626,7 +1631,7 @@ class Order extends Model
             $query->whereIn('status', [self::STATUS_DONE, self::STATUS_RETURNED, self::STATUS_CANCELLED])->where(function (Builder $query) {
                 $query->where('status', '!=', self::STATUS_DONE)->orWhere('is_paid', true);
             });
-        });
+        })->orderByDesc('delivery_date');
     }
 
     public function scopePastDeliveryDate(Builder $query): Builder

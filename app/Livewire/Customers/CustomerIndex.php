@@ -124,9 +124,9 @@ class CustomerIndex extends Component
     {
         $this->authorize('create', Customer::class);
 
-        foreach ($this->pets as $index => $pet) {
-            $this->pets[$index]['bdate'] = Pet::calculateBirthDate($pet['pet_years'],$pet['pet_months'] ?? 0,$pet['pet_days'] ?? 1);
-        }
+        // foreach ($this->pets as $index => $pet) {
+        //     $this->pets[$index]['bdate'] = Pet::calculateBirthDate($pet['pet_years'],$pet['pet_months'] ?? 0,$pet['pet_days'] ?? 1);
+        // }
         
         
         $this->validate([
@@ -135,10 +135,10 @@ class CustomerIndex extends Component
             'zone_id' => 'nullable|exists:zones,id',
             'locationUrl' => 'nullable|url|max:255',
             'address' => 'nullable|string|max:255',
-            'pets.*.name' => 'nullable|string|max:255',
-            'pets.*.category' => 'required|in:' . implode(',', Pet::CATEGORIES),
-            'pets.*.type' => 'required|string|max:255',
-            'pets.*.bdate' => 'required|date',
+            // 'pets.*.name' => 'nullable|string|max:255',
+            // 'pets.*.category' => 'required|in:' . implode(',', Pet::CATEGORIES),
+            // 'pets.*.type' => 'required|string|max:255',
+            // 'pets.*.bdate' => 'required|date',
         ], attributes: [
             'pets.*.name' => 'pet name',
             'pets.*.category' => 'pet category',
@@ -148,9 +148,9 @@ class CustomerIndex extends Component
 
         $res = Customer::newCustomer($this->fullName, $this->address, $this->phone, $this->locationUrl, $this->zone_id);
 
-        foreach ($this->pets as $pet) {
-            $res->addPet($pet['name'], $pet['category'], $pet['type'], $pet['bdate']);
-        }
+        // foreach ($this->pets as $pet) {
+        //     $res->addPet($pet['name'], $pet['category'], $pet['type'], $pet['bdate']);
+        // }
 
         if ($res) {
             return redirect(route('customer.show', $res->id));

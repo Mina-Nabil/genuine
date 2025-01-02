@@ -60,8 +60,8 @@ if (!function_exists('joined')) {
  * @param string $date
  * @return string
  */
-if (!function_exists('methodInArabic')) {
-    function methodInArabic($method)
+if (!function_exists('paymentMethodInArabic')) {
+    function paymentMethodInArabic($method)
     {
         switch ($method) {
             case CustomerPayment::PYMT_CASH:

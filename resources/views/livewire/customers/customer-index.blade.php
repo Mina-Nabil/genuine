@@ -263,7 +263,7 @@
                                 </div>
 
                                 <!-- Pet Section -->
-                                <div>
+                                {{-- <div>
                                     <h3 class="text-lg font-medium mb-4 flex justify-between"><span><b>Pets</b></span> <button type="button" wire:click="addPet" class="btn btn-dark btn-sm mt-2">
                                         Add Pet
                                     </button></h3>
@@ -356,7 +356,7 @@
                                                         <span
                                                             class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
                                                     @enderror
-                                                </div> --}}
+                                                </div> 
 
                                                 <div class="input-area">
                                                     <label for="petName{{ $index }}"
@@ -381,7 +381,7 @@
                                     @endforeach
 
                                     
-                                </div>
+                                </div> --}}
 
 
 

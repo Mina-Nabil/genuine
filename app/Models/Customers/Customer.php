@@ -351,8 +351,8 @@ class Customer extends Model
         return $query->select('customers.*')
             ->when($zone_id, fn($q) => $q->where('customers.zone_id', $zone_id))
             ->when($searchText, fn($q) => $q->search($searchText))
-            ->when($created_from, fn($q) => $q->where('customers.created_at', '>=', $created_from->format('Y-m-d H:i')))
-            ->when($created_to, fn($q) => $q->where('customers.created_at', '<=', $created_to->format('Y-m-d H:i')))
+            ->when($created_from, fn($q) => $q->where('customers.created_at', '>=', $created_from->format('Y-m-d 00:00:00')))
+            ->when($created_to, fn($q) => $q->where('customers.created_at', '<=', $created_to->format('Y-m-d 23:59:59')))
             ->when($creator_id, fn($q) => $q->where('customers.creator_id', $creator_id));
     }
 
