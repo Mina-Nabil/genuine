@@ -1652,7 +1652,7 @@ class Order extends Model
                         ->orWhere(function ($qq) {
                             $qq->where('orders.status', self::STATUS_READY)
                             ->where(function($qqqq){
-                                $qqqq->where('orders.is_delivered', 1)->orwhere('orders.driver_payment_type');
+                                $qqqq->where('orders.is_delivered', 1)->orwhereNotNull('orders.driver_payment_type');
                             });
                         });
                 });
