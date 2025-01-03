@@ -1646,15 +1646,17 @@ class Order extends Model
     public function scopeNotDebitOrders(Builder $query): Builder
     {
         return $query->whereNot(function ($q) {
-            $q->confirmed()->notPaid()
+            $q->confirmed()
                 ->where(function ($qqq) {
                     $qqq->where('orders.status', self::STATUS_IN_DELIVERY)
                         ->orWhere(function ($qq) {
                             $qq->where('orders.status', self::STATUS_READY)
-                            ->where(function($qqqq){
-                                $qqqq->where('orders.is_delivered', 1)->orwhereNotNull('orders.driver_payment_type');
-                            });
+                                ->where(function ($qqqq) {
+                                    $qqqq->where('orders.is_delivered', 1)->orwhereNotNull('orders.driver_payment_type');
+                                });
                         });
+                })->orwhere(function ($q) {
+                    $q->pastDeliveryDate();
                 });
         });
     }
@@ -1662,15 +1664,17 @@ class Order extends Model
     public function scopeDebitOrders(Builder $query): Builder
     {
         return $query->where(function ($q) {
-            $q->confirmed()->notPaid()
+            $q->confirmed()
                 ->where(function ($qqq) {
                     $qqq->where('orders.status', self::STATUS_IN_DELIVERY)
                         ->orWhere(function ($qq) {
                             $qq->where('orders.status', self::STATUS_READY)
-                            ->where(function($qqqq){
-                                $qqqq->where('orders.is_delivered', 1)->orwhereNotNull('orders.driver_payment_type');
-                            });
+                                ->where(function ($qqqq) {
+                                    $qqqq->where('orders.is_delivered', 1)->orwhereNotNull('orders.driver_payment_type');
+                                });
                         });
+                })->orwhere(function ($q) {
+                    $q->pastDeliveryDate();
                 });
         });
     }
