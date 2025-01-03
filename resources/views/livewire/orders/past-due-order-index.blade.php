@@ -49,7 +49,7 @@
     <div class="flex justify-between flex-wrap items-center">
         <div class="md:mb-6 mb-4 flex space-x-3 rtl:space-x-reverse">
             <h4 class="font-medium lg:text-2xl text-xl capitalize text-slate-900 inline-block ltr:pr-4 rtl:pl-4">
-                Past Due Orders
+                Debit Orders -- {{ $orders->total() }}
             </h4>
         </div>
         <div class="flex sm:space-x-4 space-x-2 sm:justify-end items-center md:mb-6 mb-4 rtl:space-x-reverse">
@@ -118,9 +118,8 @@
                             @endforeach
                         </span>
 
-                        &nbsp;&nbsp;<iconify-icon wire:click="clearDeliveryDate(closed)"
-                            icon="material-symbols:close" class="cursor-pointer" width="1.2em"
-                            height="1.2em"></iconify-icon>
+                        &nbsp;&nbsp;<iconify-icon wire:click="clearDeliveryDate(closed)" icon="material-symbols:close"
+                            class="cursor-pointer" width="1.2em" height="1.2em"></iconify-icon>
                     </span>
                 @endif
                 @if ($driver)
@@ -202,7 +201,7 @@
                     <tbody class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700 no-wrap">
 
                         @foreach ($orders as $order)
-                        <tr class="even:bg-slate-100 dark:even:bg-slate-700">
+                            <tr class="even:bg-slate-100 dark:even:bg-slate-700">
                                 <td class="table-td flex items-center sticky-column bg-white dark:bg-slate-800 colomn-shadow"
                                     style="position: sticky; left: -25px;  z-index: 10;">
                                     <div class="checkbox-area">
@@ -325,7 +324,8 @@
                                 </td>
 
                                 <td class="table-td text-start overflow-hidden text-ellipsis whitespace-nowrap">
-                                    {{ $order->driver ? $order->driver->shift_title : '-' }} {{ ($order->driver && $order->driver_payment_type) ? ' • ' . paymentMethodInArabic($order->driver_payment_type) : ''}}
+                                    {{ $order->driver ? $order->driver->shift_title : '-' }}
+                                    {{ $order->driver && $order->driver_payment_type ? ' • ' . paymentMethodInArabic($order->driver_payment_type) : '' }}
                                 </td>
 
                                 <td class="table-td text-start overflow-hidden text-ellipsis whitespace-nowrap">
@@ -568,10 +568,10 @@
                         <div
                             class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
                             <h3 class="text-xl font-medium text-white dark:text-white capitalize">
-                                Filter delivery date 
+                                Filter delivery date
                                 <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
-                                wire:loading wire:target="removeSelectedDate,Edited_deliveryDate"
-                                icon="line-md:loading-twotone-loop"></iconify-icon>
+                                    wire:loading wire:target="removeSelectedDate,Edited_deliveryDate"
+                                    icon="line-md:loading-twotone-loop"></iconify-icon>
                             </h3>
                             <button wire:click="closeFilteryDeliveryDate" type="button"
                                 class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
@@ -593,7 +593,8 @@
                                 <div class="input-area">
                                     <label for="Edited_deliveryDate" class="form-label">Delivery date*</label>
                                     <p class="text-gray-600 text-xs mb-2">
-                                        *You can select multiple dates by clicking on the date. Once done, click "Submit" to apply the filter.
+                                        *You can select multiple dates by clicking on the date. Once done, click
+                                        "Submit" to apply the filter.
                                     </p>
                                     <input name="Edited_deliveryDate" id="Edited_deliveryDate" type="date"
                                         class="form-control w-full mt-2 @error('Edited_deliveryDate') !border-danger-500 @enderror"
