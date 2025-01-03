@@ -154,7 +154,7 @@
                             <span class="flex items-center">
                                 <iconify-icon class=" nav-icon" icon="lsicon:order-abnormal-outline">
                                 </iconify-icon>
-                                <span>Debit Orders</span>
+                                <span>Debit</span>
                             </span>
                         </a>
                     </li>
