@@ -286,7 +286,7 @@ class PastDueOrderIndex extends Component
 
     public function render()
     {
-        $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate,driverId: $this->driver?->id ,zoneId:$this->zone?->id)->OpenOrders()->PastDeliveryDate()->withTotalQuantity()->paginate(50);
+        $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate,driverId: $this->driver?->id ,zoneId:$this->zone?->id)->OpenOrders()->debitOrders()->withTotalQuantity()->paginate(50);
 
         $totalZones = Order::getTotalZonesForOrders($orders);
         $ordersCount = count($orders);
