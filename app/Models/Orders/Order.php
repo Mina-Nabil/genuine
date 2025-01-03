@@ -1643,6 +1643,22 @@ class Order extends Model
         })->orderByDesc('delivery_date');
     }
 
+    public function scopeNotDebitOrders(Builder $query): Builder
+    {
+        return $query->whereNot(function ($q) {
+            $q->confirmed()->notPaid()
+                ->where(function ($qqq) {
+                    $qqq->where('orders.status', self::STATUS_IN_DELIVERY)
+                        ->orWhere(function ($qq) {
+                            $qq->where('orders.status', self::STATUS_READY)
+                            ->where(function($qqqq){
+                                $qqqq->where('orders.is_delivered', 1)->orwhere('orders.driver_payment_type');
+                            });
+                        });
+                });
+        });
+    }
+
     public function scopeDebitOrders(Builder $query): Builder
     {
         return $query->where(function ($q) {
