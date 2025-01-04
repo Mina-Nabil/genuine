@@ -5,6 +5,7 @@ namespace App\Models\Payments;
 use App\Models\Customers\Customer;
 use App\Models\Orders\Order;
 use App\Models\Users\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -28,6 +29,18 @@ class CustomerPayment extends Model
     const PAYMENT_METHODS = [self::PYMT_CASH, self::PYMT_BANK_TRANSFER, self::PYMT_WALLET];
     const PAYMENT_METHODS_WITH_DEBIT = [self::PYMT_CASH, self::PYMT_BANK_TRANSFER, self::PYMT_WALLET, self::PYMT_DEBIT];
 
+    public function resetBalance()
+    {
+        $this->balance = 0;
+        $this->save();
+    }
+
+    public function recalculateBalance()
+    {
+        $this->balance = 0;
+        $this->save();
+    }
+
     public static function calculateNewBalance(float $amount, string $paymentMethod): float
     {
         $old_payment_type_balance = CustomerPayment::where('payment_method', $paymentMethod)->latest('id')->value('type_balance');
@@ -46,6 +59,11 @@ class CustomerPayment extends Model
                     ->orWhere('phone', 'like', $term);
             });
         });
+    }
+
+    public function scopeFrom($query, Carbon $date)
+    {
+        return $query->whereDate('payment_date', ">=", $date->format('Y-m-d'));
     }
 
     public function scopePaymentMethod($query, $method)
