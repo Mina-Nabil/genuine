@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
+use App\Livewire\Admin\Dashboard;
 use App\Livewire\Users\Calendar;
 use App\Livewire\Customers\CustomerIndex;
 use App\Livewire\Customers\CustomerShow;
@@ -92,6 +93,8 @@ Route::middleware(['auth', 'no_driver'])->group(function () {
     Route::get('/report/customers', CustomerReport::class)->name('reports.customers');
     Route::get('/report/orders', OrderReport::class)->name('reports.orders');
     Route::get('/report/customers/transactions', CustomerTransactionReport::class)->name('reports.customers.transactions');
+
+    Route::get('/dashboard', Dashboard::class)->name('dashboard');
 
 
 

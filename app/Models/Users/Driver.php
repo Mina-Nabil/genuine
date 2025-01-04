@@ -151,7 +151,8 @@ class Driver extends Model
 
     public function scopeHasOrdersOn($query, array $on = [])
     {
-        $query->select('drivers.*')
+        $query
+            ->select('drivers.*')
             ->join('orders', 'orders.driver_id', '=', 'drivers.id')
             ->when(count($on), function ($q) use ($on) {
                 foreach ($on as $date) {
@@ -184,7 +185,44 @@ class Driver extends Model
         return $query;
     }
 
-    public function scopebyUserID($query, $user_id){
+    public function scopeOrderStatisticsBetween($query, $fromDate, $toDate)
+    {
+        return $query
+            ->select(
+                'drivers.*',
+                DB::raw('(SELECT COUNT(DISTINCT o.id) FROM orders o WHERE o.driver_id = drivers.id AND o.status NOT IN ("cancelled", "returned")) as total_orders'),
+                DB::raw('SUM(CASE WHEN orders.status NOT IN ("cancelled", "returned") THEN orders.total_amount ELSE 0 END) as total_amount'),
+                DB::raw('SUM(CASE WHEN orders.status NOT IN ("cancelled", "returned") THEN products.weight * order_products.quantity ELSE 0 END) as total_weight'),
+                DB::raw('COUNT(DISTINCT orders.zone_id) as total_zones'),
+                DB::raw('GROUP_CONCAT(DISTINCT zones.name ORDER BY zones.name ASC) as zone_names'),
+
+                // Calculate remaining amount directly in SQL
+                DB::raw('SUM(
+                    DISTINCT orders.total_amount -
+                    COALESCE((SELECT SUM(amount) FROM customer_payments WHERE customer_payments.order_id = orders.id), 0) -
+                    COALESCE((SELECT SUM(ABS(amount)) FROM balance_transactions WHERE balance_transactions.order_id = orders.id), 0)
+                ) as total_remaining_to_pay'),
+
+                // Calculate total paid
+                DB::raw('SUM(
+                    DISTINCT COALESCE((SELECT SUM(amount) FROM customer_payments WHERE customer_payments.order_id = orders.id), 0) +
+                    COALESCE((SELECT SUM(ABS(amount)) FROM balance_transactions WHERE balance_transactions.order_id = orders.id), 0)
+                ) as total_paid')
+            )
+            ->leftJoin('orders', 'drivers.id', '=', 'orders.driver_id')
+            ->leftJoin('order_products', 'orders.id', '=', 'order_products.order_id')
+            ->leftJoin('products', 'order_products.product_id', '=', 'products.id')
+            ->leftJoin('zones', 'orders.zone_id', '=', 'zones.id') // Join the zones table correctly
+            ->whereBetween('orders.delivery_date', [$fromDate, $toDate])
+            ->whereHas('orders', function ($query) {
+                $query->notCancelledOrReturned(); // Applying the 'scopeNotCancelledOrReturned' scope
+            })
+            ->groupBy('drivers.id')
+            ->orderByDesc('total_orders');
+    }
+
+    public function scopebyUserID($query, $user_id)
+    {
         return $query->where('drivers.user_id', $user_id);
     }
 

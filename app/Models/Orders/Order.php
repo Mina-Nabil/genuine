@@ -1698,6 +1698,11 @@ class Order extends Model
         })->orderByDesc('delivery_date');
     }
 
+    public function scopeNotCancelledOrReturned(Builder $query): Builder
+    {
+        return $query->whereNotIn('status', [self::STATUS_RETURNED, self::STATUS_CANCELLED]);
+    }
+
     public function scopeNotDebitOrders(Builder $query): Builder
     {
         return $query->whereNot(function ($q) {

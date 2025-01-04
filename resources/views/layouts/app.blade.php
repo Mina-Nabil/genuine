@@ -20,10 +20,10 @@
     <link rel="stylesheet" href="{{ asset('assets/css/rt-plugins.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/app.css') }}">
     {{ $page_css_head ?? '' }}
+    @yield('head_content')
 
     <script src="https://unpkg.com/dropzone@6.0.0-beta.1/dist/dropzone-min.js"></script>
     <link href="https://unpkg.com/dropzone@6.0.0-beta.1/dist/dropzone.css" rel="stylesheet" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 
 
     <!-- End : Theme CSS-->
