@@ -133,6 +133,38 @@ class Order extends Model
         }
     }
 
+    public static function setBulkDebit(array $orderIds): bool
+    {
+        DB::beginTransaction();
+
+        try {
+            // Fetch the orders by the given IDs
+            $orders = self::whereIn('id', $orderIds)->get();
+
+            foreach ($orders as $order) {
+                /** @var User */
+                $loggedInUser = Auth::user();
+
+                // Check if the user has permission to update the order
+                if (!$loggedInUser || !$loggedInUser->can('update', $order)) {
+                    throw new Exception("Unauthorized to update Order ID {$order->id}");
+                }
+
+                // Update the `is_confirmed` status
+                $order->is_debit = 1;
+                $order->save();
+            }
+
+            DB::commit();
+            return true;
+        } catch (Exception $e) {
+            DB::rollBack();
+            report($e);
+            AppLog::error('Failed to set bulk debit for orders', $e->getMessage());
+            return false;
+        }
+    }
+
     public function resetStatus(): bool
     {
         DB::beginTransaction();
@@ -264,6 +296,7 @@ class Order extends Model
             $order->discount_amount = $discountAmount;
             $order->delivery_date = $deliveryDate;
             $order->is_paid = false;
+            $order->is_debit = false;
             $order->note = $note;
             $order->created_by = $creator_id ?? $loggedInUser->id;
 
@@ -478,6 +511,28 @@ class Order extends Model
         } catch (Exception $e) {
             report($e);
             AppLog::error('Failed to update delivery date for order', $e->getMessage());
+            return false;
+        }
+    }
+
+    public function toggleDebit(): bool
+    {
+        /** @var User */
+        $loggedInUser = Auth::user();
+        if ($loggedInUser && !$loggedInUser->can('update', $this)) {
+            return false;
+        }
+
+        try {
+            $this->is_debit = !$this->is_debit;
+            $this->save();
+
+            AppLog::info('Order debit changed to ' . $this->is_debit ? 'Yes' : 'No', loggable: $this);
+
+            return true;
+        } catch (Exception $e) {
+            report($e);
+            AppLog::error('Failed to toggle confirmation for order', $e->getMessage());
             return false;
         }
     }
