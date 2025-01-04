@@ -172,7 +172,7 @@
                         </a>
                     </li>
 
-                    @can('viewReport', App\Models\Products\Order::class)
+                    @can('viewReports', App\Models\Products\Order::class)
                     <li>
                         <a href="{{ url('/report/daily-loading') }}" class="navItem {{ $dailyLoading ?? '' }}">
                             <span class="flex
