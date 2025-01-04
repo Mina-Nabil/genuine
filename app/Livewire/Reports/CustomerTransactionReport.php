@@ -68,6 +68,7 @@ class CustomerTransactionReport extends Component
     {
         $payments = CustomerPayment::when($this->search, fn($q) => $q->search($this->search))
             ->paymentMethod($this->section)
+            ->orderByDesc('id')
             ->latest()
             ->paginate(50);
         $this->fetched_customers_IDs = $payments->pluck('id')->toArray();
@@ -75,6 +76,6 @@ class CustomerTransactionReport extends Component
         return view('livewire.reports.customer-transaction-report', [
             'payments' => $payments,
             'PAYMENT_METHODS' => $PAYMENT_METHODS
-        ]);
+        ])->layout('layouts.app', ['page_title' => $this->page_title, 'customerTransReport' => 'active']);;
     }
 }
