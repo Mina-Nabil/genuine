@@ -68,6 +68,7 @@ class CustomerTransactionReport extends Component
     {
         $payments = CustomerPayment::when($this->search, fn($q) => $q->search($this->search))
             ->paymentMethod($this->section)
+            ->orderByDesc('id')
             ->latest()
             ->paginate(50);
         $this->fetched_customers_IDs = $payments->pluck('id')->toArray();

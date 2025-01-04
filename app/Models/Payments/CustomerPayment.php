@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Log;
 
 class CustomerPayment extends Model
 {
@@ -31,13 +32,15 @@ class CustomerPayment extends Model
 
     public function resetBalance()
     {
-        $this->balance = 0;
+        $this->type_balance = $this->amount;
         $this->save();
     }
 
     public function recalculateBalance()
     {
-        $this->balance = 0;
+        $latest_balance = self::paymentMethod($this->payment_method)->where('id', '<', $this->id)->orderByDesc('id')->limit(1)->first()?->type_balance ?? 0;
+        Log::info($latest_balance);
+        $this->type_balance = $latest_balance + $this->amount;
         $this->save();
     }
 
