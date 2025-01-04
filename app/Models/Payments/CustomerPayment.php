@@ -15,6 +15,10 @@ class CustomerPayment extends Model
 
     protected $table = 'customer_payments';
 
+    protected $casts = [
+        'payment_date' => 'datetime',
+    ];
+
     protected $fillable = ['customer_id', 'order_id', 'amount', 'payment_method', 'type_balance', 'payment_date', 'note', 'created_by'];
 
     const PYMT_CASH = 'cash';
@@ -28,6 +32,23 @@ class CustomerPayment extends Model
         $new_payment_type_balance = ($old_payment_type_balance ?? 0) + $amount;
 
         return $new_payment_type_balance;
+    }
+
+    public function scopeSearch($query, $term)
+    {
+        $term = "%{$term}%";
+        return $query->where(function ($q) use ($term) {
+            $q->whereHas('customer', function ($customerQuery) use ($term) {
+                $customerQuery->where('name', 'like', $term)
+                    ->orWhere('address', 'like', $term)
+                    ->orWhere('phone', 'like', $term);
+            });
+        });
+    }
+
+    public function scopePaymentMethod($query, $method)
+    {
+        return $query->where('payment_method', $method);
     }
 
     public function customer()
