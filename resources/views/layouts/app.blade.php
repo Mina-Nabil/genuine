@@ -172,7 +172,6 @@
                         </a>
                     </li>
 
-                    @can('viewReports', App\Models\Products\Order::class)
                     <li>
                         <a href="{{ url('/report/daily-loading') }}" class="navItem {{ $dailyLoading ?? '' }}">
                             <span class="flex
@@ -183,7 +182,6 @@
                             </span>
                         </a>
                     </li>
-                    @endcan
 
                     @can('viewOrderInventory', App\Models\Products\Order::class)
                         <li class="sidebar-menu-title">Inventory</li>
