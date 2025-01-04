@@ -40,7 +40,7 @@ class Order extends Model
         'delivery_date' => 'date',
     ];
 
-    protected $fillable = ['order_number', 'customer_id', 'customer_name', 'shipping_address', 'location_url', 'customer_phone', 'status', 'zone_id', 'driver_id', 'periodic_option', 'total_amount', 'delivery_amount', 'discount_amount', 'delivery_date', 'is_paid', 'is_confirmed', 'note', 'driver_note', 'created_by', 'is_delivered', 'driver_payment_type', 'driver_order'];
+    protected $fillable = ['order_number', 'customer_id', 'customer_name', 'shipping_address', 'location_url', 'customer_phone', 'status', 'zone_id', 'driver_id', 'periodic_option', 'total_amount', 'delivery_amount', 'discount_amount', 'delivery_date', 'is_paid', 'is_confirmed', 'note', 'driver_note', 'created_by', 'is_delivered', 'driver_payment_type', 'driver_order', 'is_debit'];
 
     const PERIODIC_OPTIONS = [self::PERIODIC_WEEKLY, self::PERIODIC_BI_WEEKLY, self::PERIODIC_MONTHLY];
     const PERIODIC_WEEKLY = 'weekly';
@@ -1664,18 +1664,7 @@ class Order extends Model
     public function scopeDebitOrders(Builder $query): Builder
     {
         return $query->where(function ($q) {
-            $q->confirmed()
-                ->where(function ($qqq) {
-                    $qqq->where('orders.status', self::STATUS_IN_DELIVERY)
-                        ->orWhere(function ($qq) {
-                            $qq->where('orders.status', self::STATUS_READY)
-                                ->where(function ($qqqq) {
-                                    $qqqq->where('orders.is_delivered', 1)->orwhereNotNull('orders.driver_payment_type');
-                                });
-                        });
-                })->orwhere(function ($q) {
-                    $q->pastDeliveryDate();
-                });
+            $q->where('orders.is_debit', 1)->whereNot('is_paid');
         });
     }
 
