@@ -515,7 +515,7 @@ class Order extends Model
         }
     }
 
-    public function toggleDebit(): bool
+    public function setAsDebit(): bool
     {
         /** @var User */
         $loggedInUser = Auth::user();
@@ -524,7 +524,7 @@ class Order extends Model
         }
 
         try {
-            $this->is_debit = !$this->is_debit;
+            $this->is_debit = 1;
             $this->save();
 
             AppLog::info('Order debit changed to ' . $this->is_debit ? 'Yes' : 'No', loggable: $this);
@@ -824,6 +824,8 @@ class Order extends Model
                             'created_by' => $migrated ? 1 : $loggedInUser->id,
                         ]);
                     }
+                } elseif($paymentMethod == CustomerPayment::PYMT_DEBIT) {
+                    return $this->setAsDebit();
                 } else {
                     $remainingAmount = $this->remaining_to_pay;
                     $new_type_balance = CustomerPayment::calculateNewBalance($remainingAmount, $paymentMethod);
@@ -1700,19 +1702,8 @@ class Order extends Model
 
     public function scopeNotDebitOrders(Builder $query): Builder
     {
-        return $query->whereNot(function ($q) {
-            $q->confirmed()
-                ->where(function ($qqq) {
-                    $qqq->where('orders.status', self::STATUS_IN_DELIVERY)
-                        ->orWhere(function ($qq) {
-                            $qq->where('orders.status', self::STATUS_READY)
-                                ->where(function ($qqqq) {
-                                    $qqqq->where('orders.is_delivered', 1)->orwhereNotNull('orders.driver_payment_type');
-                                });
-                        });
-                })->orwhere(function ($q) {
-                    $q->pastDeliveryDate();
-                });
+        return $query->where(function ($q) {
+            $q->where('orders.is_debit', false);
         });
     }
 

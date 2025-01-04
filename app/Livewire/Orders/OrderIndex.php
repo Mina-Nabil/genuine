@@ -81,6 +81,7 @@ class OrderIndex extends Component
         $res = Order::bulkSetAsPaid($this->selectedOrders, Carbon::now(), $this->isOpenPayAlert, false);
         if ($res === true) {
             $this->errorMessages = [];
+            $this->selectedOrders = [];
             $this->reset('AvailableToPay', 'isOpenPayAlert');
             $this->alertSuccess('Paid Successfuly!');
         } else {
@@ -334,7 +335,7 @@ class OrderIndex extends Component
     public function render()
     {
         $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneId: $this->zone?->id)->OpenOrders()
-        ->sortByDeliveryDate()
+        ->sortByDeliveryDate()->notDebitOrders()
         ->paginate(50);
 
         $totalWeight = 0;
@@ -349,7 +350,7 @@ class OrderIndex extends Component
         $ZONES = Zone::all();
         $STATUSES = Order::STATUSES;
         $drivers = Driver::all();
-        $PAYMENT_METHODS = CustomerPayment::PAYMENT_METHODS;
+        $PAYMENT_METHODS = CustomerPayment::PAYMENT_METHODS_WITH_DEBIT;
 
         $this->fetched_orders_IDs = $orders->pluck('id')->toArray();
         return view('livewire.orders.order-index', [

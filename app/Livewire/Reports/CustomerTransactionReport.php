@@ -75,6 +75,6 @@ class CustomerTransactionReport extends Component
         return view('livewire.reports.customer-transaction-report', [
             'payments' => $payments,
             'PAYMENT_METHODS' => $PAYMENT_METHODS
-        ]);
+        ])->layout('layouts.app', ['page_title' => $this->page_title, 'customerTransReport' => 'active']);;
     }
 }

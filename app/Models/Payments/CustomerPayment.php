@@ -24,7 +24,9 @@ class CustomerPayment extends Model
     const PYMT_CASH = 'cash';
     const PYMT_BANK_TRANSFER = 'bank_transfer';
     const PYMT_WALLET = 'wallet';
+    const PYMT_DEBIT = 'debit';
     const PAYMENT_METHODS = [self::PYMT_CASH, self::PYMT_BANK_TRANSFER, self::PYMT_WALLET];
+    const PAYMENT_METHODS_WITH_DEBIT = [self::PYMT_CASH, self::PYMT_BANK_TRANSFER, self::PYMT_WALLET, self::PYMT_DEBIT];
 
     public static function calculateNewBalance(float $amount, string $paymentMethod): float
     {

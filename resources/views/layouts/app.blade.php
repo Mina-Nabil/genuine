@@ -116,6 +116,7 @@
                 <ul class="sidebar-menu">
 
                     <li class="sidebar-menu-title">Orders</li>
+     
 
                     <li>
                         <a href="{{ auth()->user()->can('viewAny', App\Models\Orders\Order::class)? url('/orders'): '#' }}"
@@ -138,23 +139,35 @@
                     </li>
 
                     <li>
-                        <a href="{{ auth()->user()->can('viewAny', App\Models\Users\Driver::class)? route('orders.driver.shift'): '#' }}"
-                            class="navItem {{ $driverShift ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Users\Driver::class)? '': 'disabled' }}">
-                            <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="iconoir:delivery-truck">
-                                </iconify-icon>
-                                <span>يوميه مندوب</span>
-                            </span>
-                        </a>
-                    </li>
-
-                    <li>
                         <a href="{{ auth()->user()->can('viewAny', App\Models\Orders\Order::class)? url('/orders/pastdue'): '#' }}"
                             class="navItem {{ $ordersPastDue ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Orders\Order::class)? '': 'disabled' }}">
                             <span class="flex items-center">
                                 <iconify-icon class=" nav-icon" icon="lsicon:order-abnormal-outline">
                                 </iconify-icon>
                                 <span>Debit</span>
+                            </span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ auth()->user()->can('viewAny', App\Models\Orders\Order::class)? url('/orders/cancelled'): '#' }}"
+                            class="navItem {{ $ordersCancelled ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Orders\Order::class)? '': 'disabled' }}">
+                            <span class="flex items-center">
+                                <iconify-icon class=" nav-icon" icon="lsicon:order-abnormal-outline">
+                                </iconify-icon>
+                                <span>Cancelled Orders</span>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    <li class="sidebar-menu-title">Logistics</li>
+                    <li>
+                        <a href="{{ auth()->user()->can('viewAny', App\Models\Users\Driver::class)? route('orders.driver.shift'): '#' }}"
+                            class="navItem {{ $driverShift ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Users\Driver::class)? '': 'disabled' }}">
+                            <span class="flex items-center">
+                                <iconify-icon class=" nav-icon" icon="iconoir:delivery-truck">
+                                </iconify-icon>
+                                <span>يوميه مندوب</span>
                             </span>
                         </a>
                     </li>
@@ -195,7 +208,7 @@
                             </a>
                         </li>
 
-                        <li>
+                        {{-- <li>
                             <a href="{{ auth()->user()->can('viewAny', App\Models\Products\Inventory::class)? url('/transactions'): '#' }}"
                                 class="navItem {{ $Trans ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Products\Inventory::class)? '': 'disabled' }}">
                                 <span class="flex items-center">
@@ -204,8 +217,19 @@
                                     <span>معاملات</span>
                                 </span>
                             </a>
-                        </li>
+                        </li> --}}
                     @endcan
+
+                    <li>
+                        <a href="{{ url('/report/daily-loading') }}" class="navItem {{ $dailyLoading ?? '' }}">
+                            <span class="flex
+                            items-center">
+                                <iconify-icon class=" nav-icon" icon="material-symbols:event">
+                                </iconify-icon>
+                                <span>يوميه تحميل</span>
+                            </span>
+                        </a>
+                    </li>
 
                     <li class="sidebar-menu-title">Calendar</li>
 
@@ -251,27 +275,19 @@
                             </span>
                         </a>
                     </li>
-                    <li>
-                        <a href="{{ url('/report/daily-loading') }}" class="navItem {{ $dailyLoading ?? '' }}">
-                            <span class="flex
-                            items-center">
-                                <iconify-icon class=" nav-icon" icon="material-symbols:event">
-                                </iconify-icon>
-                                <span>يوميه تحميل</span>
-                            </span>
-                        </a>
-                    </li>
+
 
                     <li>
-                        <a href="{{ auth()->user()->can('viewAny', App\Models\Orders\Order::class)? url('/orders/cancelled'): '#' }}"
-                            class="navItem {{ $ordersCancelled ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Orders\Order::class)? '': 'disabled' }}">
+                        <a href="{{ auth()->user()->can('viewReports', App\Models\Orders\Order::class)? url('/report/customers/transactions'): '#' }}"
+                            class="navItem {{ $customerTransReport ?? '' }} {{ auth()->user()->can('viewReports', App\Models\Orders\Order::class)? '': 'disabled' }}">
                             <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="lsicon:order-abnormal-outline">
+                                <iconify-icon class=" nav-icon" icon="grommet-icons:transaction">
                                 </iconify-icon>
-                                <span>Cancelled Orders</span>
+                                <span>معاملات ماليه</span>
                             </span>
                         </a>
                     </li>
+                    
 
                     {{-- <li>
                         <a href="{{ url('/report/customers') }}" class="navItem {{ $customerReport ?? '' }}">
