@@ -62,6 +62,7 @@ class PastDueOrderIndex extends Component
         $res = Order::bulkSetAsPaid($this->selectedOrders,Carbon::now(),$this->isOpenPayAlert,false);
         if ($res === true) {
             $this->errorMessages = [];
+            $this->selectedOrders = [];
             $this->reset('AvailableToPay','isOpenPayAlert');
             $this->alertSuccess('Paid Successfuly!');
         }else{
