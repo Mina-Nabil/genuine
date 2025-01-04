@@ -172,6 +172,19 @@
                         </a>
                     </li>
 
+                    @can('viewReport', App\Models\Products\Order::class)
+                    <li>
+                        <a href="{{ url('/report/daily-loading') }}" class="navItem {{ $dailyLoading ?? '' }}">
+                            <span class="flex
+                            items-center">
+                                <iconify-icon class=" nav-icon" icon="material-symbols:event">
+                                </iconify-icon>
+                                <span>يوميه تحميل</span>
+                            </span>
+                        </a>
+                    </li>
+                    @endcan
+
                     @can('viewOrderInventory', App\Models\Products\Order::class)
                         <li class="sidebar-menu-title">Inventory</li>
                         <li>
@@ -220,16 +233,6 @@
                         </li> --}}
                     @endcan
 
-                    <li>
-                        <a href="{{ url('/report/daily-loading') }}" class="navItem {{ $dailyLoading ?? '' }}">
-                            <span class="flex
-                            items-center">
-                                <iconify-icon class=" nav-icon" icon="material-symbols:event">
-                                </iconify-icon>
-                                <span>يوميه تحميل</span>
-                            </span>
-                        </a>
-                    </li>
 
                     <li class="sidebar-menu-title">Calendar</li>
 
