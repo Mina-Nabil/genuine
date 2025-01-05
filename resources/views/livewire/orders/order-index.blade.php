@@ -402,7 +402,7 @@
                                             {{ ucwords(str_replace('_', ' ', $order->status)) }}
                                         </span>
                                         @if ($order->is_confirmed)
-                                            <span class="badge bg-success-500 text-white capitalize rounded-3xl"> 
+                                            <span class="badge bg-success-500 text-white capitalize rounded-3xl">
                                                 Confirmed</span>
                                         @endif
                                     @endif
@@ -430,7 +430,13 @@
                                 </td>
 
                                 <td class="table-td text-start overflow-hidden text-ellipsis whitespace-nowrap">
-                                    {{ $order->driver ? $order->driver->shift_title : '-' }} {{ ($order->driver && $order->driver_payment_type) ? ' • ' . paymentMethodInArabic($order->driver_payment_type) : ''}}
+                                    @if ($order->is_delivered)
+                                        <span
+                                            class="h-[6px] w-[6px] bg-success-500 rounded-full inline-block ring-4 ring-opacity-30 ring-success-500"
+                                            style="vertical-align: middle;"></span> &nbsp;
+                                    @endif
+                                    {{ $order->driver ? $order->driver->shift_title : '-' }}
+                                    {{ $order->driver && $order->driver_payment_type ? ' • ' . paymentMethodInArabic($order->driver_payment_type) : '' }}
                                 </td>
 
                                 <td class="table-td text-start overflow-hidden text-ellipsis whitespace-nowrap">
