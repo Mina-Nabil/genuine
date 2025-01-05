@@ -125,15 +125,6 @@
                             </a>
                         </li>
                     @endcan
-                    <li>
-                        <a href="{{ auth()->user()->can('viewAny', App\Models\Orders\Order::class)? url('/orders'): '#' }}"
-                            class="navItem {{ $orders ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Orders\Order::class)? '': 'disabled' }}">
-                            <span class="flex items-center">
-                                <iconify-icon class="nav-icon" icon="icon-park-outline:ad-product"></iconify-icon>
-                                <span>Active</span>
-                            </span>
-                        </a>
-                    </li>
 
                     <li class="sidebar-menu-title">Orders</li>
 
