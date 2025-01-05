@@ -1482,6 +1482,10 @@ class Order extends Model
                     ->getOutline()
                     ->setBorderStyle(Border::BORDER_THIN)
                     ->setColor(new Color('00000000'));
+                $activeSheet
+                    ->getStyle("C$i")
+                    ->getAlignment()
+                    ->setWrapText(true);
 
                 $activeSheet->getCell("D$i")->setValue($o->products->count());
                 $activeSheet
