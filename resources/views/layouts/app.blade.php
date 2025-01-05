@@ -114,9 +114,29 @@
             <div class="sidebar-menus bg-white dark:bg-slate-800 py-2 px-4 h-[calc(100%-80px)] overflow-y-auto z-50"
                 id="sidebar_menus">
                 <ul class="sidebar-menu">
+                    @can('viewReports', App\Models\Orders\Order::class)
+                        <li>
+                            <a href="{{ auth()->user()->can('viewReports', App\Models\Orders\Order::class)? url('/dashboard'): '#' }}"
+                                class="navItem {{ $orders ?? '' }} {{ auth()->user()->can('viewReports', App\Models\Orders\Order::class)? '': 'disabled' }}">
+                                <span class="flex items-center">
+                                    <iconify-icon class="nav-icon" icon="icon-park-outline:ad-product"></iconify-icon>
+                                    <span>Dashboard</span>
+                                </span>
+                            </a>
+                        </li>
+                    @endcan
+                    <li>
+                        <a href="{{ auth()->user()->can('viewAny', App\Models\Orders\Order::class)? url('/orders'): '#' }}"
+                            class="navItem {{ $orders ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Orders\Order::class)? '': 'disabled' }}">
+                            <span class="flex items-center">
+                                <iconify-icon class="nav-icon" icon="icon-park-outline:ad-product"></iconify-icon>
+                                <span>Active</span>
+                            </span>
+                        </a>
+                    </li>
 
                     <li class="sidebar-menu-title">Orders</li>
-     
+
 
                     <li>
                         <a href="{{ auth()->user()->can('viewAny', App\Models\Orders\Order::class)? url('/orders'): '#' }}"
@@ -159,7 +179,7 @@
                             </span>
                         </a>
                     </li>
-                    
+
                     <li class="sidebar-menu-title">Logistics</li>
                     <li>
                         <a href="{{ auth()->user()->can('viewAny', App\Models\Users\Driver::class)? route('orders.driver.shift'): '#' }}"
@@ -277,7 +297,6 @@
                         </a>
                     </li>
 
-
                     <li>
                         <a href="{{ auth()->user()->can('viewReports', App\Models\Orders\Order::class)? url('/report/customers/transactions'): '#' }}"
                             class="navItem {{ $customerTransReport ?? '' }} {{ auth()->user()->can('viewReports', App\Models\Orders\Order::class)? '': 'disabled' }}">
@@ -288,7 +307,19 @@
                             </span>
                         </a>
                     </li>
-                    
+
+                    @can('viewReports', App\Models\Orders\Order::class)
+                        <li>
+                            <a href="{{ auth()->user()->can('viewReports', App\Models\Orders\Order::class)? url('/report/orders'): '#' }}"
+                                class="navItem {{ $orders ?? '' }} {{ auth()->user()->can('viewReports', App\Models\Orders\Order::class)? '': 'disabled' }}">
+                                <span class="flex items-center">
+                                    <iconify-icon class="nav-icon" icon="icon-park-outline:ad-product"></iconify-icon>
+                                    <span>متابعه Sales</span>
+                                </span>
+                            </a>
+                        </li>
+                    @endcan
+
 
                     {{-- <li>
                         <a href="{{ url('/report/customers') }}" class="navItem {{ $customerReport ?? '' }}">
