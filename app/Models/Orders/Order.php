@@ -1486,6 +1486,9 @@ class Order extends Model
                     ->getStyle("C$i")
                     ->getAlignment()
                     ->setWrapText(true);
+                    
+                $activeSheet->getRowDimension(1)
+                ->setRowHeight(30);
 
                 $activeSheet->getCell("D$i")->setValue($o->products->count());
                 $activeSheet
