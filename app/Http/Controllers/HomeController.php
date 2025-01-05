@@ -20,7 +20,7 @@ class HomeController extends Controller
     {
         /** @var User */
         $user = Auth::user();
-        if ($user) return redirect('/');
+        if ($user) return redirect($user->home_page);
         return view('auth.login');
     }
 
@@ -33,8 +33,8 @@ class HomeController extends Controller
     public function authenticate(LoginRequest $request)
     {
         $res = User::login(...$request->validated());
-        if ($res === true) {
-            return redirect('/customers');
+        if (is_a($res, User::class)) {
+            return redirect($res->home_page);
         } else {
             return redirect('login')->with(['alert_msg' => $res]);
         }

@@ -55,7 +55,14 @@ class Order extends Model
     const STATUS_CANCELLED = 'cancelled';
     const OK_STATUSES = [self::STATUS_NEW, self::STATUS_READY, self::STATUS_IN_DELIVERY, self::STATUS_DONE];
 
-    const STATUSES = [self::STATUS_NEW, self::STATUS_READY, self::STATUS_IN_DELIVERY, self::STATUS_DONE, self::STATUS_RETURNED, self::STATUS_CANCELLED];
+    const STATUSES = [
+        self::STATUS_NEW,
+        self::STATUS_READY,
+        self::STATUS_IN_DELIVERY,
+        self::STATUS_DONE,
+        self::STATUS_RETURNED,
+        self::STATUS_CANCELLED
+    ];
 
     public static function getNextStatuses(string $currentStatus): array
     {
@@ -1859,7 +1866,10 @@ class Order extends Model
 
     public function getTotalWeightAttribute()
     {
-        return $this->products()->join('products', 'order_products.product_id', '=', 'products.id')->selectRaw('SUM(products.weight * order_products.quantity) as total_weight')->value('total_weight') ?? 0;
+        return $this->products()
+            ->join('products', 'order_products.product_id', '=', 'products.id')
+            ->selectRaw('SUM(products.weight * order_products.quantity) as total_weight')
+            ->value('total_weight') ?? 0;
     }
 
     public static function getTotalZonesForOrders($orders)

@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin;
 
 use App\Models\Users\Driver;
+use App\Models\Users\User;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Carbon\Carbon;
@@ -36,25 +37,15 @@ class Dashboard extends Component
         $fromDate = Carbon::parse($this->fromDate);
         $toDate = Carbon::parse($this->toDate);
 
-        // dd($this->fromDate,$this->toDate);
-        $driversStatistics = Driver::orderStatisticsBetween($fromDate,$toDate)->get();
-
-        $totalOrdersWeight = 0;
-        $totalOrdersCount = 0;
-        $totalRemaingToPay = 0;
-
-        foreach ($driversStatistics as $driver){
-            $totalOrdersWeight += $driver->total_weight;
-            $totalOrdersCount += $driver->total_orders;
-            $totalRemaingToPay += $driver->total_remaining_to_pay;
-        }
+        $usersStatistics = User::orderStatisticsBetween($fromDate,$toDate)->get();
         
         // Ensure the data is properly sent to the view
         return view('livewire.admin.dashboard', [
-            'driversStatistics' => $driversStatistics,
-            'totalOrdersWeight' => $totalOrdersWeight,
-            'totalOrdersCount' => $totalOrdersCount,
-            'totalRemaingToPay' => $totalRemaingToPay
-        ]);
+            'usersStatistics' => $usersStatistics,
+            'totalOrdersWeight' => $usersStatistics->sum('total_weight'),
+            'totalOrdersCount' => $usersStatistics->sum('total_orders'),
+            'totalAmount' =>$usersStatistics->sum('total_amount'),
+            'totalPaid' =>$usersStatistics->sum('total_paid'),
+        ])->layout('layouts.app', ['dashboard' => 'active']);
     }
 }

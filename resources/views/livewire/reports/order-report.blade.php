@@ -2,10 +2,15 @@
 
     <div class="flex justify-between flex-wrap items-center">
         <div class="md:mb-6 mb-4 flex space-x-3 rtl:space-x-reverse">
-            <h4 class="font-medium lg:text-2xl text-xl capitalize text-slate-900 inline-block ltr:pr-4 rtl:pl-4">
-                Orders Report -- {{ $orders->total() }}
-            </h4>
+            <div class=column>
+                <h4 class="font-medium lg:text-2xl text-xl capitalize text-slate-900 inline-block ltr:pr-4 rtl:pl-4 mb-2">
+                    Orders Report
+                </h4>
+                <h6>Count: {{ $orders->total() }} - Weight: {{  $orders->sum('total_weight') / 1000 }}KG</h6>
+            </div>
+            
         </div>
+ 
         <div class="flex sm:space-x-4 space-x-2 sm:justify-end items-center md:mb-6 mb-4 rtl:space-x-reverse">
             <div class="dropdown relative">
                 <button class="btn inline-flex justify-center btn-dark items-center btn-sm" type="button"
@@ -274,6 +279,7 @@
                                 <th scope="col" class="table-th">Zone</th>
                                 <th scope="col" class="table-th">Customer</th>
                                 <th scope="col" class="table-th">Total</th>
+                                <th scope="col" class="table-th">KG</th>
                                 <th scope="col" class="table-th">Status</th>
                                 <th scope="col" class="table-th">Payment</th>
                                 <th scope="col" class="table-th">Driver</th>
@@ -331,6 +337,10 @@
 
                                 <td class="table-td">
                                     {{ $order->total_amount }}
+                                </td>
+
+                                <td class="table-td">
+                                    {{ $order->total_weight / 1000 }}
                                 </td>
 
                                 <td class="table-td text-start overflow-hidden text-ellipsis whitespace-nowrap">

@@ -7,8 +7,8 @@
         </div>
     </div>
 
-    <div class="mb-5">
-        @if ($deliveryDate)
+    <div class="mb-2">
+        {{-- @if ($deliveryDate)
 
             <span class="badge bg-slate-900 text-white capitalize">
                 <span class="cursor-pointer" wire:click='openFilteryDeliveryDate'>
@@ -31,34 +31,45 @@
                 &nbsp;&nbsp;<iconify-icon wire:click="clearDeliveryDate(closed)" icon="material-symbols:close"
                     class="cursor-pointer" width="1.2em" height="1.2em"></iconify-icon>
             </span>
-        @endif
-        @if ($driver)
-            <div class="dropdown relative" style="display: contents">
-                <span class="badge bg-slate-900 text-white capitalize"
-                    @if (auth()->user()->is_driver) type="button"
-                    id="secondaryFlatDropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" @endif>
-                    <span class="cursor-pointer"
-                        @if (!auth()->user()->is_driver) wire:click='openFilteryDriver' @endif>
-                        <span class="text-secondary-500 ">Driver:</span>&nbsp;
-                        {{ ucwords($driver->user->full_name) }} • {{ $driver->shift_title }}
-
-                    </span>
-                </span>
-                <ul
-                    class=" dropdown-menu min-w-max absolute text-sm text-slate-700 dark:text-white hidden bg-white dark:bg-slate-700 shadow
-                            z-[2] float-left overflow-hidden list-none text-left rounded-lg mt-1 m-0 bg-clip-padding border-none">
-                    @foreach (auth()->user()->drivers as $shift)
-                        <li wire:click='ChangeDriverShift({{ $shift->id }})'
-                            class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
-                            {{ auth()->user()->full_name }} • <b>{{ $shift->shift_title }}</b>
-                            @if ($shift->countOrders())
-                                • {{ $shift->countOrders($deliveryDate) }} Orders
-                            @endif
-                        </li>
-                    @endforeach
-                </ul>
+        @endif --}}
+        <div class="flex gap-5 no-wrap">
+            <div class="space-y-2">
+                <div class="input-area flex no-wrap">
+                    <input id="deliveryDate" type="date" class="form-control" wire:model.live="deliveryDate"
+                        autocomplete="off">
+                </div>
             </div>
-        @endif
+
+
+
+            @if ($driver)
+                <div class="space-y-2">
+                    <div class="dropdown relative" style="display: contents">
+                        <span class="badge bg-slate-900 text-white capitalize"
+                            @if (auth()->user()->is_driver) type="button"
+                    id="secondaryFlatDropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" @endif>
+                            <span class="cursor-pointer"
+                                @if (!auth()->user()->is_driver) wire:click='openFilteryDriver' @endif>
+                                <span class="text-secondary-500 ">Driver:</span>&nbsp;
+                                {{ ucwords($driver->user->full_name) }} • {{ $driver->shift_title }}
+
+                            </span>
+                        </span>
+                        <ul
+                            class=" dropdown-menu min-w-max absolute text-sm text-slate-700 dark:text-white hidden bg-white dark:bg-slate-700 shadow
+                            z-[2] float-left overflow-hidden list-none text-left rounded-lg mt-1 m-0 bg-clip-padding border-none">
+                            @foreach (auth()->user()->drivers as $shift)
+                                <li wire:click='ChangeDriverShift({{ $shift->id }})'
+                                    class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
+                                    {{ auth()->user()->full_name }} • <b>{{ $shift->shift_title }}</b>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            @endif
+
+        </div>
     </div>
 
     <div>
@@ -135,8 +146,19 @@
                         </div>
 
                         @forelse ($orders as $order)
-                            <div @class(['card-body', 'flex', 'flex-col', 'justify-between', 'border', 'rounded-lg', 'h-full', 'menu-open', 'p-0', 'mb-5', 'bg-slate-300' => $loop->even])
-                                style="border-color:rgb(224, 224, 224) ">
+                            <div @class([
+                                'card-body',
+                                'flex',
+                                'flex-col',
+                                'justify-between',
+                                'border',
+                                'rounded-lg',
+                                'h-full',
+                                'menu-open',
+                                'p-0',
+                                'mb-5',
+                                'bg-slate-300' => $loop->even,
+                            ]) style="border-color:rgb(224, 224, 224) ">
                                 <div class="grid grid-cols-1 md:grid-cols-8 lg:grid-cols-8">
 
                                     <div class="p-3 md:col-span-2">
@@ -553,7 +575,7 @@
             </div>
     @endif
 
-    @if ($Edited_deliveryDate_sec)
+    {{-- @if ($Edited_deliveryDate_sec)
         <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
             tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
             style="display: block;">
@@ -596,11 +618,6 @@
                                     <input name="Edited_deliveryDate" id="Edited_deliveryDate" type="date"
                                         class="form-control w-full mt-2 @error('Edited_deliveryDate') !border-danger-500 @enderror"
                                         wire:model.live="Edited_deliveryDate" autocomplete="off">
-                                    {{-- <label for="multipleDate-picker" class="form-label">Multiple Dates</label>
-                                    <input wire:model="Edited_deliveryDate"
-                                        class="form-control py-2 flatpickr flatpickr-input active @error('Edited_deliveryDate') !border-danger-500 @enderror"
-                                        id="multipleDate-picker" data-mode="multiple" value="" type="text"
-                                        readonly="readonly"> --}}
 
                                 </div>
                                 @error('Edited_deliveryDate')
@@ -642,7 +659,7 @@
                     </div>
                 </div>
             </div>
-    @endif
+    @endif --}}
 
     @if ($editedOrderNoteSec)
         <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"

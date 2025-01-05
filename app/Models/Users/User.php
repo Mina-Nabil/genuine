@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Events\AppNotification;
+use App\Models\Orders\Order;
 
 class User extends Authenticatable
 {
@@ -258,7 +259,7 @@ class User extends Authenticatable
     /**
      * @return string|bool true if login is successful, error message string if the login failed
      */
-    public static function login($username, $password): string|bool
+    public static function login($username, $password): string|self
     {
         $user = self::where('username', $username)->first();
         if ($user == null) {
@@ -271,7 +272,7 @@ class User extends Authenticatable
             ])
         ) {
             AppLog::info('User logged in');
-            return true;
+            return $user;
         } else {
             return 'Incorrect password';
         }
@@ -322,6 +323,31 @@ class User extends Authenticatable
     }
 
     //scope
+    public function scopeOrderStatisticsBetween($query, $fromDate, $toDate)
+    {
+        return $query
+            ->select('users.*')
+            ->selectRaw('COUNT(o1.id) as total_orders')
+            ->selectRaw('SUM(o1.total_amount) as total_amount')
+            ->selectRaw('SUM((SELECT (SUM(order_products.quantity * products.weight)) from order_products join products on order_products.product_id = products.id where o1.id = order_products.order_id )) as total_weight')
+            ->selectRaw('COUNT(DISTINCT o1.zone_id) as total_zones')
+            ->selectRaw('COUNT(DISTINCT Date(o1.delivery_date)) as total_days')
+            ->selectRaw('GROUP_CONCAT(DISTINCT zones.name ORDER BY zones.name ASC) as zone_names')
+            ->selectRaw('COUNT(DISTINCT o1.zone_id) as total_zones')
+            ->selectRaw('SUM((SELECT SUM(amount) from customer_payments as c2 where o1.id = c2.order_id)) as total_paid')
+
+            ->join('drivers', 'drivers.user_id', '=', 'users.id')
+            ->join('orders as o1', 'drivers.id', '=', 'o1.driver_id')
+            ->leftJoin('zones', 'o1.zone_id', '=', 'zones.id')
+
+            ->whereIn('o1.status', Order::OK_STATUSES)
+            ->whereBetween('o1.delivery_date', [$fromDate->format('Y-m-d 00:00:00'), $toDate->format('Y-m-d 23:59:59')])
+
+            ->groupBy('users.id')
+            ->orderByDesc('total_orders');
+    }
+
+
     public function scopeAdmin($query)
     {
         return $query->where('type', self::TYPE_ADMIN);
@@ -360,6 +386,11 @@ class User extends Authenticatable
     }
 
     //attributes
+    public function getHomePageAttribute()
+    {
+        return $this->is_admin ? 'dashboard' : '/';
+    }
+
     public function getIsAdminAttribute()
     {
         return $this->type == self::TYPE_ADMIN;

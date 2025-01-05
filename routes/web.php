@@ -40,7 +40,7 @@ use App\Livewire\Users\UserIndex;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return redirect()->route('customer.index');
+    return redirect()->route('orders.index');
 });
 
 Route::middleware(['auth'])->group(function () {

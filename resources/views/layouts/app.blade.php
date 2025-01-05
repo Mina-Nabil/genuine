@@ -117,7 +117,7 @@
                     @can('viewReports', App\Models\Orders\Order::class)
                         <li>
                             <a href="{{ auth()->user()->can('viewReports', App\Models\Orders\Order::class)? url('/dashboard'): '#' }}"
-                                class="navItem {{ $orders ?? '' }} {{ auth()->user()->can('viewReports', App\Models\Orders\Order::class)? '': 'disabled' }}">
+                                class="navItem {{ $dashboard ?? '' }} {{ auth()->user()->can('viewReports', App\Models\Orders\Order::class)? '': 'disabled' }}">
                                 <span class="flex items-center">
                                     <iconify-icon class="nav-icon" icon="icon-park-outline:ad-product"></iconify-icon>
                                     <span>Dashboard</span>
@@ -302,7 +302,7 @@
                     @can('viewReports', App\Models\Orders\Order::class)
                         <li>
                             <a href="{{ auth()->user()->can('viewReports', App\Models\Orders\Order::class)? url('/report/orders'): '#' }}"
-                                class="navItem {{ $orders ?? '' }} {{ auth()->user()->can('viewReports', App\Models\Orders\Order::class)? '': 'disabled' }}">
+                                class="navItem {{ $ordersReport ?? '' }} {{ auth()->user()->can('viewReports', App\Models\Orders\Order::class)? '': 'disabled' }}">
                                 <span class="flex items-center">
                                     <iconify-icon class="nav-icon" icon="icon-park-outline:ad-product"></iconify-icon>
                                     <span>متابعه Sales</span>

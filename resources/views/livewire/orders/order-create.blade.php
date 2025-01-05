@@ -3,7 +3,21 @@
         <div class="flex justify-between">
             <h4><b>Create Order</b></h4>
             @if (!empty($fetchedProducts))
-                <button wire:click='createOrder' class="btn inline-flex justify-center btn-dark btn-sm">Save</button>
+                <div class="flex justify-between">
+                    <div class="checkbox-area mr-5">
+                        <label class="inline-flex items-center cursor-pointer">
+                            
+                            <input type="checkbox" wire:model="openOrderInNewTab" class="hidden" id="select-all">
+                            <span
+                                class="h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 bg-slate-500 dark:bg-slate-900">
+                                <img src="assets/images/icon/ck-white.svg" alt=""
+                                    class="h-[10px] w-[10px] block m-auto opacity-0"></span>
+                            <span class="text-sm text-slate-600 font-Inter font-normal">Open Order in New Tab After Create</span>
+                        </label>
+                    </div>
+                    <button wire:click='createOrder'
+                        class="btn inline-flex justify-center btn-dark btn-sm">Save</button>
+                </div>
             @endif
         </div>
 

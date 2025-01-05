@@ -22,10 +22,10 @@ class OrderDriverShift extends Component
     public $driver;
     public $zone;
 
-    public $deliveryDate = [];
-    public $Edited_deliveryDate;
-    public $Edited_deliveryDate_sec;
-    public $selectedDeliveryDates = [];
+    public $deliveryDate;
+    // public $Edited_deliveryDate;
+    // public $Edited_deliveryDate_sec;
+    // public $selectedDeliveryDates = [];
 
     public $setDriverSection = false;
     public $Edited_driverId;
@@ -160,61 +160,61 @@ class OrderDriverShift extends Component
 
     protected $queryString = ['deliveryDate'];
 
-    public function updatedEditedDeliveryDate($value)
-    {
-        foreach ($this->selectedDeliveryDates as $date) {
-            if ($date->toDateString() === $value) {
-                return;
-            }
-        }
-        $this->selectedDeliveryDates[] = Carbon::parse($value);
-        $this->Edited_deliveryDate = null;
-    }
+    // public function updatedEditedDeliveryDate($value)
+    // {
+    //     foreach ($this->selectedDeliveryDates as $date) {
+    //         if ($date->toDateString() === $value) {
+    //             return;
+    //         }
+    //     }
+    //     $this->selectedDeliveryDates[] = Carbon::parse($value);
+    //     $this->Edited_deliveryDate = null;
+    // }
 
-    public function removeSelectedDate($index)
-    {
-        unset($this->selectedDeliveryDates[$index]);
-        $this->selectedDeliveryDates = array_values($this->selectedDeliveryDates); // Reset array keys
-    }
+    // public function removeSelectedDate($index)
+    // {
+    //     unset($this->selectedDeliveryDates[$index]);
+    //     $this->selectedDeliveryDates = array_values($this->selectedDeliveryDates); // Reset array keys
+    // }
 
-    public function clearDeliveryDate()
-    {
-        $this->deliveryDate = [];
-    }
+    // public function clearDeliveryDate()
+    // {
+    //     $this->deliveryDate = [];
+    // }
 
-    public function openFilteryDeliveryDate()
-    {
-        $this->Edited_deliveryDate_sec = true;
+    // public function openFilteryDeliveryDate()
+    // {
+    //     $this->Edited_deliveryDate_sec = true;
 
-        foreach ($this->deliveryDate as $date) {
-            $this->selectedDeliveryDates[] = $date;
-        }
-    }
+    //     foreach ($this->deliveryDate as $date) {
+    //         $this->selectedDeliveryDates[] = $date;
+    //     }
+    // }
 
-    public function closeFilteryDeliveryDate()
-    {
-        $this->Edited_deliveryDate_sec = false;
-        $this->Edited_deliveryDate = null;
-        $this->selectedDeliveryDates = [];
-    }
+    // public function closeFilteryDeliveryDate()
+    // {
+    //     $this->Edited_deliveryDate_sec = false;
+    //     $this->Edited_deliveryDate = null;
+    //     $this->selectedDeliveryDates = [];
+    // }
 
-    public function setFilteryDeliveryDate()
-    {
+    // public function setFilteryDeliveryDate()
+    // {
 
-        $this->deliveryDate = $this->selectedDeliveryDates;
-        $this->closeFilteryDeliveryDate();
-    }
+    //     $this->deliveryDate = $this->selectedDeliveryDates;
+    //     $this->closeFilteryDeliveryDate();
+    // }
 
     public function mount()
     {
-        $this->deliveryDate = [Carbon::today()];
+        $this->deliveryDate = Carbon::today();
         if (Auth::user()->is_driver) {
             $this->driver = Driver::getDriverWithMostOrders($this->deliveryDate, Auth::id());
             if (!$this->driver) $this->driver = Driver::byUserID(Auth::id())->first();
         } else {
             $this->driver = Driver::first();
         }
-        $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneId: $this->zone?->id)
+        $orders = Order::search(searchText: $this->search, deliveryDates: [$this->deliveryDate], status: $this->status, driverId: $this->driver?->id, zoneId: $this->zone?->id)
             ->confirmed()->openOrders()->withTotalQuantity()->orderByRaw('driver_order IS NULL, driver_order ASC')->sortByZone()->paginate(50);
         foreach ($orders as $order) {
             $this->noOfBags[$order->id] = $order->no_of_bags;
@@ -252,7 +252,7 @@ class OrderDriverShift extends Component
 
     public function render()
     {
-        $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneId: $this->zone?->id)
+        $orders = Order::search(searchText: $this->search, deliveryDates: [$this->deliveryDate], status: $this->status, driverId: $this->driver?->id, zoneId: $this->zone?->id)
             ->confirmed()->openOrders()->withTotalQuantity()->orderByRaw('driver_order IS NULL, driver_order ASC')->sortByZone()->paginate(50);
 
         $totalZones = Order::getTotalZonesForOrders($orders);

@@ -79,8 +79,9 @@ class OrderReport extends Component
         $this->closeFilterCreationDate();
     }
 
-    public function clearFilterCreationDates(){
-        $this->reset(['creation_date_from' , 'creation_date_to']);
+    public function clearFilterCreationDates()
+    {
+        $this->reset(['creation_date_from', 'creation_date_to']);
     }
 
     public function openFilterDeliveryDate()
@@ -104,8 +105,9 @@ class OrderReport extends Component
         $this->closeFilterDeliveryDate();
     }
 
-    public function clearFilterDeliveryDates(){
-        $this->reset(['delivery_date_from' , 'delivery_date_to']);
+    public function clearFilterDeliveryDates()
+    {
+        $this->reset(['delivery_date_from', 'delivery_date_to']);
     }
 
     public function openFilteryCreator()
@@ -126,7 +128,8 @@ class OrderReport extends Component
         $this->closeFilterCreator();
     }
 
-    public function resetStatuses(){
+    public function resetStatuses()
+    {
         $res = Order::resetBulkStatus($this->selectedOrders);
         if ($res) {
             $this->resetPage();
@@ -234,8 +237,7 @@ class OrderReport extends Component
             delivery_to: $this->delivery_date_to ? Carbon::parse($this->delivery_date_to) : null,
             creator_id: $this->creator?->id,
             status: $this->status,
-            )
-            ->sortByDeliveryDate()
+        )->sortByDeliveryDate()
             ->paginate(50);
 
         $totalWeight = 0;

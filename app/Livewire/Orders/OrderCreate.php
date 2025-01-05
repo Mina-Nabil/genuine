@@ -24,6 +24,7 @@ class OrderCreate extends Component
     public $page_title = '• Orders • New';
 
     //select products sections
+    public $openOrderInNewTab = false;
     public $isOpenSelectProductSec = false;
     public $productsSearchText;
     public $filterType;
@@ -535,11 +536,14 @@ class OrderCreate extends Component
         $driverID = null;
         $this->driver ? ($driverID = $this->driver->id) : null;
 
-        $res = Order::newOrder($customerId, $this->customerName, $this->shippingAddress, $this->customerPhone, $this->zoneId, $this->locationURL, $driverID, $this->total, $this->shippingFee, $this->discountAmount, $this->ddate ? Carbon::parse($this->ddate) : null, $this->note, $this->fetchedProducts, $detuctFromBalance, creator_id:$this->creator_id);
+        $res = Order::newOrder($customerId, $this->customerName, $this->shippingAddress, $this->customerPhone, $this->zoneId, $this->locationURL, $driverID, $this->total, $this->shippingFee, $this->discountAmount, $this->ddate ? Carbon::parse($this->ddate) : null, $this->note, $this->fetchedProducts, $detuctFromBalance, creator_id: $this->creator_id);
 
         if ($res) {
             $this->alertSuccess('order added!');
             sleep(2);
+            if ($this->openOrderInNewTab) {
+                $this->dispatch('openNewTab', ['url' => route('orders.show', ['id' => $res->id])]);
+            }
             return redirect(route('orders.create'));
         } else {
             $this->alertFailed();

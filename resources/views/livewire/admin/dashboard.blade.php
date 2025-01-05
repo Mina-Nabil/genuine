@@ -24,7 +24,7 @@
                             evening
                         @endif
                     </span>
-                    <span class="block">Mr. {{ Auth::user()->full_name }}</span>
+                    <span class="block">{{ Auth::user()->full_name }}</span>
                 </h4>
                 <p class="text-sm text-white font-normal">
                     Welcome to Genuine
@@ -91,10 +91,10 @@
                                 </div>
                                 <div class="flex-1">
                                     <div class="text-slate-600 dark:text-slate-300 text-sm mb-1 font-medium">
-                                        Amount to collect
+                                        Total / Paid
                                     </div>
                                     <div class="text-slate-900 dark:text-white text-lg font-medium">
-                                        {{ number_format($totalRemaingToPay,2) }} <small>EGP</small>
+                                        {{ number_format($totalAmount) }}  /  {{ number_format($totalPaid) }}
                                     </div>
                                 </div>
                             </div>
@@ -170,11 +170,11 @@
                                         </th>
 
                                         <th scope="col" class=" table-th ">
-                                            Weight
+                                            Days
                                         </th>
 
                                         <th scope="col" class=" table-th ">
-                                            Total Zones
+                                            Weight
                                         </th>
 
                                         <th scope="col" class=" table-th ">
@@ -186,7 +186,7 @@
                                 <tbody
                                     class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
 
-                                    @forelse ($driversStatistics as $driver)
+                                    @forelse ($usersStatistics as $user)
                                         <tr>
                                             <td class="table-td">
                                                 <div class="flex items-center">
@@ -194,34 +194,34 @@
                                                         <div class="w-8 h-8 rounded-[100%] ltr:mr-3 rtl:ml-3">
                                                             <span
                                                                 class="block w-full h-full object-cover text-center text-lg leading-8 user-initial">
-                                                                {{ strtoupper(substr($driver->user->full_name, 0, 1)) }}
+                                                                {{ strtoupper(substr($user->full_name, 0, 1)) }}
                                                             </span>
                                                         </div>
                                                     </div>
                                                     <div class="flex-1 text-start">
                                                         <h4
                                                             class="text-sm font-medium text-slate-600 whitespace-nowrap">
-                                                            {{ $driver->user->full_name }}
+                                                            {{ $user->full_name }}
                                                         </h4>
-                                                        <div
-                                                            class="text-xs font-normal text-slate-600 dark:text-slate-400">
-                                                            {{ $driver->shift_title }}
-                                                        </div>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td class="table-td"> <b>{{ $driver->total_orders }}</b>
+
+                                            <td class="table-td"> <b>{{ $user->total_orders }}</b>
                                                 <small>Orders</small>
                                             </td>
-                                            <td class="table-td"> <b>{{ $driver->total_weight / 1000 }}</b>
+
+                                            <td class="table-td"> <b>{{ $user->total_days }}</b>
+                                                <small>Days</small>
+                                            </td>
+
+                                            <td class="table-td"> <b>{{ $user->total_weight / 1000 }}</b>
                                                 <small>KG</small>
                                             </td>
-                                            <td class="table-td"> <span class="cursor-pointer"
-                                                    title="{{ $driver->zone_names }}"><b>{{ $driver->total_zones }}</b>
-                                                    <small>Zones</small></span></td>
+
                                             <td class="table-td">
                                                 @php
-                                                    $zones = explode(',', $driver->zone_names); // Convert the comma-separated zone names into an array
+                                                    $zones = explode(',', $user->zone_names); // Convert the comma-separated zone names into an array
                                                 @endphp
                                                 @foreach ($zones as $zone)
                                                     <span>{{ $zone }}</span>
