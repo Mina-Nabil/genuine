@@ -1439,7 +1439,7 @@ class Order extends Model
         $todayShifts = Driver::hasOrdersOn([$day])->get();
         $i = 2;
         foreach ($todayShifts as $s) {
-            $orders = Order::with('products', 'products.product')->search(deliveryDates: [$day], driverId: $s->id)->get();
+            $orders = Order::with('products', 'products.product')->search(deliveryDates: [$day], driverId: $s->id)->openOrders()->get();
             $activeSheet->getCell("A$i")->setValue($s->shift_title);
 
             $activeSheet
@@ -1486,9 +1486,9 @@ class Order extends Model
                     ->getStyle("C$i")
                     ->getAlignment()
                     ->setWrapText(true);
-                    
+
                 $activeSheet->getRowDimension(1)
-                ->setRowHeight(30);
+                    ->setRowHeight(30);
 
                 $activeSheet->getCell("D$i")->setValue($o->products->count());
                 $activeSheet
