@@ -88,7 +88,9 @@ class FollowupReport extends Component
     {
         if (count($this->selectedZones) > 1) {
             unset($this->selectedZones[$index]);
+            unset($this->selectedZonesNames[$index]);
             $this->selectedZones = array_values($this->selectedZones); // Reset array keys
+            $this->selectedZonesNames = array_values($this->selectedZonesNames); // Reset array keys
         }
     }
 
