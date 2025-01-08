@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Exception;
 use App\Models\Users\AppLog;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Facades\Auth;
@@ -37,6 +38,8 @@ class Customer extends Model
         'note',
         'creator_id'
     ];
+
+    public $ordersKGs = [];
 
     // Create a new customer
     public static function newCustomer($name, $address = null, $phone, $location_url = null, $zone_id = null)
@@ -208,6 +211,17 @@ class Customer extends Model
         }
     }
 
+    public function appendKGTotal(Carbon $start, Carbon $end)
+    {
+        $this->ordersKGs[] = $this->orders()
+        ->deliveryBetween($start, $end)
+        ->join('order_products', 'orders.id', '=', 'order_products.order_id')
+        ->join('products', 'products.id', '=', 'order_products.product_id')
+        ->groupBy('orders.id')
+        ->selectRaw('SUM(products.weight * order_products.quantity) as week_weight')
+        ->first()?->week_weight;
+    }
+
     // Delete customer and optionally associated pets
     public function deleteCustomer(): bool
     {
@@ -345,7 +359,103 @@ class Customer extends Model
         return response()->download($public_file_path)->deleteFileAfterSend(true);
     }
 
+    //attributes
+    public function getLastOrderIdAttribute()
+    {
+        return $this->orders()->latest()->first()?->id;
+    }
+
     // Scopes
+    public function scopeByZones($query, array $zones)
+    {
+       $query->whereIn('customers.zone_id', $zones);
+    }
+
+    public function scopeWeeklyWeightByCustomer(Builder $query, array $zones, int $weekCount, string $startMonth): array
+    {
+        $startDate = \Carbon\Carbon::parse($startMonth)->startOfMonth();
+        $endDate = \Carbon\Carbon::now()->addWeeks(1);
+
+        $current = $startDate
+            ->copy()
+            ->addDays(($weekCount - 1) * 7)
+            ->startOfDay();
+
+        $weeks = [];
+        while ($current <= $endDate) {
+            $weeks[] = $current->format('Y-m-d');
+
+            if ($current->day == 22) {
+                $current = $current->copy()->addMonth()->startOfMonth();
+            } else {
+                $current->addWeek();
+            }
+        }
+
+        $customers = $query
+            ->leftJoin('orders', 'orders.customer_id', '=', 'customers.id')
+            ->whereIn('customers.zone_id', $zones)
+            // ->whereBetween('delivery_date', [$startDate, $endDate])
+            ->with(['orders', 'orders.products', 'orders.products.product'])
+            ->get();
+
+        $customerWeights = [];
+
+        $groupedOrders = $customers->groupBy(function ($customer) use ($weeks) {
+            foreach ($weeks as $week) {
+                $startOfWeek = \Carbon\Carbon::parse($week);
+                $endOfWeek = $order->getEndOfCustomWeek($startOfWeek);
+
+                if ($order->delivery_date >= $startOfWeek && $order->delivery_date <= $endOfWeek) {
+                    return $week;
+                }
+            }
+            return null;
+        });
+
+        foreach ($groupedOrders as $week => $ordersInWeek) {
+            foreach ($ordersInWeek as $order) {
+                $customer = $order->customer;
+
+                if (!$customer) {
+                    continue;
+                }
+
+                $customerName = $customer->name;
+                $monthlyWeightTarget = $customer->monthly_weight_target;
+                $customer_id = $customer->id;
+
+                $totalWeight = $order->products->sum(function ($orderProduct) {
+                    return ($orderProduct->product ? $orderProduct->product->weight : 0) * $orderProduct->quantity;
+                });
+
+                if (!isset($customerWeights[$customerName])) {
+                    $customerWeights[$customerName] = [
+                        'monthly_weight_target' => $monthlyWeightTarget,
+                        'last_order_id' => $customer->orders()->latest()->first()->id,
+                        'customer_id' => $customer_id,
+                        'default_periodic_order' => $customer->periodicOrders()->default()->first(),
+                        'weekly_weights' => [],
+                    ];
+                }
+
+                $customerWeights[$customerName]['weekly_weights'][$week] = ($customerWeights[$customerName]['weekly_weights'][$week] ?? 0) + $totalWeight;
+            }
+        }
+
+        foreach ($weeks as $week) {
+            foreach ($customerWeights as $customerName => &$weights) {
+                $weights['weekly_weights'][$week] = $weights['weekly_weights'][$week] ?? 0;
+            }
+        }
+
+        return [
+            'weeks' => $weeks,
+            'customerWeights' => $customerWeights,
+        ];
+    }
+
+
     public function scopeReport($query, $searchText = null, $zone_id = null, Carbon $created_from = null, Carbon $created_to = null, $creator_id = null)
     {
         return $query->select('customers.*')

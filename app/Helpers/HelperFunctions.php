@@ -11,10 +11,11 @@ use Carbon\Carbon;
  * @return string
  */
 if (!function_exists('getWeekOfMonth')) {
-    function getWeekOfMonth(string $date): string
+    function getWeekOfMonth(string|Carbon $date): string
     {
         // Parse the date into a Carbon instance
-        $date = Carbon::parse($date);
+        if (!is_a($date, Carbon::class))
+            $date = Carbon::parse($date);
 
         // Get the start of the month for the given date
         $startOfMonth = $date->copy()->startOfMonth();

@@ -10,11 +10,13 @@
         <header class="card-header cust-card-header noborder">
             <div>
 
-                <span wire:click='openSetZoneSec' class="badge bg-slate-900 text-white capitalize" type="button"
+                <span wire:click='openZoneSec' class="badge bg-slate-900 text-white capitalize" type="button"
                     id="secondaryFlatDropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
                     <span class="cursor-pointer">
                         <span class="text-secondary-500 ">Zone:</span>&nbsp;
-                        {{ $zone->name }}
+                        @foreach ($selectedZonesNames as $zz)
+                            {{ $zz }},
+                        @endforeach
 
                     </span>
                 </span>
@@ -107,9 +109,14 @@
                     </ul>
                 </div>
 
-
-
             </div>
+
+            <header class="card-header cust-card-header noborder">
+                <iconify-icon wire:loading wire:target="search" class="loading-icon text-lg"
+                    icon="line-md:loading-twotone-loop"></iconify-icon>
+                <input type="text" class="form-control !pl-9 mr-1 basis-1/4" placeholder="Search"
+                    wire:model.live.debounce.400ms="search">
+            </header>
         </header>
 
         <div class="card-body px-6 pb-6  overflow-x-auto">
@@ -122,48 +129,46 @@
                                 style="position: sticky; left: -25px;  z-index: 10;">
                                 Customer Name
                             </th>
-                            @foreach ($weeks as $week)
+                            @while ($start_week->isBefore($end_week))
                                 <th scope="col" class="table-th">
-                                    {{ getWeekOfMonth(\Carbon\Carbon::parse($week)->format('Y-m-d')) }}
+                                    {{ getWeekOfMonth($start_week) }}
                                 </th>
-                            @endforeach
+                                @php
+                                    $start_week->addWeek();
+                                @endphp
+                            @endwhile
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700 no-wrap">
-                        @foreach ($customerWeights as $customerName => $weights)
-                        <tr class="even:bg-slate-100 dark:even:bg-slate-700">
+                        @foreach ($customers as $i => $c)
+                            <tr class="even:bg-slate-100 dark:even:bg-slate-700">
                                 <td class="table-td flex items-center sticky-column bg-white dark:bg-slate-800 colomn-shadow"
                                     style="position: sticky; left: -25px; z-index: 10;">
                                     <div class="flex-1 text-start">
                                         <h4 class="text-lg font-medium text-slate-600 whitespace-nowrap">
-                                            <a href="{{ route('customer.show', $weights['customer_id']) }}"
+                                            <a href="{{ route('customer.show', $c->id) }}"
                                                 target="_blanck" class="hover-underline">
-                                                <b>{{ $customerName }}</b>
+                                                <b>{{ $c->name }}</b>
                                             </a>
 
                                         </h4>
                                         <div class="text-xs font-normal text-slate-600 dark:text-slate-400">
-                                            Target: <b>{{ $weights['monthly_weight_target'] / 1000 ?? 0 }}</b> KG
+                                            Target: <b>{{ $c->monthly_weight_target / 1000 ?? 0 }}</b> KG
                                         </div>
-                                        <div wire:click='reorderLastOrder({{ $weights['last_order_id'] }})'
-                                            class="text-xs font-normal text-slate-600 dark:text-slate-400 clickable-link">
-                                            <span><iconify-icon icon="radix-icons:reload"></iconify-icon> Repeat Last
-                                                Order</span>
-                                        </div>
-                                        @if ($weights['default_periodic_order'])
-                                        <a target="_blanck" href="{{ route('orders.periodic.show' ,$weights['default_periodic_order']['id']) }}">
-                                            <div wire:click='reorderLastOrder({{ $weights['last_order_id'] }})'
-                                            class="text-xs font-normal text-slate-600 dark:text-slate-400 clickable-link">
-                                            <span><iconify-icon icon="mdi:cursor-default-click"></iconify-icon> Default Periodic Order</span>
-                                        </div>
-                                        </a>
+                                        @if ($c->last_order_id)
+                                            <div wire:click='reorderLastOrder({{ $c->last_order_id }})'
+                                                class="text-xs font-normal text-slate-600 dark:text-slate-400 clickable-link">
+                                                <span><iconify-icon icon="radix-icons:reload"></iconify-icon> Repeat
+                                                    Last
+                                                    Order</span>
+                                            </div>
                                         @endif
 
                                     </div>
                                 </td>
-                                @foreach ($weeks as $week)
+                                @foreach ($c->ordersKGs as $weekly_weight)
                                     <td class="table-td">
-                                        <b>{{ $weights['weekly_weights'][$week] / 1000 ?? 0 }}</b>
+                                        <b>{{ $weekly_weight / 1000 ?? 0 }}</b>
                                         <small>KG</small>
                                     </td>
                                 @endforeach
@@ -173,7 +178,7 @@
                 </table>
 
 
-                @if (empty($customerWeights))
+                @if (empty($customers))
                     {{-- START: empty filter result --}}
                     <div class="card m-5 p-5">
                         <div class="card-body rounded-md bg-white dark:bg-slate-800">
@@ -181,14 +186,11 @@
                                 <h2>
                                     <iconify-icon icon="icon-park-outline:search"></iconify-icon>
                                 </h2>
-                                <h2 class="card-title text-slate-900 dark:text-white mb-3">No products with the
+                                <h2 class="card-title text-slate-900 dark:text-white mb-3">No customers with the
                                     applied
                                     filters</h2>
                                 <p class="card-text">Try changing the filters or search terms for this view.
                                 </p>
-                                <a href="{{ url('/products') }}"
-                                    class="btn inline-flex justify-center mx-2 mt-3 btn-primary active btn-sm">View
-                                    all products</a>
                             </div>
                         </div>
                     </div>
@@ -200,14 +202,14 @@
 
 
         </div>
-        {{-- <div style="position: sticky ; bottom:0;width:100%; z-index:10;"
+        <div style="position: sticky ; bottom:0;width:100%; z-index:10;"
             class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
-            {{ $customerWeights->links('vendor.livewire.simple-bootstrap') }}
-        </div> --}}
+            {{ $customers->links('vendor.livewire.simple-bootstrap') }}
+        </div>
 
     </div>
 
-    @if ($setZoneSection)
+    @if ($Edited_Zone_sec)
         <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
             tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog" style="display: block;">
             <div class="modal-dialog relative w-auto pointer-events-none">
@@ -218,9 +220,12 @@
                         <div
                             class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
                             <h3 class="text-xl font-medium text-white dark:text-white capitalize">
-                                Set Zone
+                                Filter by Zones
+                                <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
+                                    wire:loading wire:target="removeSelectedZone,Edited_Zone"
+                                    icon="line-md:loading-twotone-loop"></iconify-icon>
                             </h3>
-                            <button wire:click="closeSetZoneSec" type="button"
+                            <button wire:click="closeZoneSec" type="button"
                                 class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
                                 data-bs-dismiss="modal">
                                 <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
@@ -236,39 +241,52 @@
                         <!-- Modal body -->
                         <div class="p-6 space-y-4">
 
-                            <div class="input-area">
-                                <input type="text" placeholder="Search zones..."
-                                    class="form-control @error('searchZoneText') !border-danger-500 @enderror"
-                                    wire:model.live='searchZoneText'>
-                            </div>
-
-                            <div class="overflow-x-auto -mx-6" style="max-height: 300px;">
-                                <div class="inline-block min-w-full align-middle">
-                                    <div class="overflow-hidden ">
-                                        <table
-                                            class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700">
-                                            <tbody
-                                                class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
-
-                                                @foreach ($zones as $one_zone)
-                                                    <tr wire:click='setZone({{ $one_zone->id }})'
-                                                        class="hover:bg-slate-200 dark:hover:bg-slate-700 cursor-pointer">
-                                                        <td class="table-td">
-                                                            <p>
-                                                                <b>{{ $one_zone->name }}</b>
-                                                            </p>
-                                                        </td>
-                                                    </tr>
-                                                @endforeach
-
-                                            </tbody>
-                                        </table>
-                                    </div>
+                            <div class="from-group">
+                                <div class="input-area">
+                                    <label for="Edited_Zone" class="form-label">Zone</label>
+                                    <select
+                                        class="form-control w-full mt-2 @error('Edited_Zone') !border-danger-500 @enderror"
+                                        wire:model.live="Edited_Zone" autocomplete="off">
+                                        <option selected readonly>Select Zones</option>
+                                        @foreach ($saved_zones as $z)
+                                            <option value="{{ $z->id }}">
+                                                {{ $z->name }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
+                                @error('Edited_Zone')
+                                    <span
+                                        class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                @enderror
                             </div>
+
+                            @foreach ($selectedZonesNames as $index => $zone)
+                                <span class="badge bg-slate-900 text-white capitalize">
+                                    <span class="cursor-pointer">
+                                        {{ $zone }}
+                                    </span>
+
+                                    &nbsp;&nbsp;<iconify-icon wire:click="removeSelectedZone({{ $index }})"
+                                        icon="material-symbols:close" class="cursor-pointer" width="1.2em"
+                                        height="1.2em"></iconify-icon>
+                                </span>
+                            @endforeach
+
+                        </div>
+
+                        <!-- Modal footer -->
+                        <div class="flex items-center justify-end p-6 border-t border-slate-200 rounded-b">
+                            <button wire:click="setZones" data-bs-dismiss="modal"
+                                class="btn inline-flex justify-center text-white bg-black-500">
+                                <span wire:loading.remove wire:target="setZones">Submit</span>
+                                <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
+                                    wire:loading wire:target="setZones"
+                                    icon="line-md:loading-twotone-loop"></iconify-icon>
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
     @endif
+
 </div>

@@ -548,7 +548,6 @@
     @endif
     {{-- @endcan --}}
 
-    {{-- @can('create', App\Models\Products\Product::class) --}}
     @if ($setDeliveryDateSection)
         <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
             tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
@@ -609,7 +608,6 @@
                 </div>
             </div>
     @endif
-    {{-- @endcan --}}
 
 
     @if ($isOpenPayAlert)
