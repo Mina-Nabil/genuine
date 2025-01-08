@@ -43,10 +43,12 @@ class OrderIndex extends Component
     public $Edited_driverId;
     public $Edited_driverId_sec;
 
-    #[Url]
-    public $zone;
-    public $Edited_zoneId;
-    public $Edited_zoneId_sec;
+    public $setZoneSection = false;
+    public $zones = [];
+    public $Edited_Zone;
+    public $Edited_Zone_sec;
+    public $selectedZones = [];
+    public $selectedZonesNames = [];
 
     #[Url]
     public $deliveryDate = [];
@@ -171,23 +173,55 @@ class OrderIndex extends Component
         $this->closeFilteryDriver();
     }
 
-    public function openFilteryZone()
+    public function clearZones()
     {
-        $this->Edited_zoneId_sec = true;
-        $this->Edited_zoneId = $this->zone?->id;
+        $this->zones = [];
     }
 
-    public function closeFilteryZone()
+    public function updatedEditedZone($value)
     {
-        $this->Edited_zoneId_sec = false;
-        $this->Edited_zoneId = null;
+        foreach ($this->selectedZones as $z) {
+            if ($z === $value) {
+                return;
+            }
+        }
+        $this->selectedZones[] = $value;
+        $this->selectedZonesNames[] = Zone::find($value)->name;
+        $this->Edited_Zone = null;
     }
 
-    public function setFilterZone()
+    public function openZoneSec()
     {
-        $this->zone = Zone::findOrFail($this->Edited_zoneId);
-        $this->closeFilteryZone();
+        $this->Edited_Zone_sec = true;
+
+        foreach ($this->zones as $zone) {
+            $this->selectedZones[] = $zone;
+        }
     }
+
+    public function closeZoneSec()
+    {
+        $this->Edited_Zone_sec = false;
+        $this->Edited_Zone = null;
+        $this->selectedZones = [];
+    }
+
+    public function setZones()
+    {
+        $this->zones = $this->selectedZones;
+        $this->closeZoneSec();
+    }
+
+    public function removeSelectedZone($index)
+    {
+        if (count($this->selectedZones) > 1) {
+            unset($this->selectedZones[$index]);
+            unset($this->selectedZonesNames[$index]);
+            $this->selectedZones = array_values($this->selectedZones); // Reset array keys
+            $this->selectedZonesNames = array_values($this->selectedZonesNames); // Reset array keys
+        }
+    }
+
 
     // public function mount()
     // {
