@@ -214,7 +214,7 @@ class OrderIndex extends Component
 
     public function removeSelectedZone($index)
     {
-        if (count($this->selectedZones) > 1) {
+        if (count($this->selectedZones)) {
             unset($this->selectedZones[$index]);
             unset($this->selectedZonesNames[$index]);
             $this->selectedZones = array_values($this->selectedZones); // Reset array keys
