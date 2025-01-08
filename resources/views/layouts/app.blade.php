@@ -311,6 +311,18 @@
                         </li>
                     @endcan
 
+                    @can('viewReports', App\Models\Orders\Order::class)
+                        <li>
+                            <a href="{{ auth()->user()->can('viewReports', App\Models\Orders\Order::class)? url('/report/orders/totals'): '#' }}"
+                                class="navItem {{ $dailyTotalsReport ?? '' }} {{ auth()->user()->can('viewReports', App\Models\Orders\Order::class)? '': 'disabled' }}">
+                                <span class="flex items-center">
+                                    <iconify-icon class="nav-icon" icon="fluent-mdl2:bookmark-report"></iconify-icon>
+                                    <span>المبيعات اليوميه</span>
+                                </span>
+                            </a>
+                        </li>
+                    @endcan
+
 
                     {{-- <li>
                         <a href="{{ url('/report/customers') }}" class="navItem {{ $customerReport ?? '' }}">

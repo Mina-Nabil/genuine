@@ -55,14 +55,7 @@ class Order extends Model
     const STATUS_CANCELLED = 'cancelled';
     const OK_STATUSES = [self::STATUS_NEW, self::STATUS_READY, self::STATUS_IN_DELIVERY, self::STATUS_DONE];
 
-    const STATUSES = [
-        self::STATUS_NEW,
-        self::STATUS_READY,
-        self::STATUS_IN_DELIVERY,
-        self::STATUS_DONE,
-        self::STATUS_RETURNED,
-        self::STATUS_CANCELLED
-    ];
+    const STATUSES = [self::STATUS_NEW, self::STATUS_READY, self::STATUS_IN_DELIVERY, self::STATUS_DONE, self::STATUS_RETURNED, self::STATUS_CANCELLED];
 
     public static function getNextStatuses(string $currentStatus): array
     {
@@ -1494,8 +1487,7 @@ class Order extends Model
                     ->getAlignment()
                     ->setWrapText(true);
 
-                $activeSheet->getRowDimension(1)
-                    ->setRowHeight(30);
+                $activeSheet->getRowDimension(1)->setRowHeight(30);
 
                 $activeSheet->getCell("D$i")->setValue($o->products->count());
                 $activeSheet
@@ -1698,20 +1690,24 @@ class Order extends Model
 
     public function scopeCancelledOrders(Builder $query): Builder
     {
-        return $query->where(function (Builder $query) {
-            $query->whereIn('status', [self::STATUS_RETURNED, self::STATUS_CANCELLED])->where(function (Builder $query) {
-                $query->where('status', '!=', self::STATUS_DONE)->orWhere('is_paid', true);
-            });
-        })->orderByDesc('delivery_date');
+        return $query
+            ->where(function (Builder $query) {
+                $query->whereIn('status', [self::STATUS_RETURNED, self::STATUS_CANCELLED])->where(function (Builder $query) {
+                    $query->where('status', '!=', self::STATUS_DONE)->orWhere('is_paid', true);
+                });
+            })
+            ->orderByDesc('delivery_date');
     }
 
     public function scopeDoneOrders(Builder $query): Builder
     {
-        return $query->where(function (Builder $query) {
-            $query->where('status', self::STATUS_DONE)->where(function (Builder $query) {
-                $query->where('status', '!=', self::STATUS_DONE)->orWhere('is_paid', true);
-            });
-        })->orderByDesc('delivery_date');
+        return $query
+            ->where(function (Builder $query) {
+                $query->where('status', self::STATUS_DONE)->where(function (Builder $query) {
+                    $query->where('status', '!=', self::STATUS_DONE)->orWhere('is_paid', true);
+                });
+            })
+            ->orderByDesc('delivery_date');
     }
 
     public function scopeNotCancelledOrReturned(Builder $query): Builder
@@ -1864,12 +1860,29 @@ class Order extends Model
         return $query->orderBy('zones.name', $direction);
     }
 
+    public function scopeDailyTotals($query, $year, $month)
+    {
+        return $query
+            ->selectRaw('DATE(o1.delivery_date) as day')
+            ->selectRaw('SUM(o1.total_amount) as total_amount')
+            ->selectRaw('SUM(
+                                (SELECT SUM(order_products.quantity * products.weight)
+                                FROM order_products
+                                JOIN products ON order_products.product_id = products.id
+                                WHERE o1.id = order_products.order_id)
+                            ) AS total_weightsss')
+
+            ->join('orders as o1', 'o1.id', '=', 'orders.id')
+            ->whereYear('o1.delivery_date', $year)
+            ->whereMonth('o1.delivery_date', $month)
+            ->whereIn('o1.status', Order::OK_STATUSES)
+            ->groupBy('day')
+            ->orderBy('day', 'ASC');
+    }
+
     public function getTotalWeightAttribute()
     {
-        return $this->products()
-            ->join('products', 'order_products.product_id', '=', 'products.id')
-            ->selectRaw('SUM(products.weight * order_products.quantity) as total_weight')
-            ->value('total_weight') ?? 0;
+        return $this->products()->join('products', 'order_products.product_id', '=', 'products.id')->selectRaw('SUM(products.weight * order_products.quantity) as total_weight')->value('total_weight') ?? 0;
     }
 
     public static function getTotalZonesForOrders($orders)

@@ -30,6 +30,7 @@ use App\Livewire\Products\TransactionIndex;
 use App\Livewire\Reports\CustomerReport;
 use App\Livewire\Reports\CustomerTransactionReport;
 use App\Livewire\Reports\DailyLoadingReport;
+use App\Livewire\Reports\DailyTotalsReport;
 use App\Livewire\Reports\OrderReport;
 use App\Livewire\Reports\ProductionPlanning;
 use App\Livewire\Tasks\TaskIndex;
@@ -92,6 +93,7 @@ Route::middleware(['auth', 'no_driver'])->group(function () {
     Route::get('/report/daily-loading', DailyLoadingReport::class)->name('reports.daily.loading');
     Route::get('/report/customers', CustomerReport::class)->name('reports.customers');
     Route::get('/report/orders', OrderReport::class)->name('reports.orders');
+    Route::get('/report/orders/totals', DailyTotalsReport::class)->name('reports.orders.daily');
     Route::get('/report/customers/transactions', CustomerTransactionReport::class)->name('reports.customers.transactions');
 
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
