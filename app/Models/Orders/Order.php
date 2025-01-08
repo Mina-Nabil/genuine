@@ -270,7 +270,7 @@ class Order extends Model
     }
 
     // Function to create a new order
-    public static function newOrder(int $customerId, string $customerName, string $shippingAddress, string $customerPhone, int $zoneId, $locationURL = null, int $driverId = null, float $totalAmount = 0, float $deliveryAmount = 0, float $discountAmount = 0, Carbon $deliveryDate = null, string $note = null, array $products, $detuctFromBalance = false, $migrated = false, $creator_id = null, array $zoneIds = []): Order|bool
+    public static function newOrder(int $customerId, string $customerName, string $shippingAddress, string $customerPhone, int $zoneId, $locationURL = null, int $driverId = null, float $totalAmount = 0, float $deliveryAmount = 0, float $discountAmount = 0, Carbon $deliveryDate = null, string $note = null, array $products, $detuctFromBalance = false, $migrated = false, $creator_id = null): Order|bool
     {
         /** @var User */
         $loggedInUser = Auth::user();
@@ -1647,7 +1647,7 @@ class Order extends Model
         return ($hasPayments || $hasBalanceTransactions) && ($this->remaining_to_pay > 0 && $this->remaining_to_pay < $this->total_amount);
     }
 
-    public function scopeSearch(Builder $query, string $searchText = null, array $deliveryDates = [], string $status = null, int $zoneId = null, int $driverId = null, bool $isPaid = null, $skipUserCheck = false): Builder
+    public function scopeSearch(Builder $query, string $searchText = null, array $deliveryDates = [], string $status = null, int $zoneId = null, int $driverId = null, bool $isPaid = null, $skipUserCheck = false, array $zoneIds = []): Builder
     {
         if (!joined($query, 'zones')) {
             $query->join('zones', 'zones.id', '=', 'orders.zone_id');
@@ -1678,6 +1678,9 @@ class Order extends Model
             })
             ->when($zoneId, function ($query, $zoneId) {
                 $query->where('zone_id', $zoneId);
+            })
+            ->when(count($zoneIds), function ($query) use ($zoneIds) {
+                $query->whereIn('orders.zone_id', $zoneIds);
             })
             ->when($driverId, function ($query, $driverId) {
                 $query->where('driver_id', $driverId);
