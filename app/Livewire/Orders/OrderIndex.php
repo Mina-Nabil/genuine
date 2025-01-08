@@ -368,7 +368,7 @@ class OrderIndex extends Component
 
     public function render()
     {
-        $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneIds: $this->selectedZones)->OpenOrders()
+        $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneIds: $this->zones)->OpenOrders()
         ->sortByDeliveryDate()->notDebitOrders()
         ->paginate(50);
 
