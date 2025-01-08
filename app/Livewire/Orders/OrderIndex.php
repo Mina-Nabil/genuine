@@ -381,7 +381,7 @@ class OrderIndex extends Component
         $ordersCount = count($orders);
 
         $DRIVERS = Driver::all();
-        $ZONES = Zone::all();
+        $saved_zones = Zone::all();
         $STATUSES = Order::STATUSES;
         $drivers = Driver::all();
         $PAYMENT_METHODS = CustomerPayment::PAYMENT_METHODS_WITH_DEBIT;
@@ -392,7 +392,7 @@ class OrderIndex extends Component
             'drivers' => $drivers,
             'STATUSES' => $STATUSES,
             'DRIVERS' => $DRIVERS,
-            'ZONES' => $ZONES,
+            'saved_zones' => $saved_zones,
             'totalWeight' => $totalWeight,
             'totalZones' => $totalZones,
             'ordersCount' => $ordersCount,
