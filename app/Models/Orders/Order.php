@@ -1639,7 +1639,7 @@ class Order extends Model
         return ($hasPayments || $hasBalanceTransactions) && ($this->remaining_to_pay > 0 && $this->remaining_to_pay < $this->total_amount);
     }
 
-    public function scopeSearch(Builder $query, string $searchText = null, array $deliveryDates = [], string $status = null, int $zoneId = null, int $driverId = null, bool $isPaid = null, $skipUserCheck = false): Builder
+    public function scopeSearch(Builder $query, string $searchText = null, array $deliveryDates = [], string $status = null, int $zoneId = null, int $driverId = null, bool $isPaid = null, $skipUserCheck = false, array $zoneIds = []): Builder
     {
         if (!joined($query, 'zones')) {
             $query->join('zones', 'zones.id', '=', 'orders.zone_id');
@@ -1670,6 +1670,9 @@ class Order extends Model
             })
             ->when($zoneId, function ($query, $zoneId) {
                 $query->where('zone_id', $zoneId);
+            })
+            ->when(count($zoneIds), function ($query) use ($zoneIds) {
+                $query->whereIn('orders.zone_id', $zoneIds);
             })
             ->when($driverId, function ($query, $driverId) {
                 $query->where('driver_id', $driverId);
@@ -1710,6 +1713,12 @@ class Order extends Model
             ->orderByDesc('delivery_date');
     }
 
+    public function scopeDeliveryBetween(Builder $query, Carbon $from, Carbon $to): Builder
+    {
+        return $query->where('delivery_date', ">=", $from->format('Y-m-d 00:00:00'))
+            ->where('delivery_date', "<=", $to->format('Y-m-d 00:00:00'));
+    }
+
     public function scopeNotCancelledOrReturned(Builder $query): Builder
     {
         return $query->whereNotIn('status', [self::STATUS_RETURNED, self::STATUS_CANCELLED]);
@@ -1747,89 +1756,6 @@ class Order extends Model
     public function scopeConfirmed(Builder $query): Builder
     {
         return $query->where('is_confirmed', true);
-    }
-
-    public function scopeWeeklyWeightByCustomer(Builder $query, int $zoneId, int $weekCount, string $startMonth): array
-    {
-        $startDate = \Carbon\Carbon::parse($startMonth)->startOfMonth();
-        $endDate = \Carbon\Carbon::now()->addWeeks(1);
-
-        $current = $startDate
-            ->copy()
-            ->addDays(($weekCount - 1) * 7)
-            ->startOfDay();
-
-        $weeks = [];
-        while ($current <= $endDate) {
-            $weeks[] = $current->format('Y-m-d');
-
-            if ($current->day == 22) {
-                $current = $current->copy()->addMonth()->startOfMonth();
-            } else {
-                $current->addWeek();
-            }
-        }
-
-        $orders = $query
-            ->where('zone_id', $zoneId)
-            ->whereBetween('delivery_date', [$startDate, $endDate])
-            ->with(['products.product', 'customer'])
-            ->get();
-
-        $customerWeights = [];
-
-        $groupedOrders = $orders->groupBy(function ($order) use ($weeks) {
-            foreach ($weeks as $week) {
-                $startOfWeek = \Carbon\Carbon::parse($week);
-                $endOfWeek = $this->getEndOfCustomWeek($startOfWeek);
-
-                if ($order->delivery_date >= $startOfWeek && $order->delivery_date <= $endOfWeek) {
-                    return $week;
-                }
-            }
-            return null;
-        });
-
-        foreach ($groupedOrders as $week => $ordersInWeek) {
-            foreach ($ordersInWeek as $order) {
-                $customer = $order->customer;
-
-                if (!$customer) {
-                    continue;
-                }
-
-                $customerName = $customer->name;
-                $monthlyWeightTarget = $customer->monthly_weight_target;
-                $customer_id = $customer->id;
-
-                $totalWeight = $order->products->sum(function ($orderProduct) {
-                    return ($orderProduct->product ? $orderProduct->product->weight : 0) * $orderProduct->quantity;
-                });
-
-                if (!isset($customerWeights[$customerName])) {
-                    $customerWeights[$customerName] = [
-                        'monthly_weight_target' => $monthlyWeightTarget,
-                        'last_order_id' => $customer->orders()->latest()->first()->id,
-                        'customer_id' => $customer_id,
-                        'default_periodic_order' => $customer->periodicOrders()->default()->first(),
-                        'weekly_weights' => [],
-                    ];
-                }
-
-                $customerWeights[$customerName]['weekly_weights'][$week] = ($customerWeights[$customerName]['weekly_weights'][$week] ?? 0) + $totalWeight;
-            }
-        }
-
-        foreach ($weeks as $week) {
-            foreach ($customerWeights as $customerName => &$weights) {
-                $weights['weekly_weights'][$week] = $weights['weekly_weights'][$week] ?? 0;
-            }
-        }
-
-        return [
-            'weeks' => $weeks,
-            'customerWeights' => $customerWeights,
-        ];
     }
 
     private function getEndOfCustomWeek(\Carbon\Carbon $startOfWeek): \Carbon\Carbon

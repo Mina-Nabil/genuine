@@ -80,7 +80,7 @@
                         class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
                         Driver
                     </li>
-                    <li wire:click='openFilteryZone'
+                    <li wire:click='openZoneSec'
                         class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
                         Zone
                     </li>
@@ -243,16 +243,16 @@
                             class="cursor-pointer" width="1.2em" height="1.2em"></iconify-icon>
                     </span>
                 @endif
-                @if ($zone)
-                    <span class="badge bg-slate-900 text-white capitalize">
-                        <span class="cursor-pointer" wire:click='openFilteryZone'>
+                @if (count($selectedZonesNames))
+                    <span wire:click='openZoneSec' class="badge bg-slate-900 text-white capitalize" type="button"
+                        id="secondaryFlatDropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="cursor-pointer">
                             <span class="text-secondary-500 ">Zone:</span>&nbsp;
-                            {{ ucwords($zone->name) }}
+                            @foreach ($selectedZonesNames as $zz)
+                                {{ $zz }},
+                            @endforeach
 
                         </span>
-
-                        &nbsp;&nbsp;<iconify-icon wire:click="clearProperty('zone')" icon="material-symbols:close"
-                            class="cursor-pointer" width="1.2em" height="1.2em"></iconify-icon>
                     </span>
                 @endif
             </div>
@@ -548,7 +548,6 @@
     @endif
     {{-- @endcan --}}
 
-    {{-- @can('create', App\Models\Products\Product::class) --}}
     @if ($setDeliveryDateSection)
         <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
             tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
@@ -609,7 +608,6 @@
                 </div>
             </div>
     @endif
-    {{-- @endcan --}}
 
 
     @if ($isOpenPayAlert)
@@ -883,7 +881,7 @@
             </div>
     @endif
 
-    @if ($Edited_zoneId_sec)
+    @if ($Edited_Zone_sec)
         <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
             tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
             style="display: block;">
@@ -895,9 +893,12 @@
                         <div
                             class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
                             <h3 class="text-xl font-medium text-white dark:text-white capitalize">
-                                Filter Zone
+                                Filter by Zones
+                                <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
+                                    wire:loading wire:target="removeSelectedZone,Edited_Zone"
+                                    icon="line-md:loading-twotone-loop"></iconify-icon>
                             </h3>
-                            <button wire:click="closeFilteryZone" type="button"
+                            <button wire:click="closeZoneSec" type="button"
                                 class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
                                 data-bs-dismiss="modal">
                                 <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
@@ -915,33 +916,44 @@
 
                             <div class="from-group">
                                 <div class="input-area">
-                                    <label for="Edited_zoneId" class="form-label">Zone*</label>
-                                    <select name="Edited_zoneId" id="Edited_status"
-                                        class="form-control w-full mt-2 @error('Edited_zoneId') !border-danger-500 @enderror"
-                                        wire:model="Edited_zoneId" autocomplete="off">
-                                        <option value="">Select zone</option>
-                                        @foreach ($ZONES as $ONE_ZONES)
-                                            <option value="{{ $ONE_ZONES->id }}">
-                                                {{ $ONE_ZONES->name }}</option>
+                                    <label for="Edited_Zone" class="form-label">Zone</label>
+                                    <select
+                                        class="form-control w-full mt-2 @error('Edited_Zone') !border-danger-500 @enderror"
+                                        wire:model.live="Edited_Zone" autocomplete="off">
+                                        <option selected readonly>Select Zones</option>
+                                        @foreach ($saved_zones as $z)
+                                            <option value="{{ $z->id }}">
+                                                {{ $z->name }}</option>
                                         @endforeach
                                     </select>
-
                                 </div>
-                                @error('Edited_zoneId')
+                                @error('Edited_Zone')
                                     <span
                                         class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
                                 @enderror
                             </div>
 
+                            @foreach ($selectedZonesNames as $index => $zone)
+                                <span class="badge bg-slate-900 text-white capitalize">
+                                    <span class="cursor-pointer">
+                                        {{ $zone }}
+                                    </span>
+
+                                    &nbsp;&nbsp;<iconify-icon wire:click="removeSelectedZone({{ $index }})"
+                                        icon="material-symbols:close" class="cursor-pointer" width="1.2em"
+                                        height="1.2em"></iconify-icon>
+                                </span>
+                            @endforeach
+
                         </div>
 
                         <!-- Modal footer -->
                         <div class="flex items-center justify-end p-6 border-t border-slate-200 rounded-b">
-                            <button wire:click="setFilterZone" data-bs-dismiss="modal"
+                            <button wire:click="setZones" data-bs-dismiss="modal"
                                 class="btn inline-flex justify-center text-white bg-black-500">
-                                <span wire:loading.remove wire:target="setFilterZone">Submit</span>
+                                <span wire:loading.remove wire:target="setZones">Submit</span>
                                 <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
-                                    wire:loading wire:target="setFilterZone"
+                                    wire:loading wire:target="setZones"
                                     icon="line-md:loading-twotone-loop"></iconify-icon>
                             </button>
                         </div>
