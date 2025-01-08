@@ -21,28 +21,6 @@
                     </span>
                 </span>
 
-                {{-- <div class="dropdown relative" style="display: contents">
-                    <span class="badge bg-slate-900 text-white capitalize" type="button"
-                        id="secondaryFlatDropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                        <span class="cursor-pointer">
-                            <span class="text-secondary-500 ">Zone:</span>&nbsp;
-                            {{ $zone->name }}
-
-                        </span>
-                    </span>
-                    <ul class=" dropdown-menu min-w-max absolute text-sm text-slate-700 dark:text-white hidden bg-white dark:bg-slate-700 shadow
-                        z-[2] float-left overflow-hidden list-none text-left rounded-lg mt-1 m-0 bg-clip-padding border-none"
-                        style="z-index: 999;height: 235px;overflow-y: auto;">
-                        @foreach ($zones as $one_zone)
-                            <li wire:click='setZone({{ $one_zone->id }})'
-                                class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
-                                {{ $one_zone->name }}
-                            </li>
-                        @endforeach
-
-                    </ul>
-                </div> --}}
-
                 <div class="dropdown relative" style="display: contents">
                     <span class="badge bg-slate-900 text-white capitalize" type="button"
                         id="secondaryFlatDropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">

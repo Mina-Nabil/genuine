@@ -243,16 +243,16 @@
                             class="cursor-pointer" width="1.2em" height="1.2em"></iconify-icon>
                     </span>
                 @endif
-                @if ($zone)
-                    <span class="badge bg-slate-900 text-white capitalize">
-                        <span class="cursor-pointer" wire:click='openFilteryZone'>
+                @if (count($selectedZonesNames))
+                    <span wire:click='openZoneSec' class="badge bg-slate-900 text-white capitalize" type="button"
+                        id="secondaryFlatDropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="cursor-pointer">
                             <span class="text-secondary-500 ">Zone:</span>&nbsp;
-                            {{ ucwords($zone->name) }}
+                            @foreach ($selectedZonesNames as $zz)
+                                {{ $zz }},
+                            @endforeach
 
                         </span>
-
-                        &nbsp;&nbsp;<iconify-icon wire:click="clearProperty('zone')" icon="material-symbols:close"
-                            class="cursor-pointer" width="1.2em" height="1.2em"></iconify-icon>
                     </span>
                 @endif
             </div>
@@ -883,7 +883,8 @@
 
     @if ($Edited_Zone_sec)
         <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
-            tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog" style="display: block;">
+            tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
+            style="display: block;">
             <div class="modal-dialog relative w-auto pointer-events-none">
                 <div
                     class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
