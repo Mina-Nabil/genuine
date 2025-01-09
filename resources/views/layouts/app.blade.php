@@ -328,7 +328,7 @@
 
                     @can('viewReports', App\Models\Orders\Order::class)
                         <li>
-                            <a href="{{ auth()->user()->can('viewReports', App\Models\Orders\Order::class)? url('/report/orders/totals'): '#' }}"
+                            <a href="{{ auth()->user()->can('viewReports', App\Models\Orders\Order::class)? url('/report/orders/monthly'): '#' }}"
                                 class="navItem {{ $monthlyTotalsReport ?? '' }} {{ auth()->user()->can('viewReports', App\Models\Orders\Order::class)? '': 'disabled' }}">
                                 <span class="flex items-center">
                                     <iconify-icon class="nav-icon" icon="fluent-mdl2:analytics-report"></iconify-icon>
