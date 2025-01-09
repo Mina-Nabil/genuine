@@ -338,6 +338,17 @@
                         </li>
                     @endcan
 
+                    @can('viewReports', App\Models\Orders\Order::class)
+                        <li>
+                            <a href="{{ auth()->user()->can('viewReports', App\Models\Orders\Order::class)? url('/report/orders/weekly'): '#' }}"
+                                class="navItem {{ $weeklyTotalsReport ?? '' }} {{ auth()->user()->can('viewReports', App\Models\Orders\Order::class)? '': 'disabled' }}">
+                                <span class="flex items-center">
+                                    <iconify-icon class="nav-icon" icon="tabler:chart-area-line-filled"></iconify-icon>
+                                    <span>مبيعات المناطق</span>
+                                </span>
+                            </a>
+                        </li>
+                    @endcan
 
                     {{-- <li>
                         <a href="{{ url('/report/customers') }}" class="navItem {{ $customerReport ?? '' }}">

@@ -1825,6 +1825,27 @@ class Order extends Model
             ->orderBy('month', 'ASC');
     }
 
+    public function scopeWeeklyZoneReport($query, $year, $month, $searchText = null)
+    {
+        $query
+            ->selectRaw('zones.name as zone_name')
+            ->selectRaw('WEEK(orders.delivery_date, 3) - WEEK(DATE_SUB(orders.delivery_date, INTERVAL DAYOFMONTH(orders.delivery_date) - 1 DAY), 3) + 1 as week')
+            ->selectRaw('COUNT(orders.id) as total_orders')
+            ->join('zones', 'zones.id', '=', 'orders.zone_id')
+            ->whereYear('orders.delivery_date', $year)
+            ->whereMonth('orders.delivery_date', $month)
+            ->whereIn('orders.status', Order::OK_STATUSES);
+
+        if (!empty($searchText)) {
+            $query->where('zones.name', 'LIKE', '%' . $searchText . '%');
+        }
+
+        return $query
+            ->groupBy('zones.name', 'week')
+            ->orderBy('zones.name')
+            ->orderBy('week');
+    }
+
     public function getTotalWeightAttribute()
     {
         return $this->products()->join('products', 'order_products.product_id', '=', 'products.id')->selectRaw('SUM(products.weight * order_products.quantity) as total_weight')->value('total_weight') ?? 0;
