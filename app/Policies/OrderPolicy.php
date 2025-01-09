@@ -14,7 +14,7 @@ class OrderPolicy
      */
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->is_admin || $user->is_sales || $user->is_driver;
     }
 
     public function viewReports(User $user): bool
