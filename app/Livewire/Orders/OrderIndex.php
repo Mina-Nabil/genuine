@@ -350,6 +350,7 @@ class OrderIndex extends Component
     {
         if ($value) {
             $this->selectedOrders = $this->fetched_orders_IDs;
+            $this->updatedSelectedOrders();
         } else {
             $this->selectedOrders = [];
         }
