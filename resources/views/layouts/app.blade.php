@@ -278,6 +278,7 @@
                     </li>
 
                     <li class="sidebar-menu-title">Reports</li>
+                    @can('viewAny', App\Models\Products\Customer::class)
                     <li>
                         <a href="{{ url('/report/followup') }}" class="navItem {{ $followupReport ?? '' }}">
                             <span class="flex
@@ -288,6 +289,7 @@
                             </span>
                         </a>
                     </li>
+                    @endcan
 
                     <li>
                         <a href="{{ auth()->user()->can('viewReports', App\Models\Orders\Order::class)? url('/report/customers/transactions'): '#' }}"
