@@ -388,7 +388,7 @@ class User extends Authenticatable
     //attributes
     public function getHomePageAttribute()
     {
-        return $this->is_admin ? 'dashboard' : '/';
+        return $this->is_admin ? 'dashboard' : ($this->is_inventory ? 'orders/inventory' : '/');
     }
 
     public function getIsAdminAttribute()
