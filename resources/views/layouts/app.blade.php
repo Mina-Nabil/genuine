@@ -184,7 +184,8 @@
                     </li>
 
                     <li>
-                        <a href="{{ url('/report/daily-loading') }}" class="navItem {{ $dailyLoading ?? '' }}">
+                        <a href="{{ auth()->user()->can('viewAny', App\Models\Orders\Order::class)? url('/report/daily-loading'): '#' }}" 
+                            class="navItem {{ $dailyLoading ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Orders\Order::class)? '': 'disabled' }}">
                             <span class="flex
                             items-center">
                                 <iconify-icon class=" nav-icon" icon="material-symbols:event">
