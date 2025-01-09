@@ -389,6 +389,7 @@ class OrderIndex extends Component
 
         $this->fetched_orders_IDs = $orders->pluck('id')->toArray();
         Log::info($this->fetched_orders_IDs);
+        Log::info($this->selectedOrders);
         return view('livewire.orders.order-index', [
             'orders' => $orders,
             'drivers' => $drivers,
