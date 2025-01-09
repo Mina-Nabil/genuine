@@ -1857,7 +1857,7 @@ class Order extends Model
             ->whereYear('orders.created_at', $year)
             ->whereMonth('orders.created_at', $month)
             ->whereIn('orders.status', Order::OK_STATUSES)
-            ->groupBy(DB::raw('CONCAT(users.first_name, " ", users.last_name)'), 'day')
+            ->groupBy('users.id', 'day')
             ->orderBy('day', 'ASC');
     }
 
