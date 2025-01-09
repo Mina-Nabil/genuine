@@ -1846,6 +1846,21 @@ class Order extends Model
             ->orderBy('week');
     }
 
+    public function scopeUserPerformanceReport($query, $year, $month)
+    {
+        return $query
+            ->selectRaw('CONCAT(users.first_name, " ", users.last_name) as user_name')
+            ->selectRaw('DAY(orders.created_at) as day')
+            ->selectRaw('COUNT(orders.id) as total_orders')
+            ->selectRaw('SUM(orders.total_amount) as total_amount')
+            ->join('users', 'users.id', '=', 'orders.created_by')
+            ->whereYear('orders.created_at', $year)
+            ->whereMonth('orders.created_at', $month)
+            ->whereIn('orders.status', Order::OK_STATUSES)
+            ->groupBy(DB::raw('CONCAT(users.first_name, " ", users.last_name)'), 'day')
+            ->orderBy('day', 'ASC');
+    }
+
     public function getTotalWeightAttribute()
     {
         return $this->products()->join('products', 'order_products.product_id', '=', 'products.id')->selectRaw('SUM(products.weight * order_products.quantity) as total_weight')->value('total_weight') ?? 0;
