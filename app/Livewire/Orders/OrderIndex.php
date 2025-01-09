@@ -8,6 +8,7 @@ use App\Models\Payments\CustomerPayment;
 use App\Models\Users\Driver;
 use App\Traits\AlertFrontEnd;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Url;
@@ -349,6 +350,7 @@ class OrderIndex extends Component
     {
         if ($value) {
             $this->selectedOrders = $this->fetched_orders_IDs;
+            $this->updatedSelectedOrders();
         } else {
             $this->selectedOrders = [];
         }
@@ -387,6 +389,8 @@ class OrderIndex extends Component
         $PAYMENT_METHODS = CustomerPayment::PAYMENT_METHODS_WITH_DEBIT;
 
         $this->fetched_orders_IDs = $orders->pluck('id')->toArray();
+        Log::info($this->fetched_orders_IDs);
+        Log::info($this->selectedOrders);
         return view('livewire.orders.order-index', [
             'orders' => $orders,
             'drivers' => $drivers,
