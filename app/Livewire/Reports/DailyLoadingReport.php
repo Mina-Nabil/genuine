@@ -11,16 +11,24 @@ class DailyLoadingReport extends Component
 {
     use WithPagination;
     public $page_title = '• Daily Loading Report';
-    public $deliveryDate;
 
-    public function mount()
+    public $fromDate = '2023-01-01';
+    public $toDate = '2023-06-01';
+    protected $listeners = ['dateRangeSelected'];
+
+    public function dateRangeSelected($data)
     {
-        $this->deliveryDate = Carbon::today()->toDateString();
+        $this->fromDate = $data[0];
+        $this->toDate = $data[1];
+        $this->resetPage();
     }
 
     public function render()
     {
-        $totals = Order::loadDailyLoadingReport($this->deliveryDate);
+        $fromDate = Carbon::parse($this->fromDate);
+        $toDate = Carbon::parse($this->toDate);
+
+        $totals = Order::loadDailyLoadingReport($this->fromDate,$this->toDate);
         return view('livewire.reports.daily-loading-report', ['totals'  =>  $totals])
             ->layout('layouts.app', [
                 'page_title'    => $this->page_title,

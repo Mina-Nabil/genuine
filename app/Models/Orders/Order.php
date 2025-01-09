@@ -395,9 +395,11 @@ class Order extends Model
     /**
      * load يوميه التحميل
      */
-    public static function loadDailyLoadingReport(string $day)
+    public static function loadDailyLoadingReport(string $startDay, string $endDay)
     {
-        $day = Carbon::parse($day);
+        $startDay = Carbon::parse($startDay);
+        $endDay = Carbon::parse($endDay);
+
         return DB::table('orders as o1')
             ->select('zones.name', 'users.username')
             ->selectRaw('drivers.shift_title')
@@ -410,7 +412,7 @@ class Order extends Model
             ->leftjoin('drivers', 'drivers.id', '=', 'o1.driver_id')
             ->leftjoin('users', 'users.id', '=', 'drivers.user_id')
             ->join('zones', 'zones.id', '=', 'o1.zone_id')
-            ->where('o1.delivery_date', $day->format('Y-m-d'))
+            ->whereBetween('o1.delivery_date', [$startDay->format('Y-m-d'), $endDay->format('Y-m-d')])
             ->where('o1.is_confirmed', 1)
             ->whereIn('o1.status', Order::OK_STATUSES)
             ->whereNull('o1.deleted_at')
