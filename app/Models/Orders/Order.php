@@ -1806,6 +1806,25 @@ class Order extends Model
             ->orderBy('day', 'ASC');
     }
 
+    public function scopeMonthlyTotals($query, $year)
+    {
+        return $query
+            ->selectRaw('MONTH(o1.delivery_date) as month')
+            ->selectRaw('COUNT(o1.id) as total_orders')
+            ->selectRaw('SUM(o1.total_amount) as monthly_total_amount')
+            ->selectRaw('SUM((
+                SELECT SUM(order_products.quantity * products.weight)
+                FROM order_products 
+                JOIN products ON order_products.product_id = products.id
+                WHERE o1.id = order_products.order_id
+            )) as monthly_total_weight')
+            ->join('orders as o1', 'o1.id', '=', 'orders.id')
+            ->whereYear('o1.delivery_date', $year)
+            ->whereIn('o1.status', Order::OK_STATUSES)
+            ->groupBy('month')
+            ->orderBy('month', 'ASC');
+    }
+
     public function getTotalWeightAttribute()
     {
         return $this->products()->join('products', 'order_products.product_id', '=', 'products.id')->selectRaw('SUM(products.weight * order_products.quantity) as total_weight')->value('total_weight') ?? 0;
