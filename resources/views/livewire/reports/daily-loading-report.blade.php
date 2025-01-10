@@ -76,10 +76,11 @@
                                 @php
                                     $driverRecords = $totals->where('user_id', $t->user_id);
                                     $isLastRecord = $driverRecords->keys()->last() === $index;
-                                    $hasMultipleRecords = $driverRecords->count() > 1;
+                                    // $hasMultipleRecords = $driverRecords->count() > 1;
                                 @endphp
 
-                                @if ($isLastRecord && $hasMultipleRecords)
+                                {{-- @if ($isLastRecord && $hasMultipleRecords) --}}
+                                @if ($isLastRecord)
                                     <tr class="bg-slate-900">
                                         <td
                                             class="px-2 border border-slate-100 dark:bg-slate-800 dark:border-slate-700 text-slate-100 text-center">
