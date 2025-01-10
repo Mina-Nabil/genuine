@@ -401,8 +401,8 @@ class Order extends Model
         $endDay = Carbon::parse($endDay);
 
         return DB::table('orders as o1')
-            ->select('zones.name', 'users.username')
-            ->selectRaw('drivers.shift_title')
+            ->select('zones.name', 'users.username' ,'users.first_name','users.last_name')
+            ->selectRaw('drivers.shift_title, drivers.user_id')
             ->selectRaw('COUNT(o1.id) as orders_count')
             ->selectRaw('SUM(o1.total_amount) as orders_total')
             ->selectRaw('SUM((SELECT (SUM(order_products.quantity * products.weight/1000)) from order_products join products on order_products.product_id = products.id where o1.id = order_products.order_id )) as kgs_total')
@@ -1827,7 +1827,7 @@ class Order extends Model
             ->orderBy('month', 'ASC');
     }
 
-    public function scopeWeeklyZoneReport($query, $year, $month, $searchText = null)
+    public function scopeWeeklyZoneReport($query, $year, $month, $searchText = null, $zoneIds = [])
     {
         $query
             ->selectRaw('zones.name as zone_name')
@@ -1837,6 +1837,10 @@ class Order extends Model
             ->whereYear('orders.delivery_date', $year)
             ->whereMonth('orders.delivery_date', $month)
             ->whereIn('orders.status', Order::OK_STATUSES);
+
+        if (!empty($zoneIds)) {
+            $query->whereIn('zones.id', $zoneIds);
+        }
 
         if (!empty($searchText)) {
             $query->where('zones.name', 'LIKE', '%' . $searchText . '%');

@@ -14,7 +14,8 @@
         <div class="card">
             <header class="card-header cust-card-header noborder pt-0">
                 <div class="input-area flex no-wrap">
-                    <input type="text" class="form-control w-auto d-inline-block cursor-pointer" style="width:auto" name="datetimes" id="reportrange" />
+                    <input type="text" class="form-control w-auto d-inline-block cursor-pointer" style="width:auto"
+                        name="datetimes" id="reportrange" />
                 </div>
             </header>
 
@@ -36,7 +37,7 @@
                         </thead>
                         <tbody
                             class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700 no-wrap">
-                            @foreach ($totals as $t)
+                            @foreach ($totals as $index => $t)
                                 <tr class="even:bg-slate-100 dark:even:bg-slate-700">
                                     <td
                                         class="table-td border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
@@ -71,6 +72,55 @@
                                         {{ $t->total_bank }}
                                     </td>
                                 </tr>
+
+                                @php
+                                    $driverRecords = $totals->where('user_id', $t->user_id);
+                                    $isLastRecord = $driverRecords->keys()->last() === $index;
+                                    $hasMultipleRecords = $driverRecords->count() > 1;
+                                @endphp
+
+                                @if ($isLastRecord && $hasMultipleRecords)
+                                    <tr class="bg-slate-900">
+                                        <td
+                                            class="px-2 border border-slate-100 dark:bg-slate-800 dark:border-slate-700 text-slate-100 text-center">
+                                            {{ $t->first_name.' '.$t->last_name }}
+                                        </td>
+
+                                        <td
+                                            class="px-2 border border-slate-100 dark:bg-slate-800 dark:border-slate-700 text-slate-100 text-center">
+                                        </td>
+
+                                        <td
+                                            class="px-2 border border-slate-100 dark:bg-slate-800 dark:border-slate-700 text-slate-100 text-center">
+                                            {{ number_format($driverRecords->sum('orders_count')) }} <small>Orders</small>
+                                        </td>
+
+                                        <td
+                                            class="px-2 border border-slate-100 dark:bg-slate-800 dark:border-slate-700 text-slate-100 text-center">
+                                            {{ number_format($driverRecords->sum('orders_total'),2) }} <small>EGP</small>
+                                        </td>
+
+                                        <td
+                                            class="px-2 border border-slate-100 dark:bg-slate-800 dark:border-slate-700 text-slate-100 text-center">
+                                            {{ number_format($driverRecords->sum('kgs_total'),2) }} <small>KG</small>
+                                        </td>
+
+                                        <td
+                                            class="px-2 border border-slate-100 dark:bg-slate-800 dark:border-slate-700 text-slate-100 text-center">
+                                            {{ number_format($driverRecords->sum('total_cash'),2) }} <small>EGP</small>
+                                        </td>
+
+                                        <td
+                                            class="px-2 border border-slate-100 dark:bg-slate-800 dark:border-slate-700 text-slate-100 text-center">
+                                            {{ number_format($driverRecords->sum('total_wallet'),2) }} <small>EGP</small>
+                                        </td>
+
+                                        <td
+                                            class="px-2 border border-slate-100 dark:bg-slate-800 dark:border-slate-700 text-slate-100 text-center">
+                                            {{ number_format($driverRecords->sum('total_bank'),2) }} <small>EGP</small>
+                                        </td>
+                                    </tr>
+                                @endif
                             @endforeach
                         </tbody>
                         <tfoot class="border-t border-slate-100 dark:border-slate-800 bg-slate-200 dark:bg-slate-700">
