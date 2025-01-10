@@ -350,6 +350,18 @@
                         </li>
                     @endcan
 
+                    @can('viewReports', App\Models\Orders\Order::class)
+                        <li>
+                            <a href="{{ auth()->user()->can('viewReports', App\Models\Orders\Order::class)? url('/report/orders/performance'): '#' }}"
+                                class="navItem {{ $salesPerformanceReport ?? '' }} {{ auth()->user()->can('viewReports', App\Models\Orders\Order::class)? '': 'disabled' }}">
+                                <span class="flex items-center">
+                                    <iconify-icon class="nav-icon" icon="carbon:sales-ops"></iconify-icon>
+                                    <span>أداء المبيعات اليومي</span>
+                                </span>
+                            </a>
+                        </li>
+                    @endcan
+
                     {{-- <li>
                         <a href="{{ url('/report/customers') }}" class="navItem {{ $customerReport ?? '' }}">
                             <span class="flex

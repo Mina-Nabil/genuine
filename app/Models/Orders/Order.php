@@ -395,12 +395,14 @@ class Order extends Model
     /**
      * load يوميه التحميل
      */
-    public static function loadDailyLoadingReport(string $day)
+    public static function loadDailyLoadingReport(string $startDay, string $endDay)
     {
-        $day = Carbon::parse($day);
+        $startDay = Carbon::parse($startDay);
+        $endDay = Carbon::parse($endDay);
+
         return DB::table('orders as o1')
-            ->select('zones.name', 'users.username')
-            ->selectRaw('drivers.shift_title')
+            ->select('zones.name', 'users.username' ,'users.first_name','users.last_name')
+            ->selectRaw('drivers.shift_title, drivers.user_id')
             ->selectRaw('COUNT(o1.id) as orders_count')
             ->selectRaw('SUM(o1.total_amount) as orders_total')
             ->selectRaw('SUM((SELECT (SUM(order_products.quantity * products.weight/1000)) from order_products join products on order_products.product_id = products.id where o1.id = order_products.order_id )) as kgs_total')
@@ -410,7 +412,7 @@ class Order extends Model
             ->leftjoin('drivers', 'drivers.id', '=', 'o1.driver_id')
             ->leftjoin('users', 'users.id', '=', 'drivers.user_id')
             ->join('zones', 'zones.id', '=', 'o1.zone_id')
-            ->where('o1.delivery_date', $day->format('Y-m-d'))
+            ->whereBetween('o1.delivery_date', [$startDay->format('Y-m-d'), $endDay->format('Y-m-d')])
             ->where('o1.is_confirmed', 1)
             ->whereIn('o1.status', Order::OK_STATUSES)
             ->whereNull('o1.deleted_at')
@@ -1825,7 +1827,7 @@ class Order extends Model
             ->orderBy('month', 'ASC');
     }
 
-    public function scopeWeeklyZoneReport($query, $year, $month, $searchText = null)
+    public function scopeWeeklyZoneReport($query, $year, $month, $searchText = null, $zoneIds = [])
     {
         $query
             ->selectRaw('zones.name as zone_name')
@@ -1836,6 +1838,10 @@ class Order extends Model
             ->whereMonth('orders.delivery_date', $month)
             ->whereIn('orders.status', Order::OK_STATUSES);
 
+        if (!empty($zoneIds)) {
+            $query->whereIn('zones.id', $zoneIds);
+        }
+
         if (!empty($searchText)) {
             $query->where('zones.name', 'LIKE', '%' . $searchText . '%');
         }
@@ -1844,6 +1850,21 @@ class Order extends Model
             ->groupBy('zones.name', 'week')
             ->orderBy('zones.name')
             ->orderBy('week');
+    }
+
+    public function scopeUserPerformanceReport($query, $year, $month)
+    {
+        return $query
+            ->selectRaw('CONCAT(users.first_name, " ", users.last_name) as user_name')
+            ->selectRaw('DAY(orders.created_at) as day')
+            ->selectRaw('COUNT(orders.id) as total_orders')
+            ->selectRaw('SUM(orders.total_amount) as total_amount')
+            ->join('users', 'users.id', '=', 'orders.created_by')
+            ->whereYear('orders.created_at', $year)
+            ->whereMonth('orders.created_at', $month)
+            ->whereIn('orders.status', Order::OK_STATUSES)
+            ->groupBy('users.id', 'day')
+            ->orderBy('day', 'ASC');
     }
 
     public function getTotalWeightAttribute()
