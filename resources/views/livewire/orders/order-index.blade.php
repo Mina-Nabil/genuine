@@ -14,11 +14,11 @@
                         class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
                         Set Driver
                     </li>
+                    <li wire:click='openSetDeliveryDate'
+                        class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
+                        Set delivery date
+                    </li>
                 @endif
-                <li wire:click='openSetDeliveryDate'
-                    class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
-                    Set delivery date
-                </li>
                 <li wire:click='setBulkAsConfirmed'
                     class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
                     Set as confirmed

@@ -59,6 +59,7 @@ class OrderIndex extends Component
 
     public $AvailableToPay = false;
     public $AvailableToSetDriver = false;
+    public $AvailableToSetDeliveryDate = false;
     public $isOpenPayAlert = null; //carry payment method
     public $errorMessages = [];
 
@@ -389,8 +390,6 @@ class OrderIndex extends Component
         $PAYMENT_METHODS = CustomerPayment::PAYMENT_METHODS_WITH_DEBIT;
 
         $this->fetched_orders_IDs = $orders->pluck('id')->toArray();
-        Log::info($this->fetched_orders_IDs);
-        Log::info($this->selectedOrders);
         return view('livewire.orders.order-index', [
             'orders' => $orders,
             'drivers' => $drivers,
