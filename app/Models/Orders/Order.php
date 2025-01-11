@@ -405,7 +405,7 @@ class Order extends Model
         $endDay = Carbon::parse($endDay);
 
         return DB::table('orders as o1')
-            ->select('zones.name', 'users.username', 'users.first_name', 'users.last_name')
+            ->select('drivers.id', 'zones.name', 'users.username', 'users.first_name', 'users.last_name')
             ->selectRaw('drivers.shift_title, drivers.user_id')
             ->selectRaw('COUNT(o1.id) as orders_count')
             ->selectRaw('SUM(o1.total_amount) as orders_total')
