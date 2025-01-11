@@ -115,7 +115,8 @@ class OrderProduct extends Model
                 DB::raw('SUM(order_products.quantity) as required_stock'),
                 DB::raw('(inventories.on_hand - SUM(order_products.quantity)) as production_required'),
             )
-            ->groupBy('products.id', 'products.name', 'inventories.on_hand', 'inventories.committed', 'inventories.available');
+            ->groupBy('products.id', 'products.name', 'inventories.on_hand', 'inventories.committed', 'inventories.available')
+            ->orderBy('products.id');
     }
 
     // Define the relation to the Inventory model through the Product
