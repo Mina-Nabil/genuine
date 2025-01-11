@@ -161,8 +161,6 @@ class OrderDriverShift extends Component
         }
     }
 
-    protected $queryString = ['deliveryDate'];
-
     // public function updatedEditedDeliveryDate($value)
     // {
     //     foreach ($this->selectedDeliveryDates as $date) {
