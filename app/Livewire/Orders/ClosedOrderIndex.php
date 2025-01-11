@@ -52,26 +52,28 @@ class ClosedOrderIndex extends Component
     public $AvailableToPay = false;
     public $AvailableToSetDriver = false;
     public $isOpenPayAlert = null; //carry payment method
-    public $errorMessages = []; 
+    public $errorMessages = [];
 
-    public function openPayOrders($paymentMethod){
+    public function openPayOrders($paymentMethod)
+    {
         $this->isOpenPayAlert = $paymentMethod;
     }
 
-    public function ProcceedBulkPayment(){
-        $res = Order::bulkSetAsPaid($this->selectedOrders,Carbon::now(),$this->isOpenPayAlert,false);
+    public function ProcceedBulkPayment()
+    {
+        $res = Order::bulkSetAsPaid($this->selectedOrders, Carbon::now(), $this->isOpenPayAlert, false);
         if ($res === true) {
             $this->errorMessages = [];
-            $this->reset('AvailableToPay','isOpenPayAlert');
+            $this->reset('AvailableToPay', 'isOpenPayAlert');
             $this->alertSuccess('Paid Successfuly!');
-        }else{
+        } else {
             $this->errorMessages = $res;
         }
     }
 
     public function updatedEditedDeliveryDate($value)
     {
-        foreach($this->selectedDeliveryDates as $date){
+        foreach ($this->selectedDeliveryDates as $date) {
             if ($date->toDateString() === $value) {
                 return;
             }
@@ -86,11 +88,13 @@ class ClosedOrderIndex extends Component
         $this->selectedDeliveryDates = array_values($this->selectedDeliveryDates); // Reset array keys
     }
 
-    public function clearDeliveryDate(){
+    public function clearDeliveryDate()
+    {
         $this->deliveryDate = [];
     }
 
-    public function openFilteryDeliveryDate(){
+    public function openFilteryDeliveryDate()
+    {
         $this->Edited_deliveryDate_sec = true;
 
         foreach ($this->deliveryDate as $date) {
@@ -98,44 +102,52 @@ class ClosedOrderIndex extends Component
         }
     }
 
-    public function closeFilteryDeliveryDate(){
+    public function closeFilteryDeliveryDate()
+    {
         $this->Edited_deliveryDate_sec = false;
         $this->Edited_deliveryDate = null;
         $this->selectedDeliveryDates = [];
     }
 
-    public function setFilteryDeliveryDate(){
+    public function setFilteryDeliveryDate()
+    {
 
         $this->deliveryDate = $this->selectedDeliveryDates;
         $this->closeFilteryDeliveryDate();
     }
 
-    public function openFilteryDriver(){
+    public function openFilteryDriver()
+    {
         $this->Edited_driverId_sec = true;
         $this->Edited_driverId = $this->driver?->id;
     }
 
-    public function closeFilteryDriver(){
+    public function closeFilteryDriver()
+    {
         $this->Edited_driverId_sec = false;
         $this->Edited_driverId = null;
     }
 
-    public function setFilterDriver(){
+    public function setFilterDriver()
+    {
         $this->driver = Driver::findOrFail($this->Edited_driverId);
         $this->closeFilteryDriver();
     }
 
-    public function openFilteryZone(){
+    public function openFilteryZone()
+    {
         $this->Edited_zoneId_sec = true;
         $this->Edited_zoneId = $this->zone?->id;
     }
 
-    public function closeFilteryZone(){
+    public function closeFilteryZone()
+    {
         $this->Edited_zoneId_sec = false;
         $this->Edited_zoneId = null;
     }
 
-    public function setFilterZone(){
+    public function setFilterZone()
+    {
         $this->zone = Zone::findOrFail($this->Edited_zoneId);
         $this->closeFilteryZone();
     }
@@ -165,7 +177,7 @@ class ClosedOrderIndex extends Component
 
     public function setBulkAsConfirmed()
     {
-        $res = Order::setBulkConfirmed($this->selectedOrders, isConfirmed:true);
+        $res = Order::setBulkConfirmed($this->selectedOrders, isConfirmed: true);
         if ($res) {
             $this->resetPage();
             $this->selectedOrders = [];
@@ -178,7 +190,7 @@ class ClosedOrderIndex extends Component
 
     public function setBulkAsNotConfirmed()
     {
-        $res = Order::setBulkConfirmed($this->selectedOrders, isConfirmed:false);
+        $res = Order::setBulkConfirmed($this->selectedOrders, isConfirmed: false);
         if ($res) {
             $this->resetPage();
             $this->selectedOrders = [];
@@ -251,20 +263,29 @@ class ClosedOrderIndex extends Component
         $this->selectedOrders = $this->fetched_orders_IDs;
     }
 
+    public function mount()
+    {
+        if (count($this->deliveryDate)) {
+            foreach ($this->deliveryDate as $i => $d) {
+                $this->deliveryDate[$i] = Carbon::parse($d);
+            }
+        }
+    }
+
     public function render()
     {
-        $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate,driverId: $this->driver?->id ,zoneId:$this->zone?->id)->DoneOrders()->withTotalQuantity()->paginate(50);
+        $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate, driverId: $this->driver?->id, zoneId: $this->zone?->id)->DoneOrders()->withTotalQuantity()->paginate(50);
 
         $totalZones = Order::getTotalZonesForOrders($orders);
         $ordersCount = count($orders);
 
         $DRIVERS = Driver::all();
         $ZONES = Zone::all();
-        $STATUSES = Order::STATUSES; 
+        $STATUSES = Order::STATUSES;
         $drivers = Driver::all();
         $PAYMENT_METHODS = CustomerPayment::PAYMENT_METHODS;
 
-        return view('livewire.orders.closed-order-index',[
+        return view('livewire.orders.closed-order-index', [
             'orders' => $orders,
             'drivers' => $drivers,
             'STATUSES' => $STATUSES,
