@@ -416,7 +416,7 @@ class Order extends Model
             ->leftjoin('drivers', 'drivers.id', '=', 'o1.driver_id')
             ->leftjoin('users', 'users.id', '=', 'drivers.user_id')
             ->join('zones', 'zones.id', '=', 'o1.zone_id')
-            ->whereBetween('o1.delivery_date', [$startDay->format('Y-m-d'), $endDay->format('Y-m-d')])
+            ->whereBetween('o1.delivery_date', [$startDay->format('Y-m-d 00:00:00'), $endDay->format('Y-m-d 23:59:59')])
             ->where('o1.is_confirmed', 1)
             ->whereIn('o1.status', Order::OK_STATUSES)
             ->whereNull('o1.deleted_at')
@@ -1683,6 +1683,11 @@ class Order extends Model
             ->when(!is_null($isPaid), function ($query) use ($isPaid) {
                 $query->where('is_paid', $isPaid);
             });
+    }
+
+    public function scopeNotCancelledOrders(Builder $query): Builder
+    {
+        return $query->whereNotIn('status', [self::STATUS_RETURNED, self::STATUS_CANCELLED]);
     }
 
     public function scopeOpenOrders(Builder $query): Builder

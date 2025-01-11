@@ -253,7 +253,8 @@ class OrderDriverShift extends Component
     public function render()
     {
         $orders = Order::search(searchText: $this->search, deliveryDates: [$this->deliveryDate], status: $this->status, driverId: $this->driver?->id, zoneId: $this->zone?->id)
-            ->confirmed()->openOrders()->withTotalQuantity()->orderByRaw('driver_order IS NULL, driver_order ASC')->sortByZone()->paginate(50);
+            ->confirmed()->notCancelledOrders()->withTotalQuantity()
+            ->orderByRaw('driver_order IS NULL, driver_order ASC')->sortByZone()->get();
 
         $totalZones = Order::getTotalZonesForOrders($orders);
         $PAYMENT_METHODS = CustomerPayment::PAYMENT_METHODS;
