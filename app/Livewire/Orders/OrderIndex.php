@@ -68,7 +68,8 @@ class OrderIndex extends Component
         $this->isOpenPayAlert = $paymentMethod;
     }
 
-    public function resetStatuses(){
+    public function resetStatuses()
+    {
         $res = Order::resetBulkStatus($this->selectedOrders);
         if ($res) {
             $this->resetPage();
@@ -225,11 +226,14 @@ class OrderIndex extends Component
     }
 
 
-    // public function mount()
-    // {
-    //     $tomorrow = Carbon::tomorrow();
-    //     $this->deliveryDate = [$tomorrow];
-    // }
+    public function mount()
+    {
+        if (count($this->deliveryDate)) {
+            foreach ($this->deliveryDate as $i => $d) {
+                $this->deliveryDate[$i] = Carbon::parse($d);
+            }
+        }
+    }
 
     public function clearProperty(string $propertyName)
     {
@@ -366,8 +370,8 @@ class OrderIndex extends Component
     public function render()
     {
         $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneIds: $this->zones)->OpenOrders()
-        ->sortByDeliveryDate()->notDebitOrders()
-        ->paginate(50);
+            ->sortByDeliveryDate()->notDebitOrders()
+            ->paginate(50);
 
         $totalWeight = 0;
         foreach ($orders as $order) {
