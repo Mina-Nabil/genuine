@@ -266,7 +266,7 @@ class OrderDriverShift extends Component
 
         foreach ($orders as $order) {
             if (isset($this->collectedFromPaymentTypes[$order->driver_payment_type])) {
-                $this->collectedFromPaymentTypes[$order->driver_payment_type] += $order->remaining_to_pay;
+                $this->collectedFromPaymentTypes[$order->driver_payment_type] += $order->total_amount;
             }
         }
 
