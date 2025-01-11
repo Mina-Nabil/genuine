@@ -217,7 +217,7 @@ class OrderInventory extends Component
     public function render()
     {
         $DRIVERS = Driver::all();
-        $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneId: $this->zone?->id)->withTotalQuantity()->openOrders()->paginate(50);
+        $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneId: $this->zone?->id)->withTotalQuantity()->openOrders()->get();
 
         $todayShifts = Driver::hasOrdersOn($this->deliveryDate)->get();
 
