@@ -22,6 +22,7 @@ class OrderDriverShift extends Component
     public $zone;
 
     #[Url]
+    public $driverId;
     public $driver;
 
     #[Url]
@@ -208,6 +209,9 @@ class OrderDriverShift extends Component
 
     public function mount()
     {
+        if ($this->driverId) {
+            $this->driver = Driver::find($this->driverId);
+        }
         if ($this->deliveryDate) {
             $this->deliveryDate = Carbon::parse($this->deliveryDate);
         } else {
@@ -253,6 +257,7 @@ class OrderDriverShift extends Component
     public function setFilterDriver()
     {
         $this->driver = Driver::findOrFail($this->Edited_driverId);
+        $this->driverId = $this->Edited_driverId;
         $this->closeFilteryDriver();
     }
 
