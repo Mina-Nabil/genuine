@@ -24,7 +24,8 @@ class OrderInventory extends Component
 
     public $selectedOrders = [];
     public $selectedOrderProducts = [];
-
+    
+    #[Url]
     public $driverRadio;
     public $Edited_driverId;
     public $Edited_driverId_sec;
