@@ -59,7 +59,7 @@ class OrderIndex extends Component
 
     public $AvailableToPay = false;
     public $AvailableToSetDriver = false;
-    public $AvailableToSetDeliveryDate = false;
+
     public $isOpenPayAlert = null; //carry payment method
     public $errorMessages = [];
 

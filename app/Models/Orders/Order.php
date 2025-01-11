@@ -620,9 +620,10 @@ class Order extends Model
     public static function checkInHouseEligibility(array $orderIds)
     {
         $orders = Order::whereIn('id', $orderIds)->get();
-
-        $allEligible = $orders->every(function ($order) {
-            return $order->in_house;
+        /** @var User */
+        $user = Auth::user();
+        $allEligible = $orders->every(function ($order) use ($user) {
+            return $user->can('updateDeliveryInfo', $order);
         });
 
         return $allEligible;
