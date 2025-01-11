@@ -97,15 +97,15 @@ class FollowupReport extends Component
 
     public function mount()
     {
-        $this->years = range($this->year - 4, $this->year);
-        $this->months = array_map(function ($month) {
-            return sprintf('%02d', $month);
-        }, range(1, 12));
-
         $start = Carbon::now()->subMonth();
 
         $this->year = $start->format('Y');
         $this->selectedMonth = $start->format('m');
+
+        $this->years = range($this->year - 4, $this->year);
+        $this->months = array_map(function ($month) {
+            return sprintf('%02d', $month);
+        }, range(1, 12));
     }
 
     public function setMonth($month)
