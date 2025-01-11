@@ -94,6 +94,17 @@
                             <hr><br>
                             <div class="grid grid-cols-2 lg:grid-cols-3 mb-4 text-center">
 
+                                <div class="border-r ">
+                                    <h6>{{ $product->on_hand }}</h6>
+                                    <p class="text-sm">On Hand</p>
+                                </div>    
+
+                                <div class="">
+
+                                    <h6>{{ $product->required_stock }}</h6>
+                                    <p class="text-sm">Required Stock</p>
+
+                                </div>
 
                                 <div class="border-r ml-5 col-span-3 md:col-span-1 mb-3 md:mb-0">
                                     @if ($product->production_required > 0)
@@ -117,20 +128,6 @@
                                     @endif
 
                                 </div>
-
-                                <div class="border-r ">
-                                    <h6>{{ $product->on_hand }}</h6>
-                                    <p class="text-sm">On Hand</p>
-                                </div>
-
-                                <div class="">
-
-                                    <h6>{{ $product->required_stock }}</h6>
-                                    <p class="text-sm">Required Stock</p>
-
-                                </div>
-
-
 
                             </div>
                         </div>
