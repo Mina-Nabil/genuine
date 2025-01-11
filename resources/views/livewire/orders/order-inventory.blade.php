@@ -306,29 +306,6 @@
 
                                         </div>
 
-                                        <div class="border-l p-3">
-                                            <div
-                                                class="bg-slate-50 dark:bg-slate-900 rounded p-2 flex justify-between flex-wrap">
-                                                <div class="space-y-1">
-                                                    <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
-                                                        Total Weight
-                                                    </h4>
-                                                    <div class="text-sm font-medium text-slate-900 dark:text-white">
-                                                        {{ number_format($order->total_weight / 1000, 2) }}
-                                                        <small>KG</small>
-                                                    </div>
-                                                </div>
-                                                <div class="space-y-1">
-                                                    <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
-                                                        Total Quantity
-                                                    </h4>
-                                                    <div class="text-sm font-medium text-slate-900 dark:text-white">
-                                                        {{ $order->total_items }}
-                                                        <small>Product{{ $order->total_items > 1 ? 's' : '' }}</small>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
 
                                     </div>
                                 </div>
@@ -342,6 +319,31 @@
     @endif
 
     <div>
+
+        <div class="border-l p-3">
+            <div
+                class="bg-slate-50 dark:bg-slate-900 rounded p-2 flex justify-between flex-wrap">
+                <div class="space-y-1">
+                    <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
+                        Total Weight
+                    </h4>
+                    <div class="text-sm font-medium text-slate-900 dark:text-white">
+                        {{ number_format($order->total_weight / 1000, 2) }}
+                        <small>KG</small>
+                    </div>
+                </div>
+                <div class="space-y-1">
+                    <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
+                        Total Quantity
+                    </h4>
+                    <div class="text-sm font-medium text-slate-900 dark:text-white">
+                        {{ $order->total_items }}
+                        <small>Product{{ $order->total_items > 1 ? 's' : '' }}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <div class="md:flex-1 rounded-md overlay md:col-span-2" style="min-width: 400px;">
             <div class="flex-1 rounded-md col-span-2">
                 <div class="card-body flex flex-col justify-center  bg-no-repeat bg-center bg-cover card p-4 active">
