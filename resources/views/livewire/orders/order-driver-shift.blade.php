@@ -127,7 +127,7 @@
                                     </div>
                                     <div class="space-y-1">
                                         <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
-                                            Price to Collect
+                                            Submit to system
                                         </h4>
                                         <div class="text-sm font-medium text-slate-900 dark:text-white">
                                             {{ number_format($orders->sum('remaining_to_pay'), 2) }}<small>&nbsp;EGP</small>
