@@ -123,7 +123,21 @@
                                 <td class="table-td"><b>{{ $weeks->sum('total_orders') }}</b></td>
                             </tr>
                         @endforeach
-
+                        <tfoot class="border-t border-slate-100 dark:border-slate-800 bg-slate-200 dark:bg-slate-700">
+                            <th scope="col" class="table-th"></th>
+                            <th scope="col" class="table-th">
+                                {{$groupedZoneReports->where('week', 1)->sum('total_orders')}}
+                            </th>
+                            <th scope="col" class="table-th">
+                                {{$groupedZoneReports->where('week', 2)->sum('total_orders')}}
+                            </th>
+                            <th scope="col" class="table-th">
+                                {{$groupedZoneReports->where('week', 3)->sum('total_orders')}}
+                            </th>
+                            <th scope="col" class="table-th">
+                                {{$groupedZoneReports->where('week', 4)->sum('total_orders')}}
+                            </th>
+                            </tfoot>
                     </tbody>
 
                 </table>
