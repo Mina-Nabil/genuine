@@ -123,21 +123,29 @@
                                 <td class="table-td"><b>{{ $weeks->sum('total_orders') }}</b></td>
                             </tr>
                         @endforeach
-                        <tfoot class="border-t border-slate-100 dark:border-slate-800 bg-slate-200 dark:bg-slate-700">
-                            <th scope="col" class="table-th"></th>
+                    <tfoot class="border-t border-slate-100 dark:border-slate-800 bg-slate-200 dark:bg-slate-700">
+                        <th scope="col" class="table-th"></th>
+                        @php
+                            $allTotal = 0;
+                            
+                        @endphp
+                        @for ($i = 1; $i <= 4; $i++)
+                            @php
+                                $zonesTotal = 0;
+                                foreach ($groupedZoneReports as $zoneName => $weeks) {
+                                    $zonesTotal += $weeks->where('week', $i)->sum('total_orders');
+                                }
+                                $allTotal += $zonesTotal;
+                            @endphp
                             <th scope="col" class="table-th">
-                                {{$groupedZoneReports->where('week', 1)->sum('total_orders')}}
+                                {{ $zonesTotal }}
                             </th>
-                            <th scope="col" class="table-th">
-                                {{$groupedZoneReports->where('week', 2)->sum('total_orders')}}
-                            </th>
-                            <th scope="col" class="table-th">
-                                {{$groupedZoneReports->where('week', 3)->sum('total_orders')}}
-                            </th>
-                            <th scope="col" class="table-th">
-                                {{$groupedZoneReports->where('week', 4)->sum('total_orders')}}
-                            </th>
-                            </tfoot>
+                        @endfor
+
+                        <th scope="col" class="table-th">
+                            {{ $allTotal }}
+                        </th>
+                    </tfoot>
                     </tbody>
 
                 </table>
@@ -167,8 +175,7 @@
 
     @if ($Edited_Zone_sec)
         <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
-            tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
-            style="display: block;">
+            tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog" style="display: block;">
             <div class="modal-dialog relative w-auto pointer-events-none">
                 <div
                     class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
