@@ -130,7 +130,7 @@
 
                                         <div class="p-3">
                                             <div class="flex">
-                                                <div class="checkbox-area">
+                                                {{-- <div class="checkbox-area">
                                                     <label class="inline-flex items-center cursor-pointer">
                                                         <input type="checkbox" wire:model.live="selectedOrders"
                                                             value="{{ $order->id }}" class="hidden" id="select-all">
@@ -140,7 +140,7 @@
                                                                 alt=""
                                                                 class="h-[10px] w-[10px] block m-auto opacity-0"></span>
                                                     </label>
-                                                </div>
+                                                </div> --}}
                                                 <a href="{{ route('orders.show', $order->id) }}"> <span
                                                         class="hover-underline">
                                                         <b>
