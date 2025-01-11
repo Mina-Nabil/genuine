@@ -47,6 +47,31 @@
                     <span class="badge bg-slate-900 text-white capitalize" type="button"
                         id="secondaryFlatDropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
                         <span class="cursor-pointer">
+                            <span class="text-secondary-500 ">Has Ordered? </span>&nbsp;
+                            {{ $is_ordered ? 'Yes' : 'No' }}
+
+                        </span>
+                    </span>
+                    <ul class=" dropdown-menu min-w-max absolute text-sm text-slate-700 dark:text-white hidden bg-white dark:bg-slate-700 shadow
+                        z-[2] float-left overflow-hidden list-none text-left rounded-lg mt-1 m-0 bg-clip-padding border-none"
+                        style="z-index: 999;">
+
+                        <li wire:click='setIsOrdered(1)'
+                            class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
+                            Yes
+                        </li>
+                        <li wire:click='setIsOrdered(0)'
+                            class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
+                            No
+                        </li>
+
+                    </ul>
+                </div>
+
+                <div class="dropdown relative" style="display: contents">
+                    <span class="badge bg-slate-900 text-white capitalize" type="button"
+                        id="secondaryFlatDropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="cursor-pointer">
                             <span class="text-secondary-500 ">Month:</span>&nbsp;
                             {{ \Carbon\Carbon::createFromFormat('m', $selectedMonth)->monthName }}
 
@@ -124,8 +149,8 @@
                                     style="position: sticky; left: -25px; z-index: 10;">
                                     <div class="flex-1 text-start">
                                         <h4 class="text-lg font-medium text-slate-600 whitespace-nowrap">
-                                            <a href="{{ route('customer.show', $c->id) }}"
-                                                target="_blanck" class="hover-underline">
+                                            <a href="{{ route('customer.show', $c->id) }}" target="_blanck"
+                                                class="hover-underline">
                                                 <b>{{ $c->name }}</b>
                                             </a>
 
@@ -189,7 +214,8 @@
 
     @if ($Edited_Zone_sec)
         <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
-            tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog" style="display: block;">
+            tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
+            style="display: block;">
             <div class="modal-dialog relative w-auto pointer-events-none">
                 <div
                     class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">

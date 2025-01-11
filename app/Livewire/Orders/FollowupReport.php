@@ -23,6 +23,7 @@ class FollowupReport extends Component
     public $weeksToSelect = [1, 2, 3, 4];
     public $months = [];
     public $selectedMonth;
+    public $is_ordered = false;
 
     public $setZoneSection = false;
     public $zones = [];
@@ -118,6 +119,11 @@ class FollowupReport extends Component
         $this->year = $year;
     }
 
+    public function setIsOrdered($is_ordered)
+    {
+        $this->is_ordered = $is_ordered;
+    }
+
     public function setWeek($week)
     {
         $this->selectedWeek = $week;
@@ -135,7 +141,11 @@ class FollowupReport extends Component
 
         $zones = Zone::all();
 
-        $customers = Customer::search($this->search)->ByZones($this->zones)->paginate(30);
+        $customers = Customer::search($this->search)
+        ->when($this->is_ordered, function($q) use ($startDate, $end) {
+            $q->orderedBetween($startDate, $end);
+        })
+        ->ByZones($this->zones)->paginate(30);
         /** @var Customer */
         foreach ($customers as $c) {
             $startTmp = $startDate->clone();
