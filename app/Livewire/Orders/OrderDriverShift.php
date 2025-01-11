@@ -209,9 +209,7 @@ class OrderDriverShift extends Component
 
     public function mount()
     {
-        if ($this->driverId) {
-            $this->driver = Driver::find($this->driverId);
-        }
+
         if ($this->deliveryDate) {
             $this->deliveryDate = Carbon::parse($this->deliveryDate);
         } else {
@@ -222,7 +220,11 @@ class OrderDriverShift extends Component
             $this->driver = Driver::getDriverWithMostOrders($this->deliveryDate, Auth::id());
             if (!$this->driver) $this->driver = Driver::byUserID(Auth::id())->first();
         } else {
-            $this->driver = Driver::first();
+            if ($this->driverId) {
+                $this->driver = Driver::find($this->driverId);
+            } else {
+                $this->driver = Driver::first();
+            }
         }
         $orders = Order::search(searchText: $this->search, deliveryDates: [$this->deliveryDate], status: $this->status, driverId: $this->driver?->id, zoneId: $this->zone?->id)
             ->confirmed()->openOrders()->withTotalQuantity()->orderByRaw('driver_order IS NULL, driver_order ASC')->sortByZone()->paginate(50);
