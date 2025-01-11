@@ -195,8 +195,8 @@
                                                     @if ($order->driver)
                                                         <iconify-icon icon="healthicons:truck-driver" width="15"
                                                             height="15"></iconify-icon>
+                                                            <b>&nbsp;{{ $order->driver?->shift_title }}</b>
                                                     @endif
-                                                    <b>&nbsp;{{ $order->driver?->shift_title }}</b>
                                                 </div>
 
 
