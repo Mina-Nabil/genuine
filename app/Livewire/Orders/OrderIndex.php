@@ -18,7 +18,7 @@ class OrderIndex extends Component
     use AlertFrontEnd, WithPagination;
     public $page_title = '• Orders';
 
-    public $fetched_orders_IDs;
+    public $fetched_orders_IDs = [];
     public $search;
     public $selectAll = false; //to select all in the page
     public $selectedOrders = [];
