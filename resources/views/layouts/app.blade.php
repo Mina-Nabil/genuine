@@ -215,7 +215,7 @@
                                 <span class="flex items-center">
                                     <iconify-icon class=" nav-icon" icon="la:industry">
                                     </iconify-icon>
-                                    <span>تقرير انتاجيه</span>
+                                    <span>المخزون الفعلي</span>
                                 </span>
                             </a>
                         </li>
