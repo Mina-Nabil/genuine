@@ -374,7 +374,7 @@ class Customer extends Model
     public function scopeOrderedBetween($query, Carbon $start, Carbon $end)
     {
         if (!joined($query, 'orders')) {
-            $query->join('orders.customer_id', '=', 'customers.id');
+            $query->join('orders', 'orders.customer_id', '=', 'customers.id');
         }
         $query->where(function ($q) use ($start, $end) {
             $q->where('orders.delivery_date', '>=', $start->format('Y-m-d 00:00:00'))
