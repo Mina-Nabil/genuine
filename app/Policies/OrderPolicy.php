@@ -35,6 +35,11 @@ class OrderPolicy
         return true;
     }
 
+    public function updateDeliveryInfo(User $user, Order $order): bool
+    {
+        return $order->is_new || $order->is_ready || $user->is_admin;
+    }
+
     public function updateDriverNote(User $user, Order $order): bool
     {
         return $user->is_driver;

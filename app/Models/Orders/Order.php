@@ -351,9 +351,13 @@ class Order extends Model
     public function assignDriverToOrder(int $driverId = null): bool
     {
         try {
-            if ($this->status !== self::STATUS_NEW && $this->status !== self::STATUS_READY) {
+            /** @var User */
+            $user = Auth::user();
+
+            if (!$user->can("updateDeliveryInfo", $this)) {
                 return false;
             }
+
             $this->driver_id = $driverId;
 
             if ($this->driver_id !== $driverId) {
@@ -401,7 +405,7 @@ class Order extends Model
         $endDay = Carbon::parse($endDay);
 
         return DB::table('orders as o1')
-            ->select('zones.name', 'users.username' ,'users.first_name','users.last_name')
+            ->select('zones.name', 'users.username', 'users.first_name', 'users.last_name')
             ->selectRaw('drivers.shift_title, drivers.user_id')
             ->selectRaw('COUNT(o1.id) as orders_count')
             ->selectRaw('SUM(o1.total_amount) as orders_total')
@@ -464,7 +468,8 @@ class Order extends Model
     public static function setDeliveryDateForOrders(array $orderIds, Carbon $deliveryDate): bool
     {
         DB::beginTransaction();
-
+        /** @var User */
+        $user = Auth::user();
         try {
             // Update the delivery_date for each order in the array
             foreach ($orderIds as $orderId) {
@@ -472,12 +477,7 @@ class Order extends Model
 
                 // Proceed if the order exists
                 if ($order) {
-                    $order->delivery_date = $deliveryDate;
-                    if ($order->delivery_date !== $deliveryDate) {
-                        $order->driver_order = null;
-                    }
-                    $order->save();
-                    AppLog::info('Delivery date set for order', loggable: $order);
+                    $order->updateDeliveryDate($deliveryDate);
                 }
             }
 
@@ -495,7 +495,7 @@ class Order extends Model
     {
         /** @var User */
         $loggedInUser = Auth::user();
-        if ($loggedInUser && !$loggedInUser->can('update', $this)) {
+        if ($loggedInUser && !$loggedInUser->can('updateDeliveryInfo', $this)) {
             return false;
         }
 
