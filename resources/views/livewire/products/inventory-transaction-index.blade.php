@@ -82,7 +82,7 @@
                                     </span>
                                 </th> --}}
 
-                                <th scope="col" class="table-th">
+                                {{-- <th scope="col" class="table-th">
                                     <span wire:click="sortByColomn('committed')" class="clickable-header">
                                         Committed
                                         @if ($sortColomn === 'committed')
@@ -106,7 +106,7 @@
                                             @endif
                                         @endif
                                     </span>
-                                </th>
+                                </th> --}}
 
                                 <th scope="col" class="table-th">New</th>
 
@@ -150,7 +150,7 @@
                                             wire:change="updateAvailable({{ $index }})" min="0">
                                     </td> --}}
 
-                                    <td class="table-td">
+                                    {{-- <td class="table-td">
                                         <b>{{ number_format($inventory?->committed) }}</b>
                                     </td>
 
@@ -160,8 +160,8 @@
                                         class="form-control @if ($inventory->available <= 0) !border-danger-500 @endif"
                                         style="max-width: 100px; "
                                         wire:model="productsChanges.data.{{ $index }}.available"
-                                        wire:change="updateOnHand({{ $index }})"> --}}
-                                    </td>
+                                        wire:change="updateOnHand({{ $index }})"> 
+                                    </td> --}}
 
                                     <td class="table-td">
                                         <input type="number" 
