@@ -278,20 +278,12 @@
                                 </div>
                                 Order
                             </th>
-                            @if ($selectAll)
-                                @if ($selectedAllOrders)
-                                    <th colspan="8" class="table-th"><iconify-icon style="vertical-align: top;"
-                                            icon="lucide:info" width="1.2em" height="1.2em"></iconify-icon> A
-                                        {{ count($selectedOrders) }} order selected ..
-                                        <span class="clickable-link" wire:click='undoSelectAllOrders'>Undo</span>
-                                    </th>
-                                @else
+                            @if (count($selectedOrders))
                                     <th colspan="8" class="table-th"><iconify-icon style="vertical-align: top;"
                                             icon="lucide:info" width="1.2em" height="1.2em"></iconify-icon>
                                         {{ count($selectedOrders) }} order
-                                        selected .. <span class="clickable-link" wire:click='selectAllOrders'>Select
+                                        selected .. <span class="clickable-link" wire:click='unselectAllOrders'>Unselect
                                             All Orders</span></th>
-                                @endif
                             @else
                                 <th scope="col" class="table-th">Delivery</th>
                                 <th scope="col" class="table-th">Zone</th>

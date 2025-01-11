@@ -357,16 +357,10 @@ class OrderIndex extends Component
         }
     }
 
-    public function selectAllOrders()
+    public function unselectAllOrders()
     {
-        $this->selectedAllOrders = true;
-        $this->selectedOrders = Order::OpenOrders()->pluck('id')->toArray();
-    }
-
-    public function undoSelectAllOrders()
-    {
-        $this->selectedAllOrders = false;
-        $this->selectedOrders = $this->fetched_orders_IDs;
+        $this->selectedOrders = [];
+        $this->updatedSelectedOrders();
     }
 
     public function render()
