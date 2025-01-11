@@ -74,7 +74,7 @@
                                 </tr>
 
                                 @php
-                                    $driverRecords = $totals->where('user_id', $t->user_id);
+                                    $driverRecords = $totals->where('id', $t->id);
                                     $isLastRecord = $driverRecords->keys()->last() === $index;
                                     // $hasMultipleRecords = $driverRecords->count() > 1;
                                 @endphp
@@ -84,7 +84,7 @@
                                     <tr class="bg-slate-900">
                                         <td
                                             class="px-2 border border-slate-100 dark:bg-slate-800 dark:border-slate-700 text-slate-100 text-center">
-                                            {{ $t->first_name.' '.$t->last_name }}
+                                            {{ $t->shift_title }}
                                         </td>
 
                                         <td
