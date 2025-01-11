@@ -188,7 +188,7 @@
                                                     <span
                                                         class="badge bg-success-500 text-dark-500 bg-opacity-50 capitalize  btn-outline-secondary"
                                                         style="padding-top: 3px;padding-bottom: 3px">
-                                                        {{ Confirmed }}
+                                                        Confirmed
                                                 @endif
                                                 </span>
                                                 <div class="flex items-center text-xs">
