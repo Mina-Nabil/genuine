@@ -6,12 +6,12 @@ use Livewire\Component;
 use App\Models\Orders\Order;
 use App\Models\Payments\CustomerPayment;
 use App\Models\Users\Driver;
-use App\Models\Users\User;
 use App\Traits\AlertFrontEnd;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Livewire\WithPagination;
+use Livewire\Attributes\Url;
+
 
 class OrderDriverShift extends Component
 {
@@ -19,9 +19,12 @@ class OrderDriverShift extends Component
     public $page_title = '• Driver Shift';
     public $search;
     public $status;
-    public $driver;
     public $zone;
 
+    #[Url]
+    public $driver;
+
+    #[Url]
     public $deliveryDate;
     // public $Edited_deliveryDate;
     // public $Edited_deliveryDate_sec;
@@ -207,7 +210,12 @@ class OrderDriverShift extends Component
 
     public function mount()
     {
-        $this->deliveryDate = Carbon::today();
+        if ($this->deliveryDate) {
+            $this->deliveryDate = Carbon::parse($this->deliveryDate);
+        } else {
+            $this->deliveryDate = Carbon::today();
+        }
+
         if (Auth::user()->is_driver) {
             $this->driver = Driver::getDriverWithMostOrders($this->deliveryDate, Auth::id());
             if (!$this->driver) $this->driver = Driver::byUserID(Auth::id())->first();
