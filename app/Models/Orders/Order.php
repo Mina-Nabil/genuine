@@ -1687,7 +1687,7 @@ class Order extends Model
 
     public function scopeNotCancelledOrders(Builder $query): Builder
     {
-        return $query->whereNotIn('status', [self::STATUS_RETURNED, self::STATUS_CANCELLED]);
+        return $query->whereNo('status', self::STATUS_CANCELLED);
     }
 
     public function scopeOpenOrders(Builder $query): Builder
