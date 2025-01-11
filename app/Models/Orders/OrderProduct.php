@@ -87,6 +87,7 @@ class OrderProduct extends Model
         return $query
             ->join('orders', 'order_products.order_id', '=', 'orders.id')
             ->join('products', 'order_products.product_id', '=', 'products.id')
+            ->join('categories', 'categories.id', '=', 'products.category_id')
             ->join('inventories', function ($join) {
                 // Join on inventory table with polymorphic constraints
                 $join->on('products.id', '=', 'inventories.inventoryable_id')->where('inventories.inventoryable_type', '=', 'Product');
@@ -108,6 +109,7 @@ class OrderProduct extends Model
             ->select(
                 'products.id as product_id',
                 'products.name as product_name',
+                'categories.name as category_name',
                 'inventories.on_hand',
                 // DB::raw('(inventories.on_hand + inventories.available) as current_stock'),
                 DB::raw('SUM(order_products.quantity) as required_stock'),

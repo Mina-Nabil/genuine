@@ -63,7 +63,7 @@
                                     <a href="{{ route('product.show', $product->product->id) }}"> <span
                                             class="hover-underline">
                                             <b>
-                                                {{ $product->category->product_name }} - {{ $product->product_name }}
+                                                {{ $product->category_name }} - {{ $product->product_name }}
                                             </b>
                                         </span>
                                     </a>
