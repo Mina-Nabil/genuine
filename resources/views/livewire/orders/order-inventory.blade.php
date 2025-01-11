@@ -195,7 +195,7 @@
                                                     @if ($order->driver)
                                                         <iconify-icon icon="healthicons:truck-driver" width="15"
                                                             height="15"></iconify-icon>
-                                                            <b>&nbsp;{{ $order->driver?->shift_title }}</b>
+                                                        <b>&nbsp;{{ $order->driver?->shift_title }}</b>
                                                     @endif
                                                 </div>
 
@@ -445,12 +445,19 @@
                                                     {{ ucwords(str_replace('_', ' ', $order->status)) }}
                                                 </span>
                                             @endif
+                                            @if ($order->is_confirmed)
+                                                <span
+                                                    class="badge bg-success-500 text-dark-500 bg-opacity-50 capitalize  btn-outline-secondary"
+                                                    style="padding-top: 3px;padding-bottom: 3px">
+                                                    Confirmed
+                                            @endif
+                                            </span>
                                             <div class="flex items-center text-xs">
                                                 @if ($order->driver)
                                                     <iconify-icon icon="healthicons:truck-driver" width="15"
                                                         height="15"></iconify-icon>
+                                                    <b>&nbsp;{{ $order->driver?->shift_title }}</b>
                                                 @endif
-                                                <b>&nbsp;{{ $order->driver?->user->full_name }}</b>
                                             </div>
 
 
