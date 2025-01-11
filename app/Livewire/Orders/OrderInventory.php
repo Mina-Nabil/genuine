@@ -24,7 +24,7 @@ class OrderInventory extends Component
 
     public $selectedOrders = [];
     public $selectedOrderProducts = [];
-    
+
     #[Url]
     public $driverRadio;
     public $Edited_driverId;
@@ -206,6 +206,9 @@ class OrderInventory extends Component
         } else {
             $this->deliveryDate = [Carbon::today()];
         }
+        
+        if ($this->driverRadio)
+            $this->driver = Driver::findOrFail($this->driverRadio);
 
         $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneId: $this->zone?->id)->withTotalQuantity()->openOrders()->paginate(50);
         foreach ($orders as $order) {
