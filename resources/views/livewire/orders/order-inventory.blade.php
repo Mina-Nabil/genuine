@@ -24,10 +24,10 @@
             </div>
 
 
-                    <button wire:click='printInventoryShift'
-                        class="btn inline-flex justify-center btn-dark dark:bg-slate-700 dark:text-slate-300 m-1 btn-sm">
-                        Print ({{$this->deliveryDate[0]?->format('d M')}}) Shift
-                    </button>
+            <button wire:click='printInventoryShift'
+                class="btn inline-flex justify-center btn-dark dark:bg-slate-700 dark:text-slate-300 m-1 btn-sm">
+                Print ({{ $this->deliveryDate[0]?->format('d M') }}) Shift
+            </button>
 
         </div>
     </div>
@@ -88,8 +88,8 @@
                         @foreach ($todayShifts as $d)
                             <div class="basicRadio">
                                 <label class="flex items-center cursor-pointer">
-                                    <input wire:model.live="driverRadio" type="radio" class="hidden" name="driverRadios"
-                                        value="{{ $d->id }}" @checked($driver?->id === $d->id)>
+                                    <input wire:model.live="driverRadio" type="radio" class="hidden"
+                                        name="driverRadios" value="{{ $d->id }}" @checked($driver?->id === $d->id)>
                                     <span
                                         class="flex-none bg-white dark:bg-slate-500 rounded-full border inline-flex ltr:mr-2 rtl:ml-2 relative transition-all
                                         duration-150 h-[16px] w-[16px] border-slate-400 dark:border-slate-600 dark:ring-slate-700"></span>
@@ -184,6 +184,13 @@
                                                         {{ ucwords(str_replace('_', ' ', $order->status)) }}
                                                     </span>
                                                 @endif
+                                                @if ($order->is_confirmed)
+                                                    <span
+                                                        class="badge bg-success-500 text-dark-500 bg-opacity-50 capitalize  btn-outline-secondary"
+                                                        style="padding-top: 3px;padding-bottom: 3px">
+                                                        {{ Confirmed }}
+                                                @endif
+                                                </span>
                                                 <div class="flex items-center text-xs">
                                                     @if ($order->driver)
                                                         <iconify-icon icon="healthicons:truck-driver" width="15"
@@ -365,7 +372,7 @@
             </div>
         </div>
     </div>
-    
+
     <div>
         <div class="md:flex-1 rounded-md overlay md:col-span-2" style="min-width: 400px;">
             <div class="flex-1 rounded-md col-span-2">
@@ -595,7 +602,10 @@
                                                     No of Bags
                                                 </h4>
                                                 <div class="text-sm font-medium text-slate-900 dark:text-white">
-                                                    <input wire:model.live='noOfBags.{{ $order->id }}' wire:change='updateNoOfBags({{ $order->id }})' id="smallInput" type="number" style="width: 65px;" class="form-control !py-1 !text-xs">
+                                                    <input wire:model.live='noOfBags.{{ $order->id }}'
+                                                        wire:change='updateNoOfBags({{ $order->id }})'
+                                                        id="smallInput" type="number" style="width: 65px;"
+                                                        class="form-control !py-1 !text-xs">
                                                 </div>
                                             </div>
                                             <div class="space-y-1">
