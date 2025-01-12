@@ -302,10 +302,10 @@
                         </a>
                     </li>
 
-                    @can('viewReports', App\Models\Orders\Order::class)
+                    @can('viewSalesReports', App\Models\Orders\Order::class)
                         <li>
-                            <a href="{{ auth()->user()->can('viewReports', App\Models\Orders\Order::class)? url('/report/orders'): '#' }}"
-                                class="navItem {{ $ordersReport ?? '' }} {{ auth()->user()->can('viewReports', App\Models\Orders\Order::class)? '': 'disabled' }}">
+                            <a href="{{ auth()->user()->can('viewSalesReports', App\Models\Orders\Order::class)? url('/report/orders'): '#' }}"
+                                class="navItem {{ $ordersReport ?? '' }} {{ auth()->user()->can('viewSalesReports', App\Models\Orders\Order::class)? '': 'disabled' }}">
                                 <span class="flex items-center">
                                     <iconify-icon class="nav-icon" icon="icon-park-outline:ad-product"></iconify-icon>
                                     <span>متابعه Sales</span>

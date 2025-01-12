@@ -17,6 +17,11 @@ class OrderPolicy
         return $user->is_admin || $user->is_sales || $user->is_driver;
     }
 
+    public function viewSalesReports(User $user): bool
+    {
+        return $user->is_admin || $user->is_sales;
+    }
+
     public function viewReports(User $user): bool
     {
         return $user->is_admin;

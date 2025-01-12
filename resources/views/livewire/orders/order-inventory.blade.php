@@ -144,7 +144,7 @@
                                                 <a href="{{ route('orders.show', $order->id) }}"> <span
                                                         class="hover-underline">
                                                         <b>
-                                                            #{{ $order->order_number }} • {{ $order->customer->name }}
+                                                            #{{ $order->order_number }} • {{ $order->customer->name }}• {{$order->creator->username}}
                                                         </b>
                                                     </span>
                                                 </a>

@@ -9,6 +9,7 @@ use App\Models\Users\Driver;
 use App\Models\Users\User;
 use App\Traits\AlertFrontEnd;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Url;
@@ -124,7 +125,12 @@ class OrderReport extends Component
 
     public function setFilterCreator()
     {
-        $this->creator = User::findOrFail($this->Edited_creatorId);
+        $loggedInUser = Auth::user();
+        if ($loggedInUser->is_sales) {
+            $this->creator = $loggedInUser;
+        } else {
+            $this->creator = User::findOrFail($this->Edited_creatorId);
+        }
         $this->closeFilterCreator();
     }
 
@@ -222,6 +228,14 @@ class OrderReport extends Component
     {
         $this->selectedAllOrders = false;
         $this->selectedOrders = $this->fetched_orders_IDs;
+    }
+
+    public function mount()
+    {
+        $loggedInUser = Auth::user();
+        if ($loggedInUser->is_sales) {
+            $this->creator = $loggedInUser;
+        }
     }
 
 
