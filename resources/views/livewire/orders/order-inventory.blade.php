@@ -457,7 +457,8 @@
                                                     <iconify-icon icon="healthicons:truck-driver" width="15"
                                                         height="15"></iconify-icon>
                                                     <b>&nbsp;{{ $order->driver?->shift_title }}</b>
-                                                @endif
+                                                    @endif
+                                                    <b>&nbsp;{{ $order->creator->username }}</b>
                                             </div>
 
 
