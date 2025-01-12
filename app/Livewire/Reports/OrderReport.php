@@ -302,7 +302,7 @@ class OrderReport extends Component
         $ordersCount = count($orders);
 
         $DRIVERS = Driver::all();
-        $All_ZONES = Zone::all();
+        $saved_zones = Zone::all();
         $STATUSES = Order::STATUSES;
         $drivers = Driver::all();
         $users = User::all();
@@ -314,7 +314,7 @@ class OrderReport extends Component
             'drivers' => $drivers,
             'STATUSES' => $STATUSES,
             'DRIVERS' => $DRIVERS,
-            'ALL_ZONES' => $All_ZONES,
+            'saved_zones' => $saved_zones,
             'totalWeight' => $totalWeight,
             'totalZones' => $totalZones,
             'ordersCount' => $ordersCount,
