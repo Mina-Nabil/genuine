@@ -1539,12 +1539,12 @@ class Order extends Model
     }
 
     // Scopes
-    public function scopeReport($query, $searchText, $zone_id = null, $driver_id = null, Carbon $created_from = null, Carbon $created_to = null, Carbon $delivery_from = null, Carbon $delivery_to = null, $creator_id = null, $status = null)
+    public function scopeReport($query, $searchText, $zone_ids = null, $driver_id = null, Carbon $created_from = null, Carbon $created_to = null, Carbon $delivery_from = null, Carbon $delivery_to = null, $creator_id = null, $status = null)
     {
         return $query
             ->select('orders.*')
             ->when($searchText || $status, fn($q) => $q->search(searchText: $searchText, status: $status))
-            ->when($zone_id, fn($q) => $q->where('orders.zone_id', $zone_id))
+            ->when(count($zone_ids), fn($q) => $q->whereIn('orders.zone_id', $zone_ids))
             ->when($driver_id, fn($q) => $q->where('orders.driver_id', $driver_id))
             ->when($created_from, fn($q) => $q->where('orders.created_at', '>=', $created_from->format('Y-m-d H:i')))
             ->when($created_to, fn($q) => $q->where('orders.created_at', '<=', $created_to->format('Y-m-d H:i')))

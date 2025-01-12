@@ -41,21 +41,13 @@
                         class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
                         Driver
                     </li>
-                    <li wire:click='openFilteryZone'
+                    <li wire:click='openZoneSec'
                         class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
                         Zone
                     </li>
                 </ul>
             </div>
 
-            @can('create', App\Models\Orders\Order::class)
-                <a href="{{ route('orders.create') }}">
-                    <button
-                        class="btn inline-flex justify-center btn-dark dark:bg-slate-700 dark:text-slate-300 m-1 btn-sm">
-                        Create order
-                    </button>
-                </a>
-            @endcan
         </div>
     </div>
 
@@ -67,93 +59,6 @@
             <input type="text" class="form-control !pl-9 mr-1 basis-1/4" placeholder="Search"
                 wire:model.live.debounce.400ms="search">
         </header>
-
-        @if ($driver)
-            <header class="dark-card-header noborder bg-dark">
-                <div class="space-y-1">
-                    <h4 class="text-slate-400 dark:text-slate-200 text-xs font-normal">
-                        Driver Weight Limit
-                    </h4>
-                    <div class="text-sm font-medium text-white dark:text-slate-900">
-                        {{ $totalWeight > 0 ? number_format($totalWeight / 1000, 3) : 0 }} /
-                        {{ number_format($driver->weight_limit / 1000, 3) }} KG
-                    </div>
-                    <div class=" text-xs font-normal">
-                        @if ($driver->weight_limit)
-                            @if (($totalWeight / $driver->weight_limit) * 100 <= 50)
-                                <span
-                                    class="text-danger-500">({{ number_format(($totalWeight / $driver->weight_limit) * 100, 0) }}%)
-                                    In-sufficient</span>
-                            @elseif (($totalWeight / $driver->weight_limit) * 100 > 50 && ($totalWeight / $driver->weight_limit) * 100 <= 70)
-                                <span class="text-warning-500">
-                                    ({{ number_format(($totalWeight / $driver->weight_limit) * 100, 0) }}%) Nearly
-                                    Sufficient</span>
-                            @elseif (($totalWeight / $driver->weight_limit) * 100 > 70 && ($totalWeight / $driver->weight_limit) * 100 <= 100)
-                                <span
-                                    class="text-success-500">({{ number_format(($totalWeight / $driver->weight_limit) * 100, 0) }}%)
-                                    Sufficient</span>
-                            @elseif (($totalWeight / $driver->weight_limit) * 100 > 100)
-                                <span
-                                    class="text-danger-500">({{ number_format(($totalWeight / $driver->weight_limit) * 100, 0) }}%)
-                                    Overload</span>
-                            @endif
-                        @endif
-
-                    </div>
-                </div>
-                <div class="space-y-1">
-                    <h4 class="text-slate-400 dark:text-slate-200 text-xs font-normal">
-                        Total Orders Limit
-                    </h4>
-                    <div class="text-sm font-medium text-white dark:text-slate-900">
-                        {{ $ordersCount ?? 0 }} / {{ $driver->order_quantity_limit ?? 'No Limit' }} Orders
-                    </div>
-                    <div class=" text-xs font-normal">
-                        @if ($driver->order_quantity_limit)
-                            @if (($ordersCount / $driver->order_quantity_limit) * 100 <= 50)
-                                <span
-                                    class="text-danger-500">({{ number_format(($ordersCount / $driver->order_quantity_limit) * 100, 0) }}%)
-                                    In-sufficient</span>
-                            @elseif (
-                                ($ordersCount / $driver->order_quantity_limit) * 100 > 50 &&
-                                    ($ordersCount / $driver->order_quantity_limit) * 100 <= 70)
-                                <span class="text-warning-500">
-                                    ({{ number_format(($ordersCount / $driver->order_quantity_limit) * 100, 0) }}%)
-                                    Nearly
-                                    Sufficient</span>
-                            @elseif (
-                                ($ordersCount / $driver->order_quantity_limit) * 100 > 70 &&
-                                    ($ordersCount / $driver->order_quantity_limit) * 100 <= 100)
-                                <span
-                                    class="text-success-500">({{ number_format(($ordersCount / $driver->order_quantity_limit) * 100, 0) }}%)
-                                    Sufficient</span>
-                            @elseif (($ordersCount / $driver->order_quantity_limit) * 100 > 100)
-                                <span
-                                    class="text-danger-500">({{ number_format(($ordersCount / $driver->weight_limit) * 100, 0) }}%)
-                                    Overload</span>
-                            @endif
-                        @endif
-
-                    </div>
-                </div>
-                <div class="space-y-1">
-                    <h4 class="text-slate-400 dark:text-slate-200 text-xs font-normal">
-                        Total Zones
-                    </h4>
-                    <div class="text-sm font-medium text-white dark:text-slate-900">
-                        {{ $totalZones }}
-                    </div>
-                </div>
-                <div class="space-y-1">
-                    <h4 class="text-slate-400 dark:text-slate-200 text-xs font-normal">
-                        Amount to Collect
-                    </h4>
-                    <div class="text-sm font-medium text-white dark:text-slate-900">
-                        {{ number_format($orders->sum('remaining_to_pay'), 2) }}
-                    </div>
-                </div>
-            </header>
-        @endif
 
         <header class="card-header cust-card-header noborder">
             <div>
@@ -181,16 +86,16 @@
                             class="cursor-pointer" width="1.2em" height="1.2em"></iconify-icon>
                     </span>
                 @endif
-                @if ($zone)
-                    <span class="badge bg-slate-900 text-white capitalize">
-                        <span class="cursor-pointer" wire:click='openFilteryZone'>
+                @if (count($selectedZonesNames))
+                    <span wire:click='openZoneSec' class="badge bg-slate-900 text-white capitalize" type="button"
+                        id="secondaryFlatDropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="cursor-pointer">
                             <span class="text-secondary-500 ">Zone:</span>&nbsp;
-                            {{ ucwords($zone->name) }}
+                            @foreach ($selectedZonesNames as $zz)
+                                {{ $zz }},
+                            @endforeach
 
                         </span>
-
-                        &nbsp;&nbsp;<iconify-icon wire:click="clearProperty('zone')" icon="material-symbols:close"
-                            class="cursor-pointer" width="1.2em" height="1.2em"></iconify-icon>
                     </span>
                 @endif
                 @if ($creation_date_from || $creation_date_to)
@@ -607,7 +512,7 @@
             </div>
     @endif
 
-    @if ($Edited_zoneId_sec)
+    @if ($Edited_Zone_sec)
         <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
             tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
             style="display: block;">
@@ -619,9 +524,12 @@
                         <div
                             class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
                             <h3 class="text-xl font-medium text-white dark:text-white capitalize">
-                                Filter Zone
+                                Filter by Zones
+                                <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
+                                    wire:loading wire:target="removeSelectedZone,Edited_Zone"
+                                    icon="line-md:loading-twotone-loop"></iconify-icon>
                             </h3>
-                            <button wire:click="closeFilteryZone" type="button"
+                            <button wire:click="closeZoneSec" type="button"
                                 class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
                                 data-bs-dismiss="modal">
                                 <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
@@ -639,33 +547,44 @@
 
                             <div class="from-group">
                                 <div class="input-area">
-                                    <label for="Edited_zoneId" class="form-label">Zone*</label>
-                                    <select name="Edited_zoneId" id="Edited_status"
-                                        class="form-control w-full mt-2 @error('Edited_zoneId') !border-danger-500 @enderror"
-                                        wire:model="Edited_zoneId" autocomplete="off">
-                                        <option value="">Select zone</option>
-                                        @foreach ($ZONES as $ONE_ZONES)
-                                            <option value="{{ $ONE_ZONES->id }}">
-                                                {{ $ONE_ZONES->name }}</option>
+                                    <label for="Edited_Zone" class="form-label">Zone</label>
+                                    <select
+                                        class="form-control w-full mt-2 @error('Edited_Zone') !border-danger-500 @enderror"
+                                        wire:model.live="Edited_Zone" autocomplete="off">
+                                        <option selected readonly>Select Zones</option>
+                                        @foreach ($saved_zones as $z)
+                                            <option value="{{ $z->id }}">
+                                                {{ $z->name }}</option>
                                         @endforeach
                                     </select>
-
                                 </div>
-                                @error('Edited_zoneId')
+                                @error('Edited_Zone')
                                     <span
                                         class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
                                 @enderror
                             </div>
 
+                            @foreach ($selectedZonesNames as $index => $zone)
+                                <span class="badge bg-slate-900 text-white capitalize">
+                                    <span class="cursor-pointer">
+                                        {{ $zone }}
+                                    </span>
+
+                                    &nbsp;&nbsp;<iconify-icon wire:click="removeSelectedZone({{ $index }})"
+                                        icon="material-symbols:close" class="cursor-pointer" width="1.2em"
+                                        height="1.2em"></iconify-icon>
+                                </span>
+                            @endforeach
+
                         </div>
 
                         <!-- Modal footer -->
                         <div class="flex items-center justify-end p-6 border-t border-slate-200 rounded-b">
-                            <button wire:click="setFilterZone" data-bs-dismiss="modal"
+                            <button wire:click="setZones" data-bs-dismiss="modal"
                                 class="btn inline-flex justify-center text-white bg-black-500">
-                                <span wire:loading.remove wire:target="setFilterZone">Submit</span>
+                                <span wire:loading.remove wire:target="setZones">Submit</span>
                                 <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
-                                    wire:loading wire:target="setFilterZone"
+                                    wire:loading wire:target="setZones"
                                     icon="line-md:loading-twotone-loop"></iconify-icon>
                             </button>
                         </div>

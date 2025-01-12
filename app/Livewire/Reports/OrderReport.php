@@ -39,9 +39,12 @@ class OrderReport extends Component
     public $Edited_driverId_sec;
 
     #[Url]
-    public $zone;
-    public $Edited_zoneId;
-    public $Edited_zoneId_sec;
+    public $zones = [];
+    public $setZoneSection = false;
+    public $Edited_Zone;
+    public $Edited_Zone_sec;
+    public $selectedZones = [];
+    public $selectedZonesNames = [];
 
     public $creator;
     public $Edited_creatorId_sec = false;
@@ -183,29 +186,65 @@ class OrderReport extends Component
         $this->closeFilteryDriver();
     }
 
-    public function openFilteryZone()
+    public function clearZones()
     {
-        $this->Edited_zoneId_sec = true;
-        $this->Edited_zoneId = $this->zone?->id;
+        $this->zones = [];
     }
 
-    public function closeFilteryZone()
+    public function updatedEditedZone($value)
     {
-        $this->Edited_zoneId_sec = false;
-        $this->Edited_zoneId = null;
+        foreach ($this->selectedZones as $z) {
+            if ($z === $value) {
+                return;
+            }
+        }
+        $this->selectedZones[] = $value;
+        $this->selectedZonesNames[] = Zone::find($value)->name;
+        $this->Edited_Zone = null;
     }
 
-    public function setFilterZone()
+    public function openZoneSec()
     {
-        $this->zone = Zone::findOrFail($this->Edited_zoneId);
-        $this->closeFilteryZone();
+        $this->Edited_Zone_sec = true;
+
+        foreach ($this->zones as $zone) {
+            $this->selectedZones[] = $zone;
+        }
     }
+
+    public function closeZoneSec()
+    {
+        $this->Edited_Zone_sec = false;
+        $this->Edited_Zone = null;
+        $this->selectedZones = [];
+    }
+
+    public function setZones()
+    {
+        $this->zones = $this->selectedZones;
+        $this->closeZoneSec();
+    }
+
+    public function removeSelectedZone($index)
+    {
+        if (count($this->selectedZones)) {
+            unset($this->selectedZones[$index]);
+            unset($this->selectedZonesNames[$index]);
+            $this->selectedZones = array_values($this->selectedZones); // Reset array keys
+            $this->selectedZonesNames = array_values($this->selectedZonesNames); // Reset array keys
+        }
+    }
+
 
     public function clearProperty(string $propertyName)
     {
         // Check if the property exists before attempting to clear it
         if (property_exists($this, $propertyName)) {
             $this->$propertyName = null;
+        }
+        $loggedInUser = Auth::user();
+        if ($loggedInUser->is_sales) {
+            $this->creator = $loggedInUser;
         }
     }
 
@@ -243,7 +282,7 @@ class OrderReport extends Component
     {
         $orders = Order::Report(
             searchText: $this->search,
-            zone_id: $this->zone?->id,
+            zone_ids: $this->zone?->id,
             driver_id: $this->driver?->id,
             created_from: $this->creation_date_from ? Carbon::parse($this->creation_date_from) : null,
             created_to: $this->creation_date_from ? Carbon::parse($this->creation_date_to) : null,
@@ -263,7 +302,7 @@ class OrderReport extends Component
         $ordersCount = count($orders);
 
         $DRIVERS = Driver::all();
-        $ZONES = Zone::all();
+        $All_ZONES = Zone::all();
         $STATUSES = Order::STATUSES;
         $drivers = Driver::all();
         $users = User::all();
@@ -275,7 +314,7 @@ class OrderReport extends Component
             'drivers' => $drivers,
             'STATUSES' => $STATUSES,
             'DRIVERS' => $DRIVERS,
-            'ZONES' => $ZONES,
+            'ALL_ZONES' => $All_ZONES,
             'totalWeight' => $totalWeight,
             'totalZones' => $totalZones,
             'ordersCount' => $ordersCount,
