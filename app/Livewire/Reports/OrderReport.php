@@ -282,7 +282,7 @@ class OrderReport extends Component
     {
         $orders = Order::Report(
             searchText: $this->search,
-            zone_ids: $this->zone?->id,
+            zone_ids: $this->selectedZones,
             driver_id: $this->driver?->id,
             created_from: $this->creation_date_from ? Carbon::parse($this->creation_date_from) : null,
             created_to: $this->creation_date_from ? Carbon::parse($this->creation_date_to) : null,
