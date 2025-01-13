@@ -170,7 +170,7 @@ class Inventory extends Model
 
             // Decrease the committed quantity and the on_hand quantity
             $this->committed -= $quantity;
-            $this->on_hand -= $quantity;
+            // $this->on_hand -= $quantity;
 
             // Update available stock
             $this->available = $this->on_hand - $this->committed;
