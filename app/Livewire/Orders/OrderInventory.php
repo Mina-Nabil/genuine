@@ -222,7 +222,6 @@ class OrderInventory extends Component
     {
         $DRIVERS = Driver::all();
         $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneId: $this->zone?->id)->withTotalQuantity()->openOrders()->get();
-        $this->noOfBags = [];
         foreach ($orders as $order) {
             $this->noOfBags[$order->id] = $order->no_of_bags;
         }

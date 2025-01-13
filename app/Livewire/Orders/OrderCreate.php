@@ -163,7 +163,10 @@ class OrderCreate extends Component
     {
         if ($this->customerId) {
             $customer = Customer::findOrFail($this->customerId);
-            if ($this->ddate && !$customer->orders->where('delivery_date', Carbon::parse($this->ddate))->isEmpty()) {
+            if ($this->ddate && !$customer->orders()
+                ->whereNot('status', Order::STATUS_RETURNED)
+                ->whereNot('status', Order::STATUS_CANCELLED)
+                ->where('delivery_date', Carbon::parse($this->ddate))->get()->isEmpty()) {
                 $this->hasPrevOrdersAlert = true;
             } else {
                 $this->hasPrevOrdersAlert = false;

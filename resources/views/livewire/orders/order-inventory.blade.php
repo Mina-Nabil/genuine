@@ -609,7 +609,7 @@
                                                     No of Bags
                                                 </h4>
                                                 <div class="text-sm font-medium text-slate-900 dark:text-white">
-                                                    <input wire:model.live='noOfBags.{{ $order->id }}'
+                                                    <input wire:model='noOfBags.{{ $order->id }}'
                                                         wire:change='updateNoOfBags({{ $order->id }})'
                                                         id="smallInput" type="number" style="width: 65px;"
                                                         class="form-control !py-1 !text-xs">
