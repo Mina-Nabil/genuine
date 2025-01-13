@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class OrderProduct extends Model
@@ -28,25 +27,25 @@ class OrderProduct extends Model
         'is_ready',
     ];
 
-    public function toggleReady()
+    public function setAsReady()
     {
         try {
 
-            if ($this->order->status !== Order::STATUS_NEW) {
+            if ($this->order->status !== Order::STATUS_NEW || $this->is_ready) {
                 return false;
             }
 
-            $this->is_ready = !$this->is_ready;
-            $this->save();
+            if ($this->product->inventory->fulfillCommit($this->quantity)) {
+                $this->is_ready = 1;
+                $this->save();
+                AppLog::info('product ' . $this->product->name . ' set to ready', loggable: $this->order);
+            } else {
+                AppLog::info('Can\'t set product ' . $this->product->name . ' set to ready', loggable: $this->order);
 
-            AppLog::info('product ' . $this->product->name . ' set to ' . (!$this->is_ready ? 'not' : '') . ' ready', loggable: $this->order);
+            }
 
-            if ($this->is_ready) {
-                if (!$this->product->inventory->fulfillCommit($this->quantity)) {
-                    $this->is_ready = 0;
-                    $this->save();
-                    return false;
-                }
+
+            if($this->order->areAllProductsReady()){
                 $this->order->setStatus(Order::STATUS_READY);
             }
 

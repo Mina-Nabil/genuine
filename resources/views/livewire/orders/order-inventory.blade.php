@@ -144,7 +144,8 @@
                                                 <a href="{{ route('orders.show', $order->id) }}"> <span
                                                         class="hover-underline">
                                                         <b>
-                                                            #{{ $order->order_number }} • {{ $order->customer->name }}• {{$order->creator->username}}
+                                                            #{{ $order->order_number }} • {{ $order->customer->name }}•
+                                                            {{ $order->creator->username }}
                                                         </b>
                                                     </span>
                                                 </a>
@@ -405,7 +406,8 @@
                                             <a href="{{ route('orders.show', $order->id) }}"> <span
                                                     class="hover-underline">
                                                     <b>
-                                                        #{{ $order->order_number }} • {{ $order->customer->name }} • {{$order->creator->username}}
+                                                        #{{ $order->order_number }} • {{ $order->customer->name }} •
+                                                        {{ $order->creator->username }}
                                                     </b>
                                                 </span>
                                             </a>
@@ -457,7 +459,7 @@
                                                     <iconify-icon icon="healthicons:truck-driver" width="15"
                                                         height="15"></iconify-icon>
                                                     <b>&nbsp;{{ $order->driver?->shift_title }}</b>
-                                                    @endif
+                                                @endif
                                             </div>
 
 
@@ -490,11 +492,11 @@
                                             class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700">
                                             <tbody class="bg-white dark:bg-slate-800 no-wrap">
                                                 @can('update', $order)
-                                                    @if ($order->status === App\Models\Orders\Order::STATUS_NEW)
+                                                    @if ($order->status === App\Models\Orders\Order::STATUS_NEW && $order->areAllProductsAvailable())
                                                         <button wire:click='setAllReady({{ $order->id }})'
                                                             class="btn inline-flex justify-center btn-outline-success btn-sm"
                                                             style="padding-top: 3px;padding-bottom: 3px">
-                                                            All Ready
+                                                            Order Ready
                                                         </button>
                                                     @endif
                                                 @endcan
@@ -559,7 +561,6 @@
                                                                 <td class="float-right ml-5">
                                                                     @if ($orderProduct->is_ready)
                                                                         <button
-                                                                            wire:click='toggleReady({{ $orderProduct->id }})'
                                                                             class="btn inline-flex justify-center btn-outline-success btn-sm"
                                                                             style="padding-top: 3px;padding-bottom: 3px">
                                                                             Ready
@@ -574,10 +575,9 @@
                                                                             </button>
                                                                         @else
                                                                             <button
-                                                                                wire:click='toggleReady({{ $orderProduct->id }})'
                                                                                 class="btn inline-flex justify-center btn-outline-secondary btn-sm"
                                                                                 style="padding-top: 3px;padding-bottom: 3px">
-                                                                                Not Ready
+                                                                                Available
                                                                             </button>
                                                                         @endif
                                                                     @endif
@@ -609,7 +609,7 @@
                                                     No of Bags
                                                 </h4>
                                                 <div class="text-sm font-medium text-slate-900 dark:text-white">
-                                                    <input wire:model.live='noOfBags.{{ $order->id }}'
+                                                    <input wire:model='noOfBags.{{ $order->id }}'
                                                         wire:change='updateNoOfBags({{ $order->id }})'
                                                         id="smallInput" type="number" style="width: 65px;"
                                                         class="form-control !py-1 !text-xs">
@@ -626,6 +626,7 @@
                                             </div>
                                         </div>
                                     </div>
+                                    
                                 </div>
                             </div>
 

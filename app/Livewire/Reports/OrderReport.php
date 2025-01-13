@@ -128,12 +128,7 @@ class OrderReport extends Component
 
     public function setFilterCreator()
     {
-        $loggedInUser = Auth::user();
-        if ($loggedInUser->is_sales) {
-            $this->creator = $loggedInUser;
-        } else {
-            $this->creator = User::findOrFail($this->Edited_creatorId);
-        }
+        $this->creator = User::findOrFail($this->Edited_creatorId);
         $this->closeFilterCreator();
     }
 
@@ -267,14 +262,6 @@ class OrderReport extends Component
     {
         $this->selectedAllOrders = false;
         $this->selectedOrders = $this->fetched_orders_IDs;
-    }
-
-    public function mount()
-    {
-        $loggedInUser = Auth::user();
-        if ($loggedInUser->is_sales) {
-            $this->creator = $loggedInUser;
-        }
     }
 
 

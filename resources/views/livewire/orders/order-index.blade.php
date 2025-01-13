@@ -37,10 +37,17 @@
 
                 @endif
                 @foreach ($availableBulkStatuses as $availableBulkStatus)
-                    <li wire:click="setBulkStatus('{{ $availableBulkStatus }}')"
-                        class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
-                        Set as {{ ucwords(str_replace('_', ' ', $availableBulkStatus)) }}
-                    </li>
+                    @if (
+                        !(
+                            $availableBulkStatus == App\Models\Orders\Order::STATUS_READY ||
+                            $availableBulkStatus == App\Models\Orders\Order::STATUS_IN_DELIVERY
+                        ) ||
+                            auth()->user()->can('updateInventoryInfo', App\Models\Orders\Order::class))
+                        <li wire:click="setBulkStatus('{{ $availableBulkStatus }}')"
+                            class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
+                            Set as {{ ucwords(str_replace('_', ' ', $availableBulkStatus)) }}
+                        </li>
+                    @endif
                 @endforeach
                 @if (in_array('in_delivery', $availableBulkStatuses) || in_array('done', $availableBulkStatuses))
                     <li wire:click='resetStatuses'
@@ -279,11 +286,11 @@
                                 Order
                             </th>
                             @if (count($selectedOrders))
-                                    <th colspan="8" class="table-th"><iconify-icon style="vertical-align: top;"
-                                            icon="lucide:info" width="1.2em" height="1.2em"></iconify-icon>
-                                        {{ count($selectedOrders) }} order
-                                        selected .. <span class="clickable-link" wire:click='unselectAllOrders'>Unselect
-                                            All Orders</span></th>
+                                <th colspan="8" class="table-th"><iconify-icon style="vertical-align: top;"
+                                        icon="lucide:info" width="1.2em" height="1.2em"></iconify-icon>
+                                    {{ count($selectedOrders) }} order
+                                    selected .. <span class="clickable-link" wire:click='unselectAllOrders'>Unselect
+                                        All Orders</span></th>
                             @else
                                 <th scope="col" class="table-th">Delivery</th>
                                 <th scope="col" class="table-th">Zone</th>
@@ -326,7 +333,9 @@
                                 </td>
 
                                 <td class="table-td">
-                                    @if ($order->delivery_date->isPast() && !$order->delivery_date->isToday())
+                                    @if (
+                                        ($order->delivery_date->isPast() && !$order->delivery_date->isToday()) ||
+                                            ($order->delivery_date->isToday() && !$order->is_confirmed))
                                         <span
                                             class="h-[6px] w-[6px] bg-danger-500 rounded-full inline-block ring-4 ring-opacity-30 ring-danger-500"
                                             style="vertical-align: middle;"></span> &nbsp;
@@ -372,7 +381,7 @@
 
                                             {{ ucwords(str_replace('_', ' ', App\Models\Orders\Order::STATUS_READY)) }}
                                         </span>
-                                        <span class="badge bg-warning-500 text-dark-500 bg-opacity-50 capitalize">
+                                        <span class="badge bg-primary-500 text-dark-500 bg-opacity-50 capitalize">
 
                                             {{ ucwords(str_replace('_', ' ', $order->status)) }}
                                         </span>
