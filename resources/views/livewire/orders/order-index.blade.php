@@ -379,7 +379,7 @@
 
                                             {{ ucwords(str_replace('_', ' ', App\Models\Orders\Order::STATUS_READY)) }}
                                         </span>
-                                        <span class="badge bg-warning-500 text-dark-500 bg-opacity-50 capitalize">
+                                        <span class="badge bg-primary-500 text-dark-500 bg-opacity-50 capitalize">
 
                                             {{ ucwords(str_replace('_', ' ', $order->status)) }}
                                         </span>
