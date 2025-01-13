@@ -231,6 +231,7 @@ class OrderCreate extends Component
                     'id' => $product->product_id,
                     'name' => $origProd->name,
                     'combo_id' => $product->combo_id,
+                    'combo_name' => Combo::find($product->combo_id)?->name ,
                     'quantity' => $product->quantity,
                     'price' => $product->price,
                 ];

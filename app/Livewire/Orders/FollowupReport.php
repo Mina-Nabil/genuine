@@ -141,7 +141,7 @@ class FollowupReport extends Component
 
         $zones = Zone::all();
 
-        $customers = Customer::search($this->search)
+        $customers = Customer::with('orders')->search($this->search)
         ->when($this->is_ordered, function($q) use ($startDate, $end) {
             $q->orderedBetween($startDate, $end);
         })
@@ -150,7 +150,9 @@ class FollowupReport extends Component
         foreach ($customers as $c) {
             $startTmp = $startDate->clone();
             while ($startTmp->isBefore($end)) {
-                $c->appendKGTotal($startTmp, $startTmp->addWeek());
+                $tmpEnd =  $startTmp->clone()->addWeek();
+                $c->appendKGTotal($startTmp, $tmpEnd);
+                $startTmp->addWeek();
             }
         }
         // Log::info($customers->links());

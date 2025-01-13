@@ -161,8 +161,8 @@
                                         @if ($c->last_order_id)
                                             <div wire:click='reorderLastOrder({{ $c->last_order_id }})'
                                                 class="text-xs font-normal text-slate-600 dark:text-slate-400 clickable-link">
-                                                <span><iconify-icon icon="radix-icons:reload"></iconify-icon> Repeat
-                                                    Last
+                                                <span>
+                                                    <iconify-icon icon="radix-icons:reload"></iconify-icon> Repeat Last
                                                     Order</span>
                                             </div>
                                         @endif
