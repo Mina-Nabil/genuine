@@ -418,7 +418,7 @@ class Order extends Model
             ->selectRaw('drivers.shift_title, drivers.user_id')
             ->selectRaw('COUNT(o1.id) as orders_count')
             ->selectRaw('SUM(o1.total_amount) as orders_total')
-            ->selectRaw('SUM((SELECT (SUM(order_products.quantity * products.weight/1000)) from order_products join products on order_products.product_id = products.id where o1.id = order_products.order_id )) as kgs_total')
+            ->selectRaw('SUM((SELECT (SUM(order_products.quantity * products.weight/1000)) from order_products join products on order_products.product_id = products.id where o1.id = order_products.order_id and order_products.deleted_at is null )) as kgs_total')
             ->selectRaw('SUM((SELECT SUM(amount) from customer_payments as c2 where o1.id = c2.order_id and c2.payment_method = "' . CustomerPayment::PYMT_CASH . '")) as total_cash ')
             ->selectRaw('SUM((SELECT SUM(amount) from customer_payments as c2 where o1.id = c2.order_id and c2.payment_method = "' . CustomerPayment::PYMT_BANK_TRANSFER . '")) as total_bank ')
             ->selectRaw('SUM((SELECT SUM(amount) from customer_payments as c2 where o1.id = c2.order_id and c2.payment_method = "' . CustomerPayment::PYMT_WALLET . '")) as total_wallet ')
@@ -1822,7 +1822,8 @@ class Order extends Model
                                 (SELECT SUM(order_products.quantity * products.weight)
                                 FROM order_products
                                 JOIN products ON order_products.product_id = products.id
-                                WHERE o1.id = order_products.order_id)
+                                WHERE o1.id = order_products.order_id
+                                AND order_products.deleted_at is null )
                             ) AS total_weightsss')
 
             ->join('orders as o1', 'o1.id', '=', 'orders.id')
@@ -1843,7 +1844,8 @@ class Order extends Model
                 SELECT SUM(order_products.quantity * products.weight)
                 FROM order_products 
                 JOIN products ON order_products.product_id = products.id
-                WHERE o1.id = order_products.order_id
+                WHERE o1.id = order_products.order_id 
+                AND order_products.deleted_at is null
             )) as monthly_total_weight')
             ->join('orders as o1', 'o1.id', '=', 'orders.id')
             ->whereYear('o1.delivery_date', $year)
@@ -1894,7 +1896,10 @@ class Order extends Model
 
     public function getTotalWeightAttribute()
     {
-        return $this->products()->join('products', 'order_products.product_id', '=', 'products.id')->selectRaw('SUM(products.weight * order_products.quantity) as total_weight')->value('total_weight') ?? 0;
+        return $this->products()
+        ->join('products', 'order_products.product_id', '=', 'products.id')->selectRaw('SUM(products.weight * order_products.quantity) as total_weight')
+        ->whereNull('order_products.deleted_at')
+        ->value('total_weight') ?? 0;
     }
 
     public static function getTotalZonesForOrders($orders)

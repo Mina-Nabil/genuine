@@ -329,7 +329,10 @@ class User extends Authenticatable
             ->select('users.*')
             ->selectRaw('COUNT(o1.id) as total_orders')
             ->selectRaw('SUM(o1.total_amount) as total_amount')
-            ->selectRaw('SUM((SELECT (SUM(order_products.quantity * products.weight)) from order_products join products on order_products.product_id = products.id where o1.id = order_products.order_id )) as total_weight')
+            ->selectRaw('SUM((SELECT (SUM(order_products.quantity * products.weight)) 
+            from order_products 
+            join products on order_products.product_id = products.id 
+            where o1.id = order_products.order_id and order_products.deleted_at is null )) as total_weight')
             ->selectRaw('COUNT(DISTINCT o1.zone_id) as total_zones')
             ->selectRaw('COUNT(DISTINCT Date(o1.delivery_date)) as total_days')
             ->selectRaw('GROUP_CONCAT(DISTINCT zones.name ORDER BY zones.name ASC) as zone_names')
