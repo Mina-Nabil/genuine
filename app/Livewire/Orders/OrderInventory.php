@@ -157,30 +157,13 @@ class OrderInventory extends Component
     {
         $order = Order::findOrFail($order_id);
         $this->authorize('update', $order);
-        $res = true;
+
         /** @var OrderProduct */
         foreach ($order->products as $p) {
-            $res &= $p->toggleReady();
+            $p->setAsReady();
         }
+        $this->alertSuccess('Available products are pulled from Stock');
 
-        if ($res) {
-            $this->alertSuccess('Products swtiched');
-        } else {
-            $this->alertFailed();
-        }
-    }
-
-    public function toggleReady($id)
-    {
-        $orderProduct = OrderProduct::findOrFail($id);
-        $this->authorize('update', $orderProduct->order);
-        $res = $orderProduct->toggleReady();
-
-        if ($res) {
-            $this->alertSuccess('Product swtiched');
-        } else {
-            $this->alertFailed();
-        }
     }
 
     public function toggleDeletedReady($id)

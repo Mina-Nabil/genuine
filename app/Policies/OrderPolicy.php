@@ -45,6 +45,11 @@ class OrderPolicy
         return $order->is_new || $order->is_ready || $user->is_admin;
     }
 
+    public function updateInventoryInfo(User $user, Order $order=null): bool
+    {
+        return $user->is_admin || $user->is_inventory;
+    }
+
     public function updateDriverNote(User $user, Order $order): bool
     {
         return $user->is_driver;

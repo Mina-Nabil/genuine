@@ -184,7 +184,7 @@
                     </li>
 
                     <li>
-                        <a href="{{ auth()->user()->can('viewAny', App\Models\Orders\Order::class)? url('/report/daily-loading'): '#' }}" 
+                        <a href="{{ auth()->user()->can('viewAny', App\Models\Orders\Order::class)? url('/report/daily-loading'): '#' }}"
                             class="navItem {{ $dailyLoading ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Orders\Order::class)? '': 'disabled' }}">
                             <span class="flex
                             items-center">
@@ -243,52 +243,18 @@
                         </li> --}}
                     @endcan
 
-
-                    <li class="sidebar-menu-title">Calendar</li>
-
-                    <li>
-                        <a href="{{ auth()->user()->can('viewAny', App\Models\Tasks\Task::class)? url('/tasks'): '#' }}"
-                            class="navItem {{ $tasks ?? '' }}  {{ auth()->user()->can('viewAny', App\Models\Tasks\Task::class)? '': 'disabled' }}">
-                            <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="ic:round-add-task">
-                                </iconify-icon>
-                                <span>Tasks</span>
-                            </span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ url('/calendar') }}" class="navItem">
-                            <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="grommet-icons:calendar">
-                                </iconify-icon>
-                                <span>To-do</span>
-                            </span>
-                        </a>
-                    </li>
-
-                    <li>
-                        <a href="{{ auth()->user()->can('viewAny', App\Models\Customers\Followup::class)? url('/followups'): '#' }}"
-                            class="navItem {{ $followups ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Customers\Followup::class)? '': 'disabled' }}">
-                            <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="icon-park-outline:cycle-arrow">
-                                </iconify-icon>
-                                <span>Follow-ups</span>
-                            </span>
-                        </a>
-                    </li>
-
                     <li class="sidebar-menu-title">Reports</li>
                     @can('viewAny', App\Models\Products\Customer::class)
-                    <li>
-                        <a href="{{ url('/report/followup') }}" class="navItem {{ $followupReport ?? '' }}">
-                            <span class="flex
+                        <li>
+                            <a href="{{ url('/report/followup') }}" class="navItem {{ $followupReport ?? '' }}">
+                                <span class="flex
                             items-center">
-                                <iconify-icon class=" nav-icon" icon="material-symbols:order-approve-outline-sharp">
-                                </iconify-icon>
-                                <span>متابعه عملاء</span>
-                            </span>
-                        </a>
-                    </li>
+                                    <iconify-icon class=" nav-icon" icon="material-symbols:order-approve-outline-sharp">
+                                    </iconify-icon>
+                                    <span>متابعه عملاء</span>
+                                </span>
+                            </a>
+                        </li>
                     @endcan
 
                     <li>
@@ -372,6 +338,41 @@
                             </span>
                         </a>
                     </li> --}}
+
+                    <li class="sidebar-menu-title">Calendar</li>
+
+                    <li>
+                        <a href="{{ auth()->user()->can('viewAny', App\Models\Tasks\Task::class)? url('/tasks'): '#' }}"
+                            class="navItem {{ $tasks ?? '' }}  {{ auth()->user()->can('viewAny', App\Models\Tasks\Task::class)? '': 'disabled' }}">
+                            <span class="flex items-center">
+                                <iconify-icon class=" nav-icon" icon="ic:round-add-task">
+                                </iconify-icon>
+                                <span>Tasks</span>
+                            </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url('/calendar') }}" class="navItem">
+                            <span class="flex items-center">
+                                <iconify-icon class=" nav-icon" icon="grommet-icons:calendar">
+                                </iconify-icon>
+                                <span>To-do</span>
+                            </span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ auth()->user()->can('viewAny', App\Models\Customers\Followup::class)? url('/followups'): '#' }}"
+                            class="navItem {{ $followups ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Customers\Followup::class)? '': 'disabled' }}">
+                            <span class="flex items-center">
+                                <iconify-icon class=" nav-icon" icon="icon-park-outline:cycle-arrow">
+                                </iconify-icon>
+                                <span>Follow-ups</span>
+                            </span>
+                        </a>
+                    </li>
+
+
 
                     <li class="sidebar-menu-title">Database</li>
 

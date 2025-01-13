@@ -175,11 +175,12 @@ class Order extends Model
                     $product->product->inventory->unfulfillCommit($product->quantity);
                     $product->is_ready = false;
                     $product->save();
+                    AppLog::info("Order product {$product->product->name} is back to stock", loggable: $this);
                 }
 
                 $this->status = self::STATUS_NEW;
                 $this->save();
-
+                AppLog::info("Order reset completed", loggable: $this);
                 DB::commit();
                 return true;
             } else {
@@ -220,6 +221,14 @@ class Order extends Model
         DB::beginTransaction();
 
         try {
+            /** @var User */
+            $loggedInUser = Auth::user();
+            if (($newStatus == self::STATUS_READY || $newStatus == self::STATUS_IN_DELIVERY) &&
+                !$loggedInUser->can('updateInventoryInfo', self::class)
+            ) {
+                throw new Exception("User unauthorized");
+            }
+
             // Get the current status and check the allowed next statuses
             $currentStatus = $this->status;
             $allowedNextStatuses = self::getNextStatuses($currentStatus);
@@ -236,7 +245,7 @@ class Order extends Model
             if ($currentStatus === self::STATUS_NEW && $newStatus === self::STATUS_READY) {
                 foreach ($this->products as $product) {
                     if (!$product->is_ready) {
-                        $product->toggleReady();
+                        $product->setAsReady();
                     }
                     $product->is_ready = true;
                     $product->save();
@@ -1626,6 +1635,16 @@ class Order extends Model
     public function areAllProductsReady(): bool
     {
         return $this->products()->where('is_ready', false)->doesntExist();
+    }
+
+    public function areAllProductsAvailable(): bool
+    {
+        $res = true;
+        foreach($this->products as $orderProduct)
+        {
+            $res &= ($orderProduct->product->inventory->on_hand - $orderProduct->quantity ) > 0;
+        }
+        return $res;
     }
 
     public function isOpenToPay()

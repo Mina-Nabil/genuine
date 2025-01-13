@@ -3,7 +3,7 @@
         <div class="flex justify-between">
             <div>
                 <h5 class=" text-slate-900 dark:text-whiteh5">
-                    <b>#{{ $order->order_number }}</b>
+                    <b>#{{ $order->order_number }} - {{ $order->customer_name }}</b>
                     @if ($order->is_paid)
                         <span class="badge bg-success-500 text-dark-500 bg-opacity-50 capitalize">
                             <iconify-icon icon="icon-park-outline:dot" width="1.2em" height="1.2em"></iconify-icon>
