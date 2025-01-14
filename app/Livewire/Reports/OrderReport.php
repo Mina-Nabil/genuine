@@ -39,7 +39,6 @@ class OrderReport extends Component
     public $Edited_driverId;
     public $Edited_driverId_sec;
 
-    #[Url]
     public $zones = [];
     public $setZoneSection = false;
     public $Edited_Zone;
