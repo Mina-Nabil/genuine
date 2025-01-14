@@ -197,19 +197,19 @@ class InventoryTransactionIndex extends Component
 
     public function submitTransaction()
     {
-        // foreach ($this->newChanges as $changedIndex) {
-        //     if (abs((int) $changedIndex['from_on_hand'] - (int) $changedIndex['to_on_hand']) !== abs((int) $changedIndex['from_available'] - (int) $changedIndex['to_available'])) {
-        //         $this->alertFailed();
-        //         return;
-        //     } else {
-        //         $quantity = (int) $changedIndex['to_on_hand'];
-        //         $this->authorize('update', Product::findOrFail($changedIndex['inventory_id'])->inventory);
-        //         Product::findOrFail($changedIndex['inventory_id'])->inventory->addTransaction($quantity, $this->transRemark);
-        //     }
-        // }
-        // $this->resetPage();
-        // $this->reset(['newChanges', 'transRemark', 'productsChanges', 'oldproductsChanges', 'hasChanges']);
-        // $this->alertSuccess('Inventory updated');
+        foreach ($this->newChanges as $changedIndex) {
+            if (abs((int) $changedIndex['from_on_hand'] - (int) $changedIndex['to_on_hand']) !== abs((int) $changedIndex['from_available'] - (int) $changedIndex['to_available'])) {
+                $this->alertFailed();
+                return;
+            } else {
+                $quantity = (int) $changedIndex['to_on_hand'];
+                $this->authorize('update', Product::findOrFail($changedIndex['inventory_id'])->inventory);
+                Product::findOrFail($changedIndex['inventory_id'])->inventory->updateOnHandWithNewValue($quantity, $this->transRemark);
+            }
+        }
+        $this->resetPage();
+        $this->reset(['newChanges', 'transRemark', 'productsChanges', 'oldproductsChanges', 'hasChanges']);
+        $this->alertSuccess('Inventory updated');
     }
 
     public function mount()
