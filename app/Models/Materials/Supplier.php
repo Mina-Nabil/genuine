@@ -13,7 +13,7 @@ class Supplier extends Model
 
     protected $fillable = ['name', 'phone1', 'phone2', 'email', 'address', 'contact_name', 'contact_phone', 'balance'];
 
-    public static function newSupplier($name, $phone1, $phone2 = null, $email = null, $address = null, $contact_name = null, $contact_phone = null, $balance = 0)
+    public static function newSupplier($name, $phone1, $phone2 = null, $email = null, $address = null, $contact_name = null, $contact_phone = null)
     {
         try {
             $supplier = new self();
@@ -24,7 +24,6 @@ class Supplier extends Model
             $supplier->address = $address;
             $supplier->contact_name = $contact_name;
             $supplier->contact_phone = $contact_phone;
-            $supplier->balance = $balance;
 
             if ($supplier->save()) {
                 AppLog::info('Supplier created', "Supplier $name created successfully.", loggable: $supplier);
@@ -44,9 +43,9 @@ class Supplier extends Model
         try {
             $this->name = $name;
             $this->phone1 = $phone1;
-            $this->phone2 = $phone2 ; 
-            $this->email = $email ; 
-            $this->address = $address; 
+            $this->phone2 = $phone2;
+            $this->email = $email;
+            $this->address = $address;
             $this->contact_name = $contact_name;
             $this->contact_phone = $contact_phone;
 
@@ -63,6 +62,14 @@ class Supplier extends Model
         }
     }
 
+    public function scopeSearch($query, $term)
+    {
+        $term = "%{$term}%";
+        return $query->where(function ($q) use ($term) {
+            $q->where('name', 'like', $term)->orWhere('address', 'like', $term)->orWhere('phone1', 'like', $term)->orWhere('phone2', 'like', $term)->orWhere('contact_name', 'like', $term)->orWhere('contact_phone', 'like', $term);
+        });
+    }
+
     public function supplierInvoices()
     {
         return $this->hasMany(SupplierInvoice::class);
@@ -70,7 +77,6 @@ class Supplier extends Model
 
     public function rawMaterials()
     {
-        return $this->belongsToMany(RawMaterial::class, 'supplier_raw_materials')
-            ->withPivot('price');
+        return $this->belongsToMany(RawMaterial::class, 'supplier_raw_materials')->withPivot('price');
     }
 }

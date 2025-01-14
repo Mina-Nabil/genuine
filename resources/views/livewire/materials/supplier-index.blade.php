@@ -6,8 +6,8 @@
             </h4>
         </div>
         <div class="flex sm:space-x-4 space-x-2 sm:justify-end items-center md:mb-6 mb-4 rtl:space-x-reverse">
-            @can('create', App\Models\Customers\Customer::class)
-                <button wire:click="openNewCustomerSec"
+            @can('create', App\Models\Materials\Supplier::class)
+                <button wire:click="openNewSupplierSection"
                     class="btn inline-flex justify-center btn-dark dark:bg-slate-700 dark:text-slate-300 m-1 btn-sm">
                     Add supplier
                 </button>
@@ -25,7 +25,7 @@
 
         <div class="card-body px-6 pb-6  overflow-x-auto">
             <div class=""> <!-- Add this wrapper to allow horizontal scroll -->
-                <table class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700">
+                <table class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700 no-wrap">
                     <thead class="border-t border-slate-100 dark:border-slate-800 bg-slate-200 dark:bg-slate-700">
                         <tr>
                             <th scope="col"
@@ -44,49 +44,50 @@
                                 Name
                             </th>
                             @if ($selectAll)
-                                @if ($selectedAllCustomers)
-                                    <th colspan="4" class="table-th"><iconify-icon style="vertical-align: top;"
+                                @if ($selectedAllSuppliers)
+                                    <th colspan="5" class="table-th"><iconify-icon style="vertical-align: top;"
                                             icon="lucide:info" width="1.2em" height="1.2em"></iconify-icon> A
-                                        {{ count($selectedCustomers) }} customer selected ..
-                                        <span class="clickable-link" wire:click='undoSelectAllCustomers'>Undo</span>
+                                        {{ count($selectedSuppliers) }} supplier selected ..
+                                        <span class="clickable-link" wire:click='undoSelectAllSuppliers'>Undo</span>
                                     </th>
                                 @else
-                                    <th colspan="4" class="table-th"><iconify-icon style="vertical-align: top;"
+                                    <th colspan="5" class="table-th"><iconify-icon style="vertical-align: top;"
                                             icon="lucide:info" width="1.2em" height="1.2em"></iconify-icon>
-                                        {{ count($selectedCustomers) }} customer
-                                        selected .. <span class="clickable-link" wire:click='selectAllCustomers'>Select
-                                            All Customers</span></th>
+                                        {{ count($selectedSuppliers) }} supplier
+                                        selected .. <span class="clickable-link" wire:click='selectAllSuppliers'>Select
+                                            All Suppliers</span></th>
                                 @endif
                             @else
-                                <th scope="col" class="table-th">Phone</th>
-                                <th scope="col" class="table-th">Zone</th>
-                                <th scope="col" class="table-th">Address</th>
-                                <th scope="col" class="table-th">Location</th>
+                                <th scope="col" class="table-th">Phone 1</th>
+                                <th scope="col" class="table-th">Phone 2</th>
+                                <th scope="col" class="table-th">Email</th>
+                                <th scope="col" class="table-th">Contact Name</th>
+                                <th scope="col" class="table-th">Contact Phone</th>
                             @endif
 
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700 no-wrap">
 
-                        @foreach ($customers as $customer)
+                        @foreach ($suppliers as $supplier)
                         <tr class="even:bg-slate-100 dark:even:bg-slate-700">
 
-                                <td class="table-td flex items-center sticky-column bg-white dark:bg-slate-800 colomn-shadow"
+                                <td class="table-td flex items-center sticky-column colomn-shadow even:bg-slate-100 dark:even:bg-slate-700"
                                     style="position: sticky; left: -25px;  z-index: 10;">
                                     <div class="checkbox-area">
                                         <label class="inline-flex items-center cursor-pointer">
-                                            <input type="checkbox" wire:model="selectedCustomers"
-                                                value="{{ $customer->id }}" class="hidden" id="select-all">
+                                            <input type="checkbox" wire:model="selectedSuppliers"
+                                                value="{{ $supplier->id }}" class="hidden" id="select-all">
                                             <span
                                                 class="h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 bg-slate-100 dark:bg-slate-900">
                                                 <img src="assets/images/icon/ck-white.svg" alt=""
                                                     class="h-[10px] w-[10px] block m-auto opacity-0"></span>
                                         </label>
                                     </div>
-                                    <a href="{{ route('customer.show', $customer->id) }}"> <span
+                                    <a href="{{ route('supplier.show',$supplier->id) }}"> <span
                                             class="hover-underline">
                                             <b>
-                                                {{ $customer->name }}
+                                                {{ $supplier->name }}
                                             </b>
                                         </span>
                                     </a>
@@ -95,31 +96,24 @@
 
 
                                 <td class="table-td">
-                                    {{ $customer->phone }}
+                                    {{ $supplier->phone1 }}
                                 </td>
 
                                 <td class="table-td">
-                                    {{ $customer->zone?->name }}
-                                </td>
-
-                                <td class="table-td text-start overflow-hidden text-ellipsis whitespace-nowrap">
-                                    <p title="{{ $customer->address }}"
-                                        class="text-sm text-slate-600 dark:text-slate-300 overflow-hidden text-ellipsis whitespace-nowrap"
-                                        style="max-width:300px">
-                                        {{ $customer->address }}
-                                    </p>
+                                    {{ $supplier->phone2 }}
                                 </td>
 
                                 <td class="table-td">
-                                    @if ($customer->location_url)
-                                        <div
-                                            class="flex items-center space-x-2 text-xs font-normal text-primary-600 dark:text-slate-300 rtl:space-x-reverse">
-                                            <iconify-icon icon="dashicons:location"></iconify-icon>
-                                            <a target="_blank" href="{{ $customer->location_url }}">Location</a>
-                                        </div>
-                                    @endif
+                                    {{ $supplier->email }}
                                 </td>
 
+                                <td class="table-td">
+                                    {{ $supplier->contact_name }}
+                                </td>
+
+                                <td class="table-td">
+                                    {{ $supplier->contact_phone }}
+                                </td>
 
                             </tr>
                         @endforeach
@@ -129,7 +123,7 @@
                 </table>
 
 
-                @if ($customers->isEmpty())
+                @if ($suppliers->isEmpty())
                     {{-- START: empty filter result --}}
                     <div class="card m-5 p-5">
                         <div class="card-body rounded-md bg-white dark:bg-slate-800">
@@ -137,14 +131,14 @@
                                 <h2>
                                     <iconify-icon icon="icon-park-outline:search"></iconify-icon>
                                 </h2>
-                                <h2 class="card-title text-slate-900 dark:text-white mb-3">No customers with the
+                                <h2 class="card-title text-slate-900 dark:text-white mb-3">No suppliers with the
                                     applied
                                     filters</h2>
                                 <p class="card-text">Try changing the filters or search terms for this view.
                                 </p>
-                                <a href="{{ url('/customers') }}"
+                                <a href="{{ url('/suppliers') }}"
                                     class="btn inline-flex justify-center mx-2 mt-3 btn-primary active btn-sm">View
-                                    all customers</a>
+                                    all suppliers</a>
                             </div>
                         </div>
                     </div>
@@ -158,15 +152,14 @@
         </div>
         <div style="position: sticky ; bottom:0;width:100%; z-index:10;"
             class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
-            {{ $customers->links('vendor.livewire.simple-bootstrap') }}
+            {{ $suppliers->links('vendor.livewire.simple-bootstrap') }}
         </div>
 
     </div>
 
 
-
-    @can('create', App\Models\Customers\Customer::class)
-        @if ($newCustomerSection)
+    @can('create', App\Models\Materials\Supplier::class)
+        @if ($newSupplierSection)
             <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
                 tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog" style="display: block;">
                 <div class="modal-dialog relative w-auto pointer-events-none">
@@ -177,9 +170,9 @@
                             <div
                                 class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
                                 <h3 class="text-xl font-medium text-white dark:text-white capitalize">
-                                    Create new customer
+                                    Create new supplier
                                 </h3>
-                                <button wire:click="closeNewCustomerSec" type="button"
+                                <button wire:click="closeNewSupplierSection" type="button"
                                     class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
                                     data-bs-dismiss="modal">
                                     <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
@@ -196,12 +189,12 @@
                             <div class="p-6 space-y-4">
                                 <div class="from-group">
                                     <div class="input-area">
-                                        <label for="fullName" class="form-label">Full name</label>
-                                        <input id="fullName" type="text"
-                                            class="form-control @error('fullName') !border-danger-500 @enderror"
-                                            wire:model.lazy="fullName" autocomplete="off">
+                                        <label for="supplierName" class="form-label">Name</label>
+                                        <input id="supplierName" type="text"
+                                            class="form-control @error('supplierName') !border-danger-500 @enderror"
+                                            wire:model.lazy="supplierName" autocomplete="off">
                                     </div>
-                                    @error('fullName')
+                                    @error('supplierName')
                                         <span
                                             class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
                                     @enderror
@@ -209,42 +202,23 @@
                                 <div class="from-group">
                                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
                                         <div class="input-area">
-                                            <label for="phone" class="form-label">Phone</label>
-                                            <input id="phone" type="text"
-                                                class="form-control @error('phone') !border-danger-500 @enderror"
-                                                wire:model="phone" autocomplete="off">
+                                            <label for="supplierPhone1" class="form-label">Phone 1</label>
+                                            <input id="supplierPhone1" type="text"
+                                                class="form-control @error('supplierPhone1') !border-danger-500 @enderror"
+                                                wire:model="supplierPhone1" autocomplete="off">
                                         </div>
                                         <div class="input-area">
-                                            <label for="zone_id" class="form-label">Zone</label>
-                                            <select name="zone_id" id="zone_id"
-                                                class="form-control w-full mt-2 @error('zone_id') !border-danger-500 @enderror"
-                                                wire:model="zone_id" autocomplete="off">
-                                                <option value="">None</option>
-                                                @foreach ($ZONES as $SINGLE_ZONE)
-                                                    <option value="{{ $SINGLE_ZONE->id }}">
-                                                        {{ ucwords(str_replace('_', ' ', $SINGLE_ZONE->name)) }}</option>
-                                                @endforeach
-                                            </select>
+                                            <label for="supplierPhone2" class="form-label">Phone 2</label>
+                                            <input id="supplierPhone2" type="text"
+                                                class="form-control @error('supplierPhone2') !border-danger-500 @enderror"
+                                                wire:model="supplierPhone2" autocomplete="off">
                                         </div>
                                     </div>
-                                    @error('phone')
+                                    @error('supplierPhone1')
                                         <span
                                             class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
                                     @enderror
-                                    @error('zone')
-                                        <span
-                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
-                                    @enderror
-                                </div>
-
-                                <div class="from-group">
-                                    <div class="input-area">
-                                        <label for="locationUrl" class="form-label">Location URL</label>
-                                        <input id="locationUrl" type="text"
-                                            class="form-control @error('locationUrl') !border-danger-500 @enderror"
-                                            wire:model="locationUrl" autocomplete="off">
-                                    </div>
-                                    @error('locationUrl')
+                                    @error('supplierPhone2')
                                         <span
                                             class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
                                     @enderror
@@ -252,25 +226,63 @@
 
                                 <div class="from-group">
                                     <div class="input-area">
-                                        <label for="address" class="form-label">Address</label>
-                                        <textarea id="address" type="text" class="form-control @error('address') !border-danger-500 @enderror"
-                                            wire:model="address" autocomplete="off"></textarea>
+                                        <label for="supplierEmail" class="form-label">Email</label>
+                                        <input id="supplierEmail" type="email"
+                                            class="form-control @error('supplierEmail') !border-danger-500 @enderror"
+                                            wire:model="supplierEmail" autocomplete="off">
                                     </div>
-                                    @error('address')
+                                    @error('supplierEmail')
                                         <span
                                             class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
                                     @enderror
                                 </div>
 
+                                <div class="from-group">
+                                    <div class="input-area">
+                                        <label for="supplierAddress" class="form-label">Address</label>
+                                        <textarea id="supplierAddress" type="text" class="form-control @error('supplierAddress') !border-danger-500 @enderror"
+                                            wire:model="supplierAddress" autocomplete="off"></textarea>
+                                    </div>
+                                    @error('supplierAddress')
+                                        <span
+                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <hr>
+                                <div class="from-group">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+                                        <div class="input-area">
+                                            <label for="supplierContactName" class="form-label">Contact Name</label>
+                                            <input id="supplierContactName" type="text"
+                                                class="form-control @error('supplierContactName') !border-danger-500 @enderror"
+                                                wire:model="supplierContactName" autocomplete="off">
+                                        </div>
+                                        <div class="input-area">
+                                            <label for="supplierContactPhone" class="form-label">Contact Phone</label>
+                                            <input id="supplierContactPhone" type="text"
+                                                class="form-control @error('supplierContactPhone') !border-danger-500 @enderror"
+                                                wire:model="supplierContactPhone" autocomplete="off">
+                                        </div>
+                                    </div>
+                                    @error('supplierContactName')
+                                        <span
+                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                    @enderror
+                                    @error('supplierContactPhone')
+                                        <span
+                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                    @enderror
+                                </div>
                             </div>
 
                             <!-- Modal footer -->
                             <div class="flex items-center justify-end p-6 border-t border-slate-200 rounded-b">
-                                    <button wire:click="addNewCustomer" data-bs-dismiss="modal"
+                                    <button wire:click="addSupplier" data-bs-dismiss="modal"
                                     class="btn inline-flex justify-center text-white bg-black-500">
-                                    <span wire:loading.remove wire:target="addNewCustomer">Submit</span>
+                                    <span wire:loading.remove wire:target="addSupplier">Submit</span>
                                     <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
-                                        wire:loading wire:target="addNewCustomer"
+                                        wire:loading wire:target="addSupplier"
                                         icon="line-md:loading-twotone-loop"></iconify-icon>
                                 </button>
                             </div>

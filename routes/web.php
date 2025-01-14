@@ -8,6 +8,8 @@ use App\Livewire\Customers\CustomerIndex;
 use App\Livewire\Customers\CustomerShow;
 use App\Livewire\Customers\FollowupIndex;
 use App\Livewire\Customers\ZoneIndex;
+use App\Livewire\Materials\SupplierIndex;
+use App\Livewire\Materials\SupplierShow;
 use App\Livewire\Orders\CancelledOrderIndex;
 use App\Livewire\Orders\ClosedOrderIndex;
 use App\Livewire\Orders\FollowupReport;
@@ -58,6 +60,9 @@ Route::middleware(['auth', 'no_driver'])->group(function () {
 
     Route::get('/customers', CustomerIndex::class)->name('customer.index');
     Route::get('/customers/{id}', CustomerShow::class)->name('customer.show');
+
+    Route::get('/suppliers', SupplierIndex::class)->name('supplier.index');
+    Route::get('/suppliers/{id}', SupplierShow::class)->name('supplier.show');
 
     Route::get('/products', ProductIndex::class)->name('product.index');
     Route::get('/products/{id}', ProductShow::class)->name('product.show');

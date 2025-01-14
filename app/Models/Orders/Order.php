@@ -1066,7 +1066,6 @@ class Order extends Model
 
                 $orderProduct = $this->products()
                     ->where('product_id', $product['product_id'])
-                    ->where('combo_id', $product['combo_id'] ?? null)
                     ->first();
 
                 if (!$orderProduct || $orderProduct->quantity < $product['quantity']) {
