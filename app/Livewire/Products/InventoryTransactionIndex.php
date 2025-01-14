@@ -204,7 +204,7 @@ class InventoryTransactionIndex extends Component
             } else {
                 $quantity = (int) $changedIndex['to_on_hand'];
                 $this->authorize('update', Product::findOrFail($changedIndex['inventory_id'])->inventory);
-                Product::findOrFail($changedIndex['inventory_id'])->inventory->addTransaction($quantity, $this->transRemark);
+                Product::findOrFail($changedIndex['inventory_id'])->inventory->updateOnHandWithNewValue($quantity, $this->transRemark);
             }
         }
         $this->resetPage();
