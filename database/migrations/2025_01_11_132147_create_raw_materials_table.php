@@ -15,8 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->text('desc')->nullable();
-            $table->integer('stock')->default(0);
+            $table->decimal('min_limit')->nullable();
             $table->timestamps();
+            //stock went to inventory morph
         });
     }
 

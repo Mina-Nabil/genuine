@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('email')->nullable();
             $table->text('address')->nullable();
             $table->string('company_name')->nullable();
-            $table->decimal('balance', 15, 2)->default(0);
+            $table->decimal('balance', 15, 2)->default(0); //we need transactions
             $table->timestamps();
         });
     }
