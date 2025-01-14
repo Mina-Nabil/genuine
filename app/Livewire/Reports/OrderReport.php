@@ -10,6 +10,7 @@ use App\Models\Users\User;
 use App\Traits\AlertFrontEnd;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Url;
@@ -267,9 +268,10 @@ class OrderReport extends Component
 
     public function render()
     {
+        Log::info($this->selectedZones);
         $orders = Order::Report(
             searchText: $this->search,
-            zone_ids: $this->selectedZones,
+            zone_ids: $this->zones,
             driver_id: $this->driver?->id,
             created_from: $this->creation_date_from ? Carbon::parse($this->creation_date_from) : null,
             created_to: $this->creation_date_from ? Carbon::parse($this->creation_date_to) : null,
