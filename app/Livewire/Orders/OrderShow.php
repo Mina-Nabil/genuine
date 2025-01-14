@@ -81,26 +81,37 @@ class OrderShow extends Component
 
     public $isOpenRemoveWhatsappMsgSection = false;
 
-    public function openSetCreatorSection(){
+    //discount
+    public $EdiscountAmount;
+    public $isOpenEditDiscount = false;
+
+    //discount
+    public $EdeliveryAmount;
+    public $isOpenEditDelivery = false;
+
+    public function openSetCreatorSection()
+    {
         $this->isOpenCreatorSec = true;
         $this->users = User::all();
         $this->creator_id = $this->order->created_by;
     }
 
-    public function closeSetCreatorSection(){
+    public function closeSetCreatorSection()
+    {
         $this->isOpenCreatorSec = false;
         $this->creator_id = null;
     }
 
-    public function setCreator(){
+    public function setCreator()
+    {
         $this->validate([
             'creator_id' => 'required|exists:users,id',
         ]);
 
         $res = $this->order->assignToUser($this->creator_id);
         if ($res) {
-                $this->closeSetCreatorSection();
-                $this->alertInfo('Creator updated!');
+            $this->closeSetCreatorSection();
+            $this->alertInfo('Creator updated!');
         } else {
             $this->alertFailed();
         }
@@ -111,7 +122,8 @@ class OrderShow extends Component
     public $isOpenSelectComboSec = false;
     public $combosSearchText;
 
-    public function selectCombo($id){
+    public function selectCombo($id)
+    {
         $products = [];
         $combo = Combo::findOrFail($id);
 
@@ -123,13 +135,13 @@ class OrderShow extends Component
                 'combo_id' =>   $combo->id,
             ];
         }
-        
+
         $res = $this->order->addProducts($products);
 
-        if($res){
+        if ($res) {
             $this->closeCombosSection();
             $this->alertSuccess('Combo Added');
-        }else{
+        } else {
             $this->alertFailed();
         }
     }
@@ -144,17 +156,19 @@ class OrderShow extends Component
     {
         $this->isOpenSelectComboSec = true;
     }
-    public function toggleConfirmRemoveWAmsg(){
+    public function toggleConfirmRemoveWAmsg()
+    {
         $this->toggle($this->isOpenRemoveWhatsappMsgSection);
     }
 
-    public function sendWhatsappMessage($status = true){
+    public function sendWhatsappMessage($status = true)
+    {
         $res = $this->order->setWhstappMsgAsSent($status);
         if ($res) {
             if (!$status) {
                 $this->toggleConfirmRemoveWAmsg();
                 $this->alertInfo('Message removed!');
-            }else{
+            } else {
                 $this->alertSuccess('Message sent!');
             }
         } else {
@@ -162,7 +176,8 @@ class OrderShow extends Component
         }
     }
 
-    public function resetStatus(){
+    public function resetStatus()
+    {
         $res = $this->order->resetStatus();
         if ($res) {
             $this->alertSuccess('updated!');
@@ -188,7 +203,8 @@ class OrderShow extends Component
         }
     }
 
-    public function toggleConfirmation(){
+    public function toggleConfirmation()
+    {
         $this->authorize('update', $this->order);
         $res = $this->order->toggleConfirmation();
         if ($res) {
@@ -199,12 +215,14 @@ class OrderShow extends Component
         }
     }
 
-    public function openSetDriverSection(){
+    public function openSetDriverSection()
+    {
         $this->setDriverSection = true;
     }
 
-    public function closeSetDriverSection(){
-        $this->reset(['setDriverSection','searchDrivers','confirmRemoveDriver']);
+    public function closeSetDriverSection()
+    {
+        $this->reset(['setDriverSection', 'searchDrivers', 'confirmRemoveDriver']);
     }
 
     public function openAddProductsSec()
@@ -217,26 +235,29 @@ class OrderShow extends Component
         $this->reset(['addProductsSection', 'searchAddProducts', 'productsToAdd']);
     }
 
-    public function showConfirmRemoveDriver(){
+    public function showConfirmRemoveDriver()
+    {
         $this->confirmRemoveDriver = true;
     }
 
-    public function hideConfirmRemoveDriver(){
+    public function hideConfirmRemoveDriver()
+    {
         $this->confirmRemoveDriver = false;
     }
 
-    public function setDriver($id = null){
-        
+    public function setDriver($id = null)
+    {
+
         if ($id) {
             Driver::findOrFail($id);
         }
-        
+
         $res = $this->order->assignDriverToOrder($id);
 
         if ($res) {
             $this->closeSetDriverSection();
             $this->alertSuccess('Driver assigned');
-        }else{
+        } else {
             $this->alertFailed();
         }
     }
@@ -245,7 +266,7 @@ class OrderShow extends Component
     {
         $p = Product::findOrFail($id);
         $this->reset(['searchAddProducts']);
-        $this->productsToAdd[] = ['product_id' => $id, 'quantity' => 1, 'price' => $p->price, 'name' => $p->name , 'combo_id' => null];
+        $this->productsToAdd[] = ['product_id' => $id, 'quantity' => 1, 'price' => $p->price, 'name' => $p->name, 'combo_id' => null];
     }
 
     public function removeProductRow($index)
@@ -254,13 +275,14 @@ class OrderShow extends Component
         $this->productsToAdd = array_values($this->productsToAdd);
     }
 
-    public function addProducts(){
+    public function addProducts()
+    {
         $res = $this->order->addProducts($this->productsToAdd);
 
         if ($res) {
             $this->closeAddProductsSec();
             $this->alertSuccess('Products added');
-        }else{
+        } else {
             $this->alertFailed();
         }
     }
@@ -290,11 +312,13 @@ class OrderShow extends Component
 
     public $PAY_BY_PAYMENT_METHOD;
 
-    public function confirmPayOrder($method){
+    public function confirmPayOrder($method)
+    {
         $this->PAY_BY_PAYMENT_METHOD = $method;
     }
 
-    public function closeConfirmPayOrder(){
+    public function closeConfirmPayOrder()
+    {
         $this->PAY_BY_PAYMENT_METHOD = null;
     }
 
@@ -542,7 +566,8 @@ class OrderShow extends Component
             ->get();
     }
 
-    public function setStatus($status){
+    public function setStatus($status)
+    {
 
         $res = $this->order->setStatus($status);
 
@@ -552,6 +577,71 @@ class OrderShow extends Component
         } else {
             $this->alertFailed();
         }
+    }
+
+    public function closeDiscountSection()
+    {
+        $this->isOpenEditDiscount = false;
+        $this->EdiscountAmount = null;
+    }
+
+    public function openDiscountSection()
+    {
+        $this->isOpenEditDiscount = true;
+        $this->EdiscountAmount = $this->order->discount_amount;
+    }
+
+    public function updateDiscount()
+    {
+        $this->validate([
+            'EdiscountAmount' => 'required|numeric|min:0',
+        ]);
+
+
+        $res = $this->order->updateDiscount($this->EdiscountAmount);
+
+        if ($res) {
+            $this->mount($this->order->id);
+            $this->alertSuccess('Discount updated');
+        } else {
+            $this->alertFailed();
+        }
+
+        $this->closeDiscountSection();
+    }
+    /** 
+     *     public $EdeliveryAmount;
+     *   public $isOpenEditDelivery = false;
+     */
+    public function closeDeliverySection()
+    {
+        $this->isOpenEditDelivery = false;
+        $this->EdeliveryAmount = null;
+    }
+
+    public function openDeliverySection()
+    {
+        $this->isOpenEditDelivery = true;
+        $this->EdeliveryAmount = $this->order->delivery_amount;
+    }
+
+    public function updateDelivery()
+    {
+        $this->validate([
+            'EdeliveryAmount' => 'required|numeric|min:0',
+        ]);
+
+
+        $res = $this->order->updateDelivery($this->EdeliveryAmount);
+
+        if ($res) {
+            $this->mount($this->order->id);
+            $this->alertSuccess('Delivery updated');
+        } else {
+            $this->alertFailed();
+        }
+
+        $this->closeDeliverySection();
     }
 
     public function mount($id)

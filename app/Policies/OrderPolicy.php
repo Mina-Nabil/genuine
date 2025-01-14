@@ -45,6 +45,16 @@ class OrderPolicy
         return $order->is_new || $order->is_ready || $user->is_admin;
     }
 
+    public function updateDeliveryPrice(User $user, Order $order): bool
+    {
+        return $user->is_admin;
+    }
+
+    public function updateDiscount(User $user, Order $order): bool
+    {
+        return $user->is_admin || $user->id == 7;
+    }
+
     public function updateInventoryInfo(User $user, Order $order=null): bool
     {
         return $user->is_admin || $user->is_inventory;

@@ -405,6 +405,49 @@ class Order extends Model
         }
     }
 
+    public function updateDiscount(string $discount = null): bool
+    {
+        /** @var User */
+        $loggedInUser = Auth::user();
+        if ($loggedInUser && !$loggedInUser->can('updateDiscount', $this)) {
+            return false;
+        }
+
+        try {
+            $this->discount_amount = $discount;
+            $this->save();
+            $this->refreshTotalAmount();
+            AppLog::info('Discount updated to ' . $discount, loggable: $this);
+            return true;
+        } catch (Exception $e) {
+            report($e);
+            AppLog::error('Failed to update discount for order', $e->getMessage());
+            return false;
+        }
+    }
+
+    public function updateDelivery(string $delivery = null): bool
+    {
+        /** @var User */
+        $loggedInUser = Auth::user();
+        if ($loggedInUser && !$loggedInUser->can('updateDeliveryPrice', $this)) {
+            return false;
+        }
+
+        try {
+            $this->delivery_amount = $delivery;
+            $this->save();
+            $this->refreshTotalAmount();
+
+            AppLog::info('Delivery updated to ' . $delivery, loggable: $this);
+            return true;
+        } catch (Exception $e) {
+            report($e);
+            AppLog::error('Failed to update delivery for order', $e->getMessage());
+            return false;
+        }
+    }
+
     /**
      * load يوميه التحميل
      */
@@ -1640,9 +1683,8 @@ class Order extends Model
     public function areAllProductsAvailable(): bool
     {
         $res = true;
-        foreach($this->products as $orderProduct)
-        {
-            $res &= ($orderProduct->product->inventory->on_hand - $orderProduct->quantity ) > 0;
+        foreach ($this->products as $orderProduct) {
+            $res &= ($orderProduct->product->inventory->on_hand - $orderProduct->quantity) > 0;
         }
         return $res;
     }
@@ -1897,9 +1939,9 @@ class Order extends Model
     public function getTotalWeightAttribute()
     {
         return $this->products()
-        ->join('products', 'order_products.product_id', '=', 'products.id')->selectRaw('SUM(products.weight * order_products.quantity) as total_weight')
-        ->whereNull('order_products.deleted_at')
-        ->value('total_weight') ?? 0;
+            ->join('products', 'order_products.product_id', '=', 'products.id')->selectRaw('SUM(products.weight * order_products.quantity) as total_weight')
+            ->whereNull('order_products.deleted_at')
+            ->value('total_weight') ?? 0;
     }
 
     public static function getTotalZonesForOrders($orders)

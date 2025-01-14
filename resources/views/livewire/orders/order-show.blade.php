@@ -333,8 +333,12 @@
                                         </tr>
 
                                         <tr>
-                                            <td class=" text-xs text-slate-500 dark:text-slate-400">Shipping &
-                                                Delivery</td>
+                                            <td class=" text-xs text-slate-500 dark:text-slate-400">
+                                                Shipping & Delivery
+                                                <span class="clickable-link"wire:click='openDeliverySection'>
+                                                    edit
+                                                </span>
+                                            </td>
                                             <td
                                                 class="hidden md:table-cell text-xs text-slate-500 dark:text-slate-400">
                                                 {{ ucwords($order->zone->name) }}</td>
@@ -592,7 +596,8 @@
                                 </button>
                             </div>
                             @if ($order->location_url)
-                                <p class="text-xs clickable-link"><a target="_blanck" href="{{ $order->location_url }}">{{ $order->location_url }}</a></p>
+                                <p class="text-xs clickable-link"><a target="_blanck"
+                                        href="{{ $order->location_url }}">{{ $order->location_url }}</a></p>
                             @else
                                 <p class="text-xs">N/A</p>
                             @endif
@@ -932,9 +937,8 @@
                                 <div class="from-group">
                                     <div class="input-area">
                                         <label for="location_url" class="form-label">Location URL*</label>
-                                        <textarea id="location_url" type="text"
-                                            class="form-control @error('location_url') !border-danger-500 @enderror" wire:model="location_url"
-                                            autocomplete="off"></textarea>
+                                        <textarea id="location_url" type="text" class="form-control @error('location_url') !border-danger-500 @enderror"
+                                            wire:model="location_url" autocomplete="off"></textarea>
                                     </div>
                                     @error('location_url')
                                         <span
@@ -1754,7 +1758,7 @@
                                         xmlns="http://www.w3.org/2000/svg">
                                         <path fill-rule="evenodd"
                                             d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10
-                                                                            11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                                                                            11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
                                             clip-rule="evenodd"></path>
                                     </svg>
                                     <span class="sr-only">Close modal</span>
@@ -1873,7 +1877,8 @@
 
 
                             <div class=""> <!-- Add this wrapper to allow horizontal scroll -->
-                                <table class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700 ">
+                                <table
+                                    class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700 ">
                                     <thead
                                         class="border-t border-slate-100 dark:border-slate-800 bg-slate-200 dark:bg-slate-700">
                                         <tr>
@@ -1950,5 +1955,131 @@
                     </div>
                 </div>
             </div>
+    @endif
+
+    @if ($isOpenEditDelivery)
+        <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+            tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
+            style="display: block;">
+            <div class="modal-dialog relative w-auto pointer-events-none" style="max-width: 850px;">
+                <div
+                    class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
+                    <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
+                        <!-- Modal header -->
+                        <div
+                            class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
+                            <h3 class="text-xl font-medium text-white dark:text-white capitalize">
+                                Set Delivery Amount
+                            </h3>
+                            <button wire:click="closeDeliverySection" type="button"
+                                class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
+                                data-bs-dismiss="modal">
+                                <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd"
+                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                <span class="sr-only">Close modal</span>
+                            </button>
+                        </div>
+
+
+                        <div class="p-6 space-y-4">
+
+                            <div class="from-group">
+                                <div class="input-area">
+                                    <label for="EdeliveryAmount" class="form-label">Delivery Amount</label>
+                                    <input id="EdeliveryAmount" type="number"
+                                        class="form-control @error('EdeliveryAmount') !border-danger-500 @enderror"
+                                        wire:model.lazy="EdeliveryAmount" autocomplete="off">
+                                </div>
+                                @error('EdeliveryAmount')
+                                    <span
+                                        class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                        </div>
+
+                        <!-- Modal footer -->
+                        <div class="flex items-center justify-end p-6 border-t border-slate-200 rounded-b">
+                            <button wire:click="updateDelivery" data-bs-dismiss="modal"
+                                class="btn inline-flex justify-center text-white bg-black-500">
+                                <span wire:loading.remove wire:target="updateDelivery">Submit</span>
+                                <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
+                                    wire:loading wire:target="updateDelivery"
+                                    icon="line-md:loading-twotone-loop"></iconify-icon>
+                            </button>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    @if ($isOpenEditDiscount)
+        <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+            tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
+            style="display: block;">
+            <div class="modal-dialog relative w-auto pointer-events-none" style="max-width: 850px;">
+                <div
+                    class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
+                    <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
+                        <!-- Modal header -->
+                        <div
+                            class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
+                            <h3 class="text-xl font-medium text-white dark:text-white capitalize">
+                                Set Discount
+                            </h3>
+                            <button wire:click="closeDiscountSection" type="button"
+                                class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
+                                data-bs-dismiss="modal">
+                                <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd"
+                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                <span class="sr-only">Close modal</span>
+                            </button>
+                        </div>
+
+
+                        <div class="p-6 space-y-4">
+
+                            <div class="from-group">
+                                <div class="input-area">
+                                    <label for="EdiscountAmount" class="form-label">Discount</label>
+                                    <input id="EdiscountAmount" type="number"
+                                        class="form-control @error('EdiscountAmount') !border-danger-500 @enderror"
+                                        wire:model.lazy="EdiscountAmount" autocomplete="off">
+                                </div>
+                                @error('EdiscountAmount')
+                                    <span
+                                        class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                        </div>
+
+                        <!-- Modal footer -->
+                        <div class="flex items-center justify-end p-6 border-t border-slate-200 rounded-b">
+                            <button wire:click="updateDiscount" data-bs-dismiss="modal"
+                                class="btn inline-flex justify-center text-white bg-black-500">
+                                <span wire:loading.remove wire:target="updateDiscount">Submit</span>
+                                <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
+                                    wire:loading wire:target="updateDiscount"
+                                    icon="line-md:loading-twotone-loop"></iconify-icon>
+                            </button>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
     @endif
 </div>
