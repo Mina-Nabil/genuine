@@ -114,7 +114,7 @@ class Order extends Model
                 $loggedInUser = Auth::user();
 
                 // Check if the user has permission to update the order
-                if (!$loggedInUser || !$loggedInUser->can('update', $order)) {
+                if (!$loggedInUser || !$loggedInUser->can('updateConfirm', $order)) {
                     throw new Exception("Unauthorized to confirm Order ID {$order->id}");
                 }
 
@@ -595,7 +595,7 @@ class Order extends Model
     {
         /** @var User */
         $loggedInUser = Auth::user();
-        if ($loggedInUser && !$loggedInUser->can('update', $this)) {
+        if ($loggedInUser && !$loggedInUser->can('updateConfirm', $this)) {
             return false;
         }
 

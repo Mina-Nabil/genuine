@@ -45,6 +45,11 @@ class OrderPolicy
         return $order->is_new || $order->is_ready || $user->is_admin;
     }
 
+    public function updateConfirm(User $user, Order $order): bool
+    {
+        return ($user->is_sales && $order->driver_id != null) || $user->is_admin;
+    }
+
     public function updateDeliveryPrice(User $user, Order $order): bool
     {
         return $user->is_admin;
@@ -55,7 +60,7 @@ class OrderPolicy
         return $user->is_admin || $user->id == 7;
     }
 
-    public function updateInventoryInfo(User $user, Order $order=null): bool
+    public function updateInventoryInfo(User $user, Order $order = null): bool
     {
         return $user->is_admin || $user->is_inventory;
     }
@@ -99,7 +104,7 @@ class OrderPolicy
         return true;
     }
 
-    
+
 
     /**
      * Determine whether the user can delete the model.
@@ -108,10 +113,11 @@ class OrderPolicy
     {
         if ((Auth::id() === 1 || Auth::id() === 2)  && $order->is_new) {
             foreach ($order->products as $product) {
-                if (!$product->is_ready) continue; else return false;
+                if (!$product->is_ready) continue;
+                else return false;
             }
             return true;
-        }else{
+        } else {
             return false;
         }
     }
