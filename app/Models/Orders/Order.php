@@ -1904,7 +1904,7 @@ class Order extends Model
                     WHEN DAY(orders.delivery_date) BETWEEN 1 AND 7 THEN 1
                     WHEN DAY(orders.delivery_date) BETWEEN 8 AND 14 THEN 2
                     WHEN DAY(orders.delivery_date) BETWEEN 15 AND 21 THEN 3
-                    ELSE 4 END AS as week')
+                    ELSE 4 END AS week')
             ->selectRaw('COUNT(orders.id) as total_orders')
             ->join('zones', 'zones.id', '=', 'orders.zone_id')
             ->whereYear('orders.delivery_date', $year)
