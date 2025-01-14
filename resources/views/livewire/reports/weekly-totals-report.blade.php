@@ -102,8 +102,9 @@
                             $allTotal = 0;
                             $zonesTotal = [];
                             for ($i = 1; $i <= 4; $i++) {
+                                $zonesTotal[$i] = 0;
                                 foreach ($groupedZoneReports as $zoneName => $weeks) {
-                                    $zonesTotal[$i] = $weeks->where('week', $i)->sum('total_orders');
+                                    $zonesTotal[$i] += $weeks->where('week', $i)->sum('total_orders');
                                 }
                                 $allTotal += $zonesTotal[$i];
                             }
