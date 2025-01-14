@@ -97,15 +97,28 @@
             <div class="">
                 <table class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700 no-wrap">
                     <thead class="border-t border-slate-100 dark:border-slate-800 bg-slate-200 dark:bg-slate-700">
+
+                        @php
+                            $allTotal = 0;
+                            $zonesTotal = [];
+                            for ($i = 1; $i <= 4; $i++) {
+                                foreach ($groupedZoneReports as $zoneName => $weeks) {
+                                    $zonesTotal[$i] += $weeks->where('week', $i)->sum('total_orders');
+                                }
+                                $allTotal += $zonesTotal[$i];
+                            }
+                        @endphp
+
+
                         <tr>
 
 
                             <th scope="col" class="table-th">Zone</th>
-                            <th scope="col" class="table-th">Week 1</th>
-                            <th scope="col" class="table-th">Week 2</th>
-                            <th scope="col" class="table-th">Week 3</th>
-                            <th scope="col" class="table-th">Week 4</th>
-                            <th scope="col" class="table-th">Total Monthly Orders</th>
+                            <th scope="col" class="table-th">Week 1 ({{$zonesTotal[1]}})</th>
+                            <th scope="col" class="table-th">Week 2 ({{$zonesTotal[2]}})</th>
+                            <th scope="col" class="table-th">Week 3 ({{$zonesTotal[3]}})</th>
+                            <th scope="col" class="table-th">Week 4 ({{$zonesTotal[4]}})</th>
+                            <th scope="col" class="table-th">Total Monthly Orders ({{$allTotal}})</th>
 
 
                         </tr>
@@ -123,29 +136,6 @@
                                 <td class="table-td"><b>{{ $weeks->sum('total_orders') }}</b></td>
                             </tr>
                         @endforeach
-                    <tfoot class="border-t border-slate-100 dark:border-slate-800 bg-slate-200 dark:bg-slate-700">
-                        <th scope="col" class="table-th"></th>
-                        @php
-                            $allTotal = 0;
-                            
-                        @endphp
-                        @for ($i = 1; $i <= 4; $i++)
-                            @php
-                                $zonesTotal = 0;
-                                foreach ($groupedZoneReports as $zoneName => $weeks) {
-                                    $zonesTotal += $weeks->where('week', $i)->sum('total_orders');
-                                }
-                                $allTotal += $zonesTotal;
-                            @endphp
-                            <th scope="col" class="table-th">
-                                {{ $zonesTotal }}
-                            </th>
-                        @endfor
-
-                        <th scope="col" class="table-th">
-                            {{ $allTotal }}
-                        </th>
-                    </tfoot>
                     </tbody>
 
                 </table>
