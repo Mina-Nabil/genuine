@@ -1598,10 +1598,10 @@ class Order extends Model
             ->when($searchText || $status, fn($q) => $q->search(searchText: $searchText, status: $status))
             ->when(count($zone_ids), fn($q) => $q->whereIn('orders.zone_id', $zone_ids))
             ->when($driver_id, fn($q) => $q->where('orders.driver_id', $driver_id))
-            ->when($created_from, fn($q) => $q->where('orders.created_at', '>=', $created_from->format('Y-m-d H:i')))
-            ->when($created_to, fn($q) => $q->where('orders.created_at', '<=', $created_to->format('Y-m-d H:i')))
-            ->when($delivery_from, fn($q) => $q->where('orders.delivery_date', '>=', $delivery_from->format('Y-m-d H:i')))
-            ->when($delivery_to, fn($q) => $q->where('orders.delivery_date', '<=', $delivery_to->format('Y-m-d H:i')))
+            ->when($created_from, fn($q) => $q->where('orders.created_at', '>=', $created_from->format('Y-m-d 00:00:00')))
+            ->when($created_to, fn($q) => $q->where('orders.created_at', '<=', $created_to->format('Y-m-d 23:59:59')))
+            ->when($delivery_from, fn($q) => $q->where('orders.delivery_date', '>=', $delivery_from->format('Y-m-d 00:00:00')))
+            ->when($delivery_to, fn($q) => $q->where('orders.delivery_date', '<=', $delivery_to->format('Y-m-d 23:59:59')))
             ->when($creator_id, fn($q) => $q->where('orders.created_by', $creator_id));
     }
 
