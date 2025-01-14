@@ -6,7 +6,7 @@
                 <h4 class="font-medium lg:text-2xl text-xl capitalize text-slate-900 inline-block ltr:pr-4 rtl:pl-4 mb-2">
                     Orders Report
                 </h4>
-                <h6>Count: {{ $orders->total() }} -- {{ number_format($totalWeight / 1000) }}</h6>
+                <h6>Count: {{ $orders->total() }} -- {{ number_format($totalWeight / 1000) }}KG </h6>
             </div>
             
         </div>
