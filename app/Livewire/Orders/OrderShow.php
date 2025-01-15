@@ -356,6 +356,7 @@ class OrderShow extends Component
         foreach ($this->order->products as $product) {
             $this->cancelledProducts[] = [
                 'product_id' => $product->product_id,
+                'order_product_id' => $product->id,
                 'name' => $product->product->name,
                 'quantity' => $product->quantity,
                 'price' => $product->price,
