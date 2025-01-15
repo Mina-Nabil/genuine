@@ -5,6 +5,7 @@ namespace App\Livewire\Orders;
 use App\Models\Customers\Customer;
 use App\Models\Customers\Zone;
 use App\Models\Users\User;
+use App\Traits\AlertFrontEnd;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
@@ -12,7 +13,7 @@ use Livewire\WithPagination;
 
 class FollowupReport extends Component
 {
-    use WithPagination;
+    use WithPagination , AlertFrontEnd;
 
     public $page_title = '• Follow-up Report';
     protected $paginationTheme = 'bootstrap';
@@ -32,13 +33,49 @@ class FollowupReport extends Component
     public $selectedZones = [];
     public $selectedZonesNames = [];
 
-    // public $Edited_deliveryDate;
-    // public $Edited_deliveryDate_sec;
-    // public $selectedDeliveryDates = [];
+    //followup
+    public $addFollowupSection; //carries customer id
+    public $followupTitle;
+    public $followupCallDate;
+    public $followupCallTime;
+    public $followupDesc;
 
     public $search;
     public $searchZoneText;
 
+    public function openAddFollowupSec($customer_id)
+    {
+        $this->addFollowupSection = $customer_id;
+    }
+
+    public function closeFollowupSection()
+    {
+        $this->reset(['addFollowupSection', 'followupTitle', 'followupCallDate', 'followupCallTime', 'followupDesc']);
+    }
+
+    public function addFollowup()
+    {
+        $this->validate([
+            'followupTitle' => 'required|string|max:255',
+            'followupCallDate' => 'nullable|date',
+            'followupCallTime' => 'nullable',
+            'followupDesc' => 'nullable|string|max:255',
+        ]);
+
+        $combinedDateTimeString = $this->followupCallDate . ' ' . $this->followupCallTime;
+        $combinedDateTime = new \DateTime($combinedDateTimeString);
+
+        $customer = Customer::find($this->addFollowupSection);
+
+        $res = $customer->addFollowup($this->followupTitle, $combinedDateTime, $this->followupDesc);
+
+        if ($res) {
+            $this->alert('success', 'Followup added successfuly');
+            $this->closeFollowupSection();
+        } else {
+            $this->alert('failed', 'server error');
+        }
+    }
 
     public function reorderLastOrder($last_order_id)
     {
@@ -94,7 +131,6 @@ class FollowupReport extends Component
             $this->selectedZonesNames = array_values($this->selectedZonesNames); // Reset array keys
         }
     }
-
 
     public function mount()
     {
@@ -164,13 +200,12 @@ class FollowupReport extends Component
         }
         // Log::info($customers->links());
         return view('livewire.orders.followup-report', [
-            'customers'     =>  $customers,
-            'start_week'    =>  $startDate,
-            'end_week'      =>  $end,
-            'saved_zones' => $zones
+            'customers' => $customers,
+            'start_week' => $startDate,
+            'end_week' => $end,
+            'saved_zones' => $zones,
         ])->layout('layouts.app', ['page_title' => $this->page_title, 'followupReport' => 'active']);
     }
 }
-
 
 // $weeks = [$startDate->copy()->startOfMonth()->addWeeks()->subDays(1)->format('Y-m-d'), $startDate->copy()->startOfMonth()->addWeeks(2)->subDays(1)->format('Y-m-d'), $startDate->copy()->startOfMonth()->addWeeks(3)->subDays(1)->format('Y-m-d'), $startDate->copy()->endOfMonth()->format('Y-m-d')];

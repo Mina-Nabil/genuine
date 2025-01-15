@@ -147,26 +147,52 @@
                         @foreach ($customers as $i => $c)
                             <tr class="even:bg-slate-100 dark:even:bg-slate-700">
                                 <td class="table-td flex items-center sticky-column bg-white dark:bg-slate-800 colomn-shadow"
-                                    style="position: sticky; left: -25px; z-index: 10;">
+                                    style="position: sticky; left: -25px;z-index:auto">
                                     <div class="flex-1 text-start">
-                                        <h4 class="text-lg font-medium text-slate-600 whitespace-nowrap">
-                                            <a href="{{ route('customer.show', $c->id) }}" target="_blanck"
-                                                class="hover-underline">
-                                                <b>{{ $c->name }}</b>
-                                            </a>
+                                        <div class="flex justify-between">
+                                            <h4 class="text-lg font-medium text-slate-600 whitespace-nowrap">
+                                                <a href="{{ route('customer.show', $c->id) }}" target="_blanck"
+                                                    class="hover-underline">
+                                                    <b>{{ $c->name }}</b>
+                                                </a>
 
-                                        </h4>
+                                            </h4>
+
+                                            <div class="dropdown relative">
+                                                <button class="text-xl text-center block w-full " type="button"
+                                                    id="tableDropdownMenuButton1" data-bs-toggle="dropdown"
+                                                    aria-expanded="false">
+                                                    <iconify-icon
+                                                        icon="heroicons-outline:dots-vertical"></iconify-icon>
+                                                </button>
+                                                <ul
+                                                    class=" dropdown-menu min-w-[120px] text-sm text-slate-700 dark:text-white hidden bg-white dark:bg-slate-700 shadow float-left overflow-hidden list-none text-left rounded-lg mt-1 m-0 bg-clip-padding border-none dropdown-position" style=" ">
+
+                                                    @if ($c->last_order_id)
+                                                        <li>
+                                                            <button
+                                                                wire:click='reorderLastOrder({{ $c->last_order_id }})'
+                                                                class="text-slate-600 dark:text-white block font-Inter font-normal px-4  w-full text-left py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white">
+                                                                <iconify-icon
+                                                                    icon="radix-icons:reload"></iconify-icon>&nbsp;
+                                                                Repeat Last Order
+                                                            </button>
+                                                        </li>
+                                                    @endif
+                                                    <li>
+                                                        <button wire:click='openAddFollowupSec({{ $c->id }})'
+                                                            class="text-slate-600 dark:text-white block font-Inter font-normal px-4  w-full text-left py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white">
+                                                            <iconify-icon
+                                                                icon="material-symbols:add"></iconify-icon>&nbsp;
+                                                            Add follow-up</button>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+
                                         <div class="text-xs font-normal text-slate-600 dark:text-slate-400">
                                             Target: <b>{{ $c->monthly_weight_target / 1000 ?? 0 }}</b> KG
                                         </div>
-                                        @if ($c->last_order_id)
-                                            <div wire:click='reorderLastOrder({{ $c->last_order_id }})'
-                                                class="text-xs font-normal text-slate-600 dark:text-slate-400 clickable-link">
-                                                <span>
-                                                    <iconify-icon icon="radix-icons:reload"></iconify-icon> Repeat Last
-                                                    Order</span>
-                                            </div>
-                                        @endif
 
                                     </div>
                                 </td>
@@ -294,4 +320,98 @@
             </div>
     @endif
 
+    @if ($addFollowupSection)
+        {{-- add address section --}}
+        <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+            tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
+            style="display: block;">
+            <div class="modal-dialog relative w-auto pointer-events-none">
+                <div
+                    class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
+                    <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
+                        <!-- Modal header -->
+                        <div
+                            class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
+                            <h3 class="text-xl font-medium text-white dark:text-white capitalize">
+                                Add Follow up
+                            </h3>
+                            <button wire:click="closeFollowupSection" type="button"
+                                class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
+                                data-bs-dismiss="modal">
+                                <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd"
+                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                <span class="sr-only">Close modal</span>
+                            </button>
+                        </div>
+                        <!-- Modal body -->
+                        <div class="p-6 space-y-4">
+                            <div class="from-group">
+                                <div class="input-area">
+                                    <label for="firstName" class="form-label">Title</label>
+                                    <input id="lastName" type="text"
+                                        class="form-control @error('followupTitle') !border-danger-500 @enderror"
+                                        wire:model.defer="followupTitle">
+                                </div>
+                                @error('followupTitle')
+                                    <span
+                                        class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                @enderror
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 mt-3">
+                                    <div class="input-area">
+                                        <label for="firstName" class="form-label">Call Date</label>
+                                        <input id="lastName" type="date"
+                                            class="form-control @error('followupCallDate') !border-danger-500 @enderror"
+                                            wire:model.defer="followupCallDate">
+                                    </div>
+                                    @error('followupCallDate')
+                                        <span
+                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                    @enderror
+                                    <div class="input-area">
+                                        <label for="firstName" class="form-label"> Time</label>
+                                        <input id="lastName" type="time"
+                                            class="form-control @error('followupCallTime') !border-danger-500 @enderror"
+                                            wire:model.defer="followupCallTime">
+                                    </div>
+                                    @error('followupCallTime')
+                                        <span
+                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <div class="input-area mt-3">
+                                    <label for="firstName" class="form-label">Description</label>
+                                    <input id="lastName" type="text"
+                                        class="form-control @error('followupDesc') !border-danger-500 @enderror"
+                                        wire:model.defer="followupDesc">
+                                </div>
+                                @error('followupDesc')
+                                    <span
+                                        class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                @enderror
+
+                            </div>
+                        </div>
+
+                        <!-- Modal footer -->
+                        <div class="flex items-center justify-end p-6 border-t border-slate-200 rounded-b">
+                            <button wire:click="addFollowup" data-bs-dismiss="modal"
+                                class="btn inline-flex justify-center text-white bg-black-500">
+                                <span wire:loading.remove wire:target="addFollowup">Submit</span>
+                                <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
+                                    wire:loading wire:target="addFollowup"
+                                    icon="line-md:loading-twotone-loop"></iconify-icon>
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 </div>
