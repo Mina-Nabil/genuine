@@ -17,20 +17,19 @@ if (!function_exists('getWeekOfMonth')) {
         if (!is_a($date, Carbon::class))
             $date = Carbon::parse($date);
 
-        // Get the start of the month for the given date
-        $startOfMonth = $date->copy()->startOfMonth();
-
-        // Calculate the week number in the month (1-based index)
-        $weekNumber = $startOfMonth->diffInWeeks($date) + 1;
-
-        // Cap the week number to 4, if it's greater than 4
-        $weekNumber = $weekNumber > 4 ? 4 : $weekNumber;
-
+        if ($date->day >= 1 && $date->day <= 7)
+            $week = 1;
+        if ($date->day >= 8 && $date->day <= 14)
+            $week = 2;
+        if ($date->day >= 15 && $date->day <= 21)
+            $week = 3;
+        else
+            $week = 4;
         // Get the month name (e.g., 'October')
         $monthName = $date->format('M y');
 
         // Return the week number and month (e.g., "W2 of Oct")
-        return "W" . (int) $weekNumber . " $monthName";
+        return "W" . (int) $week . " $monthName";
     }
 }
 /**
