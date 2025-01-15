@@ -137,6 +137,7 @@ class FollowupReport extends Component
     public function render()
     {
         $startDate = Carbon::createFromDate($this->year, $this->selectedMonth);
+        $startDate->setWeek($this->selectedWeek);
         $end = Carbon::now();
 
         $zones = Zone::all();
