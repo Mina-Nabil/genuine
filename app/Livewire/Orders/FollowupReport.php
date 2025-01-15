@@ -3,6 +3,7 @@
 namespace App\Livewire\Orders;
 
 use App\Models\Customers\Customer;
+use App\Models\Customers\Followup;
 use App\Models\Customers\Zone;
 use App\Models\Users\User;
 use App\Traits\AlertFrontEnd;
@@ -34,23 +35,38 @@ class FollowupReport extends Component
     public $selectedZonesNames = [];
 
     //followup
+    public $followupDetailsSection; //carries followup id
     public $addFollowupSection; //carries customer id
     public $followupTitle;
     public $followupCallDate;
     public $followupCallTime;
     public $followupDesc;
+    public $followupEditId;
 
     public $search;
     public $searchZoneText;
 
+    public function openFollowupDetailsSec($followup_id)
+    {
+        $followup = Followup::findOrFail($followup_id);
+        $this->addFollowupSection = $followup->called_id;
+        $this->followupCallDate = Carbon::parse($followup->call_time)->format('Y-m-d');
+        $this->followupCallTime = Carbon::parse($followup->call_time)->format('H:i');
+        $this->followupTitle = $followup->title;
+        $this->followupDesc = $followup->desc;
+        $this->followupEditId = $followup->id;
+    }
+
     public function openAddFollowupSec($customer_id)
     {
         $this->addFollowupSection = $customer_id;
+        $this->followupCallDate = Carbon::now()->format('Y-m-d');
+        $this->followupCallTime = Carbon::now()->format('H:i');
     }
 
     public function closeFollowupSection()
     {
-        $this->reset(['addFollowupSection', 'followupTitle', 'followupCallDate', 'followupCallTime', 'followupDesc']);
+        $this->reset(['addFollowupSection', 'followupTitle', 'followupCallDate', 'followupCallTime', 'followupDesc', 'followupEditId']);
     }
 
     public function addFollowup()
@@ -64,13 +80,17 @@ class FollowupReport extends Component
 
         $combinedDateTimeString = $this->followupCallDate . ' ' . $this->followupCallTime;
         $combinedDateTime = new \DateTime($combinedDateTimeString);
-
-        $customer = Customer::find($this->addFollowupSection);
-
-        $res = $customer->addFollowup($this->followupTitle, $combinedDateTime, $this->followupDesc);
+        if($this->followupEditId){
+            /** @var Followup */
+            $followup = Followup::findOrFail($this->followupEditId);
+            $res = $followup->editInfo($this->followupTitle, $combinedDateTime, $this->followupDesc);
+        } else {
+            $customer = Customer::find($this->addFollowupSection);
+            $res = $customer->addFollowup($this->followupTitle, $combinedDateTime, $this->followupDesc);
+        }
 
         if ($res) {
-            $this->alert('success', 'Followup added successfuly');
+            $this->alert('success', 'Followup set');
             $this->closeFollowupSection();
         } else {
             $this->alert('failed', 'server error');
@@ -179,7 +199,7 @@ class FollowupReport extends Component
 
         $zones = Zone::all();
 
-        $customers = Customer::with('orders')->search($this->search)
+        $customers = Customer::with('orders', 'last_followup')->search($this->search)
             ->when($this->is_ordered, function ($q) use ($startDate, $end) {
                 $q->orderedBetween($startDate, $end);
             })

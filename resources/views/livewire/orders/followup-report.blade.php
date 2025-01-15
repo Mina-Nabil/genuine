@@ -137,8 +137,10 @@
                                     {{ getWeekOfMonth($start_week) }}
                                 </th>
                                 @php
-                                    $start_week->addWeek();   
-                                    if ($start_week->weekOfMonth > 4) $start_week->addMonth()->setDay(1);
+                                    $start_week->addWeek();
+                                    if ($start_week->weekOfMonth > 4) {
+                                        $start_week->addMonth()->setDay(1);
+                                    }
                                 @endphp
                             @endwhile
                         </tr>
@@ -165,8 +167,8 @@
                                                     <iconify-icon
                                                         icon="heroicons-outline:dots-vertical"></iconify-icon>
                                                 </button>
-                                                <ul
-                                                    class=" dropdown-menu min-w-[120px] text-sm text-slate-700 dark:text-white hidden bg-white dark:bg-slate-700 shadow float-left overflow-hidden list-none text-left rounded-lg mt-1 m-0 bg-clip-padding border-none dropdown-position" style=" ">
+                                                <ul class=" dropdown-menu min-w-[120px] text-sm text-slate-700 dark:text-white hidden bg-white dark:bg-slate-700 shadow float-left overflow-hidden list-none text-left rounded-lg mt-1 m-0 bg-clip-padding border-none dropdown-position"
+                                                    style=" ">
 
                                                     @if ($c->last_order_id)
                                                         <li>
@@ -192,6 +194,16 @@
 
                                         <div class="text-xs font-normal text-slate-600 dark:text-slate-400">
                                             Target: <b>{{ $c->monthly_weight_target / 1000 ?? 0 }}</b> KG
+                                        </div>
+                                        <div class="text-xs font-normal text-slate-600 dark:text-slate-400"
+                                          >
+                                            Last Followup: @if ($c->last_followup)
+                                                <b class="underline" wire:click='openFollowupDetailsSec({{ $c->last_followup->id }})'>
+                                                    {{ \Carbon\Carbon::parse($c->last_followup->call_time)->format('d M h:i A') }}
+                                                </b>
+                                            @else
+                                                <b>N/A</b>
+                                            @endif
                                         </div>
 
                                     </div>

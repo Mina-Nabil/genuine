@@ -15,6 +15,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -458,6 +459,11 @@ class Customer extends Model
     public function followups(): MorphMany
     {
         return $this->morphMany(Followup::class, 'called');
+    }
+
+    public function last_followup(): MorphOne
+    {
+        return $this->morphOne(Followup::class, 'called')->limit(1)->orderByDesc('call_time');
     }
 
     public function pets()
