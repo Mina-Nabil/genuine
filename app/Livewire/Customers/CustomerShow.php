@@ -483,7 +483,7 @@ class CustomerShow extends Component
         $ZONES = Zone::select('id', 'name')->get();
         $PET_CATEGORIES = Pet::CATEGORIES;
         $PAYMENT_METHODS = CustomerPayment::PAYMENT_METHODS;
-        $orders = $this->customer->orders()->orderByDesc('id')->limit(5)->get(5);
+        $orders = $this->customer->orders()->orderByDesc('id')->limit(5)->get();
         $periodcOrders = $this->customer->periodicOrders;
 
         $this->comments = $this->customer
