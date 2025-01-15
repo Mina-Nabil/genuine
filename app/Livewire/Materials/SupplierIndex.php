@@ -42,9 +42,7 @@ class SupplierIndex extends Component
         $res = Supplier::newSupplier($this->supplierName, $this->supplierPhone1, $this->supplierPhone2, $this->supplierEmail, $this->supplierAddress, $this->supplierContactName, $this->supplierContactPhone);
 
         if ($res) {
-            $this->closeNewSupplierSection();
-            $this->alertSuccess('Supplier added!');
-            // return redirect(route('supplier.show', $res->id));
+            return redirect(route('supplier.show', $res->id));
         } else {
             $this->alertFailed();
         }
