@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Customers\Customer;
 use App\Models\Customers\Zone;
+use App\Models\Materials\RawMaterial;
 use App\Models\Materials\Supplier;
 use App\Models\Orders\Order;
 use App\Models\Orders\PeriodicOrder;
@@ -35,6 +36,7 @@ class AppServiceProvider extends ServiceProvider
             Product::MORPH_TYPE     => Product::class,
             Customer::MORPH_TYPE    => Customer::class, 
             Supplier::MORPH_TYPE    => Supplier::class, 
+            RawMaterial::MORPH_TYPE    => RawMaterial::class, 
             Inventory::MORPH_TYPE   => Inventory::class, 
             AppLog::MORPH_TYPE   => AppLog::class, 
             Order::MORPH_TYPE   => Order::class, 
