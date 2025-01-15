@@ -138,9 +138,8 @@ class FollowupReport extends Component
 
     public function render()
     {
-        $startDate = Carbon::createFromDate($this->year, $this->selectedMonth);
-        $startDate->setWeek($this->selectedWeek);
-        $end = Carbon::now();
+        $startDate = Carbon::createFromDate($this->year, $this->selectedMonth, getStartOfWeek($this->selectedWeek));
+        $end = Carbon::now()->endOfDay();
 
         $zones = Zone::all();
 
@@ -152,12 +151,15 @@ class FollowupReport extends Component
 
         /** @var Customer */
         foreach ($customers as $c) {
-            $startTmp = $startDate->clone();
-            while ($startTmp->isBefore($end)) {
-                $tmpEnd =  $startTmp->clone()->addWeek();
-                if ($tmpEnd->weekOfMonth == 4) $tmpEnd->endOfMonth();
+            $startTmp = $startDate->clone()->startOfDay();
+            while ($startTmp->lessThanOrEqualTo($end)) {
+      
+                $tmpEnd =  $startTmp->clone()->addDays(6);
+                if ($tmpEnd->dayOfMonth > 25) $tmpEnd->endOfMonth();
+
                 $c->appendKGTotal($startTmp, $tmpEnd);
-                $startTmp = $tmpEnd->clone();
+                $startTmp = $tmpEnd->clone()->addDay();
+  
             }
         }
         // Log::info($customers->links());

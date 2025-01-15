@@ -32,6 +32,28 @@ if (!function_exists('getWeekOfMonth')) {
         return "W" . (int) $week . " $monthName";
     }
 }
+
+/**
+ * Get the starting day of the week integer.
+ *
+ * @param string $date
+ * @return string
+ */
+if (!function_exists('getStartOfWeek')) {
+    function getStartOfWeek(int $week): string
+    {
+        switch ($week) {
+            case 1:
+                return 1;
+            case 2:
+                return 8;
+            case 3:
+                return 15;
+            default:
+                return 22;
+        }
+    }
+}
 /**
  * Get the week of the month for a given date.
  *

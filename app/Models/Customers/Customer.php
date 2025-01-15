@@ -214,13 +214,15 @@ class Customer extends Model
     public function appendKGTotal(Carbon $start, Carbon $end)
     {
         $this->ordersKGs[] = DB::table('customers')
-        ->join('orders as o1', 'o1.customer_id', '=', 'customers.id')
-        ->join('order_products', 'order_products.order_id', '=', 'o1.id')
-        ->join('products', 'products.id', '=', 'order_products.product_id')
+            ->join('orders as o1', 'o1.customer_id', '=', 'customers.id')
+            ->join('order_products', 'order_products.order_id', '=', 'o1.id')
+            ->join('products', 'products.id', '=', 'order_products.product_id')
 
             ->where('o1.customer_id', '=', $this->id)
             ->where('o1.delivery_date', ">=", $start->format('Y-m-d 00:00:00'))
             ->where('o1.delivery_date', "<=", $end->format('Y-m-d 23:59:59'))
+            ->whereIn('o1.status', Order::OK_STATUSES)
+            ->whereNull('o1.deleted_at')
             ->groupBy('customers.id')
             ->selectRaw('SUM(order_products.quantity * products.weight) AS week_weight')
             ->first()?->week_weight;
