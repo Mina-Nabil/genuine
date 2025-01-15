@@ -148,6 +148,7 @@ class FollowupReport extends Component
             $q->orderedBetween($startDate, $end);
         })
         ->ByZones($this->zones)->paginate(30);
+        
         /** @var Customer */
         foreach ($customers as $c) {
             $startTmp = $startDate->clone();
