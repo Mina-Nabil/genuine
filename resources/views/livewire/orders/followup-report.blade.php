@@ -138,6 +138,7 @@
                                 </th>
                                 @php
                                     $start_week->addWeek();
+                                    if ($start_week->weeksInMonth >= 4) $start_week->endOfMonth()->addDay();
                                 @endphp
                             @endwhile
                         </tr>
