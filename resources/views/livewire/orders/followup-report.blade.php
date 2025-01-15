@@ -138,7 +138,7 @@
                                 </th>
                                 @php
                                     $start_week->addWeek();
-                                    if ($start_week->weeksInMonth > 4) $start_week->nextMonth()->setDay(1);
+                                    if ($start_week->weeksInMonth > 3) $start_week->nextMonth()->setDay(1);
                                 @endphp
                             @endwhile
                         </tr>
