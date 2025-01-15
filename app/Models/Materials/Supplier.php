@@ -2,14 +2,22 @@
 
 namespace App\Models\Materials;
 
+use App\Models\Payments\BalanceTransaction;
+use App\Models\Payments\CustomerPayment;
 use App\Models\Users\AppLog;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class Supplier extends Model
 {
     use HasFactory;
+
+    const MORPH_TYPE = 'supplier';
 
     protected $fillable = ['name', 'phone1', 'phone2', 'email', 'address', 'contact_name', 'contact_phone', 'balance'];
 
@@ -62,12 +70,67 @@ class Supplier extends Model
         }
     }
 
+    public function addToBalanceWithPayment($amount, $paymentMethod, $paymentDate, $note = 'Balance update')
+    {
+        try {
+            DB::transaction(function () use ($amount, $paymentMethod, $paymentDate, $note) {
+                /** @var User */
+                $loggedInUser = Auth::user();
+                if ($loggedInUser && !$loggedInUser->can('updateSupplierBalance', $this)) {
+                    return false;
+                }
+
+                if ($amount <= 0) {
+                    throw new Exception('Amount to be added must be positive.');
+                }
+
+                $this->balance += $amount;
+                $this->save();
+
+                $new_type_balance = CustomerPayment::calculateNewBalance($amount, $paymentMethod);
+
+                $payment = $this->payments()->create([
+                    'amount' => $amount,
+                    'payment_method' => $paymentMethod,
+                    'type_balance' => $new_type_balance,
+                    'payment_date' => $paymentDate,
+                    'note' => $note ?? 'Add to balance',
+                    'created_by' => $loggedInUser->id,
+                ]);
+
+                $this->transactions()->create([
+                    'amount' => $amount,
+                    'balance' => $this->balance,
+                    'description' => $note ?? 'Add to balance',
+                    'created_by' => $loggedInUser->id,
+                ]);
+
+                AppLog::info("Added {$amount} to {$this->name}'s balance and created payment", loggable: $this);
+            });
+            return true;
+        } catch (Exception $e) {
+            report($e);
+            AppLog::error('Failed to add to balance and create payment', $e->getMessage(), loggable: $this);
+            return false;
+        }
+    }
+
     public function scopeSearch($query, $term)
     {
         $term = "%{$term}%";
         return $query->where(function ($q) use ($term) {
             $q->where('name', 'like', $term)->orWhere('address', 'like', $term)->orWhere('phone1', 'like', $term)->orWhere('phone2', 'like', $term)->orWhere('contact_name', 'like', $term)->orWhere('contact_phone', 'like', $term);
         });
+    }
+
+    public function transactions(): MorphMany
+    {
+        return $this->morphMany(BalanceTransaction::class, 'transactionable');
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(CustomerPayment::class);
     }
 
     public function supplierInvoices()

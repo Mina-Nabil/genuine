@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('customer_payments', function (Blueprint $table) {
-            $table->foreignId('invoice_id')->nullable()->after('order_id')->constrained('supplier_invoices')->onDelete('cascade');
+            $table->foreignId('supplier_id')->nullable()->after('order_id')->constrained('suppliers')->onDelete('cascade');
+            $table->foreignId('invoice_id')->nullable()->after('supplier_id')->constrained('supplier_invoices')->onDelete('cascade');
             $table->foreignId('customer_id')->nullable()->change();
         });
     }

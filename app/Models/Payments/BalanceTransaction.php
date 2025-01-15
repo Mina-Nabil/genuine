@@ -14,7 +14,8 @@ class BalanceTransaction extends Model
     protected $table = 'balance_transactions';
 
     protected $fillable = [
-        'customer_id',
+        'transactionable_id',
+        'transactionable_type',
         'payment_id',
         'order_id',
         'amount', //can be negative or positive
@@ -25,9 +26,9 @@ class BalanceTransaction extends Model
 
 
     // relations
-    public function customer()
+    public function transactionable()
     {
-        return $this->belongsTo(Customer::class);
+        return $this->morphTo();
     }
 
     public function payment()

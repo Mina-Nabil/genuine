@@ -3,7 +3,9 @@
 namespace App\Livewire\Materials;
 
 use App\Models\Materials\Supplier;
+use App\Models\Payments\CustomerPayment;
 use App\Traits\AlertFrontEnd;
+use Carbon\Carbon;
 use Livewire\Component;
 
 class SupplierShow extends Component
@@ -21,6 +23,14 @@ class SupplierShow extends Component
     public $supplierAddress;
     public $supplierContactName;
     public $supplierContactPhone;
+
+    //balance
+    public $isOpenAddToBalance;
+    public $AddedAmount;
+    public $AddedPaymentMethod;
+    public $AddedPaymentDate;
+    public $AddedIsNowPaymentDate = true;
+    public $AddedPaymentNote;
 
     public function openEditInfoSection()
     {
@@ -40,7 +50,8 @@ class SupplierShow extends Component
         $this->reset(['supplierName', 'supplierPhone1', 'supplierPhone2', 'supplierEmail', 'supplierAddress', 'supplierContactName', 'supplierContactPhone', 'editInfoSection']);
     }
 
-    public function editInfo(){
+    public function editInfo()
+    {
         $this->validate([
             'supplierName' => 'required|string|max:255',
             'supplierPhone1' => 'required|string|max:255',
@@ -52,13 +63,54 @@ class SupplierShow extends Component
         ]);
 
         $res = $this->supplier->editInfo($this->supplierName, $this->supplierPhone1, $this->supplierPhone2, $this->supplierEmail, $this->supplierAddress, $this->supplierContactName, $this->supplierContactPhone);
-    
+
         if ($res) {
             $this->closeEditInfoSection();
             $this->alertSuccess('Supplier updated!');
         } else {
             $this->alertFailed();
         }
+    }
+
+    public function addToBalance()
+    {
+        $this->authorize('updateSupplierBalance', $this->supplier);
+
+        $paymentDate = null;
+        if ($this->AddedIsNowPaymentDate) {
+            $paymentDate = now();
+        } else {
+            $this->validate([
+                'AddedPaymentDate' => 'required|date',
+            ]);
+            $paymentDate = $this->AddedPaymentDate;
+        }
+
+        $this->validate([
+            'AddedAmount' => 'required|numeric|min:1',
+            'AddedPaymentMethod' => 'required|in:' . implode(',', CustomerPayment::PAYMENT_METHODS),
+            'AddedPaymentNote' => 'nullable|string',
+        ]);
+
+        $res = $this->supplier->addToBalanceWithPayment($this->AddedAmount, $this->AddedPaymentMethod, Carbon::parse($paymentDate), $this->AddedPaymentNote);
+
+        if ($res) {
+            $this->closeAddToBalanceSection();
+            $this->mount($this->supplier->id);
+            $this->alertSuccess('Balance updated!');
+        } else {
+            $this->alertFailed();
+        }
+    }
+
+    public function openAddToBalanceSection()
+    {
+        $this->isOpenAddToBalance = true;
+    }
+
+    public function closeAddToBalanceSection()
+    {
+        $this->reset(['isOpenAddToBalance', 'AddedAmount', 'AddedPaymentMethod', 'AddedPaymentDate', 'AddedIsNowPaymentDate', 'AddedPaymentNote']);
     }
 
     public function mount($id)
@@ -69,6 +121,10 @@ class SupplierShow extends Component
 
     public function render()
     {
-        return view('livewire.materials.supplier-show')->layout('layouts.app', ['page_title' => $this->page_title, 'suppliers' => 'active']);
+        $PAYMENT_METHODS = CustomerPayment::PAYMENT_METHODS;
+
+        return view('livewire.materials.supplier-show',[
+            'PAYMENT_METHODS' => $PAYMENT_METHODS,
+        ])->layout('layouts.app', ['page_title' => $this->page_title, 'suppliers' => 'active']);
     }
 }

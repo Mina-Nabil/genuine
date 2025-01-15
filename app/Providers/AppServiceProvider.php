@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Customers\Customer;
 use App\Models\Customers\Zone;
+use App\Models\Materials\Supplier;
 use App\Models\Orders\Order;
 use App\Models\Orders\PeriodicOrder;
 use App\Models\Products\Inventory;
@@ -33,6 +34,7 @@ class AppServiceProvider extends ServiceProvider
         Relation::enforceMorphMap([
             Product::MORPH_TYPE     => Product::class,
             Customer::MORPH_TYPE    => Customer::class, 
+            Supplier::MORPH_TYPE    => Supplier::class, 
             Inventory::MORPH_TYPE   => Inventory::class, 
             AppLog::MORPH_TYPE   => AppLog::class, 
             Order::MORPH_TYPE   => Order::class, 

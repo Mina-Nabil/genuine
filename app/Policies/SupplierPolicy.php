@@ -40,6 +40,11 @@ class SupplierPolicy
         return true;
     }
 
+    public function updateSupplierBalance(User $user, Supplier $supplier): bool
+    {
+        return true;
+    }
+
     /**
      * Determine whether the user can delete the model.
      */
