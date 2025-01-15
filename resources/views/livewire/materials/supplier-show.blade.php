@@ -135,7 +135,7 @@
                                         <tbody
                                             class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
 
-                                            @forelse ($supplier->payments as $payment)
+                                            @forelse ($supplierPayments as $payment)
                                                 <tr>
                                                     <td class="table-td ">
                                                         {{ \Carbon\Carbon::parse($payment->payment_date)->format('Y-m-d') }}
@@ -180,6 +180,10 @@
                                         </tbody>
                                     </table>
                                 </div>
+                                <div style="position: sticky ; bottom:0;width:100%; z-index:10;"
+                                    class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
+                                    {{ $supplierPayments->links('vendor.livewire.simple-bootstrap') }}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -218,7 +222,7 @@
                                         <tbody
                                             class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
 
-                                            @forelse ($supplier->transactions as $transaction)
+                                            @forelse ($supplierTransactions as $transaction)
                                                 <tr>
                                                     <td class="table-td ">
                                                         {{ \Carbon\Carbon::parse($transaction->payment_date)->format('Y-m-d') }}
@@ -262,6 +266,10 @@
 
                                         </tbody>
                                     </table>
+                                </div>
+                                <div style="position: sticky ; bottom:0;width:100%; z-index:10;"
+                                    class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
+                                    {{ $supplierTransactions->links('vendor.livewire.simple-bootstrap') }}
                                 </div>
                             </div>
                         </div>

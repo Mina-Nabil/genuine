@@ -7,10 +7,11 @@ use App\Models\Payments\CustomerPayment;
 use App\Traits\AlertFrontEnd;
 use Carbon\Carbon;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class SupplierShow extends Component
 {
-    use AlertFrontEnd;
+    use AlertFrontEnd , WithPagination;
     public $page_title;
 
     public $supplier;
@@ -122,9 +123,13 @@ class SupplierShow extends Component
     public function render()
     {
         $PAYMENT_METHODS = CustomerPayment::PAYMENT_METHODS;
+        $supplierPayments = $this->supplier->payments()->paginate(3, ['*'], 'paymentsPage');
+        $supplierTransactions = $this->supplier->transactions()->paginate(3, ['*'], 'transactionsPage');
 
         return view('livewire.materials.supplier-show',[
             'PAYMENT_METHODS' => $PAYMENT_METHODS,
+            'supplierPayments' => $supplierPayments,
+            'supplierTransactions' => $supplierTransactions
         ])->layout('layouts.app', ['page_title' => $this->page_title, 'suppliers' => 'active']);
     }
 }
