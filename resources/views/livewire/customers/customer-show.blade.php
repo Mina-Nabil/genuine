@@ -470,6 +470,7 @@
                                             class="text-light">EGP</small>{{ number_format($customer->balance, 2) }}
                                     </span>
                                 </div>
+                                <iconify-icon class="toolTip onTop cursor-pointer" data-tippy-content="Balance updates and transactions are temporarily under maintenance." icon="line-md:alert" width="24" height="24"></iconify-icon>
                                 @can('updateCustomerBalance', $customer)
                                     <div>
                                         <button wire:click='openAddToBalanceSection' type="button"

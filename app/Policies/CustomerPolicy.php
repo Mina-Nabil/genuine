@@ -27,7 +27,7 @@ class CustomerPolicy
     
     public function updateCustomerBalance(User $user, Customer $customer): bool
     {
-        return true;
+        return false;
     }
 
     /**

@@ -1064,10 +1064,7 @@ class Order extends Model
                     continue;
                 }
 
-                $orderProduct = $this->products()
-                    ->where('product_id', $product['product_id'])
-                    ->where('combo_id', $product['combo_id'] ?? null)
-                    ->first();
+                $orderProduct = OrderProduct::find($product['order_product_id']);
 
                 if (!$orderProduct || $orderProduct->quantity < $product['quantity']) {
                     throw new Exception('Insufficient quantity or invalid product ID.');
@@ -1156,7 +1153,7 @@ class Order extends Model
         } catch (Exception $e) {
             DB::rollBack();
             report($e);
-            AppLog::error('Failed to return products for order', $e->getMessage());
+            AppLog::error('Failed to return products for order', $e->getMessage(),loggable:$this);
             return false;
         }
     }
