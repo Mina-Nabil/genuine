@@ -1077,6 +1077,10 @@ textarea.form-control.is-invalid {
 .dropdown-menu.show {
     display: block;
 }
+
+.dropdown-position {
+    transform: translate(37px, 00px) !important;
+}
 .dropdown-menu-dark .dropdown-item.active {
     color: #fff;
     background-color: #0d6efd;
