@@ -102,7 +102,8 @@ class FollowupReport extends Component
 
         $this->year = $start->format('Y');
         $this->selectedMonth = $start->format('m');
-        $this->selectedWeek = min(4, $start->weeksInMonth);
+
+        $this->selectedWeek = min(4, $start->weekOfMonth);
 
         $this->years = range($this->year - 4, $this->year + 1);
         $this->months = array_map(function ($month) {
@@ -154,7 +155,7 @@ class FollowupReport extends Component
             $startTmp = $startDate->clone();
             while ($startTmp->isBefore($end)) {
                 $tmpEnd =  $startTmp->clone()->addWeek();
-                if ($tmpEnd->weeksInMonth == 4) $tmpEnd->endOfMonth();
+                if ($tmpEnd->weekOfMonth == 4) $tmpEnd->endOfMonth();
                 $c->appendKGTotal($startTmp, $tmpEnd);
                 $startTmp = $tmpEnd->clone();
             }
