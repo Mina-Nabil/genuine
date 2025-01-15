@@ -139,6 +139,8 @@ class FollowupReport extends Component
         $this->year = $start->format('Y');
         $this->selectedMonth = $start->format('m');
 
+        $this->selectedWeek = min(4, $start->weekOfMonth);
+
         $this->years = range($this->year - 4, $this->year + 1);
         $this->months = array_map(function ($month) {
             return sprintf('%02d', $month);
@@ -173,24 +175,25 @@ class FollowupReport extends Component
     public function render()
     {
         $startDate = Carbon::createFromDate($this->year, $this->selectedMonth);
+        $startDate->setWeek($this->selectedWeek);
         $end = Carbon::now();
 
         $zones = Zone::all();
 
-        $customers = Customer::with('orders')
-            ->search($this->search)
+        $customers = Customer::with('orders')->search($this->search)
             ->when($this->is_ordered, function ($q) use ($startDate, $end) {
                 $q->orderedBetween($startDate, $end);
             })
-            ->ByZones($this->zones)
-            ->paginate(30);
+            ->ByZones($this->zones)->paginate(30);
+
         /** @var Customer */
         foreach ($customers as $c) {
             $startTmp = $startDate->clone();
             while ($startTmp->isBefore($end)) {
-                $tmpEnd = $startTmp->clone()->addWeek();
+                $tmpEnd =  $startTmp->clone()->addWeek();
+                if ($tmpEnd->weekOfMonth == 4) $tmpEnd->endOfMonth();
                 $c->appendKGTotal($startTmp, $tmpEnd);
-                $startTmp->addWeek();
+                $startTmp = $tmpEnd->clone();
             }
         }
         // Log::info($customers->links());

@@ -517,7 +517,7 @@
                                             <tbody
                                                 class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
 
-                                                @forelse ($customer->payments as $payment)
+                                                @forelse ($customer->payments()->orderByDesc('id')->get() as $payment)
                                                     <tr>
                                                         <td class="table-td ">
                                                             {{ \Carbon\Carbon::parse($payment->payment_date)->format('Y-m-d') }}
