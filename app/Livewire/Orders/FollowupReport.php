@@ -144,18 +144,19 @@ class FollowupReport extends Component
         $zones = Zone::all();
 
         $customers = Customer::with('orders')->search($this->search)
-        ->when($this->is_ordered, function($q) use ($startDate, $end) {
-            $q->orderedBetween($startDate, $end);
-        })
-        ->ByZones($this->zones)->paginate(30);
-        
+            ->when($this->is_ordered, function ($q) use ($startDate, $end) {
+                $q->orderedBetween($startDate, $end);
+            })
+            ->ByZones($this->zones)->paginate(30);
+
         /** @var Customer */
         foreach ($customers as $c) {
             $startTmp = $startDate->clone();
             while ($startTmp->isBefore($end)) {
                 $tmpEnd =  $startTmp->clone()->addWeek();
+                if ($tmpEnd->weeksInMonth == 4) $tmpEnd->endOfMonth();
                 $c->appendKGTotal($startTmp, $tmpEnd);
-                $startTmp->addWeek();
+                $startTmp = $tmpEnd->clone();
             }
         }
         // Log::info($customers->links());
