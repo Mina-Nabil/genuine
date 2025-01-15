@@ -17,11 +17,11 @@ if (!function_exists('getWeekOfMonth')) {
         if (!is_a($date, Carbon::class))
             $date = Carbon::parse($date);
 
-        if ($date->day >= 1 && $date->day <= 7)
+        if ($date->dayOfMonth >= 1 && $date->dayOfMonth <= 7)
             $week = 1;
-        if ($date->day >= 8 && $date->day <= 14)
+        else if ($date->dayOfMonth >= 8 && $date->dayOfMonth <= 14)
             $week = 2;
-        if ($date->day >= 15 && $date->day <= 21)
+        else if ($date->dayOfMonth >= 15 && $date->dayOfMonth <= 21)
             $week = 3;
         else
             $week = 4;
