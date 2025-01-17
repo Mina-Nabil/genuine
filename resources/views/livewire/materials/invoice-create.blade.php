@@ -2,7 +2,7 @@
     <div class="space-y-5 profile-page mx-auto" style="max-width: 1000px">
         <div class="flex justify-between">
             <h4><b>Create Invoice</b></h4>
-            <button wire:click='createOrder' class="btn inline-flex justify-center btn-dark btn-sm">
+            <button wire:click='addInvoice' class="btn inline-flex justify-center btn-dark btn-sm">
                 Save
             </button>
         </div>
@@ -154,24 +154,25 @@
                                         <div class="input-area w-full">
                                             <label for="ddate" class="form-label"><b>Payments</b></label>
                                         </div>
-        
+
                                         <div class="card-body flex flex-col justify-between border rounded-lg h-full menu-open p-0 mb-5 p-2 px-6"
                                             style="border-color:rgb(224, 224, 224);">
-        
+
                                             <table
                                                 class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700">
                                                 <tbody class="bg-white dark:bg-slate-800 ">
-        
+
                                                     <tr>
-                                                        <td class=" text-xs text-slate-500 dark:text-slate-400">Subtotal</td>
+                                                        <td class=" text-xs text-slate-500 dark:text-slate-400">Subtotal
+                                                        </td>
                                                         <td class=" text-xs text-slate-500 dark:text-slate-400">
                                                             {{ $totalItems ? $totalItems . ' items' : '-' }}</td>
                                                         <td class="float-right text-dark">
                                                             <b>{{ $subtotal ? number_format($subtotal, 2) : '-' }}<small>&nbsp;EGP</small></b>
                                                         </td>
                                                     </tr>
-        
-        
+
+
                                                     <tr>
                                                         <td class=" text-xs text-slate-500 dark:text-slate-400"></td>
                                                         <td class=" text-xs text-slate-500 dark:text-slate-400"></td>
@@ -182,18 +183,19 @@
                                                         <td class=" text-xs text-slate-500 dark:text-slate-400"></td>
                                                         <td class="float-right text-dark"></td>
                                                     </tr>
-        
+
                                                     <tr class="!pt-5">
-                                                        <td class=" text-xs text-slate-500 dark:text-slate-400">Total</td>
+                                                        <td class=" text-xs text-slate-500 dark:text-slate-400">Total
+                                                        </td>
                                                         <td class=" text-xs text-slate-500 dark:text-slate-400"></td>
                                                         <td class="float-right text-dark" style="color: black">
                                                             <b>{{ $total ? number_format($total, 2) : '-' }}<small>&nbsp;EGP</small></b>
                                                         </td>
                                                     </tr>
-        
+
                                                 </tbody>
                                             </table>
-        
+
                                         </div>
                                     </div>
                                 </div>
@@ -208,121 +210,112 @@
                 <div class="card mb-5">
                     <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base">
                         <div class="items-center p-5">
+                            <div class="mb-2">
+                                <label for="payment_due" class="form-label !m-0">Payment Due</label>
+                                <input wire:model='payment_due' type="date" name="payment_due"
+                                    class="form-control  @error('payment_due') !border-danger-500 @enderror">
+                                @error('payment_due')
+                                    <span
+                                        class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-5">
+                    <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base">
+                        <div class="items-center p-5">
                             <div class="input-area w-full">
-                                <label for="ddate" class="form-label"><b>Customer</b></label>
-                                @if ($customerId || $customerIsNew)
-                                    @if ($customerId)
+                                <label for="ddate" class="form-label"><b>Supplier</b></label>
+                                @if ($supplierId || $supplierIsNew)
+                                    @if ($supplierId)
                                         <div
                                             class="badge bg-slate-900 text-white capitalize w-full flex justify-between items-center">
-                                            <span>{{ $customerName }}</span>
-                                            <span class="cursor-pointer" wire:click='clearCustomer'><iconify-icon
-                                                    icon="material-symbols:close" width="1.2em"
-                                                    height="1.2em"></iconify-icon></span>
+                                            <span>{{ $supplierName }}</span>
+                                            <span class="cursor-pointer" wire:click='clearSupplier'>
+                                                <iconify-icon icon="material-symbols:close" width="1.2em"
+                                                    height="1.2em"></iconify-icon>
+                                            </span>
+                                        </div>
+                                    @elseif($supplierIsNew)
+                                        <div class="mb-2">
+                                            <label for="supplierName" class="form-label !m-0">Name</label>
+                                            <input wire:model='supplierName' type="text" name="supplierName"
+                                                class="form-control  @error('supplierName') !border-danger-500 @enderror">
+                                            @error('supplierName')
+                                                <span
+                                                    class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                            @enderror
                                         </div>
 
-                                        @if ($customerBalance > 0)
-                                            <div
-                                                class="bg-slate-50 dark:bg-slate-900 rounded p-4 mt-2 flex justify-between flex-wrap">
-                                                <div class="space-y-1">
-                                                    <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
-                                                        Balance
-                                                    </h4>
-                                                    <div class="text-sm font-medium text-slate-900 dark:text-white">
-                                                        <b>{{ number_format($customerBalance, 2) }}</b><small>&nbsp;EGP</small>
-                                                    </div>
-                                                    <div class="checkbox-area">
-                                                        <label class="inline-flex items-center cursor-pointer">
-                                                            <input wire:model.live='detuctFromBalance' type="checkbox"
-                                                                class="hidden" name="checkbox" checked="checked">
-                                                            <span
-                                                                class="h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 bg-slate-100 dark:bg-slate-900">
-                                                                <img src="{{ asset('assets/images/icon/ck-white.svg') }}"
-                                                                    alt=""
-                                                                    class="h-[10px] w-[10px] block m-auto opacity-0"></span>
-                                                            <span
-                                                                class="text-slate-500 dark:text-slate-400 text-sm leading-6">
-                                                                Detuct from balance ?</span>
-                                                        </label>
-                                                    </div>
-                                                </div>
-
-                                            </div>
-                                        @endif
-
-                                        @if ($customerLastOrder)
-                                            <button wire:click='reorderLastOrder'
-                                                class="btn inline-flex justify-center btn-primary block-btn btn-sm mt-5">
-                                                <span class="flex items-center">
-                                                    <span>Repeat Last Order</span>
-                                                </span>
-                                            </button>
-                                        @endif
-                                    @elseif($customerIsNew)
                                         <div class="mb-2">
-                                            <label for="customerName" class="form-label !m-0">Name</label>
-                                            <input wire:model='customerName' type="text" name="customerName"
-                                                class="form-control  @error('customerName') !border-danger-500 @enderror">
-                                            @error('customerName')
+                                            <label for="supplierPhone1" class="form-label !m-0">Phone</label>
+                                            <input wire:model='supplierPhone1' type="text" name="supplierPhone1"
+                                                class="form-control  @error('supplierPhone1') !border-danger-500 @enderror">
+                                            @error('supplierPhone1')
+                                                <span
+                                                    class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+
+                                        <div class="mb-2">
+                                            <label for="supplierPhone2" class="form-label !m-0">Phone 2</label>
+                                            <input wire:model='supplierPhone2' type="text" name="supplierPhone2"
+                                                class="form-control  @error('supplierPhone2') !border-danger-500 @enderror">
+                                            @error('supplierPhone2')
+                                                <span
+                                                    class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+
+                                        <div class="mb-2">
+                                            <label for="supplierEmail" class="form-label !m-0">Email</label>
+                                            <input wire:model='supplierEmail' type="text" name="supplierEmail"
+                                                class="form-control  @error('supplierEmail') !border-danger-500 @enderror">
+                                            @error('supplierEmail')
+                                                <span
+                                                    class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+
+                                        <div class="mb-2">
+                                            <label for="supplierAddress" class="form-label !m-0">Address</label>
+                                            <textarea wire:model='supplierAddress' name="supplierAddress"
+                                                class="form-control  @error('supplierAddress') !border-danger-500 @enderror"></textarea>
+                                            @error('supplierAddress')
+                                                <span
+                                                    class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+
+                                        <div class="mb-2">
+                                            <label for="supplierContactName" class="form-label !m-0">Contact
+                                                name</label>
+                                            <input wire:model='supplierContactName' type="text"
+                                                name="supplierContactName"
+                                                class="form-control  @error('supplierContactName') !border-danger-500 @enderror">
+                                            @error('supplierContactName')
+                                                <span
+                                                    class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+
+                                        <div class="mb-2">
+                                            <label for="supplierContactPhone" class="form-label !m-0">Contact
+                                                phone</label>
+                                            <input wire:model='supplierContactPhone' type="text"
+                                                name="supplierContactPhone"
+                                                class="form-control  @error('supplierContactPhone') !border-danger-500 @enderror">
+                                            @error('supplierContactPhone')
                                                 <span
                                                     class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
                                             @enderror
                                         </div>
                                     @endif
 
-
-                                    <div class="mb-2 mt-3">
-                                        <label for="shippingAddress" class="form-label !m-0">Shipping
-                                            Address</label>
-                                        <textarea name="shippingAddress" wire:model="shippingAddress"
-                                            class="form-control  @error('shippingAddress') !border-danger-500 @enderror"></textarea>
-                                        @error('shippingAddress')
-                                            <span
-                                                class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-
-                                    <div class="mb-2 mt-3">
-                                        <label for="locationURL" class="form-label !m-0">
-                                            Location URL
-                                        </label>
-                                        <textarea name="locationURL" wire:model="locationURL"
-                                            class="form-control  @error('locationURL') !border-danger-500 @enderror"></textarea>
-                                        @error('locationURL')
-                                            <span
-                                                class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-
-                                    <div class="mb-2">
-                                        <label for="customerPhone" class="form-label !m-0">Phone</label>
-                                        <input wire:model='customerPhone' type="text" name="customerPhone"
-                                            class="form-control @error('customerPhone') !border-danger-500 @enderror">
-                                        @error('customerPhone')
-                                            <span
-                                                class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-
-                                    <div class="mb-2">
-                                        <label for="zoneId" class="form-label !m-0">Zone</label>
-                                        <select name="zoneId" id="zoneId"
-                                            class="form-control w-full @error('zoneId') !border-danger-500 @enderror"
-                                            wire:model.live="zoneId" autocomplete="off">
-                                            <option value="">None</option>
-                                            @foreach ($zones as $SINGLE_ZONE)
-                                                <option value="{{ $SINGLE_ZONE->id }}">
-                                                    {{ ucwords(str_replace('_', ' ', $SINGLE_ZONE->name)) }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        @error('zoneId')
-                                            <span
-                                                class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-
-                                    @if ($customerIsNew)
-                                        <button wire:click='clearCustomer'
+                                    @if ($supplierIsNew)
+                                        <button wire:click='clearSupplier'
                                             class="btn inline-flex justify-center btn-light block-btn btn-sm mt-5">
                                             <span class="flex items-center">
                                                 <span>Cancel</span>
@@ -331,20 +324,55 @@
                                     @endif
                                 @else
                                     <div class="grid grid-cols-2 gap-2">
-                                        <button wire:click='openCustomerSection'
+                                        <button wire:click='openSupplierSection'
                                             class="btn inline-flex justify-center btn-light block-btn btn-sm">
                                             <span class="flex items-center">
                                                 <span>Select existing</span>
                                             </span>
                                         </button>
-                                        <button wire:click='NewCustomerSection'
+                                        <button wire:click='NewSupplierSection'
                                             class="btn inline-flex justify-center btn-light block-btn btn-sm">
                                             <span class="flex items-center">
-                                                <span>New Customer</span>
+                                                <span>New Supplier</span>
                                             </span>
                                         </button>
                                     </div>
                                 @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-5">
+                    <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base">
+                        <div class="items-center p-5">
+                            <div class="mb-2">
+                                <div class="checkbox-area">
+                                    <label class="inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" wire:model='update_supplier_materials' class="hidden" name="checkbox">
+                                        <span
+                                            class="h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 bg-slate-100 dark:bg-slate-900">
+                                            <img src="{{ asset('assets/images/icon/ck-white.svg') }}" alt=""
+                                                class="h-[10px] w-[10px] block m-auto opacity-0"></span>
+                                        <span
+                                            class="text-slate-500 dark:text-slate-400 text-sm leading-6">Update supplier material ?</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-5">
+                    <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base">
+                        <div class="items-center p-5">
+                            <div class="mb-2">
+                                <label for="note" class="form-label !m-0">Note</label>
+                                <textarea wire:model='note' name="note" class="form-control  @error('note') !border-danger-500 @enderror"></textarea>
+                                @error('note')
+                                    <span
+                                        class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                @enderror
                             </div>
                         </div>
                     </div>
@@ -355,7 +383,8 @@
 
     @if ($isOpenSelectMaterialSec)
         <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
-            tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog" style="display: block;">
+            tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
+            style="display: block;">
             <div class="modal-dialog relative w-auto pointer-events-none">
                 <div
                     class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
@@ -472,6 +501,101 @@
                                     wire:loading wire:target="addMaterials"
                                     icon="line-md:loading-twotone-loop"></iconify-icon>
                             </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    @endif
+
+    @if ($isOpenSelectSupplierSec)
+        <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+            tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
+            style="display: block;">
+            <div class="modal-dialog relative w-auto pointer-events-none" style="max-width: 850px;">
+                <div
+                    class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
+                    <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
+                        <!-- Modal header -->
+                        <div
+                            class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
+                            <h3 class="text-xl font-medium text-white dark:text-white capitalize">
+                                Set Supplier
+                            </h3>
+                            <button wire:click="closeSupplierSection" type="button"
+                                class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
+                                data-bs-dismiss="modal">
+                                <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd"
+                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                <span class="sr-only">Close modal</span>
+                            </button>
+                        </div>
+
+                        <!-- Modal body -->
+                        <div class="p-6 space-y-4">
+                            <input wire:model.live='suppliersSearchText' type="text" class="form-control"
+                                placeholder="Search customer...">
+
+                            <div class="overflow-x-auto"> <!-- Add this wrapper to allow horizontal scroll -->
+                                <table class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700 ">
+                                    <thead
+                                        class="border-t border-slate-100 dark:border-slate-800 bg-slate-200 dark:bg-slate-700">
+                                        <tr>
+                                            <th scope="col"
+                                                class="table-th  flex items-center border-t border-slate-100 dark:border-slate-800 bg-slate-200 dark:bg-slate-700"
+                                                style="position: sticky; left: -25px;  z-index: 10;">
+                                                Name
+                                            </th>
+
+                                            <th scope="col" class="table-th">
+                                                Phone
+                                            </th>
+
+
+                                        </tr>
+                                    </thead>
+                                    <tbody
+                                        class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700 no-wrap">
+
+                                        @foreach ($suppliers as $supplier)
+                                            <tr wire:click='selectSupplier({{ $supplier->id }})'
+                                                class="hover:bg-slate-200 dark:hover:bg-slate-700 cursor-pointer">
+
+                                                <td class="table-td">
+                                                    <b>{{ $supplier->name }}</b>
+                                                </td>
+
+                                                <td class="table-td">
+                                                    {{ $supplier->phone1 }}
+                                                </td>
+
+                                            </tr>
+                                        @endforeach
+
+                                    </tbody>
+
+                                </table>
+
+
+                                @if ($suppliers->isEmpty())
+                                    {{-- START: empty filter result --}}
+                                    <div class="card m-5 p-5">
+                                        <div class="card-body rounded-md bg-white dark:bg-slate-800">
+                                            <div class="items-center text-center p-5">
+                                                <h2>
+                                                    <iconify-icon icon="icon-park-outline:search"></iconify-icon>
+                                                </h2>
+                                                <h2 class="card-title text-slate-900 dark:text-white mb-3">
+                                                    No Suppliers Found!</h2>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {{-- END: empty filter result --}}
+                                @endif
+                            </div>
                         </div>
                     </div>
                 </div>
