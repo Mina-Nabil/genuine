@@ -1689,7 +1689,7 @@ class Order extends Model
 
     public function isOpenToPay()
     {
-        $openStatuses = [self::STATUS_NEW, self::STATUS_READY, self::STATUS_IN_DELIVERY];
+        $openStatuses = [self::STATUS_NEW, self::STATUS_READY, self::STATUS_IN_DELIVERY, self::STATUS_DONE];
         return !$this->is_paid && in_array($this->status, $openStatuses);
     }
 
