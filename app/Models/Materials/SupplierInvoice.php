@@ -102,16 +102,22 @@ class SupplierInvoice extends Model
     {
         try {
             return DB::transaction(function () use ($rawMaterialId, $quantity, $price, $updateSupplierMaterials) {
-                $this->total_items += $quantity;
-                $this->total_amount += $quantity * $price;
-                $this->save();
+                $invoiceRawMaterial = InvoiceRawMaterial::where('supplier_invoice_id', $this->id)
+                    ->where('raw_material_id', $rawMaterialId)
+                    ->first();
 
-                InvoiceRawMaterial::create([
-                    'supplier_invoice_id' => $this->id,
-                    'raw_material_id' => $rawMaterialId,
-                    'quantity' => $quantity,
-                    'price' => $price,
-                ]);
+                if ($invoiceRawMaterial) {
+                    $invoiceRawMaterial->quantity += $quantity;
+                    $invoiceRawMaterial->price = $price;
+                    $invoiceRawMaterial->save();
+                } else {
+                    InvoiceRawMaterial::create([
+                        'supplier_invoice_id' => $this->id,
+                        'raw_material_id' => $rawMaterialId,
+                        'quantity' => $quantity,
+                        'price' => $price,
+                    ]);
+                }
 
                 if ($updateSupplierMaterials) {
                     SupplierRawMaterial::updateOrCreate(
@@ -123,13 +129,40 @@ class SupplierInvoice extends Model
                     );
                 }
 
+                $this->refreshTotals();
+
                 AppLog::info('Raw material added to supplier invoice successfully', loggable: $this);
 
                 return true;
             });
         } catch (Exception $e) {
             report($e);
-            AppLog::error('Failed to add raw material to supplier invoice: ' . $e->getMessage());
+            AppLog::error('Failed to add raw material to supplier invoice: ' , $e->getMessage());
+            return false;
+        }
+    }
+
+    public function returnAllQuantityOfRawMaterial($rawMaterialId)
+    {
+        try {
+            return DB::transaction(function () use ($rawMaterialId) {
+                $invoiceRawMaterial = InvoiceRawMaterial::where('supplier_invoice_id', $this->id)
+                    ->where('raw_material_id', $rawMaterialId)
+                    ->firstOrFail();
+
+                $this->returnRawMaterial($rawMaterialId, $invoiceRawMaterial->quantity);
+
+                if ($this->rawMaterials()->count() == 0) {
+                    throw new Exception('Cannot return the last raw material from the invoice.');
+                } else {
+                    AppLog::info('All quantity of raw material returned from supplier invoice successfully', loggable: $this);
+                }
+
+                return true;
+            });
+        } catch (Exception $e) {
+            report($e);
+            AppLog::error('Failed to return all quantity of raw material from supplier invoice: ' , $e->getMessage());
             return false;
         }
     }
@@ -153,8 +186,7 @@ class SupplierInvoice extends Model
                     $invoiceRawMaterial->save();
                 }
 
-                $this->total_items -= $quantity;
-                $this->total_amount -= $quantity * $invoiceRawMaterial->price;
+                $this->refreshTotals();
                 $this->save();
 
                 AppLog::info('Raw material removed from supplier invoice successfully', loggable: $this);
@@ -163,7 +195,27 @@ class SupplierInvoice extends Model
             });
         } catch (Exception $e) {
             report($e);
-            AppLog::error('Failed to remove raw material from supplier invoice: ' . $e->getMessage());
+            AppLog::error('Failed to remove raw material from supplier invoice: ' , $e->getMessage());
+            return false;
+        }
+    }
+
+    public function refreshTotals()
+    {
+        try {
+            return DB::transaction(function () {
+                $totalItems = $this->rawMaterials->sum('pivot.quantity');
+                $totalAmount = $this->rawMaterials->sum(function ($material) {
+                    return $material->pivot->quantity * $material->pivot->price;
+                });
+                $this->total_items = $totalItems;
+                $this->total_amount = $totalAmount;
+                $this->save();
+                return true;
+            });
+        } catch (Exception $e) {
+            report($e);
+            AppLog::error('Failed to refresh supplier invoice totals: ' , $e->getMessage());
             return false;
         }
     }

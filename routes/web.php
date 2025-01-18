@@ -9,6 +9,7 @@ use App\Livewire\Customers\CustomerShow;
 use App\Livewire\Customers\FollowupIndex;
 use App\Livewire\Customers\ZoneIndex;
 use App\Livewire\Materials\InvoiceCreate;
+use App\Livewire\Materials\InvoiceShow;
 use App\Livewire\Materials\MaterialIndex;
 use App\Livewire\Materials\SupplierIndex;
 use App\Livewire\Materials\SupplierShow;
@@ -67,8 +68,9 @@ Route::middleware(['auth', 'no_driver'])->group(function () {
     Route::get('/suppliers/{id}', SupplierShow::class)->name('supplier.show');
 
     Route::get('/materials', MaterialIndex::class)->name('material.index');
-    Route::get('/invoices/create', InvoiceCreate::class)->name('invoice.create');
 
+    Route::get('/invoices/create', InvoiceCreate::class)->name('invoice.create');
+    Route::get('/invoices/{id}', InvoiceShow::class)->name('invoice.show');
 
     Route::get('/products', ProductIndex::class)->name('product.index');
     Route::get('/products/{id}', ProductShow::class)->name('product.show');
@@ -114,8 +116,6 @@ Route::middleware(['auth', 'no_driver'])->group(function () {
     Route::get('/report/customers/transactions', CustomerTransactionReport::class)->name('reports.customers.transactions');
 
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
-
-
 
     Route::get('/productions', ProductionPlanning::class)->name('production.planning');
 });
