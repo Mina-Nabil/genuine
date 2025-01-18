@@ -4,10 +4,14 @@ namespace App\Livewire\Materials;
 
 use App\Models\Materials\RawMaterial;
 use App\Models\Materials\Supplier;
+use App\Models\materials\SupplierInvoice;
+use App\Traits\AlertFrontEnd;
 use Livewire\Component;
 
 class InvoiceCreate extends Component
 {
+    use AlertFrontEnd;
+
     public $invoiceTitle;
     public $invoiceCode;
 
@@ -169,45 +173,68 @@ class InvoiceCreate extends Component
         $this->refreshPayments();
     }
 
-    public function addInvoice(){
+    public function addInvoice()
+    {
+        if ($this->supplierIsNew) {
+            $this->validate([
+                'supplierName' => 'required|string|max:255',
+                'supplierPhone1' => 'required|string|max:255',
+                'supplierPhone2' => 'nullable|string|max:255',
+                'supplierEmail' => 'nullable|email',
+                'supplierAddress' => 'nullable|string|max:255',
+                'supplierContactName' => 'nullable|string|max:255',
+                'supplierContactPhone' => 'nullable|string|max:255',
+            ]);
+
+            $supplier = Supplier::newSupplier($this->supplierName, $this->supplierPhone1, $this->supplierPhone2, $this->supplierEmail, $this->supplierAddress, $this->supplierContactName, $this->supplierContactPhone);
+        }
+
         $this->validate(
             [
-                'supplierId'              => 'required|exists:suppliers,id',
-                'invoiceCode'                     => 'nullable|string|max:255|unique:supplier_invoices,code',
-                'invoiceTitle'                    => 'nullable|string|max:255',
-                'note'                     => 'nullable|string|max:500',
-                'payment_due'              => 'nullable|date|after_or_equal:today',
-                'fetchedMaterials'            => 'required|array|min:1',
+                'supplierId' => $this->supplierIsNew ? 'nullable' :  'required|exists:suppliers,id',
+                'invoiceCode' => 'nullable|string|max:255|unique:supplier_invoices,code',
+                'invoiceTitle' => 'nullable|string|max:255',
+                'note' => 'nullable|string|max:500',
+                'payment_due' => 'nullable|date|after_or_equal:today',
+                'fetchedMaterials' => 'required|array|min:1',
                 'fetchedMaterials.*.id' => 'required|exists:raw_materials,id',
                 'fetchedMaterials.*.quantity' => 'required|integer|min:1',
-                'fetchedMaterials.*.price'    => 'required|numeric|min:0',
+                'fetchedMaterials.*.price' => 'required|numeric|min:0',
                 'update_supplier_materials' => 'required|boolean',
-            ], attributes:[
-                'supplierId.required'     => 'The supplier ID is required.',
-                'supplierId.exists'       => 'The selected supplier ID does not exist.',
-                'invoiceCode.unique'              => 'The invoice code must be unique.',
-                'invoiceCode.max'                 => 'The invoice code may not be greater than 255 characters.',
-                'invoiceTitle.max'                => 'The title may not be greater than 255 characters.',
-                'note.max'                 => 'The note may not be greater than 500 characters.',
-                'payment_due.date'         => 'The payment due date must be a valid date.',
+            ],
+            [
+                'supplierId.required' => 'The supplier is required.',
+                'supplierId.exists' => 'The selected supplier does not exist.',
+                'invoiceCode.unique' => 'The invoice code must be unique.',
+                'invoiceCode.max' => 'The invoice code may not be greater than 255 characters.',
+                'invoiceTitle.max' => 'The title may not be greater than 255 characters.',
+                'note.max' => 'The note may not be greater than 500 characters.',
+                'payment_due.date' => 'The payment due date must be a valid date.',
                 'payment_due.after_or_equal' => 'The payment due date cannot be in the past.',
-                'fetchedMaterials.required'   => 'At least one raw material is required.',
-                'fetchedMaterials.array'      => 'The raw materials must be provided as an array.',
-                'fetchedMaterials.min'        => 'You must specify at least one raw material.',
+                'fetchedMaterials.required' => 'At least one raw material is required.',
+                'fetchedMaterials.array' => 'The raw materials must be provided as an array.',
+                'fetchedMaterials.min' => 'You must specify at least one raw material.',
                 'fetchedMaterials.*.id.required' => 'Each raw material must have an ID.',
-                'fetchedMaterials.*.id.exists'   => 'The selected raw material ID does not exist.',
-                'fetchedMaterials.*.quantity.required'        => 'Each raw material must have a quantity.',
-                'fetchedMaterials.*.quantity.integer'         => 'The quantity of each raw material must be an integer.',
-                'fetchedMaterials.*.quantity.min'             => 'The quantity of each raw material must be at least 1.',
-                'fetchedMaterials.*.price.required'           => 'Each raw material must have a price.',
-                'fetchedMaterials.*.price.numeric'            => 'The price of each raw material must be a numeric value.',
-                'fetchedMaterials.*.price.min'                => 'The price of each raw material must be at least 0.',
-                'update_supplier_materials.required'       => 'The update supplier materials field is required.',
-                'update_supplier_materials.boolean'        => 'The update supplier materials field must be true or false.',
-            ]
+                'fetchedMaterials.*.id.exists' => 'The selected raw material ID does not exist.',
+                'fetchedMaterials.*.quantity.required' => 'Each raw material must have a quantity.',
+                'fetchedMaterials.*.quantity.integer' => 'The quantity of each raw material must be an integer.',
+                'fetchedMaterials.*.quantity.min' => 'The quantity of each raw material must be at least 1.',
+                'fetchedMaterials.*.price.required' => 'Each raw material must have a price.',
+                'fetchedMaterials.*.price.numeric' => 'The price of each raw material must be a numeric value.',
+                'fetchedMaterials.*.price.min' => 'The price of each raw material must be at least 0.',
+                'update_supplier_materials.required' => 'The update supplier materials field is required.',
+                'update_supplier_materials.boolean' => 'The update supplier materials field must be true or false.',
+            ],
         );
 
-        
+        $res = SupplierInvoice::createInvoice($this->supplierIsNew ? $supplier->id : $this->supplierId, $this->invoiceCode, $this->invoiceTitle, $this->note, $this->payment_due, $this->fetchedMaterials, $this->update_supplier_materials);
+
+        if ($res) {
+            $this->reset();
+            $this->alertSuccess('Invoice created!');
+        } else {
+            $this->alertFailed();
+        }
     }
 
     public function render()
@@ -222,7 +249,7 @@ class InvoiceCreate extends Component
 
         return view('livewire.materials.invoice-create', [
             'rawMaterials' => $rawMaterials,
-            'suppliers' => $suppliers
+            'suppliers' => $suppliers,
         ]);
     }
 }
