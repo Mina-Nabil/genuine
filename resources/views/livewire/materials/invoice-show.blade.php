@@ -1,4 +1,5 @@
 <div>
+    <p>Remaining to pay {{ $invoice->remaining_to_pay }}</p>
     <div class="space-y-5 profile-page mx-auto" style="max-width: 1000px">
         <div class="card mb-5">
             <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base">
@@ -214,6 +215,11 @@
                                     {{ $errors->first('selectedRawMaterial') }}
                                 </div>
                             @endif
+
+                            <div class="text-slate-500 text-xs">
+                                * If selected raw material already exists in this invoice. The price will be updated,
+                                and the quantity will be incremented accordingly.
+                            </div>
                             <div>
                                 <label for="searchRawMaterialText"
                                     class="block text-sm font-medium text-gray-700">Search Raw Material</label>
@@ -253,7 +259,7 @@
 
                                 <div class="flex-1">
                                     <label for="price"
-                                        class="block text-sm font-medium text-gray-700">Price</label>
+                                        class="block text-sm font-medium text-gray-700">Price/item</label>
                                     <input wire:model='price' type="number" name="price"
                                         placeholder="Enter price..."
                                         class="form-control @error('price') !border-danger-500 @enderror">

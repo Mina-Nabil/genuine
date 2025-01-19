@@ -6,6 +6,7 @@ use App\Models\Customers\Customer;
 use App\Models\Customers\Zone;
 use App\Models\Materials\RawMaterial;
 use App\Models\Materials\Supplier;
+use App\Models\materials\SupplierInvoice;
 use App\Models\Orders\Order;
 use App\Models\Orders\PeriodicOrder;
 use App\Models\Products\Inventory;
@@ -33,6 +34,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Relation::enforceMorphMap([
+            SupplierInvoice::MORPH_TYPE     => SupplierInvoice::class,
             Product::MORPH_TYPE     => Product::class,
             Customer::MORPH_TYPE    => Customer::class, 
             Supplier::MORPH_TYPE    => Supplier::class, 

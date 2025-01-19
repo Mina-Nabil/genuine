@@ -2,16 +2,24 @@
 
 namespace App\Models\materials;
 
+use App\Models\Payments\BalanceTransaction;
+use App\Models\Payments\CustomerPayment;
 use App\Models\Users\AppLog;
 use Exception;
+use Illuminate\Container\Attributes\Auth;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 
 class SupplierInvoice extends Model
 {
     use HasFactory;
 
+    const MORPH_TYPE = 'supplier-invoice';
+    
     protected $fillable = ['code', 'title', 'note', 'supplier_id', 'total_items', 'total_amount', 'payment_due', 'is_paid'];
 
     public static function createInvoice($supplierId, $code, $title, $note, $paymentDue, $rawMaterials, $updateSupplierMaterials = false)
@@ -220,6 +228,18 @@ class SupplierInvoice extends Model
         }
     }
 
+    public function getRemainingToPayAttribute()
+    {
+        $this->loadMissing(['payments', 'balanceTransactions']);
+        $totalPayments = $this->payments->sum('amount');
+        $totalBalanceTransactions = $this->balanceTransactions->sum('amount');
+
+        $remainingAmount = round($this->total_amount - ($totalPayments + $totalBalanceTransactions));
+
+        return $remainingAmount > 0 ? $remainingAmount : 0;
+    }
+
+
     public function scopeSearch($query, $term)
     {
         return $query->where(function ($q) use ($term) {
@@ -235,6 +255,16 @@ class SupplierInvoice extends Model
         });
     }
 
+    public function payments(): HasMany
+    {
+        return $this->hasMany(CustomerPayment::class, 'supplier_id');
+    }
+
+    public function balanceTransactions(): MorphMany
+    {
+        return $this->morphMany(BalanceTransaction::class, 'transactionable');
+    }
+
     //
     public function supplier()
     {
@@ -244,5 +274,71 @@ class SupplierInvoice extends Model
     public function rawMaterials()
     {
         return $this->belongsToMany(RawMaterial::class, 'invoice_raw_materials')->withPivot('quantity', 'price');
+    }
+
+    public function createPayment($amount, $paymentMethod, $paymentDate, $isAddToBalance = false)
+    {
+        return DB::transaction(function () use ($amount, $paymentMethod, $paymentDate, $isAddToBalance) {
+            try {
+                /** @var User */
+                $loggedInUser = Auth::user();
+                if ($loggedInUser && !$loggedInUser->can('pay', $this)) {
+                    return false;
+                }
+
+                // Check if supplier exists for the invoice
+                $supplier = $this->supplier;
+                if (!$supplier) {
+                    throw new Exception('Invoice does not have an associated supplier.');
+                }
+
+                // Step 1: Adjust supplier balance if specified
+                if ($isAddToBalance) {
+                    $supplier->balance += $amount;
+                    $supplier->save();
+                }
+
+                $new_type_balance = CustomerPayment::calculateNewBalance(-$amount, $paymentMethod);
+
+                // Step 2: Create the payment record
+                $payment = $this->payments->create([
+                    'supplier_id' => $supplier->id,
+                    'invoice_id' => $this->id,
+                    'amount' => -$amount,
+                    'payment_method' => $paymentMethod,
+                    'type_balance' => $new_type_balance,
+                    'payment_date' => $paymentDate,
+                    'created_by' => $loggedInUser->id,
+                ]);
+
+                // Step 3: Conditionally create a balance transaction log
+                if ($isAddToBalance) {
+                    $this->balanceTransactions()->create([
+                        'order_id' => $this->id,
+                        'amount' => -$amount,
+                        'balance' => $supplier->balance,
+                        'description' => 'Added to balance',
+                        'created_by' => $loggedInUser->id,
+                    ]);
+                }
+
+                // Step 4: Check if the payment amount matches the invoice total and mark as paid if so
+                if ($amount == $this->total_amount) {
+                    $this->is_paid = true;
+                    $this->save();
+                }
+
+                AppLog::info('Payment created for invoice', loggable: $this);
+                return $payment;
+            } catch (QueryException $e) {
+                if ($e->getCode() === '40001') {
+                    // Deadlock error code in MySQL
+                    AppLog::error('Deadlock encountered', loggable: $this);
+                }
+                report($e);
+                AppLog::error('Failed creating payment for invoice', $e->getMessage(), loggable: $this);
+                return false;
+            }
+        });
     }
 }
