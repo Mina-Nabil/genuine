@@ -5,6 +5,7 @@ namespace App\Livewire\Materials;
 use App\Models\materials\InvoiceRawMaterial;
 use App\Models\Materials\RawMaterial;
 use App\Models\materials\SupplierInvoice;
+use App\Models\Payments\CustomerPayment;
 use App\Traits\AlertFrontEnd;
 use Livewire\Component;
 
@@ -26,6 +27,75 @@ class InvoiceShow extends Component
     public $selectedRawMaterial;
     public $quantity;
     public $price;
+
+    public $payAmountSection = false;
+    public $payAmountValue;
+    public $payAmountPymtMethod = CustomerPayment::PYMT_CASH;
+    public $paidNow = true;
+    public $paymentDate;
+
+    public $PAY_BY_PAYMENT_METHOD;
+
+    public function openPayAmountSection(){
+        $this->payAmountSection = true;
+    }
+
+    public function closePayAmountSection(){
+        $this->reset(['payAmountSection' , 'payAmountValue', 'payAmountPymtMethod', 'paidNow', 'paymentDate']);
+    }
+
+    public function payAmount(){
+
+        $this->validate([
+            'payAmountValue' => 'required|numeric|min:1|max:' . $this->invoice->remaining_to_pay,
+            'payAmountPymtMethod' => 'required|in:' . implode(',', CustomerPayment::PAYMENT_METHODS),
+            'paymentDate' => 'nullable|date|required_if:paidNow,false',
+        ],[
+            'payAmountValue.required' => 'Please enter the amount',
+            'payAmountValue.numeric' => 'The amount must be a number',
+            'payAmountValue.min' => 'The amount must be at least 1',
+            'payAmountValue.max' => 'The amount must be at most ' . $this->invoice->remaining_to_pay,
+            'payAmountPymtMethod.required' => 'Please select a payment method',
+            'payAmountPymtMethod.in' => 'The selected payment method is invalid',
+            'paymentDate.required_if' => 'Please select a payment date',
+            'paymentDate.date' => 'The selected payment date is invalid',
+        ]);
+
+        $res = $this->invoice->createPayment($this->payAmountValue, $this->payAmountPymtMethod, $this->paidNow ? now() : $this->paymentDate);
+
+        if ($res) {
+            $this->alertSuccess('Amount paid successfully');
+            $this->closePayAmountSection();
+            $this->mount($this->invoice->id);
+        } else {
+            $this->alertFailed();
+        }
+    }
+    
+
+    public function confirmPayInvoice($method){
+        $this->PAY_BY_PAYMENT_METHOD = $method;
+    }
+
+    public function closeConfirmPayInvoice(){
+        $this->PAY_BY_PAYMENT_METHOD = null;
+    }
+    
+
+    public function payInvoice()
+    {
+        $res = $this->invoice->createPayment($this->invoice->remaining_to_pay, $this->PAY_BY_PAYMENT_METHOD, now(), false);
+
+        if ($res) {
+            $this->alertSuccess('Invoice paid successfully');
+            $this->closeConfirmPayInvoice();
+            $this->mount($this->invoice->id);
+        } else {
+            $this->alertFailed();
+        }
+    }
+
+
 
     public function openReturnRawMaterialQtyModal($rawMaterialId)
     {
@@ -135,8 +205,12 @@ class InvoiceShow extends Component
         $rawMaterials = RawMaterial::search($this->searchRawMaterialText)
             ->take(10)
             ->get();
+
+        $PAYMENT_METHODS =  CustomerPayment::PAYMENT_METHODS;
+
         return view('livewire.materials.invoice-show', [
             'rawMaterials' => $rawMaterials,
+            'PAYMENT_METHODS' => $PAYMENT_METHODS,
         ]);
     }
 }

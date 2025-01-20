@@ -21,7 +21,7 @@ class CustomerPayment extends Model
         'payment_date' => 'datetime',
     ];
 
-    protected $fillable = ['customer_id', 'order_id', 'amount', 'payment_method', 'type_balance', 'payment_date', 'note', 'created_by'];
+    protected $fillable = ['customer_id', 'order_id', 'supplier_id' , 'invoice_id' , 'amount', 'payment_method', 'type_balance', 'payment_date', 'note', 'created_by'];
 
     const PYMT_CASH = 'cash';
     const PYMT_BANK_TRANSFER = 'bank_transfer';

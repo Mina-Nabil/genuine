@@ -1,5 +1,4 @@
 <div>
-    <p>Remaining to pay {{ $invoice->remaining_to_pay }}</p>
     <div class="space-y-5 profile-page mx-auto" style="max-width: 1000px">
         <div class="card mb-5">
             <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base">
@@ -19,6 +18,31 @@
                         </div>
                         @if ($invoice->code)
                             <span class="badge bg-slate-900 text-white capitalize">{{ $invoice->code }}</span>
+                        @endif
+
+                        @if ($invoice->remaining_to_pay > 0)
+                            <div class="relative mt-2 ml-5">
+                                <div class="dropdown relative">
+                                    <button class="text-xl text-center block w-full " type="button"
+                                        id="tableDropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <iconify-icon icon="heroicons-outline:dots-vertical"></iconify-icon>
+                                    </button>
+                                    <ul class=" dropdown-menu min-w-[120px] absolute text-sm text-slate-700 dark:text-white hidden bg-white dark:bg-slate-700 shadow z-[2] float-left overflow-hidden list-none text-left rounded-lg mt-1 m-0 bg-clip-padding border-none"
+                                        style="min-width: 180px">
+                                        @foreach ($PAYMENT_METHODS as $PAYMENT_METHOD)
+                                            <li wire:click="confirmPayInvoice('{{ $PAYMENT_METHOD }}')"
+                                                class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:text-white hover:bg-slate-900 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
+                                                Pay
+                                                {{ ucwords(str_replace('_', ' ', $PAYMENT_METHOD)) }}
+                                            </li>
+                                        @endforeach
+                                        <li wire:click="openPayAmountSection"
+                                            class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:text-white hover:bg-slate-900 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
+                                            Pay Amount
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
                         @endif
                     </header>
 
@@ -129,15 +153,153 @@
                             </div>
                         </div>
                     </div>
+
+
+
                 </div>
             </div>
         </div>
+
+        @if ($invoice->remaining_to_pay && $invoice->total_paid)
+            <div class="card rounded">
+                <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base p-5 grid grid-cols-2 gap-2">
+                    <div class="border-r border-slate-200 dark:border-slate-700 pr-5">
+                        <div class="text-sm text-slate-600 dark:text-slate-300 mb-[6px]">
+                            Remaining Amount
+                        </div>
+                        <div class="text-lg text-slate-900 dark:text-white font-medium mb-[6px]">
+                            {{ number_format($invoice->remaining_to_pay, 2) }} <small>EGP</small>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="text-sm text-slate-600 dark:text-slate-300 mb-[6px]">
+                            Paid
+                        </div>
+                        <div class="text-lg text-slate-900 dark:text-white font-medium mb-[6px]">
+                            {{ number_format($invoice->total_paid, 2) }} <small>EGP</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @elseif($invoice->total_paid)
+            <div class="py-[18px] px-6 font-normal text-sm rounded-md bg-success-500 bg-opacity-[14%]  text-white">
+                <div class="flex items-center space-x-3 rtl:space-x-reverse">
+                    <iconify-icon class="text-2xl flex-0 text-success-500"
+                        icon="heroicons-outline:badge-check"></iconify-icon>
+                    <p class="flex-1 text-success-500 font-Inter">
+                        This invoice has been fully paid
+                    </p>
+                </div>
+            </div>
+        @elseif($invoice->remaining_to_pay)
+            <div class="py-[18px] px-6 font-normal text-sm rounded-md bg-warning-500 bg-opacity-[14%]  text-white">
+                <div class="flex items-center space-x-3 rtl:space-x-reverse">
+                    <iconify-icon class="text-2xl flex-0 text-slate-900"
+                        icon="heroicons-outline:exclamation-circle"></iconify-icon>
+                    <p class="flex-1 text-slate-900 font-Inter">
+                        This invoice has not been paid yet
+                    </p>
+                </div>
+            </div>
+        @endif
+
+
+        @if (!$invoice->balanceTransactions->isEmpty() || !$invoice->payments->isEmpty())
+            <div class="card no-wrap mb-5">
+                <div class="card-body px-6 pb-2">
+                    <div class="overflow-x-auto -mx-6 ">
+                        <span class=" col-span-8  hidden"></span>
+                        <span class="  col-span-4 hidden"></span>
+                        <div class="inline-block min-w-full align-middle">
+                            <div class="overflow-hidden ">
+                                <table class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700">
+                                    <tbody
+                                        class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
+                                        @if (!$invoice->balanceTransactions->isEmpty())
+                                            <tr>
+                                                <td class="table-td  bg-slate-800" colspan="3">
+                                                    <span class="text-slate-100 flex items-center"><iconify-icon
+                                                            icon="material-symbols:currency-exchange" width="1.2em"
+                                                            height="1.2em"></iconify-icon>&nbsp;
+                                                        Balance
+                                                        Transactions</span>
+
+                                                </td>
+                                            </tr>
+                                            @foreach ($invoice->balanceTransactions as $balanceTransaction)
+                                                <tr>
+                                                    <td class="table-td ">
+                                                        {{ \Carbon\Carbon::parse($balanceTransaction->payment_date)->format('l Y-m-d') }}
+                                                        <span
+                                                            class="block text-slate-500 text-xs">{{ $balanceTransaction->description }}</span>
+                                                    </td>
+                                                    <td class="table-td ">
+
+                                                        <div class=" text-success-500">
+                                                            {{ -$balanceTransaction->amount }}
+                                                            <small>EGP</small>
+                                                        </div>
+
+                                                    </td>
+                                                    <td class="table-td ">
+                                                        <span
+                                                            class="block text-slate-500 text-xs">{{ $balanceTransaction->createdBy->full_name }}</span>
+                                                    </td>
+
+                                                </tr>
+                                            @endforeach
+                                        @endif
+                                        @if (!$invoice->payments->isEmpty())
+                                            <tr>
+                                                <td class="table-td  bg-slate-800" colspan="3">
+                                                    <span class="text-slate-100 flex items-center"><iconify-icon
+                                                            icon="material-symbols-light:payments-rounded"
+                                                            width="1.2em" height="1.2em"></iconify-icon>&nbsp;
+                                                        Payments</span>
+
+                                                </td>
+                                            </tr>
+                                            @foreach ($invoice->payments as $payment)
+                                                <tr>
+                                                    <td class="table-td ">
+                                                        {{ \Carbon\Carbon::parse($payment->payment_date)->format('l Y-m-d') }}
+                                                        <span
+                                                            class="block text-slate-500 text-xs">{{ $payment->note }}</span>
+                                                    </td>
+                                                    <td class="table-td ">
+
+                                                        <div class=" text-success-500">
+                                                            {{ number_format(abs($payment->amount), 2) }}
+                                                            <small>EGP</small>
+                                                            <span
+                                                                class="block text-slate-500 text-xs">{{ ucwords(str_replace('_', ' ', $payment->payment_method)) }}</span>
+                                                        </div>
+
+                                                    </td>
+                                                    <td class="table-td ">
+                                                        <span
+                                                            class="block text-slate-500 text-xs">{{ $payment->createdBy->full_name }}</span>
+                                                    </td>
+
+                                                </tr>
+                                            @endforeach
+                                        @endif
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+
     </div>
 
 
     @if ($returnedRawMateralId)
         <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
-            tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog" style="display: block;">
+            tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
+            style="display: block;">
             <div class="modal-dialog relative w-auto pointer-events-none">
                 <div
                     class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
@@ -320,7 +482,7 @@
 
                             <div class="input-area">
                                 <div class="relative">
-                                    <input type="text" wire:model='returnedRawMaterialQty'
+                                    <input type="number" wire:model='returnedRawMaterialQty'
                                         class="form-control !pr-32" placeholder="Returned Quantity..." min="0"
                                         max="{{ $returnedRawMaterial->quantity }}">
                                     <span
@@ -346,5 +508,160 @@
                 </div>
             </div>
         </div>
+    @endif
+
+    @if ($payAmountSection)
+        <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+            tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
+            style="display: block;">
+            <div class="modal-dialog relative w-auto pointer-events-none">
+                <div
+                    class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
+                    <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
+                        <!-- Modal header -->
+                        <div
+                            class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-slate-900">
+                            <h3 class="text-xl font-medium text-white dark:text-white capitalize">
+                                Pay Amount To Supplier
+                            </h3>
+                            <button wire:click="closeReturnRawMaterialQtyModal" type="button"
+                                class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
+                                data-bs-dismiss="modal">
+                                <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd"
+                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                <span class="sr-only">Close modal</span>
+                            </button>
+                        </div>
+
+                        <!-- Modal body -->
+                        <div class="p-6 space-y-4">
+
+                            <div class="input-area">
+                                <label for="payAmountValue"
+                                    class="block text-sm font-medium text-gray-700">Amount</label>
+                                <input max="{{ $invoice->remaining_to_pay }}" wire:model='payAmountValue'
+                                    type="number" name="payAmountValue" placeholder="Enter quantity..."
+                                    class="form-control @error('payAmountValue') !border-danger-500 @enderror">
+                                @error('payAmountValue')
+                                    <span class="font-Inter text-sm text-danger-500 pt-2 inline-block">
+                                        {{ $message }}
+                                    </span>
+                                @enderror
+                            </div>
+
+                            <div class="input-area mb-5">
+                                <label for="payAmountPymtMethod" class="form-label">Payment method</label>
+                                <select name="payAmountPymtMethod" id="payAmountPymtMethod"
+                                    class="form-control w-full @error('payAmountPymtMethod') !border-danger-500 @enderror"
+                                    wire:model="payAmountPymtMethod" autocomplete="off">
+                                    @foreach ($PAYMENT_METHODS as $PAYMENT_METHOD)
+                                        <option value="{{ $PAYMENT_METHOD }}">
+                                            {{ ucwords(str_replace('_', ' ', $PAYMENT_METHOD)) }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="input-area mb-5">
+                                <div class="checkbox-area">
+                                    <label class="inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" wire:model.live='paidNow' class="hidden"
+                                            name="checkbox">
+                                        <span
+                                            class="h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 bg-slate-100 dark:bg-slate-900">
+                                            <img src="{{ asset('assets/images/icon/ck-white.svg') }}" alt=""
+                                                class="h-[10px] w-[10px] block m-auto opacity-0"></span>
+                                        <span class="text-slate-500 dark:text-slate-400 text-sm leading-6">
+                                            Paid now ?
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            @if (!$paidNow)
+                                <div class="input-area">
+                                    <label for="paymentDate" class="block text-sm font-medium text-gray-700">Payment
+                                        Date</label>
+                                    <input wire:model='paymentDate' type="date" name="paymentDate"
+                                        placeholder="Enter quantity..."
+                                        class="form-control @error('paymentDate') !border-danger-500 @enderror">
+                                    @error('paymentDate')
+                                        <span class="font-Inter text-sm text-danger-500 pt-2 inline-block">
+                                            {{ $message }}
+                                        </span>
+                                    @enderror
+                                </div>
+                            @endif
+                        </div>
+
+                        <!-- Modal footer -->
+                        <div class="flex items-center justify-end p-6 border-t border-slate-200 rounded-b">
+                            <button wire:click="payAmount" data-bs-dismiss="modal"
+                                class="btn inline-flex justify-center text-white bg-slate-900">
+                                <span wire:loading.remove wire:target="payAmount">Submit</span>
+                                <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
+                                    wire:loading wire:target="payAmount"
+                                    icon="line-md:loading-twotone-loop"></iconify-icon>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+
+    @if ($PAY_BY_PAYMENT_METHOD)
+        <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+            tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
+            style="display: block;">
+            <div class="modal-dialog relative w-auto pointer-events-none">
+                <div
+                    class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
+                    <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
+                        <!-- Modal header -->
+                        <div
+                            class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-warning-500">
+                            <h3 class="text-xl font-medium text-black dark:text-white capitalize">
+                                Warning
+                            </h3>
+                            <button wire:click="closeConfirmPayInvoice" type="button"
+                                class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
+                                data-bs-dismiss="modal">
+                                <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd"
+                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                <span class="sr-only">Close modal</span>
+                            </button>
+                        </div>
+
+                        <!-- Modal body -->
+                        <div class="p-6 space-y-4">
+
+                            Are you sure you want to proceed with the payment of
+                            <b>{{ number_format($invoice->remaining_to_pay, 2) }}</b><small>EGP</small> using the
+                            <b>{{ ucwords(str_replace('_', ' ', $PAY_BY_PAYMENT_METHOD)) }}</b> method?
+                        </div>
+
+                        <!-- Modal footer -->
+                        <div class="flex items-center justify-end p-6 border-t border-slate-200 rounded-b">
+                            <button wire:click="payInvoice" data-bs-dismiss="modal"
+                                class="btn inline-flex justify-center text-white bg-black-500">
+                                <span wire:loading.remove wire:target="payInvoice">Procceed Transaction</span>
+                                <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
+                                    wire:loading wire:target="payInvoice"
+                                    icon="line-md:loading-twotone-loop"></iconify-icon>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
     @endif
 </div>

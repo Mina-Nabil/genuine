@@ -6,12 +6,12 @@ use App\Models\Payments\BalanceTransaction;
 use App\Models\Payments\CustomerPayment;
 use App\Models\Users\AppLog;
 use Exception;
-use Illuminate\Container\Attributes\Auth;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class SupplierInvoice extends Model
@@ -207,89 +207,25 @@ class SupplierInvoice extends Model
             return false;
         }
     }
-
-    public function refreshTotals()
-    {
-        try {
-            return DB::transaction(function () {
-                $totalItems = $this->rawMaterials->sum('pivot.quantity');
-                $totalAmount = $this->rawMaterials->sum(function ($material) {
-                    return $material->pivot->quantity * $material->pivot->price;
-                });
-                $this->total_items = $totalItems;
-                $this->total_amount = $totalAmount;
-                $this->save();
-                return true;
-            });
-        } catch (Exception $e) {
-            report($e);
-            AppLog::error('Failed to refresh supplier invoice totals: ' , $e->getMessage());
-            return false;
-        }
-    }
-
-    public function getRemainingToPayAttribute()
-    {
-        $this->loadMissing(['payments', 'balanceTransactions']);
-        $totalPayments = $this->payments->sum('amount');
-        $totalBalanceTransactions = $this->balanceTransactions->sum('amount');
-
-        $remainingAmount = round($this->total_amount - ($totalPayments + $totalBalanceTransactions));
-
-        return $remainingAmount > 0 ? $remainingAmount : 0;
-    }
-
-
-    public function scopeSearch($query, $term)
-    {
-        return $query->where(function ($q) use ($term) {
-            $q->where('code', 'like', '%' . $term . '%')
-                ->orWhere('title', 'like', '%' . $term . '%')
-                ->orWhere('note', 'like', '%' . $term . '%')
-                ->orWhere('total_items', 'like', '%' . $term . '%')
-                ->orWhere('total_amount', 'like', '%' . $term . '%')
-                ->orWhere('payment_due', 'like', '%' . $term . '%')
-                ->orWhereHas('supplier', function ($q) use ($term) {
-                    $q->where('name', 'like', '%' . $term . '%');
-                });
-        });
-    }
-
-    public function payments(): HasMany
-    {
-        return $this->hasMany(CustomerPayment::class, 'supplier_id');
-    }
-
-    public function balanceTransactions(): MorphMany
-    {
-        return $this->morphMany(BalanceTransaction::class, 'transactionable');
-    }
-
-    //
-    public function supplier()
-    {
-        return $this->belongsTo(Supplier::class);
-    }
-
-    public function rawMaterials()
-    {
-        return $this->belongsToMany(RawMaterial::class, 'invoice_raw_materials')->withPivot('quantity', 'price');
-    }
-
+    
     public function createPayment($amount, $paymentMethod, $paymentDate, $isAddToBalance = false)
     {
         return DB::transaction(function () use ($amount, $paymentMethod, $paymentDate, $isAddToBalance) {
             try {
                 /** @var User */
                 $loggedInUser = Auth::user();
-                if ($loggedInUser && !$loggedInUser->can('pay', $this)) {
-                    return false;
-                }
+                // if ($loggedInUser && !$loggedInUser->can('pay', $this)) {
+                //     return false;
+                // }
 
                 // Check if supplier exists for the invoice
                 $supplier = $this->supplier;
                 if (!$supplier) {
                     throw new Exception('Invoice does not have an associated supplier.');
+                }
+
+                if ($this->remaining_to_pay < $amount) {
+                    throw new Exception('Payment amount exceeds the remaining amount to be paid.');
                 }
 
                 // Step 1: Adjust supplier balance if specified
@@ -301,7 +237,7 @@ class SupplierInvoice extends Model
                 $new_type_balance = CustomerPayment::calculateNewBalance(-$amount, $paymentMethod);
 
                 // Step 2: Create the payment record
-                $payment = $this->payments->create([
+                $payment = $this->payments()->create([
                     'supplier_id' => $supplier->id,
                     'invoice_id' => $this->id,
                     'amount' => -$amount,
@@ -341,4 +277,80 @@ class SupplierInvoice extends Model
             }
         });
     }
+
+    public function refreshTotals()
+    {
+        try {
+            return DB::transaction(function () {
+                $totalItems = $this->rawMaterials->sum('pivot.quantity');
+                $totalAmount = $this->rawMaterials->sum(function ($material) {
+                    return $material->pivot->quantity * $material->pivot->price;
+                });
+                $this->total_items = $totalItems;
+                $this->total_amount = $totalAmount;
+                $this->save();
+                return true;
+            });
+        } catch (Exception $e) {
+            report($e);
+            AppLog::error('Failed to refresh supplier invoice totals: ' , $e->getMessage());
+            return false;
+        }
+    }
+
+    public function getRemainingToPayAttribute()
+    {
+        $this->loadMissing(['payments', 'balanceTransactions']);
+        $totalPayments = $this->payments->sum('amount');
+        $totalBalanceTransactions = $this->balanceTransactions->sum('amount');
+
+        $remainingAmount = round($this->total_amount - (-$totalPayments + $totalBalanceTransactions));
+
+        return $remainingAmount > 0 ? $remainingAmount : 0;
+    }
+
+    public function getTotalPaidAttribute()
+    {
+        $this->loadMissing('payments');
+        return abs($this->payments->sum('amount'));
+    }
+
+
+    public function scopeSearch($query, $term)
+    {
+        return $query->where(function ($q) use ($term) {
+            $q->where('code', 'like', '%' . $term . '%')
+                ->orWhere('title', 'like', '%' . $term . '%')
+                ->orWhere('note', 'like', '%' . $term . '%')
+                ->orWhere('total_items', 'like', '%' . $term . '%')
+                ->orWhere('total_amount', 'like', '%' . $term . '%')
+                ->orWhere('payment_due', 'like', '%' . $term . '%')
+                ->orWhereHas('supplier', function ($q) use ($term) {
+                    $q->where('name', 'like', '%' . $term . '%');
+                });
+        });
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(CustomerPayment::class, 'invoice_id');
+    }
+
+    public function balanceTransactions(): MorphMany
+    {
+        return $this->morphMany(BalanceTransaction::class, 'transactionable');
+    }
+
+    //
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class);
+    }
+
+    public function rawMaterials()
+    {
+        return $this->belongsToMany(RawMaterial::class, 'invoice_raw_materials')->withPivot('quantity', 'price');
+    }
+
+    
 }
