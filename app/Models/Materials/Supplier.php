@@ -70,7 +70,43 @@ class Supplier extends Model
         }
     }
 
-    public function addToBalanceWithPayment($amount, $paymentMethod, $paymentDate, $note = 'Balance update')
+    public function updateBalance($amount, $note = 'Balance update')
+    {
+        try {
+            DB::transaction(function () use ($amount, $note) {
+                /** @var User */
+                $loggedInUser = Auth::user();
+                if ($loggedInUser && !$loggedInUser->can('updateSupplierBalance', $this)) {
+                    return false;
+                }
+
+                if ($amount == 0) {
+                    throw new Exception('Amount must not be zero.');
+                }
+
+                $this->balance += $amount;
+                $this->save();
+
+                $description = $amount > 0 ? 'Add to balance' : 'Deduct from balance';
+
+                $this->transactions()->create([
+                    'amount' => $amount,
+                    'balance' => $this->balance,
+                    'description' => $note ?? $description,
+                    'created_by' => $loggedInUser->id,
+                ]);
+
+                AppLog::info("Updated {$this->name}'s balance by {$amount}", loggable: $this);
+            });
+            return true;
+        } catch (Exception $e) {
+            report($e);
+            AppLog::error('Failed to update balance', $e->getMessage(), loggable: $this);
+            return false;
+        }
+    }
+
+    public function deductBalanceWithPayment($amount, $paymentMethod, $paymentDate, $note = 'Balance update')
     {
         try {
             DB::transaction(function () use ($amount, $paymentMethod, $paymentDate, $note) {

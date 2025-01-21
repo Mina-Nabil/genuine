@@ -6,7 +6,7 @@ use App\Models\Customers\Customer;
 use App\Models\Customers\Zone;
 use App\Models\Materials\RawMaterial;
 use App\Models\Materials\Supplier;
-use App\Models\materials\SupplierInvoice;
+use App\Models\Materials\SupplierInvoice;
 use App\Models\Orders\Order;
 use App\Models\Orders\PeriodicOrder;
 use App\Models\Products\Inventory;

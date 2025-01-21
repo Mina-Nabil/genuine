@@ -93,7 +93,7 @@ class SupplierShow extends Component
             'AddedPaymentNote' => 'nullable|string',
         ]);
 
-        $res = $this->supplier->addToBalanceWithPayment($this->AddedAmount, $this->AddedPaymentMethod, Carbon::parse($paymentDate), $this->AddedPaymentNote);
+        $res = $this->supplier->deductBalanceWithPayment($this->AddedAmount, $this->AddedPaymentMethod, Carbon::parse($paymentDate), $this->AddedPaymentNote);
 
         if ($res) {
             $this->closeAddToBalanceSection();

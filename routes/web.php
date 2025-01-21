@@ -9,6 +9,7 @@ use App\Livewire\Customers\CustomerShow;
 use App\Livewire\Customers\FollowupIndex;
 use App\Livewire\Customers\ZoneIndex;
 use App\Livewire\Materials\InvoiceCreate;
+use App\Livewire\Materials\InvoiceIndex;
 use App\Livewire\Materials\InvoiceShow;
 use App\Livewire\Materials\MaterialIndex;
 use App\Livewire\Materials\SupplierIndex;
@@ -71,6 +72,7 @@ Route::middleware(['auth', 'no_driver'])->group(function () {
 
     Route::get('/invoices/create', InvoiceCreate::class)->name('invoice.create');
     Route::get('/invoices/{id}', InvoiceShow::class)->name('invoice.show');
+    Route::get('/invoices', InvoiceIndex::class)->name('invoice.index');
 
     Route::get('/products', ProductIndex::class)->name('product.index');
     Route::get('/products/{id}', ProductShow::class)->name('product.show');

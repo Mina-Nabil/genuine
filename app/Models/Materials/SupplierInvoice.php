@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\materials;
+namespace App\Models\Materials;
 
 use App\Models\Payments\BalanceTransaction;
 use App\Models\Payments\CustomerPayment;
@@ -19,7 +19,7 @@ class SupplierInvoice extends Model
     use HasFactory;
 
     const MORPH_TYPE = 'supplier-invoice';
-    
+
     protected $fillable = ['code', 'title', 'note', 'supplier_id', 'total_items', 'total_amount', 'payment_due', 'is_paid'];
 
     public static function createInvoice($supplierId, $code, $title, $note, $paymentDue, $rawMaterials, $updateSupplierMaterials = false)
@@ -46,7 +46,7 @@ class SupplierInvoice extends Model
                 ]);
 
                 foreach ($rawMaterials as $material) {
-                    InvoiceRawMaterial::create([
+                    $m = InvoiceRawMaterial::create([
                         'supplier_invoice_id' => $invoice->id,
                         'raw_material_id' => $material['id'],
                         'quantity' => $material['quantity'],
@@ -62,7 +62,13 @@ class SupplierInvoice extends Model
                             ['price' => $material['price']],
                         );
                     }
+
+                    $m->rawMaterial->inventory->addTransaction($material['quantity'], 'Added From Invoice');
                 }
+
+                $supplier = $invoice->supplier;
+                $supplier->updateBalance($totalAmount, 'Invoice created #' . $invoice->code ?? '');
+                $supplier->save();
 
                 // Log success
                 AppLog::info('Supplier invoice created successfully', loggable: $invoice);
@@ -71,7 +77,7 @@ class SupplierInvoice extends Model
             });
         } catch (Exception $e) {
             report($e);
-            AppLog::error('Failed to create supplier invoice: ' , $e->getMessage());
+            AppLog::error('Failed to create supplier invoice: ', $e->getMessage());
             return false;
         }
     }
@@ -86,7 +92,7 @@ class SupplierInvoice extends Model
             return true;
         } catch (Exception $e) {
             report($e);
-            AppLog::error('Failed to update supplier invoice note: ' , $e->getMessage());
+            AppLog::error('Failed to update supplier invoice note: ', $e->getMessage());
             return false;
         }
     }
@@ -101,7 +107,7 @@ class SupplierInvoice extends Model
             return true;
         } catch (Exception $e) {
             report($e);
-            AppLog::error('Failed to update supplier invoice payment due: ' , $e->getMessage());
+            AppLog::error('Failed to update supplier invoice payment due: ', $e->getMessage());
             return false;
         }
     }
@@ -127,6 +133,8 @@ class SupplierInvoice extends Model
                     ]);
                 }
 
+                RawMaterial::find($rawMaterialId)->inventory->addTransaction($quantity, 'Added From Invoice' . ($this->code ? ' #' . $this->code : ''));
+
                 if ($updateSupplierMaterials) {
                     SupplierRawMaterial::updateOrCreate(
                         [
@@ -137,7 +145,13 @@ class SupplierInvoice extends Model
                     );
                 }
 
+                $totalBefore = $this->total_amount;
                 $this->refreshTotals();
+                $totalAfter = $this->total_amount;
+
+                $supplier = $this->supplier;
+                $supplier->updateBalance($totalAfter - $totalBefore, 'Raw materials added to invoice #' . $this->code ?? '');
+                $supplier->save();
 
                 AppLog::info('Raw material added to supplier invoice successfully', loggable: $this);
 
@@ -145,7 +159,7 @@ class SupplierInvoice extends Model
             });
         } catch (Exception $e) {
             report($e);
-            AppLog::error('Failed to add raw material to supplier invoice: ' , $e->getMessage());
+            AppLog::error('Failed to add raw material to supplier invoice: ', $e->getMessage());
             return false;
         }
     }
@@ -156,7 +170,11 @@ class SupplierInvoice extends Model
             return DB::transaction(function () use ($rawMaterialId) {
                 $invoiceRawMaterial = InvoiceRawMaterial::where('supplier_invoice_id', $this->id)
                     ->where('raw_material_id', $rawMaterialId)
-                    ->firstOrFail();
+                    ->first();
+
+                if (!$invoiceRawMaterial) {
+                    throw new Exception('No raw material found for the given ID.');
+                }
 
                 $this->returnRawMaterial($rawMaterialId, $invoiceRawMaterial->quantity);
 
@@ -170,7 +188,7 @@ class SupplierInvoice extends Model
             });
         } catch (Exception $e) {
             report($e);
-            AppLog::error('Failed to return all quantity of raw material from supplier invoice: ' , $e->getMessage());
+            AppLog::error('Failed to return all quantity of raw material from supplier invoice: ', $e->getMessage());
             return false;
         }
     }
@@ -194,7 +212,16 @@ class SupplierInvoice extends Model
                     $invoiceRawMaterial->save();
                 }
 
+                RawMaterial::find($rawMaterialId)->inventory->removeQuantity($quantity, 'Removed From Invoice' . ($this->code ? ' #' . $this->code : ''));
+
+                $totalBefore = $this->total_amount;
                 $this->refreshTotals();
+                $totalAfter = $this->total_amount;
+
+                $supplier = $this->supplier;
+                $supplier->updateBalance(-($totalBefore - $totalAfter), 'Raw materials returned from invoice #' . $this->code ?? '');
+                $supplier->save();
+
                 $this->save();
 
                 AppLog::info('Raw material removed from supplier invoice successfully', loggable: $this);
@@ -203,20 +230,20 @@ class SupplierInvoice extends Model
             });
         } catch (Exception $e) {
             report($e);
-            AppLog::error('Failed to remove raw material from supplier invoice: ' , $e->getMessage());
+            AppLog::error('Failed to remove raw material from supplier invoice: ', $e->getMessage(), loggable: $this);
             return false;
         }
     }
-    
-    public function createPayment($amount, $paymentMethod, $paymentDate, $isAddToBalance = false)
+
+    public function createPayment($amount, $paymentMethod, $paymentDate)
     {
-        return DB::transaction(function () use ($amount, $paymentMethod, $paymentDate, $isAddToBalance) {
+        return DB::transaction(function () use ($amount, $paymentMethod, $paymentDate) {
             try {
                 /** @var User */
                 $loggedInUser = Auth::user();
-                // if ($loggedInUser && !$loggedInUser->can('pay', $this)) {
-                //     return false;
-                // }
+                if ($loggedInUser && !$loggedInUser->can('pay', $this)) {
+                    return false;
+                }
 
                 // Check if supplier exists for the invoice
                 $supplier = $this->supplier;
@@ -228,11 +255,9 @@ class SupplierInvoice extends Model
                     throw new Exception('Payment amount exceeds the remaining amount to be paid.');
                 }
 
-                // Step 1: Adjust supplier balance if specified
-                if ($isAddToBalance) {
-                    $supplier->balance += $amount;
-                    $supplier->save();
-                }
+                // Step 1: Adjust supplier balance
+                $supplier->balance -= $amount;
+                $supplier->save();
 
                 $new_type_balance = CustomerPayment::calculateNewBalance(-$amount, $paymentMethod);
 
@@ -247,19 +272,18 @@ class SupplierInvoice extends Model
                     'created_by' => $loggedInUser->id,
                 ]);
 
-                // Step 3: Conditionally create a balance transaction log
-                if ($isAddToBalance) {
-                    $this->balanceTransactions()->create([
-                        'order_id' => $this->id,
-                        'amount' => -$amount,
-                        'balance' => $supplier->balance,
-                        'description' => 'Added to balance',
-                        'created_by' => $loggedInUser->id,
-                    ]);
-                }
+                // Step 3: create a balance transaction log
+                $this->supplier->transactions()->create([
+                    'customer_payment_id' => $payment->id,
+                    'amount' => -$amount,
+                    'balance' => $supplier->balance,
+                    'description' => 'Payment to supplier',
+                    'created_by' => $loggedInUser->id,
+                ]);
+
 
                 // Step 4: Check if the payment amount matches the invoice total and mark as paid if so
-                if ($amount == $this->total_amount) {
+                if ($this->remaining_to_pay == 0) {
                     $this->is_paid = true;
                     $this->save();
                 }
@@ -293,18 +317,17 @@ class SupplierInvoice extends Model
             });
         } catch (Exception $e) {
             report($e);
-            AppLog::error('Failed to refresh supplier invoice totals: ' , $e->getMessage());
+            AppLog::error('Failed to refresh supplier invoice totals: ', $e->getMessage());
             return false;
         }
     }
 
     public function getRemainingToPayAttribute()
     {
-        $this->loadMissing(['payments', 'balanceTransactions']);
+        $this->loadMissing(['payments']);
         $totalPayments = $this->payments->sum('amount');
-        $totalBalanceTransactions = $this->balanceTransactions->sum('amount');
 
-        $remainingAmount = round($this->total_amount - (-$totalPayments + $totalBalanceTransactions));
+        $remainingAmount = max(0, $this->total_amount + $totalPayments);
 
         return $remainingAmount > 0 ? $remainingAmount : 0;
     }
@@ -315,10 +338,9 @@ class SupplierInvoice extends Model
         return abs($this->payments->sum('amount'));
     }
 
-
-    public function scopeSearch($query, $term)
+    public function scopeSearch($query, $term, $supplierId = null)
     {
-        return $query->where(function ($q) use ($term) {
+        return $query->where(function ($q) use ($term, $supplierId) {
             $q->where('code', 'like', '%' . $term . '%')
                 ->orWhere('title', 'like', '%' . $term . '%')
                 ->orWhere('note', 'like', '%' . $term . '%')
@@ -327,7 +349,14 @@ class SupplierInvoice extends Model
                 ->orWhere('payment_due', 'like', '%' . $term . '%')
                 ->orWhereHas('supplier', function ($q) use ($term) {
                     $q->where('name', 'like', '%' . $term . '%');
+                })
+                ->orWhereHas('rawMaterials', function ($q) use ($term) {
+                    $q->where('name', 'like', '%' . $term . '%');
                 });
+
+            if ($supplierId) {
+                $q->where('supplier_id', $supplierId);
+            }
         });
     }
 
@@ -351,6 +380,4 @@ class SupplierInvoice extends Model
     {
         return $this->belongsToMany(RawMaterial::class, 'invoice_raw_materials')->withPivot('quantity', 'price');
     }
-
-    
 }

@@ -47,7 +47,7 @@
                     </header>
 
                     <header
-                        class="flex mb-2 items-center border-b border-slate-100 dark:border-slate-700 pb-5  -mx-6 px-6">
+                        class="lg:flex mb-2 items-center border-b border-slate-100 dark:border-slate-700 pb-5  -mx-6 px-6">
                         <div class="flex-1">
                             <div class="text-xs text-slate-500 dark:text-slate-400 flex items-center mb-3 ">
                                 <iconify-icon icon="clarity:user-solid-badged" width="15" height="15"
@@ -63,6 +63,28 @@
                             <p class="text-xs">{{ $invoice->supplier->phone1 }}</p>
 
                         </div>
+
+
+                        <div class="text-xs text-slate-500 dark:text-slate-400 mt-2 mb-3">
+                            <div class="flex items-center">
+                                <iconify-icon icon="heroicons-outline:calendar" width="15" height="15"
+                                    class="mr-1"></iconify-icon>
+                                Payment Due: {{ \Carbon\Carbon::parse($invoice->payment_due)->format('l, Y-m-d') }}
+                            </div>
+
+                            @if (\Carbon\Carbon::now()->greaterThan(\Carbon\Carbon::parse($invoice->payment_due)) && $invoice->remaining_to_pay > 0)
+                                <div class="text-xs text-red-500 dark:text-red-400 flex items-center mb-3 mt-1">
+                                    <iconify-icon icon="heroicons-outline:exclamation-circle" width="15"
+                                        height="15" class="mr-1"></iconify-icon>
+                                    Alert: Invoice payment is overdue!
+                                </div>
+                            @endif
+
+                        </div>
+
+
+
+
                     </header>
 
                     <div>
@@ -70,7 +92,7 @@
                             <div class="inline-block min-w-full align-middle">
                                 <div class="overflow-hidden ">
                                     <table
-                                        class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700">
+                                        class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700 no-wrap">
                                         <thead class="">
                                             <tr>
                                                 <th scope="col" class=" table-th ">
@@ -85,9 +107,11 @@
                                                 <th scope="col" class=" table-th ">
                                                     Total
                                                 </th>
-                                                <th scope="col" class=" table-th ">
-                                                    Action
-                                                </th>
+                                                @can('editInfo', $invoice)
+                                                    <th scope="col" class=" table-th ">
+                                                        Action
+                                                    </th>
+                                                @endcan
                                             </tr>
                                         </thead>
                                         <tbody class="bg-white dark:bg-slate-800 ">
@@ -102,33 +126,39 @@
                                                         {{ number_format($rawMaterial->pivot->quantity * $rawMaterial->pivot->price, 2) }}
                                                         <small>EGP</small>
                                                     </td>
-                                                    <td class="table-td ">
-                                                        <div class="flex space-x-3 rtl:space-x-reverse">
-                                                            <button
-                                                                wire:click='openReturnRawMaterialQtyModal({{ $rawMaterial->id }})'
-                                                                class="action-btn" type="button">
-                                                                <iconify-icon
-                                                                    icon="heroicons:arrow-uturn-left"></iconify-icon>
-                                                            </button>
-                                                            <button
-                                                                wire:click='openReturnRawMaterialModal({{ $rawMaterial->id }})'
-                                                                class="action-btn" type="button">
-                                                                <iconify-icon icon="heroicons:trash"></iconify-icon>
-                                                            </button>
-                                                        </div>
-                                                    </td>
 
+                                                    @can('editInfo', $invoice)
+                                                        <td class="table-td ">
+                                                            <div class="flex space-x-3 rtl:space-x-reverse">
+                                                                <button
+                                                                    wire:click='openReturnRawMaterialQtyModal({{ $rawMaterial->id }})'
+                                                                    class="action-btn" type="button">
+                                                                    <iconify-icon
+                                                                        icon="heroicons:arrow-uturn-left"></iconify-icon>
+                                                                </button>
+                                                                <button
+                                                                    wire:click='openReturnRawMaterialModal({{ $rawMaterial->id }})'
+                                                                    class="action-btn" type="button">
+                                                                    <iconify-icon icon="heroicons:trash"></iconify-icon>
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    @endcan
                                                 </tr>
                                             @endforeach
-                                            <tr>
-                                                <td colspan="5" class="table-td">
-                                                    <button wire:click="openAddRawMaterialModal"
-                                                        class="btn inline-flex items-center justify-center text-dark bg-slate-100 btn-sm mb-3">
-                                                        <iconify-icon icon="heroicons:plus"
-                                                            class="mr-2"></iconify-icon> Add Raw Material
-                                                    </button>
-                                                </td>
-                                            </tr>
+
+                                            @can('editInfo', $invoice)
+                                                <tr>
+                                                    <td colspan="5" class="table-td">
+                                                        <button wire:click="openAddRawMaterialModal"
+                                                            class="btn inline-flex items-center justify-center text-dark bg-slate-100 btn-sm mb-3">
+                                                            <iconify-icon icon="heroicons:plus"
+                                                                class="mr-2"></iconify-icon> Add Raw Material
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            @endcan
+
                                         </tbody>
                                         <tfoot class="mt-3">
                                             <tr>
@@ -566,7 +596,7 @@
                                 </select>
                             </div>
 
-                            <div class="input-area mb-5">
+                            {{-- <div class="input-area mb-5">
                                 <div class="checkbox-area">
                                     <label class="inline-flex items-center cursor-pointer">
                                         <input type="checkbox" wire:model.live='paidNow' class="hidden"
@@ -595,7 +625,7 @@
                                         </span>
                                     @enderror
                                 </div>
-                            @endif
+                            @endif --}}
                         </div>
 
                         <!-- Modal footer -->

@@ -4,7 +4,7 @@ namespace App\Livewire\Materials;
 
 use App\Models\Materials\RawMaterial;
 use App\Models\Materials\Supplier;
-use App\Models\materials\SupplierInvoice;
+use App\Models\Materials\SupplierInvoice;
 use App\Traits\AlertFrontEnd;
 use Livewire\Component;
 

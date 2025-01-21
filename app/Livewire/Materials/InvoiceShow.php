@@ -2,9 +2,9 @@
 
 namespace App\Livewire\Materials;
 
-use App\Models\materials\InvoiceRawMaterial;
+use App\Models\Materials\InvoiceRawMaterial;
 use App\Models\Materials\RawMaterial;
-use App\Models\materials\SupplierInvoice;
+use App\Models\Materials\SupplierInvoice;
 use App\Models\Payments\CustomerPayment;
 use App\Traits\AlertFrontEnd;
 use Livewire\Component;
@@ -61,7 +61,7 @@ class InvoiceShow extends Component
             'paymentDate.date' => 'The selected payment date is invalid',
         ]);
 
-        $res = $this->invoice->createPayment($this->payAmountValue, $this->payAmountPymtMethod, $this->paidNow ? now() : $this->paymentDate);
+        $res = $this->invoice->createPayment($this->payAmountValue, $this->payAmountPymtMethod,  now());
 
         if ($res) {
             $this->alertSuccess('Amount paid successfully');
@@ -123,7 +123,7 @@ class InvoiceShow extends Component
             ],
         );
 
-        $res = $this->invoice->returnRawMaterial($this->returnedRawMaterial->id, $this->returnedRawMaterialQty);
+        $res = $this->invoice->returnRawMaterial($this->returnedRawMaterial->raw_material_id, $this->returnedRawMaterialQty);
 
         if ($res) {
             $this->alertSuccess('Raw material quantity retuned successfully');

@@ -3,7 +3,7 @@
 namespace App\Policies;
 
 use App\Models\Users\User;
-use App\Models\materials\RawMaterial;
+use App\Models\Materials\RawMaterial;
 use Illuminate\Auth\Access\Response;
 
 class RawMaterialPolicy

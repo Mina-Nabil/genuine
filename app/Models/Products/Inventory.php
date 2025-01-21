@@ -385,6 +385,72 @@ class Inventory extends Model
         }
     }
 
+    /**
+     * Remove a transaction and update inventory based on quantity (positive for addition, negative for subtraction).
+     *
+     * @param int $quantity (positive for addition, negative for subtraction)
+     * @param string|null $remarks
+     * @return \App\Models\Transaction
+     * @throws \Exception
+     */
+    public function removeQuantity($quantity, $remarks = null)
+    {
+        /** @var User */
+        $user = Auth::user();
+        if (!$user->can('update', $this)) {
+            return false;
+        }
+
+        try {
+            // Record before quantity
+            $beforeAvailable = $this->available;
+            $beforeOnHand = $this->on_hand;
+
+            // Update the stock based on positive or negative quantity
+            if ($quantity > 0) {
+                // Subtract from stock
+                if ($quantity > $this->on_hand) {
+                    throw new \Exception('Not enough stock to subtract.');
+                }
+                $this->on_hand -= $quantity;
+            } elseif ($quantity < 0) {
+                // Add to stock
+                $this->on_hand += abs($quantity);
+            } else {
+                throw new \Exception('Quantity cannot be zero.');
+            }
+
+            // Update the 'available' stock after adjusting 'on_hand'
+            $this->available = $this->on_hand - $this->committed;
+
+            // Save the inventory changes
+            $this->save();
+
+            // Record after quantity
+            $afterAvailable = $this->available;
+
+            // Create transaction log
+            $transaction = Transaction::create([
+                'inventory_id' => $this->id,
+                'quantity' => -$quantity, // Can be positive or negative
+                'before' => $beforeAvailable,
+                'after' => $afterAvailable,
+                'remarks' => $remarks,
+                'user_id' => Auth::user()->id,
+                'created_at' => now()->format('Y-m-d H:i')
+            ]);
+
+            // Log the action in AppLog
+            AppLog::info('Transaction removed.', loggable: $this->inventoryable);
+
+            return $transaction;
+        } catch (\Exception $e) {
+            // Log error to AppLog
+            AppLog::error('Inventory Update Failed', $e->getMessage(), loggable: $this->inventoryable);
+            return $e;
+        }
+    }
+
     public function scopeSearch($query, $searchTerm = null)
     {
         if (!is_null($searchTerm)) {
