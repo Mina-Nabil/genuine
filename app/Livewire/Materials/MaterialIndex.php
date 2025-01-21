@@ -84,6 +84,6 @@ class MaterialIndex extends Component
         $this->fetched_materials_IDs = $materials->pluck('id')->toArray();
         return view('livewire.materials.material-index',[
             'materials' => $materials
-        ]);
+        ])->layout('layouts.app', ['page_title' => $this->page_title, 'materials' => 'active']);
     }
 }

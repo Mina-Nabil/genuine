@@ -339,6 +339,40 @@
                         </a>
                     </li> --}}
 
+                    <li class="sidebar-menu-title">Raw Materials</li>
+                    <li>
+                        <a href="{{ auth()->user()->can('viewAny', App\Models\Materials\RawMaterial::class)? url('/materials'): '#' }}"
+                            class="navItem {{ $materials ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Materials\RawMaterial::class)? '': 'disabled' }}">
+                            <span class="flex items-center">
+                                <iconify-icon class=" nav-icon" icon="mdi:package-variant-closed">
+                                </iconify-icon>
+                                <span>Raw Materials</span>
+                            </span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ auth()->user()->can('viewAny', App\Models\Materials\Supplier::class)? url('/suppliers'): '#' }}"
+                            class="navItem {{ $suppliers ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Materials\Supplier::class)? '': 'disabled' }}">
+                            <span class="flex items-center">
+                                <iconify-icon class=" nav-icon" icon="mdi:account-supervisor">
+                                </iconify-icon>
+                                <span>Suppliers</span>
+                            </span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ auth()->user()->can('viewAny', App\Models\Materials\SupplierInvoice::class)? url('/invoices'): '#' }}"
+                            class="navItem {{ $invoices ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Materials\SupplierInvoice::class)? '': 'disabled' }}">
+                            <span class="flex items-center">
+                                <iconify-icon class=" nav-icon" icon="mdi:account-supervisor">
+                                </iconify-icon>
+                                <span>Invoices</span>
+                            </span>
+                        </a>
+                    </li>
+
                     <li class="sidebar-menu-title">Calendar</li>
 
                     <li>

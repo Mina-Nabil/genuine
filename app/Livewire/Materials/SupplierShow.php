@@ -117,7 +117,7 @@ class SupplierShow extends Component
     public function mount($id)
     {
         $this->supplier = Supplier::findOrFail($id);
-        $this->page_title = '• ' . $this->supplier->name;
+        $this->page_title = '• Supplier • ' . $this->supplier->name;
     }
 
     public function render()

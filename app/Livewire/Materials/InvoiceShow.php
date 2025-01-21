@@ -14,6 +14,7 @@ class InvoiceShow extends Component
     use AlertFrontEnd;
 
     public $invoice;
+    public $page_title;
 
     // remove raw material
     public $returnedRawMateralId;
@@ -198,6 +199,7 @@ class InvoiceShow extends Component
     public function mount($id)
     {
         $this->invoice = SupplierInvoice::findOrFail($id);
+        $this->page_title = '• Invoice ' . ($this->invoice->invoice_number ? '• '.$this->invoice->invoice_number : $this->invoice->id);   
     }
 
     public function render()
@@ -211,6 +213,6 @@ class InvoiceShow extends Component
         return view('livewire.materials.invoice-show', [
             'rawMaterials' => $rawMaterials,
             'PAYMENT_METHODS' => $PAYMENT_METHODS,
-        ]);
+        ])->layout('layouts.app', ['page_title' => $this->page_title, 'invoices' => 'active']);
     }
 }
