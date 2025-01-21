@@ -441,7 +441,7 @@ class Inventory extends Model
             ]);
 
             // Log the action in AppLog
-            AppLog::info('Transaction removed.', loggable: $this->inventoryable);
+            AppLog::info('Qyanity '.$quantity.' removed.', loggable: $this->inventoryable);
 
             return $transaction;
         } catch (\Exception $e) {

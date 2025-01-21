@@ -12,6 +12,7 @@ use App\Livewire\Materials\InvoiceCreate;
 use App\Livewire\Materials\InvoiceIndex;
 use App\Livewire\Materials\InvoiceShow;
 use App\Livewire\Materials\MaterialIndex;
+use App\Livewire\Materials\MaterialShow;
 use App\Livewire\Materials\SupplierIndex;
 use App\Livewire\Materials\SupplierShow;
 use App\Livewire\Orders\CancelledOrderIndex;
@@ -69,6 +70,7 @@ Route::middleware(['auth', 'no_driver'])->group(function () {
     Route::get('/suppliers/{id}', SupplierShow::class)->name('supplier.show');
 
     Route::get('/materials', MaterialIndex::class)->name('material.index');
+    Route::get('/materials/{id}', MaterialShow::class)->name('material.show');
 
     Route::get('/invoices/create', InvoiceCreate::class)->name('invoice.create');
     Route::get('/invoices/{id}', InvoiceShow::class)->name('invoice.show');
