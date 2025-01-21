@@ -22,6 +22,10 @@ class SupplierInvoice extends Model
 
     protected $fillable = ['code', 'title', 'note', 'supplier_id', 'total_items', 'total_amount', 'payment_due', 'is_paid'];
 
+    protected $casts = [
+        'payment_due' => 'date',
+    ];
+
     public static function createInvoice($supplierId, $code, $title, $note, $paymentDue, $rawMaterials, $updateSupplierMaterials = false)
     {
         try {
@@ -338,9 +342,9 @@ class SupplierInvoice extends Model
         return abs($this->payments->sum('amount'));
     }
 
-    public function scopeSearch($query, $term, $supplierId = null)
+    public function scopeSearch($query, $term, $supplierId = null, $dueDates = [] , $isPaid = null)
     {
-        return $query->where(function ($q) use ($term, $supplierId) {
+        return $query->where(function ($q) use ($term) {
             $q->where('code', 'like', '%' . $term . '%')
                 ->orWhere('title', 'like', '%' . $term . '%')
                 ->orWhere('note', 'like', '%' . $term . '%')
@@ -353,11 +357,17 @@ class SupplierInvoice extends Model
                 ->orWhereHas('rawMaterials', function ($q) use ($term) {
                     $q->where('name', 'like', '%' . $term . '%');
                 });
-
-            if ($supplierId) {
-                $q->where('supplier_id', $supplierId);
-            }
+        })
+        ->when($supplierId, function ($query, $supplierId) {
+            $query->where('supplier_id', $supplierId);
+        })
+        ->when(!empty($dueDates), function ($query) use ($dueDates) {
+            $query->whereIn('payment_due', $dueDates);
+        })
+        ->when($isPaid !== null, function ($query) use ($isPaid) {
+            $query->where('is_paid', $isPaid);
         });
+        ;
     }
 
     public function payments(): HasMany
