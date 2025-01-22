@@ -285,9 +285,8 @@ class SupplierInvoice extends Model
                     'created_by' => $loggedInUser->id,
                 ]);
 
-
                 // Step 4: Check if the payment amount matches the invoice total and mark as paid if so
-                if ($this->remaining_to_pay == 0) {
+                if ($this->remaining_to_pay == $amount) {
                     $this->is_paid = true;
                     $this->save();
                 }
@@ -340,6 +339,14 @@ class SupplierInvoice extends Model
     {
         $this->loadMissing('payments');
         return abs($this->payments->sum('amount'));
+    }
+
+    public function isPartlyPaid()
+    {
+        $hasPayments = $this->payments()->exists();
+        $hasBalanceTransactions = $this->balanceTransactions()->exists();
+
+        return ($hasPayments || $hasBalanceTransactions) && ($this->remaining_to_pay > 0 && $this->remaining_to_pay < $this->total_amount);
     }
 
     public function scopeSearch($query, $term, $supplierId = null, $dueDates = [] , $isPaid = null)

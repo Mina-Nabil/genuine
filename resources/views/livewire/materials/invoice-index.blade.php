@@ -104,9 +104,8 @@
 
                     </span>
 
-                    &nbsp;&nbsp;<iconify-icon wire:click="clearisPaid"
-                        icon="material-symbols:close" class="cursor-pointer" width="1.2em"
-                        height="1.2em"></iconify-icon>
+                    &nbsp;&nbsp;<iconify-icon wire:click="clearisPaid" icon="material-symbols:close"
+                        class="cursor-pointer" width="1.2em" height="1.2em"></iconify-icon>
                 </span>
             @endif
         </header>
@@ -125,7 +124,7 @@
                                             id="select-all">
                                         <span
                                             class="h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 bg-slate-100 dark:bg-slate-900">
-                                            <img src="assets/images/icon/ck-white.svg" alt=""
+                                            <img src="{{ asset('assets/images/icon/ck-white.svg') }}" alt=""
                                                 class="h-[10px] w-[10px] block m-auto opacity-0"></span>
                                     </label>
                                 </div>
@@ -148,6 +147,9 @@
                             @else
                                 <th scope="col" class="table-th">Code</th>
                                 <th scope="col" class="table-th">Supplier</th>
+                                <th scope="col" class="table-th">Total</th>
+                                <th scope="col" class="table-th">Items</th>
+                                <th scope="col" class="table-th">Payment Status</th>
                                 <th scope="col" class="table-th">Payment Due</th>
                             @endif
 
@@ -166,7 +168,8 @@
                                                 value="{{ $invoice->id }}" class="hidden" id="select-all">
                                             <span
                                                 class="h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 bg-slate-100 dark:bg-slate-900">
-                                                <img src="assets/images/icon/ck-white.svg" alt=""
+                                                <img src="{{ asset('assets/images/icon/ck-white.svg') }}"
+                                                    alt=""
                                                     class="h-[10px] w-[10px] block m-auto opacity-0"></span>
                                         </label>
                                     </div>
@@ -190,6 +193,35 @@
                                         class="hover-underline cursor-pointer">
                                         {{ $invoice->supplier->name }}
                                     </a>
+                                </td>
+
+                                <td class="table-td">
+                                    {{ $invoice->total_amount }}<small>&nbsp;EGP</small>
+                                </td>
+
+                                <td class="table-td">
+                                    {{ $invoice->total_items }}<small>&nbsp;{{ $invoice->total_items == 1 ? 'item' : 'items' }}</small>
+                                </td>
+
+                                <td class="table-td">
+                                    @if ($invoice->is_paid)
+                                        <span class="badge bg-success-500 text-dark-500 bg-opacity-50 capitalize">
+                                            <iconify-icon icon="icon-park-outline:dot" width="1.2em"
+                                                height="1.2em"></iconify-icon>
+                                            Paid
+                                        </span>
+                                    @elseif ($invoice->isPartlyPaid())
+                                        <span class="badge bg-warning-500 text-dark-500 bg-opacity-50 capitalize">
+                                            Remaining:
+                                            {{ number_format($invoice->remaining_to_pay, 2) }}<small>&nbsp;EGP</small>
+                                        </span>
+                                    @else
+                                        <span class="badge bg-warning-500 text-dark-500 bg-opacity-50 capitalize">
+                                            <iconify-icon icon="octicon:dot-16" width="1.2em"
+                                                height="1.2em"></iconify-icon>
+                                            Payment pending
+                                        </span>
+                                    @endif
                                 </td>
 
                                 <td class="table-td">
