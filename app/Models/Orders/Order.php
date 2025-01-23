@@ -1153,7 +1153,7 @@ class Order extends Model
         } catch (Exception $e) {
             DB::rollBack();
             report($e);
-            AppLog::error('Failed to return products for order', $e->getMessage(),loggable:$this);
+            AppLog::error('Failed to return products for order', $e->getMessage(), loggable: $this);
             return false;
         }
     }
@@ -1856,6 +1856,7 @@ class Order extends Model
     public function scopeDailyTotals($query, $year, $month)
     {
         return $query
+            ->confirmed()
             ->selectRaw('DATE(o1.delivery_date) as day')
             ->selectRaw('SUM(o1.total_amount) as total_amount')
             ->selectRaw('SUM(
