@@ -8,7 +8,7 @@
     </div>
 
     <div class="mb-2">
-        @if ($deliveryDate)
+        {{-- @if ($deliveryDate)
             <span class="badge bg-slate-900 text-white capitalize">
                 <span class="cursor-pointer" wire:click='openFilteryDeliveryDate'>
                     <span class="text-secondary-500 ">Delivery Date:</span>
@@ -24,7 +24,7 @@
 
                 </span>
             </span>
-        @endif
+        @endif --}}
         <div class="flex gap-5 no-wrap">
             <div class="space-y-2">
                 <div class="input-area flex no-wrap">
