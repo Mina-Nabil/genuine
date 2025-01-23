@@ -57,8 +57,8 @@
 
 
                             <th scope="col" class="table-th">Day</th>
-                            <th scope="col" class="table-th">Total Weight (kg)</th>
-                            <th scope="col" class="table-th">Total Amount</th>
+                            <th scope="col" class="table-th">Total Weight ({{ number_format($dailyTotal->sum(total_weightsss) / 1000) }})</th>
+                            <th scope="col" class="table-th">Total Amount ({{ number_format($dailyTotal->sum(total_amount)) }})</th>
 
                         </tr>
                     </thead>
