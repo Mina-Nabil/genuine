@@ -8,30 +8,23 @@
     </div>
 
     <div class="mb-2">
-        {{-- @if ($deliveryDate)
-
+        @if ($deliveryDate)
             <span class="badge bg-slate-900 text-white capitalize">
                 <span class="cursor-pointer" wire:click='openFilteryDeliveryDate'>
                     <span class="text-secondary-500 ">Delivery Date:</span>
-                    @foreach ($deliveryDate as $sDdate)
-                        &nbsp;
-                        {{ $sDdate->isToday()
-                            ? 'Today'
-                            : ($sDdate->isYesterday()
-                                ? 'Yesterday'
-                                : ($sDdate->isTomorrow()
-                                    ? 'Tomorrow'
-                                    : $sDdate->format('l d-m-Y'))) }}
-                        @if (!$loop->last)
-                            ,
-                        @endif
-                    @endforeach
-                </span>
 
-                &nbsp;&nbsp;<iconify-icon wire:click="clearDeliveryDate(closed)" icon="material-symbols:close"
-                    class="cursor-pointer" width="1.2em" height="1.2em"></iconify-icon>
+                    &nbsp;
+                    {{ $deliveryDate->isToday()
+                        ? 'Today'
+                        : ($deliveryDate->isYesterday()
+                            ? 'Yesterday'
+                            : ($deliveryDate->isTomorrow()
+                                ? 'Tomorrow'
+                                : $deliveryDate->format('l d-m-Y'))) }}
+
+                </span>
             </span>
-        @endif --}}
+        @endif
         <div class="flex gap-5 no-wrap">
             <div class="space-y-2">
                 <div class="input-area flex no-wrap">
@@ -333,7 +326,7 @@
                                                 </h4>
                                                 <div class="text-sm font-medium text-slate-900 dark:text-white">
                                                     {{ $order->shipping_address }}&nbsp; @if ($order->location_url || $order->customer->location_url)
-                                                    <br />
+                                                        <br />
                                                         <a class="clickable-link" target="_blank"
                                                             href="{{ $order->location_url ?? $order->customer->location_url }}"><iconify-icon
                                                                 icon="mdi:location" width="1.2em"
@@ -350,8 +343,8 @@
                                                             href="tel:{{ $order->customer_phone ?? $order->customer->phone }}">
                                                             <iconify-icon icon="mdi:phone" width="1.2em"
                                                                 height="1.2em"></iconify-icon>
-                                                                {{ $order->customer_phone ?? $order->customer->phone }}
-                                                            </a>
+                                                            {{ $order->customer_phone ?? $order->customer->phone }}
+                                                        </a>
                                                     </div>
                                                 @endif
 
