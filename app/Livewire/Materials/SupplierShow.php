@@ -123,13 +123,15 @@ class SupplierShow extends Component
     public function render()
     {
         $PAYMENT_METHODS = CustomerPayment::PAYMENT_METHODS;
-        $supplierPayments = $this->supplier->payments()->paginate(3, ['*'], 'paymentsPage');
-        $supplierTransactions = $this->supplier->transactions()->paginate(3, ['*'], 'transactionsPage');
+        $supplierPayments = $this->supplier->payments()->latest()->paginate(5, ['*'], 'paymentsPage');
+        $supplierTransactions = $this->supplier->transactions()->latest()->paginate(5, ['*'], 'transactionsPage');
+        $supplierMaterials = $this->supplier->rawMaterials()->paginate(10, ['*'], 'materialsPage');
 
         return view('livewire.materials.supplier-show',[
             'PAYMENT_METHODS' => $PAYMENT_METHODS,
             'supplierPayments' => $supplierPayments,
-            'supplierTransactions' => $supplierTransactions
+            'supplierTransactions' => $supplierTransactions,
+            'supplierMaterials' => $supplierMaterials
         ])->layout('layouts.app', ['page_title' => $this->page_title, 'suppliers' => 'active']);
     }
 }

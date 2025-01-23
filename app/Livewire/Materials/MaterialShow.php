@@ -79,9 +79,11 @@ class MaterialShow extends Component
             ->take($this->visibleCommentsCount)
             ->get();
 
-        $transactions = $this->material->transactions()->orderBy('created_at', 'desc')->paginate(5);
+        $transactions = $this->material->transactions()->orderBy('created_at', 'desc')->paginate(5, ['*'], 'transactionPage');
+        $suppliers = $this->material->suppliers()->orderBy('created_at', 'desc')->paginate(10, ['*'], 'suppliersPage');
         return view('livewire.materials.material-show', [
             'transactions' => $transactions,
+            'suppliers' => $suppliers
         ]);
     }
 }

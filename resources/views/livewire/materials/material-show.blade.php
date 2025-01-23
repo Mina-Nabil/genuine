@@ -79,10 +79,8 @@
                 <div class="card active relative mt-5 p-3">
 
                     <div class="my-2 flex justify-between items-center">
-                        <p class="mb-0 text-xs"><b>Transactions</b></p>
+                        <p class="mb-0"><b>Transactions</b></p>
                     </div>
-
-
 
                     @if ($material->transactions->isEmpty())
                         <p class="text-xs font-light text-slate-600 dark:text-slate-300 text-center m-5">
@@ -159,6 +157,62 @@
                                                     height="1.2em"></iconify-icon>
                                                 {{ $transaction->after }}
                                             </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
+
+                            </tbody>
+                        </table>
+                        {{ $transactions->links('vendor.livewire.simple-bootstrap') }}
+                    @endif
+
+
+                </div>
+
+                <div class="card active relative mt-5 p-3">
+
+                    <div class="my-2 flex justify-between items-center">
+                        <p class="mb-0"><b>Supplier</b></p>
+                    </div>
+
+
+
+                    @if ($material->suppliers->isEmpty())
+                        <p class="text-xs font-light text-slate-600 dark:text-slate-300 text-center m-5">
+                            No suppliers assigned for this material!
+                        </p>
+                    @else
+                        <table class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700 text-xs">
+                            <thead class="">
+                                <tr>
+
+                                    <th scope="col"
+                                        class=" table-th  border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
+                                        Supplier Name
+                                    </th>
+
+                                    <th scope="col"
+                                        class="table-th  border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
+                                        Offered Price
+                                    </th>
+
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
+
+                                @foreach ($suppliers as $supplier)
+                                    <tr>
+                                        <td
+                                            class="table-td border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
+                                            <a href="{{ route('supplier.show', $supplier->id) }}"
+                                                class="hover-underline cursor-pinter">
+                                                <b>{{ $supplier->name }}</b>
+                                            </a>
+                                        </td>
+
+                                        <td
+                                            class="table-td border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
+                                            <b>{{ number_format($supplier->pivot->price, 2) }}</b> <small>EGP</small>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -339,8 +393,9 @@
 
                                 <div class="input-area">
                                     <label for="materialMinLimit" class="form-label">Min Quantity Limit</label>
-                                    <input class="form-control @error('materialMinLimit') !border-danger-500 @enderror" id="materialMinLimit" type="number"
-                                        wire:model="materialMinLimit" autocomplete="off">
+                                    <input class="form-control @error('materialMinLimit') !border-danger-500 @enderror"
+                                        id="materialMinLimit" type="number" wire:model="materialMinLimit"
+                                        autocomplete="off">
                                     @error('materialMinLimit')
                                         <span
                                             class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
