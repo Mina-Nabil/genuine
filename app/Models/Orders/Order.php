@@ -1822,7 +1822,7 @@ class Order extends Model
 
     public function scopeConfirmed(Builder $query): Builder
     {
-        return $query->where('is_confirmed', true);
+        return $query->where('orders.is_confirmed', true);
     }
 
     private function getEndOfCustomWeek(\Carbon\Carbon $startOfWeek): \Carbon\Carbon
