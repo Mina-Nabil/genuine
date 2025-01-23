@@ -1858,6 +1858,7 @@ class Order extends Model
         return $query
             ->confirmed()
             ->selectRaw('DATE(o1.delivery_date) as day')
+            ->selectRaw('COUNT(o1.id) as total_orders')
             ->selectRaw('SUM(o1.total_amount) as total_amount')
             ->selectRaw('SUM(
                                 (SELECT SUM(order_products.quantity * products.weight)
