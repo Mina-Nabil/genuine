@@ -59,13 +59,13 @@ class InvoiceShow extends Component
     {
         $this->validate(
             [
-                'extraFeeAmount' => 'required|numeric|min:1',
+                'extraFeeAmount' => 'required|numeric|not_in:0',
                 'extraFeeDesc' => 'required|string|max:255',
             ],
             [
                 'extraFeeAmount.required' => 'Please enter the extra fee amount',
                 'extraFeeAmount.numeric' => 'The extra fee amount must be a number',
-                'extraFeeAmount.min' => 'The extra fee amount must be at least 1',
+                'extraFeeAmount.not_in' => 'The extra fee amount must not be zero',
                 'extraFeeDesc.required' => 'Please enter the description',
                 'extraFeeDesc.string' => 'The description must be a string',
                 'extraFeeDesc.max' => 'The description may not be greater than 255 characters',
