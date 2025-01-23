@@ -29,7 +29,7 @@
             <div class="space-y-2">
                 <div class="input-area flex no-wrap">
                     <input id="deliveryDate" type="date" class="form-control" wire:model.live="deliveryDate"
-                        autocomplete="off">
+                        autocomplete="off" value="{{ $deliveryDate->format('Y-m-d') }}">
                 </div>
             </div>
 
