@@ -57,7 +57,7 @@
 
 
                             <th scope="col" class="table-th">Day</th>
-                            <th scope="col" class="table-th">Orders ({{ number_format($dailyTotals->sum('total_orders')) }})</th>
+                            <th scope="col" class="table-th">Orders ({{ number_format($dailyTotals->sum('orders_count')) }})</th>
                             <th scope="col" class="table-th">Total Weight ({{ number_format($dailyTotals->sum('total_weightsss') / 1000) }})</th>
                             <th scope="col" class="table-th">Total Amount ({{ number_format($dailyTotals->sum('total_amount')) }})</th>
 
@@ -69,11 +69,11 @@
                             <tr class="even:bg-slate-100 dark:even:bg-slate-700">
 
                                 <td class="table-td">
-                                    <b>{{ $total->day }}</b>
+                                    <b>{{ $total->dayName }} {{ $total->day }}</b>
                                 </td>
 
                                 <td class="table-td">
-                                    <b>{{ number_format($total->total_orders) }}</b>
+                                    <b>{{ number_format($total->orders_count) }}</b>
                                 </td>
 
                                 <td class="table-td">
