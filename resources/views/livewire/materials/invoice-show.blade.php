@@ -54,7 +54,7 @@
                                     class="mr-1"></iconify-icon>
                                 Supplier
                             </div>
-                            <a href="">
+                            <a href="{{ route('supplier.show',$invoice->supplier->id) }}">
                                 <h6 class="hover-underline cursor-pointer">
                                     <b>{{ ucwords($invoice->supplier->name) }}</b>
                                 </h6>

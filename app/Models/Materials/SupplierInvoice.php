@@ -119,10 +119,15 @@ class SupplierInvoice extends Model
     public function updateExtraFee($description, $amount)
     {
         try {
+            $oldAmount = $this->extra_fee_amount;
             $this->update([
                 'extra_fee_description' => $description,
                 'extra_fee_amount' => $amount,
             ]);
+
+            $supplier = $this->supplier;
+            $supplier->updateBalance($amount - $oldAmount, 'Extra fee updated for invoice #' . $this->code ?? '');
+            $supplier->save();
 
             $this->refreshTotals();
 
@@ -139,10 +144,15 @@ class SupplierInvoice extends Model
     public function removeExtraFee()
     {
         try {
+            $oldAmount = $this->extra_fee_amount;
             $this->update([
                 'extra_fee_description' => null,
                 'extra_fee_amount' => 0,
             ]);
+
+            $supplier = $this->supplier;
+            $supplier->updateBalance(-$oldAmount, 'Extra fee removed from invoice #' . $this->code ?? '');
+            $supplier->save();
 
             $this->refreshTotals();
 
