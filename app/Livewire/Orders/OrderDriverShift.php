@@ -162,51 +162,6 @@ class OrderDriverShift extends Component
         }
     }
 
-    // public function updatedEditedDeliveryDate($value)
-    // {
-    //     foreach ($this->selectedDeliveryDates as $date) {
-    //         if ($date->toDateString() === $value) {
-    //             return;
-    //         }
-    //     }
-    //     $this->selectedDeliveryDates[] = Carbon::parse($value);
-    //     $this->Edited_deliveryDate = null;
-    // }
-
-    // public function removeSelectedDate($index)
-    // {
-    //     unset($this->selectedDeliveryDates[$index]);
-    //     $this->selectedDeliveryDates = array_values($this->selectedDeliveryDates); // Reset array keys
-    // }
-
-    // public function clearDeliveryDate()
-    // {
-    //     $this->deliveryDate = [];
-    // }
-
-    // public function openFilteryDeliveryDate()
-    // {
-    //     $this->Edited_deliveryDate_sec = true;
-
-    //     foreach ($this->deliveryDate as $date) {
-    //         $this->selectedDeliveryDates[] = $date;
-    //     }
-    // }
-
-    // public function closeFilteryDeliveryDate()
-    // {
-    //     $this->Edited_deliveryDate_sec = false;
-    //     $this->Edited_deliveryDate = null;
-    //     $this->selectedDeliveryDates = [];
-    // }
-
-    // public function setFilteryDeliveryDate()
-    // {
-
-    //     $this->deliveryDate = $this->selectedDeliveryDates;
-    //     $this->closeFilteryDeliveryDate();
-    // }
-
     public function mount()
     {
 
