@@ -14,11 +14,7 @@ class InvoiceIndex extends Component
 
     public $page_title = '• Invoices';
 
-    public $fetched_invoices_IDs;
     public $search;
-    public $selectAll = false;
-    public $selectedInvoices = [];
-    public $selectedAllInvoices = false;
 
     //Filters
     public $isOpenSupplierSection = false;
@@ -106,26 +102,6 @@ class InvoiceIndex extends Component
         $this->closeSupplierSection();
     }
 
-    public function updatedSelectAll($value)
-    {
-        if ($value) {
-            $this->selectedInvoices = $this->fetched_invoices_IDs;
-        } else {
-            $this->selectedInvoices = [];
-        }
-    }
-
-    public function selectAllInvoices()
-    {
-        $this->selectedAllInvoices = true;
-        $this->selectedInvoices = SupplierInvoice::pluck('id')->toArray();
-    }
-
-    public function undoSelectAllInvoices()
-    {
-        $this->selectedAllInvoices = false;
-        $this->selectedInvoices = $this->fetched_invoices_IDs;
-    }
     public function updatingSearch()
     {
         $this->resetPage();
@@ -142,8 +118,6 @@ class InvoiceIndex extends Component
     public function render()
     {
         $invoices = SupplierInvoice::search($this->search, $this->selectedSupplier?->id, $this->dueDate, $this->is_paid)->paginate(50);
-        $this->fetched_invoices_IDs = $invoices->pluck('id')->toArray();
-
         $suppliers = Supplier::search($this->supplierSearchText)
             ->limit(10)
             ->get();

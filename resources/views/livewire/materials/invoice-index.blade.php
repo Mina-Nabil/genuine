@@ -118,40 +118,14 @@
                             <th scope="col"
                                 class="table-th  flex items-center border-t border-slate-100 dark:border-slate-800 bg-slate-200 dark:bg-slate-700"
                                 style="position: sticky; left: -25px;  z-index: 10;">
-                                <div class="checkbox-area">
-                                    <label class="inline-flex items-center cursor-pointer">
-                                        <input type="checkbox" wire:model.live="selectAll" class="hidden"
-                                            id="select-all">
-                                        <span
-                                            class="h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 bg-slate-100 dark:bg-slate-900">
-                                            <img src="{{ asset('assets/images/icon/ck-white.svg') }}" alt=""
-                                                class="h-[10px] w-[10px] block m-auto opacity-0"></span>
-                                    </label>
-                                </div>
                                 Name
                             </th>
-                            @if ($selectAll)
-                                @if ($selectedAllInvoices)
-                                    <th colspan="5" class="table-th"><iconify-icon style="vertical-align: top;"
-                                            icon="lucide:info" width="1.2em" height="1.2em"></iconify-icon> A
-                                        {{ count($selectedInvoices) }} invoice selected ..
-                                        <span class="clickable-link" wire:click='undoSelectAllInvoices'>Undo</span>
-                                    </th>
-                                @else
-                                    <th colspan="5" class="table-th"><iconify-icon style="vertical-align: top;"
-                                            icon="lucide:info" width="1.2em" height="1.2em"></iconify-icon>
-                                        {{ count($selectedInvoices) }} invoice
-                                        selected .. <span class="clickable-link" wire:click='selectAllInvoices'>Select
-                                            All Invoices</span></th>
-                                @endif
-                            @else
                                 <th scope="col" class="table-th">Code</th>
                                 <th scope="col" class="table-th">Supplier</th>
                                 <th scope="col" class="table-th">Total</th>
                                 <th scope="col" class="table-th">Items</th>
                                 <th scope="col" class="table-th">Payment Status</th>
                                 <th scope="col" class="table-th">Payment Due</th>
-                            @endif
 
                         </tr>
                     </thead>
@@ -162,17 +136,6 @@
 
                                 <td class="table-td flex items-center sticky-column colomn-shadow even:bg-slate-100 dark:even:bg-slate-700"
                                     style="position: sticky; left: -25px;  z-index: 10;">
-                                    <div class="checkbox-area">
-                                        <label class="inline-flex items-center cursor-pointer">
-                                            <input type="checkbox" wire:model="selectedInvoices"
-                                                value="{{ $invoice->id }}" class="hidden" id="select-all">
-                                            <span
-                                                class="h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 bg-slate-100 dark:bg-slate-900">
-                                                <img src="{{ asset('assets/images/icon/ck-white.svg') }}"
-                                                    alt=""
-                                                    class="h-[10px] w-[10px] block m-auto opacity-0"></span>
-                                        </label>
-                                    </div>
                                     <a href="{{ route('invoice.show', $invoice->id) }}"> <span
                                             class="hover-underline">
                                             <b>
