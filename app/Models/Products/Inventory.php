@@ -124,6 +124,7 @@ class Inventory extends Model
                 'after' => $afterAvailable,
                 'remarks' => $remarks,
                 'user_id' => Auth::user()->id,
+                'created_at' => now()->format('Y-m-d H:i:00')
             ]);
 
             // Log the action in AppLog
@@ -455,9 +456,12 @@ class Inventory extends Model
     {
         if (!is_null($searchTerm)) {
             return $query->whereHas('inventoryable', function ($query) use ($searchTerm) {
-                if (method_exists($query->getModel(), 'scopeSearch')) {
-                    $query->search($searchTerm); // Calls Product::scopeSearch
-                }
+            if (method_exists($query->getModel(), 'scopeSearch')) {
+                $query->search($searchTerm); // Calls scopeSearch on the related model
+            } else {
+                // Fallback to a generic search if scopeSearch is not defined
+                $query->where('name', 'like', '%' . $searchTerm . '%');
+            }
             });
         }
 

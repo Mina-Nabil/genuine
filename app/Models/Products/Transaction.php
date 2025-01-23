@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 class Transaction extends Model
 {
     use HasFactory;
-    protected $fillable = ['inventory_id', 'quantity', 'before', 'after', 'remarks', 'user_id'];
+    protected $fillable = ['inventory_id', 'quantity', 'before', 'after', 'remarks', 'user_id','created_at'];
 
     public function scopeFilterByProduct($query, $searchTerm = null, $productId = null)
     {
