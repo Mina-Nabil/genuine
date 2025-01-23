@@ -554,7 +554,7 @@
                             <h3 class="text-xl font-medium text-white dark:text-white capitalize">
                                 Pay Amount To Supplier
                             </h3>
-                            <button wire:click="closeReturnRawMaterialQtyModal" type="button"
+                            <button wire:click="closePayAmountSection" type="button"
                                 class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
                                 data-bs-dismiss="modal">
                                 <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"

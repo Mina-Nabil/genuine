@@ -20,7 +20,16 @@
                                 id="tabs-profile-withIcon-tab" data-bs-toggle="pill"
                                 data-bs-target="#tabs-profile-withIcon" role="tab"
                                 aria-controls="tabs-profile-withIcon" aria-selected="false">
-                                <iconify-icon class="mr-1" icon="heroicons-outline:user"></iconify-icon>
+                                <iconify-icon class="mr-1"  height="1.5em" width="1.5em"
+                                @if ($PAYMENT_METHOD === 'cash')
+                                    icon="mdi:cash"
+                                @elseif ($PAYMENT_METHOD === 'bank_transfer')
+                                    icon="mdi:bank-transfer"
+                                @elseif ($PAYMENT_METHOD === 'wallet')
+                                    icon="mdi:wallet"
+                                @endif
+                                ></iconify-icon>
+                                
                                 {{ ucwords(str_replace('_',' ',$PAYMENT_METHOD)) }}</a>
                         </li>
                     @endforeach
@@ -74,7 +83,7 @@
                                 <th scope="col" class="table-th">Amount</th>
                                 <th scope="col" class="table-th">Payment Method</th>
                                 <th scope="col" class="table-th">Type Balance</th>
-                                <th scope="col" class="table-th">Order</th>
+                                <th scope="col" class="table-th">Reference</th>
                                 <th scope="col" class="table-th">Payment Date</th>
                                 <th scope="col" class="table-th">Creator</th>
                             @endif
@@ -98,13 +107,23 @@
                                                     class="h-[10px] w-[10px] block m-auto opacity-0"></span>
                                         </label>
                                     </div>
-                                    <a href="{{ route('customer.show', $payment->customer->id) }}"> <span
-                                            class="hover-underline">
-                                            <b>
-                                                {{ $payment->customer->name }}
-                                            </b>
-                                        </span>
-                                    </a>
+                                    @if ($payment->customer)
+                                        <a href="{{ route('customer.show', $payment->customer->id) }}"> <span
+                                                class="hover-underline">
+                                                <b>
+                                                    {{ $payment->customer->name }}
+                                                </b>
+                                            </span>
+                                        </a>
+                                    @elseif ($payment->supplier)
+                                        <a href="{{ route('invoice.show', $payment->supplier->id) }}"> <span
+                                                class="hover-underline">
+                                                <b>
+                                                    {{ $payment->supplier->name }}
+                                                </b>
+                                            </span>
+                                        </a>
+                                    @endif
 
                                 </td>
 
@@ -125,7 +144,13 @@
                                     @if ($payment->order)
                                     <a href="{{ route('orders.show', $payment->order->id) }}"> <span
                                             class="hover-underline">
-                                                #{{ $payment->order->order_number }}
+                                                <b>Order</b> #{{ $payment->order->order_number }}
+                                        </span>
+                                    </a>
+                                    @elseif ($payment->invoice)
+                                    <a href="{{ route('invoice.show', $payment->invoice->id) }}"> <span
+                                            class="hover-underline">
+                                            <b>Invoice</b> #{{ $payment->invoice->code }}
                                         </span>
                                     </a>
                                     @endif 
