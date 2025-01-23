@@ -87,23 +87,10 @@
                     <span class="block mb- text-2xl text-slate-900 dark:text-white font-medium mb-6">
                         EGP {{ $supplier->balance }}
                     </span>
-                    <div class="flex space-x-2 rtl:space-x-reverse">
-                        <div class="flex-none text-xl  text-primary-500">
-                            <iconify-icon icon="heroicons:arrow-trending-up"></iconify-icon>
-                        </div>
-                        <div class="flex-1 text-sm">
-                            <span class="block mb-[2px] text-primary-500">
-                                8.67%
-                            </span>
-                            <span class="block mb-1 text-slate-600 dark:text-slate-300">
-                                From last week
-                            </span>
-                        </div>
-                    </div>
                 </div>
 
                 <div class="card no-wrap mt-5">
-                    <header class="card-header noborder mb-6">
+                    <header class="card-header noborder">
                         <h4 class="card-title">All Payments
                         </h4>
                     </header>
@@ -190,7 +177,7 @@
                 </div>
 
                 <div class="card no-wrap mt-5">
-                    <header class="card-header noborder mb-6">
+                    <header class="card-header noborder">
                         <h4 class="card-title">Balance Transactions
                         </h4>
                     </header>
