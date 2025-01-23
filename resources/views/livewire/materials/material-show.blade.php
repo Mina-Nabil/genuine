@@ -79,10 +79,8 @@
                 <div class="card active relative mt-5 p-3">
 
                     <div class="my-2 flex justify-between items-center">
-                        <p class="mb-0 text-xs"><b>Transactions</b></p>
+                        <p class="mb-0"><b>Transactions</b></p>
                     </div>
-
-
 
                     @if ($material->transactions->isEmpty())
                         <p class="text-xs font-light text-slate-600 dark:text-slate-300 text-center m-5">
