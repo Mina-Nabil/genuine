@@ -147,6 +147,51 @@
                                                 </tr>
                                             @endforeach
 
+                                            @if (!$invoice->extra_fee_amount == 0 && $invoice->extra_fee_description)
+                                                <tr>
+                                                    <td colspan="5" class="table-td ">
+                                                    </td>
+                                                </tr>
+                                                <tr class="bg-slate-50 dark:bg-slate-700">
+                                                    <td colspan="3" class="table-td ">
+                                                        <div class="flex items-center">
+                                                            <div class="flex-1 text-start">
+                                                                <div
+                                                                    class="text-xs font-normal text-slate-600 dark:text-slate-400">
+                                                                    Extra Fees
+                                                                </div>
+                                                                <h4
+                                                                    class="text-sm font-medium text-slate-600 whitespace-nowrap">
+                                                                    {{ $invoice->extra_fee_description }}
+                                                                </h4>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td class="table-td ">
+                                                        {{ number_format($invoice->extra_fee_amount, 2) }}
+                                                        <small>EGP</small>
+                                                    </td>
+                                                    @can('editInfo', $invoice)
+                                                        <td class="table-td ">
+                                                            <div class="flex space-x-3 rtl:space-x-reverse">
+                                                                <button wire:click='openUpdateExtraFeeModal'
+                                                                    class="action-btn" type="button">
+                                                                    <iconify-icon icon="heroicons:pencil-square"></iconify-icon>
+                                                                </button>
+                                                                <button wire:click='confirmRemoveExtraFees'
+                                                                    class="action-btn" type="button">
+                                                                    <iconify-icon icon="heroicons:trash"></iconify-icon>
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    @endcan
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="5" class="table-td ">
+                                                    </td>
+                                                </tr>
+                                            @endif
+
                                             @can('editInfo', $invoice)
                                                 <tr>
                                                     <td colspan="5" class="table-td">
@@ -155,6 +200,14 @@
                                                             <iconify-icon icon="heroicons:plus"
                                                                 class="mr-2"></iconify-icon> Add Raw Material
                                                         </button>
+                                                        @if ($invoice->extra_fee_amount == 0 && !$invoice->extra_fee_description)
+                                                            <button wire:click="openUpdateExtraFeeModal"
+                                                                class="btn inline-flex items-center justify-center text-dark bg-slate-100 btn-sm mb-3">
+                                                                <iconify-icon icon="heroicons:plus"
+                                                                    class="mr-2"></iconify-icon> Add Extra Fee
+                                                            </button>
+                                                        @endif
+
                                                     </td>
                                                 </tr>
                                             @endcan
@@ -324,6 +377,54 @@
         @endif
 
     </div>
+
+    @if ($confirmRemoveExtraFeeModal)
+        <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+            tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
+            style="display: block;">
+            <div class="modal-dialog relative w-auto pointer-events-none">
+                <div
+                    class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
+                    <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
+                        <!-- Modal header -->
+                        <div
+                            class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-danger-500">
+                            <h3 class="text-xl font-medium text-white dark:text-white capitalize">
+                                Remove Extra Fees
+                            </h3>
+                            <button wire:click="closeConfirmRemoveExtraFees" type="button"
+                                class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
+                                data-bs-dismiss="modal">
+                                <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd"
+                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                <span class="sr-only">Close modal</span>
+                            </button>
+                        </div>
+
+                        <!-- Modal body -->
+                        <div class="p-6 space-y-4">
+                            Are you sure you want to extra fees <b>{{ number_format($invoice->extra_fee_amount, 2) }}
+                                <small>EGP</small></b> ?
+                        </div>
+
+                        <!-- Modal footer -->
+                        <div class="flex items-center justify-end p-6 border-t border-slate-200 rounded-b">
+                            <button wire:click="removeExtraFee" data-bs-dismiss="modal"
+                                class="btn inline-flex justify-center text-white bg-danger-500">
+                                <span wire:loading.remove wire:target="removeExtraFee">Confirm</span>
+                                <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
+                                    wire:loading wire:target="removeExtraFee"
+                                    icon="line-md:loading-twotone-loop"></iconify-icon>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    @endif
 
 
     @if ($returnedRawMateralId)
@@ -644,6 +745,78 @@
         </div>
     @endif
 
+    @if ($updateExtraFeeModal)
+        <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+            tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
+            style="display: block;">
+            <div class="modal-dialog relative w-auto pointer-events-none">
+                <div
+                    class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
+                    <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
+                        <!-- Modal header -->
+                        <div
+                            class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-slate-900">
+                            <h3 class="text-xl font-medium text-white dark:text-white capitalize">
+                                Extra Fees
+                            </h3>
+                            <button wire:click="closeUpdateExtraFeeModal" type="button"
+                                class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
+                                data-bs-dismiss="modal">
+                                <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd"
+                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                <span class="sr-only">Close modal</span>
+                            </button>
+                        </div>
+
+                        <!-- Modal body -->
+                        <div class="p-6 space-y-4">
+
+                            <div class="input-area">
+                                <label for="extraFeeAmount"
+                                    class="block text-sm font-medium text-gray-700">Amount</label>
+                                <input wire:model='extraFeeAmount' type="number" name="extraFeeAmount"
+                                    placeholder="Enter quantity..."
+                                    class="form-control @error('extraFeeAmount') !border-danger-500 @enderror">
+                                @error('extraFeeAmount')
+                                    <span class="font-Inter text-sm text-danger-500 pt-2 inline-block">
+                                        {{ $message }}
+                                    </span>
+                                @enderror
+                            </div>
+
+                            <div class="input-area">
+                                <label for="extraFeeDesc"
+                                    class="block text-sm font-medium text-gray-700">Description</label>
+                                <input wire:model='extraFeeDesc' type="text" name="extraFeeDesc"
+                                    placeholder="Enter quantity..."
+                                    class="form-control @error('extraFeeDesc') !border-danger-500 @enderror">
+                                @error('extraFeeDesc')
+                                    <span class="font-Inter text-sm text-danger-500 pt-2 inline-block">
+                                        {{ $message }}
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <!-- Modal footer -->
+                        <div class="flex items-center justify-end p-6 border-t border-slate-200 rounded-b">
+                            <button wire:click="updateExtraFee" data-bs-dismiss="modal"
+                                class="btn inline-flex justify-center text-white bg-slate-900">
+                                <span wire:loading.remove wire:target="updateExtraFee">Submit</span>
+                                <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
+                                    wire:loading wire:target="updateExtraFee"
+                                    icon="line-md:loading-twotone-loop"></iconify-icon>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 
     @if ($PAY_BY_PAYMENT_METHOD)
         <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"

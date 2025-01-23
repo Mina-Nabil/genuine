@@ -35,7 +35,71 @@ class InvoiceShow extends Component
     public $paidNow = true;
     public $paymentDate;
 
+    public $updateExtraFeeModal = false;
+    public $extraFeeAmount;
+    public $extraFeeDesc;
+    public $confirmRemoveExtraFeeModal = false;
+
+
     public $PAY_BY_PAYMENT_METHOD;
+
+    public function openUpdateExtraFeeModal()
+    {
+        $this->extraFeeAmount = $this->invoice->extra_fee_amount;
+        $this->extraFeeDesc = $this->invoice->extra_fee_description;
+        $this->updateExtraFeeModal = true;
+    }
+
+    public function closeUpdateExtraFeeModal()
+    {
+        $this->updateExtraFeeModal = false;
+    }
+
+    public function updateExtraFee()
+    {
+        $this->validate(
+            [
+                'extraFeeAmount' => 'required|numeric|min:0',
+                'extraFeeDesc' => 'required|string|max:255',
+            ],
+            [
+                'extraFeeAmount.required' => 'Please enter the extra fee amount',
+                'extraFeeAmount.numeric' => 'The extra fee amount must be a number',
+                'extraFeeAmount.min' => 'The extra fee amount must be at least 0',
+                'extraFeeDesc.required' => 'Please enter the description',
+                'extraFeeDesc.string' => 'The description must be a string',
+                'extraFeeDesc.max' => 'The description may not be greater than 255 characters',
+            ],
+        );
+
+        $res = $this->invoice->updateExtraFee($this->extraFeeDesc, $this->extraFeeAmount);
+
+        if ($res) {
+            $this->alertSuccess('Extra fee updated successfully');
+            $this->closeUpdateExtraFeeModal();
+        } else {
+            $this->alertFailed();
+        }
+    }
+
+    public function confirmRemoveExtraFees(){
+        $this->confirmRemoveExtraFeeModal = true;
+    }
+
+    public function closeConfirmRemoveExtraFees(){
+        $this->confirmRemoveExtraFeeModal = false;
+    }
+
+    public function removeExtraFee(){
+        $res = $this->invoice->removeExtraFee();
+
+        if ($res) {
+            $this->alertSuccess('Extra fee removed successfully');
+            $this->closeConfirmRemoveExtraFees();
+        } else {
+            $this->alertFailed();
+        }
+    }
 
     public function openPayAmountSection(){
         $this->payAmountSection = true;
