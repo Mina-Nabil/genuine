@@ -18,12 +18,8 @@ class CustomerIndex extends Component
     use WithFileUploads, AlertFrontEnd, WithPagination;
     public $page_title = '• Customers';
 
-    public $fetched_customers_IDs;
     public $search;
-    public $selectAll = false; //to select all in the page
-    public $selectedCustomers = [];
     public $newCustomerSection = false;
-    public $selectedAllCustomers = false; //to select all customers
 
     public $fullName;
     public $phone;
@@ -114,27 +110,6 @@ class CustomerIndex extends Component
         }
     }
 
-    public function updatedSelectAll($value)
-    {
-        if ($value) {
-            $this->selectedCustomers = $this->fetched_customers_IDs;
-        } else {
-            $this->selectedCustomers = [];
-        }
-    }
-
-    public function selectAllCustomers()
-    {
-        $this->selectedAllCustomers = true;
-        $this->selectedCustomers = Customer::pluck('id')->toArray();
-    }
-
-    public function undoSelectAllCustomers()
-    {
-        $this->selectedAllCustomers = false;
-        $this->selectedCustomers = $this->fetched_customers_IDs;
-    }
-
     ///// Frontend Hnadling
     public function openNewCustomerSec()
     {
@@ -194,7 +169,6 @@ class CustomerIndex extends Component
     {
         $ZONES = Zone::select('id', 'name')->get();
         $customers = Customer::when($this->search, fn($q) => $q->search($this->search))->zone($this->zone?->id)->paginate(50);
-        $this->fetched_customers_IDs = $customers->pluck('id')->toArray();
         $PET_CATEGORIES = Pet::CATEGORIES;
         return view('livewire.customers.customer-index', [
             'customers' => $customers,
