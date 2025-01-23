@@ -12,12 +12,8 @@ class SupplierIndex extends Component
     use AlertFrontEnd, WithPagination;
     public $page_title = '• Suppliers';
 
-    public $fetched_suppliers_IDs;
     public $search;
-    public $selectAll = false;
-    public $selectedSuppliers = [];
     public $newSupplierSection = false;
-    public $selectedAllSuppliers = false;
 
     public $supplierName;
     public $supplierPhone1;
@@ -57,26 +53,6 @@ class SupplierIndex extends Component
         $this->reset(['newSupplierSection', 'supplierName', 'supplierPhone1', 'supplierPhone2', 'supplierEmail', 'supplierAddress', 'supplierContactName', 'supplierContactPhone']);
     }
 
-    public function updatedSelectAll($value)
-    {
-        if ($value) {
-            $this->selectedSuppliers = $this->fetched_suppliers_IDs;
-        } else {
-            $this->selectedSuppliers = [];
-        }
-    }
-
-    public function selectAllCustomers()
-    {
-        $this->selectedAllSuppliers = true;
-        $this->selectedSuppliers = Supplier::pluck('id')->toArray();
-    }
-
-    public function undoSelectAllCustomers()
-    {
-        $this->selectedAllSuppliers = false;
-        $this->selectedSuppliers = $this->fetched_suppliers_IDs;
-    }
     public function updatingSearch()
     {
         $this->resetPage();
@@ -85,7 +61,6 @@ class SupplierIndex extends Component
     public function render()
     {
         $suppliers = Supplier::search($this->search)->paginate(50);
-        $this->fetched_suppliers_IDs = $suppliers->pluck('id')->toArray();
         return view('livewire.materials.supplier-index', [
             'suppliers' => $suppliers,
         ])->layout('layouts.app', ['page_title' => $this->page_title, 'suppliers' => 'active']);
