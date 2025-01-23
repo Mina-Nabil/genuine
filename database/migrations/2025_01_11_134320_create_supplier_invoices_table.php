@@ -20,6 +20,8 @@ return new class extends Migration
             $table->foreignId('supplier_id')->constrained();
             $table->integer('total_items'); //lena e7na
             $table->decimal('total_amount', 15, 2);
+            $table->string('extra_fee_description')->nullable();
+            $table->decimal('extra_fee_amount', 15, 2)->default(0);
             $table->date('payment_due')->nullable();
             $table->boolean('is_paid')->default(false);
             $table->timestamps();

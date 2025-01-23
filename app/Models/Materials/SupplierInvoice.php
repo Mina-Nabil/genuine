@@ -20,7 +20,7 @@ class SupplierInvoice extends Model
 
     const MORPH_TYPE = 'supplier-invoice';
 
-    protected $fillable = ['code', 'title', 'note', 'supplier_id', 'total_items', 'total_amount', 'payment_due', 'is_paid'];
+    protected $fillable = ['code', 'title', 'note', 'supplier_id', 'total_items', 'total_amount','extra_fee_description','extra_fee_amount' , 'payment_due', 'is_paid'];
 
     protected $casts = [
         'payment_due' => 'date',
@@ -112,6 +112,56 @@ class SupplierInvoice extends Model
         } catch (Exception $e) {
             report($e);
             AppLog::error('Failed to update supplier invoice payment due: ', $e->getMessage());
+            return false;
+        }
+    }
+
+    public function updateExtraFee($description, $amount)
+    {
+        try {
+            $oldAmount = $this->extra_fee_amount;
+            $this->update([
+                'extra_fee_description' => $description,
+                'extra_fee_amount' => $amount,
+            ]);
+
+            $supplier = $this->supplier;
+            $supplier->updateBalance($amount - $oldAmount, 'Extra fee updated for invoice #' . $this->code ?? '');
+            $supplier->save();
+
+            $this->refreshTotals();
+
+            AppLog::info('invoice extra fee updated.', loggable: $this);
+
+            return true;
+        } catch (Exception $e) {
+            report($e);
+            AppLog::error('Failed to update invoice extra fee: ', $e->getMessage(), loggable: $this);
+            return false;
+        }
+    }
+
+    public function removeExtraFee()
+    {
+        try {
+            $oldAmount = $this->extra_fee_amount;
+            $this->update([
+                'extra_fee_description' => null,
+                'extra_fee_amount' => 0,
+            ]);
+
+            $supplier = $this->supplier;
+            $supplier->updateBalance(-$oldAmount, 'Extra fee removed from invoice #' . $this->code ?? '');
+            $supplier->save();
+
+            $this->refreshTotals();
+
+            AppLog::info('Invoice extra fee removed.', loggable: $this);
+
+            return true;
+        } catch (Exception $e) {
+            report($e);
+            AppLog::error('Failed to remove invoice extra fee: ', $e->getMessage(), loggable: $this);
             return false;
         }
     }
@@ -313,6 +363,9 @@ class SupplierInvoice extends Model
                 $totalAmount = $this->rawMaterials->sum(function ($material) {
                     return $material->pivot->quantity * $material->pivot->price;
                 });
+
+                $totalAmount += $this->extra_fee_amount;
+
                 $this->total_items = $totalItems;
                 $this->total_amount = $totalAmount;
                 $this->save();

@@ -31,67 +31,30 @@
                             <th scope="col"
                                 class="table-th  flex items-center border-t border-slate-100 dark:border-slate-800 bg-slate-200 dark:bg-slate-700"
                                 style="position: sticky; left: -25px;  z-index: 10;">
-                                <div class="checkbox-area">
-                                    <label class="inline-flex items-center cursor-pointer">
-                                        <input type="checkbox" wire:model.live="selectAll" class="hidden"
-                                            id="select-all">
-                                        <span
-                                            class="h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 bg-slate-100 dark:bg-slate-900">
-                                            <img src="assets/images/icon/ck-white.svg" alt=""
-                                                class="h-[10px] w-[10px] block m-auto opacity-0"></span>
-                                    </label>
-                                </div>
                                 Name
                             </th>
-                            @if ($selectAll)
-                                @if ($selectedAllSuppliers)
-                                    <th colspan="5" class="table-th"><iconify-icon style="vertical-align: top;"
-                                            icon="lucide:info" width="1.2em" height="1.2em"></iconify-icon> A
-                                        {{ count($selectedSuppliers) }} supplier selected ..
-                                        <span class="clickable-link" wire:click='undoSelectAllSuppliers'>Undo</span>
-                                    </th>
-                                @else
-                                    <th colspan="5" class="table-th"><iconify-icon style="vertical-align: top;"
-                                            icon="lucide:info" width="1.2em" height="1.2em"></iconify-icon>
-                                        {{ count($selectedSuppliers) }} supplier
-                                        selected .. <span class="clickable-link" wire:click='selectAllSuppliers'>Select
-                                            All Suppliers</span></th>
-                                @endif
-                            @else
-                                <th scope="col" class="table-th">Phone 1</th>
-                                <th scope="col" class="table-th">Phone 2</th>
-                                <th scope="col" class="table-th">Email</th>
-                                <th scope="col" class="table-th">Contact Name</th>
-                                <th scope="col" class="table-th">Contact Phone</th>
-                            @endif
+
+                            <th scope="col" class="table-th">Phone 1</th>
+                            <th scope="col" class="table-th">Phone 2</th>
+                            <th scope="col" class="table-th">Email</th>
+                            <th scope="col" class="table-th">Contact Name</th>
+                            <th scope="col" class="table-th">Contact Phone</th>
 
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700 no-wrap">
 
                         @foreach ($suppliers as $supplier)
-                        <tr class="even:bg-slate-100 dark:even:bg-slate-700">
+                            <tr class="even:bg-slate-100 dark:even:bg-slate-700">
 
                                 <td class="table-td flex items-center sticky-column colomn-shadow even:bg-slate-100 dark:even:bg-slate-700"
                                     style="position: sticky; left: -25px;  z-index: 10;">
-                                    <div class="checkbox-area">
-                                        <label class="inline-flex items-center cursor-pointer">
-                                            <input type="checkbox" wire:model="selectedSuppliers"
-                                                value="{{ $supplier->id }}" class="hidden" id="select-all">
-                                            <span
-                                                class="h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 bg-slate-100 dark:bg-slate-900">
-                                                <img src="assets/images/icon/ck-white.svg" alt=""
-                                                    class="h-[10px] w-[10px] block m-auto opacity-0"></span>
-                                        </label>
-                                    </div>
-                                    <a href="{{ route('supplier.show',$supplier->id) }}"> <span
-                                            class="hover-underline">
+                                    <a href="{{ route('supplier.show', $supplier->id) }}"> <span class="hover-underline">
                                             <b>
                                                 {{ $supplier->name }}
                                             </b>
                                         </span>
                                     </a>
-
                                 </td>
 
 
@@ -240,8 +203,9 @@
                                 <div class="from-group">
                                     <div class="input-area">
                                         <label for="supplierAddress" class="form-label">Address</label>
-                                        <textarea id="supplierAddress" type="text" class="form-control @error('supplierAddress') !border-danger-500 @enderror"
-                                            wire:model="supplierAddress" autocomplete="off"></textarea>
+                                        <textarea id="supplierAddress" type="text"
+                                            class="form-control @error('supplierAddress') !border-danger-500 @enderror" wire:model="supplierAddress"
+                                            autocomplete="off"></textarea>
                                     </div>
                                     @error('supplierAddress')
                                         <span
@@ -278,7 +242,7 @@
 
                             <!-- Modal footer -->
                             <div class="flex items-center justify-end p-6 border-t border-slate-200 rounded-b">
-                                    <button wire:click="addSupplier" data-bs-dismiss="modal"
+                                <button wire:click="addSupplier" data-bs-dismiss="modal"
                                     class="btn inline-flex justify-center text-white bg-black-500">
                                     <span wire:loading.remove wire:target="addSupplier">Submit</span>
                                     <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"

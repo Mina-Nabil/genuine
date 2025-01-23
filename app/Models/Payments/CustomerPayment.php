@@ -3,6 +3,8 @@
 namespace App\Models\Payments;
 
 use App\Models\Customers\Customer;
+use App\Models\Materials\Supplier;
+use App\Models\Materials\SupplierInvoice;
 use App\Models\Orders\Order;
 use App\Models\Users\User;
 use Carbon\Carbon;
@@ -85,6 +87,19 @@ class CustomerPayment extends Model
     public function order()
     {
         return $this->belongsTo(Order::class);
+    }
+
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class);
+    }
+
+    /**
+     * Define relationship with the Order model.
+     */
+    public function invoice()
+    {
+        return $this->belongsTo(SupplierInvoice::class,'invoice_id');
     }
 
     /**
