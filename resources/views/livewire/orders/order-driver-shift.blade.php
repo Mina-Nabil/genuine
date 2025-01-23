@@ -207,9 +207,13 @@
                                                         @if (!auth()->user()->is_driver)
                                                             {{ $order->order_number }}
                                                         @else
-                                                            <a class="clickable-link" target="_blanck"
+                                                            <a class="clickable-link" target="_blank"
                                                                 href="tel:{{ $order->customer_phone ?? $order->customer->phone }}">
                                                                 <iconify-icon icon="mdi:phone" width="1.2em"
+                                                                    height="1.2em"></iconify-icon></a>
+                                                            <a class="clickable-link" target="_blank"
+                                                                href="{{ $order->location_url ?? $order->customer->location_url }}">
+                                                                <iconify-icon icon="mdi:location" width="1.2em"
                                                                     height="1.2em"></iconify-icon></a>
                                                         @endif • {{ $order->customer->name }}
                                                     </b>
@@ -329,6 +333,7 @@
                                                 </h4>
                                                 <div class="text-sm font-medium text-slate-900 dark:text-white">
                                                     {{ $order->shipping_address }}&nbsp; @if ($order->location_url || $order->customer->location_url)
+                                                    <br />
                                                         <a class="clickable-link" target="_blank"
                                                             href="{{ $order->location_url ?? $order->customer->location_url }}"><iconify-icon
                                                                 icon="mdi:location" width="1.2em"
@@ -344,7 +349,9 @@
                                                         <a class="clickable-link" target="_blanck"
                                                             href="tel:{{ $order->customer_phone ?? $order->customer->phone }}">
                                                             <iconify-icon icon="mdi:phone" width="1.2em"
-                                                                height="1.2em"></iconify-icon></a>
+                                                                height="1.2em"></iconify-icon>
+                                                                {{ $order->customer_phone ?? $order->customer->phone }}
+                                                            </a>
                                                     </div>
                                                 @endif
 

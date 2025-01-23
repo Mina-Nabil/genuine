@@ -3,6 +3,7 @@
 namespace App\Models\Products;
 
 use App\Models\Users\AppLog;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -35,7 +36,6 @@ class Inventory extends Model
 
         try {
             // Record before quantity
-            $beforeAvailable = $this->available;
             $beforeOnHand = $this->on_hand;
 
             // Update the stock based on positive or negative quantity
@@ -59,15 +59,12 @@ class Inventory extends Model
             // Save the inventory changes
             $this->save();
 
-            // Record after quantity
-            $afterAvailable = $this->available;
-
             // Create transaction log
             $transaction = Transaction::create([
                 'inventory_id' => $this->id,
                 'quantity' => $quantity, // Can be positive or negative
-                'before' => $beforeAvailable,
-                'after' => $afterAvailable,
+                'before' => $beforeOnHand,
+                'after' => $beforeOnHand + $quantity,
                 'remarks' => $remarks,
                 'user_id' => Auth::user()->id,
             ]);

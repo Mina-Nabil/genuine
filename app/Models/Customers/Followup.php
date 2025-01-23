@@ -44,7 +44,7 @@ class Followup extends Model
         try {
             $res = $this->update([
                 "title"     =>  $title,
-                "call_time" =>  $call_time,
+                "call_time" =>  Carbon::parse($call_time),
                 "desc"      =>  $desc
             ]);
             AppLog::info("Follow-up updated", loggable: $this);

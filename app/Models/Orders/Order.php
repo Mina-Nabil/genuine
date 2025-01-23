@@ -1065,9 +1065,7 @@ class Order extends Model
                     continue;
                 }
 
-                $orderProduct = $this->products()
-                    ->where('product_id', $product['product_id'])
-                    ->first();
+                $orderProduct = OrderProduct::find($product['order_product_id']);
 
                 if (!$orderProduct || $orderProduct->quantity < $product['quantity']) {
                     throw new Exception('Insufficient quantity or invalid product ID.');
@@ -1156,7 +1154,7 @@ class Order extends Model
         } catch (Exception $e) {
             DB::rollBack();
             report($e);
-            AppLog::error('Failed to return products for order', $e->getMessage());
+            AppLog::error('Failed to return products for order', $e->getMessage(),loggable:$this);
             return false;
         }
     }
@@ -1692,7 +1690,7 @@ class Order extends Model
 
     public function isOpenToPay()
     {
-        $openStatuses = [self::STATUS_NEW, self::STATUS_READY, self::STATUS_IN_DELIVERY];
+        $openStatuses = [self::STATUS_NEW, self::STATUS_READY, self::STATUS_IN_DELIVERY, self::STATUS_DONE];
         return !$this->is_paid && in_array($this->status, $openStatuses);
     }
 

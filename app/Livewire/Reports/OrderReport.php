@@ -267,7 +267,26 @@ class OrderReport extends Component
 
     public function render()
     {
-        Log::info($this->selectedZones);
+        if(!$this->creation_date_from) {
+            $this->creation_date_from = Carbon::now()->startOfMonth();
+        }
+        $AllOrders = Order::Report(
+            searchText: $this->search,
+            zone_ids: $this->zones,
+            driver_id: $this->driver?->id,
+            created_from: $this->creation_date_from ? Carbon::parse($this->creation_date_from) : null,
+            created_to: $this->creation_date_from ? Carbon::parse($this->creation_date_to) : null,
+            delivery_from: $this->delivery_date_from ? Carbon::parse($this->delivery_date_from) : null,
+            delivery_to: $this->delivery_date_to ? Carbon::parse($this->delivery_date_to) : null,
+            creator_id: $this->creator?->id,
+            status: $this->status,
+        )->get();
+
+        $totalWeight = 0;
+        foreach ($AllOrders as $order) {
+            $totalWeight = $totalWeight + $order->total_weight;
+        }
+        
         $orders = Order::Report(
             searchText: $this->search,
             zone_ids: $this->zones,
@@ -280,11 +299,6 @@ class OrderReport extends Component
             status: $this->status,
         )->sortByDeliveryDate()
             ->paginate(50);
-
-        $totalWeight = 0;
-        foreach ($orders as $order) {
-            $totalWeight = $totalWeight + $order->total_weight;
-        }
 
         $totalZones = Order::getTotalZonesForOrders($orders);
         $ordersCount = count($orders);

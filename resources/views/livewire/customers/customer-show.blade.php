@@ -470,6 +470,7 @@
                                             class="text-light">EGP</small>{{ number_format($customer->balance, 2) }}
                                     </span>
                                 </div>
+                                <iconify-icon class="toolTip onTop cursor-pointer" data-tippy-content="Balance updates and transactions are temporarily under maintenance." icon="line-md:alert" width="24" height="24"></iconify-icon>
                                 @can('updateCustomerBalance', $customer)
                                     <div>
                                         <button wire:click='openAddToBalanceSection' type="button"
@@ -516,7 +517,7 @@
                                             <tbody
                                                 class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
 
-                                                @forelse ($customer->payments as $payment)
+                                                @forelse ($customer->payments()->orderByDesc('id')->get() as $payment)
                                                     <tr>
                                                         <td class="table-td ">
                                                             {{ \Carbon\Carbon::parse($payment->payment_date)->format('Y-m-d') }}
