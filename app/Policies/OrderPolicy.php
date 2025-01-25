@@ -55,6 +55,11 @@ class OrderPolicy
         return $user->is_admin;
     }
 
+    public function cancelOrder(User $user, Order $order): bool
+    {
+        return $user->is_admin;
+    }
+
     public function updateDiscount(User $user, Order $order): bool
     {
         return $user->is_admin || $user->id == 7;

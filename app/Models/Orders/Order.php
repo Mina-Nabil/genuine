@@ -227,6 +227,8 @@ class Order extends Model
                 !$loggedInUser->can('updateInventoryInfo', self::class)
             ) {
                 throw new Exception("User unauthorized");
+            } elseif ($newStatus == self::STATUS_CANCELLED && !$loggedInUser->can('cancelOrder', self::class)) {
+                throw new Exception("User unauthorized");
             }
 
             // Get the current status and check the allowed next statuses
