@@ -27,6 +27,48 @@ class PaidInvoiceIndex extends Component
     public $editedDueDateFrom;
     public $editedDueDateTo;
 
+    public $entryDateFrom;
+    public $entryDateTo;
+    public $Edited_entryDate_sec;
+    public $editedEntryDateFrom;
+    public $editedEntryDateTo;
+
+    public function clearEntryDate()
+    {
+        $this->reset(['entryDateFrom', 'entryDateTo']);
+    }
+
+    public function openFilteryEntryDate()
+    {
+        $this->editedEntryDateFrom = $this->entryDateFrom;
+        $this->editedEntryDateTo = $this->entryDateTo;
+        $this->Edited_entryDate_sec = true;
+    }
+
+    public function closeFilteryEntryDate()
+    {
+        $this->Edited_entryDate_sec = false;
+        $this->reset(['editedEntryDateFrom', 'editedEntryDateTo']);
+    }
+
+    public function setFilteryEntryDate()
+    {
+        $this->validate(
+            [
+                'editedEntryDateFrom' => 'nullable|date|required_without:editedEntryDateTo',
+                'editedEntryDateTo' => 'nullable|date|required_without:editedEntryDateFrom|after_or_equal:editedEntryDateFrom',
+            ],
+            [
+                'editedEntryDateFrom.required_without' => 'The from date field is required.',
+                'editedEntryDateTo.required_without' => 'The to date field is required.',
+                'editedEntryDateTo.after_or_equal' => 'The to date must be a date after or equal to the from date.',
+            ],
+        );
+        $this->entryDateFrom = $this->editedEntryDateFrom;
+        $this->entryDateTo = $this->editedEntryDateTo;
+        $this->Edited_entryDate_sec = false;
+        $this->reset(['editedEntryDateFrom', 'editedEntryDateTo']);
+    }
 
     public function clearDueDate()
     {
@@ -48,14 +90,17 @@ class PaidInvoiceIndex extends Component
 
     public function setFilteryDueDate()
     {
-        $this->validate([
-            'editedDueDateFrom' => 'nullable|date|required_without:editedDueDateTo',
-            'editedDueDateTo' => 'nullable|date|required_without:editedDueDateFrom|after_or_equal:editedDueDateFrom',
-        ], [
-            'editedDueDateFrom.required_without' => 'The from date field is required.',
-            'editedDueDateTo.required_without' => 'The to date field is required.',
-            'editedDueDateTo.after_or_equal' => 'The to date must be a date after or equal to the from date.',
-        ]);
+        $this->validate(
+            [
+                'editedDueDateFrom' => 'nullable|date|required_without:editedDueDateTo',
+                'editedDueDateTo' => 'nullable|date|required_without:editedDueDateFrom|after_or_equal:editedDueDateFrom',
+            ],
+            [
+                'editedDueDateFrom.required_without' => 'The from date field is required.',
+                'editedDueDateTo.required_without' => 'The to date field is required.',
+                'editedDueDateTo.after_or_equal' => 'The to date must be a date after or equal to the from date.',
+            ],
+        );
         $this->dueDateFrom = $this->editedDueDateFrom;
         $this->dueDateTo = $this->editedDueDateTo;
         $this->closeFilteryDueDate();
@@ -93,7 +138,7 @@ class PaidInvoiceIndex extends Component
 
     public function render()
     {
-        $invoices = SupplierInvoice::search($this->search, $this->selectedSupplier?->id, $this->dueDateFrom, $this->dueDateTo, true )->paginate(50);
+        $invoices = SupplierInvoice::search($this->search, $this->selectedSupplier?->id, $this->dueDateFrom, $this->dueDateTo, true, $this->entryDateFrom, $this->entryDateTo)->paginate(50);
         $suppliers = Supplier::search($this->supplierSearchText)
             ->limit(10)
             ->get();

@@ -424,7 +424,7 @@ class SupplierInvoice extends Model
         return $datePart . '-' . $serialPart;
     }
 
-    public function scopeSearch($query, $term, $supplierId = null, $dueDateFrom = null, $dueDateTo = null, $isPaid = null)
+    public function scopeSearch($query, $term, $supplierId = null, $dueDateFrom = null, $dueDateTo = null, $isPaid = null, $entryDateFrom = null, $entryDateTo = null)
     {
         return $query->where(function ($q) use ($term) {
             $q->where('code', 'like', '%' . $term . '%')
@@ -451,6 +451,12 @@ class SupplierInvoice extends Model
         })
         ->when($isPaid !== null, function ($query) use ($isPaid) {
             $query->where('is_paid', $isPaid);
+        })
+        ->when($entryDateFrom, function ($query, $entryDateFrom) {
+            $query->where('entry_date', '>=', $entryDateFrom);
+        })
+        ->when($entryDateTo, function ($query, $entryDateTo) {
+            $query->where('entry_date', '<=', $entryDateTo);
         });
     }
 
