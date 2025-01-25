@@ -120,6 +120,7 @@
                                 style="position: sticky; left: -25px;  z-index: 10;">
                                 Name
                             </th>
+                                <th scope="col" class="table-th">Serial</th>
                                 <th scope="col" class="table-th">Code</th>
                                 <th scope="col" class="table-th">Supplier</th>
                                 <th scope="col" class="table-th">Total</th>
@@ -146,6 +147,9 @@
 
                                 </td>
 
+                                <td class="table-td">
+                                    {{ $invoice->serial }}
+                                </td>
 
                                 <td class="table-td">
                                     {{ $invoice->code }}
@@ -190,11 +194,11 @@
                                 <td class="table-td">
                                     <div class="flex items-center">
 
-                                        @if ($invoice->payment_due->isPast() && !$invoice->is_paid)
+                                        @if ($invoice->payment_due?->isPast() && !$invoice->is_paid)
                                             <span
                                                 class="inline-flex h-[6px] w-[6px] bg-danger-500 ring-opacity-25 rounded-full ring-4 bg-danger-500 ring-danger-500 mr-2"></span>
                                         @endif
-                                        {{ $invoice->payment_due->isToday() ? 'Today' : ($invoice->payment_due->isYesterday() ? 'Yesterday' : $invoice->payment_due->format('l Y-m-d')) }}
+                                        {{ $invoice->payment_due?->isToday() ? 'Today' : ($invoice->payment_due?->isYesterday() ? 'Yesterday' : $invoice->payment_due?->format('l Y-m-d')) }}
                                     </div>
                                 </td>
 

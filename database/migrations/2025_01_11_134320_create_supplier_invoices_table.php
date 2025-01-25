@@ -14,6 +14,7 @@ return new class extends Migration
         //admins only
         Schema::create('supplier_invoices', function (Blueprint $table) {
             $table->id();
+            $table->string('serial');
             $table->string('code')->nullable(); //رقم الفاتوره
             $table->string('title')->nullable();
             $table->date('entry_date');

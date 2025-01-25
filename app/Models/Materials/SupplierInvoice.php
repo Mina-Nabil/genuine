@@ -20,10 +20,11 @@ class SupplierInvoice extends Model
 
     const MORPH_TYPE = 'supplier-invoice';
 
-    protected $fillable = ['code', 'title', 'note', 'supplier_id', 'total_items', 'total_amount','extra_fee_description','extra_fee_amount' , 'payment_due', 'is_paid', 'entry_date'];
+    protected $fillable = ['code','serial', 'title', 'note', 'supplier_id', 'total_items', 'total_amount','extra_fee_description','extra_fee_amount' , 'payment_due', 'is_paid', 'entry_date'];
 
     protected $casts = [
         'payment_due' => 'date',
+        'entryDate' => 'date',
     ];
 
     public static function createInvoice($supplierId, $entryDate, $rawMaterials, $code = null, $title = null, $note = null, $paymentDue = null,  $updateSupplierMaterials = false)
@@ -45,6 +46,7 @@ class SupplierInvoice extends Model
                 // Create the invoice
                 $invoice = self::create([
                     'supplier_id' => $supplierId,
+                    'serial' => self::generateInvoiceSerial($entryDate),
                     'code' => $code,
                     'title' => $title,
                     'note' => $note,
@@ -405,6 +407,21 @@ class SupplierInvoice extends Model
         $hasBalanceTransactions = $this->balanceTransactions()->exists();
 
         return ($hasPayments || $hasBalanceTransactions) && ($this->remaining_to_pay > 0 && $this->remaining_to_pay < $this->total_amount);
+    }
+
+    private static function generateInvoiceSerial($entryDate)
+    {
+        $entryDate = new \DateTime($entryDate);
+        $datePart = $entryDate->format('Ymd');
+        $lastInvoice = self::whereYear('entry_date', $entryDate->format('Y'))
+            ->whereMonth('entry_date', $entryDate->format('m'))
+            ->orderBy('entry_date', 'desc')
+            ->first();
+            
+        $lastSerial = $lastInvoice ? (int)substr($lastInvoice->serial, -4) : 0;
+        
+        $serialPart = str_pad($lastSerial + 1, 4, '0', STR_PAD_LEFT);
+        return $datePart . '-' . $serialPart;
     }
 
     public function scopeSearch($query, $term, $supplierId = null, $dueDates = [] , $isPaid = null)
