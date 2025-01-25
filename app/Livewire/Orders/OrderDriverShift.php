@@ -166,9 +166,9 @@ class OrderDriverShift extends Component
     {
 
         if ($this->deliveryDate) {
-            $this->deliveryDate = Carbon::parse($this->deliveryDate);
+            // $this->deliveryDate = Carbon::parse($this->deliveryDate);
         } else {
-            $this->deliveryDate = Carbon::today();
+            $this->deliveryDate = Carbon::today()->format('Y-m-d');
         }
 
         if (Auth::user()->is_driver) {
