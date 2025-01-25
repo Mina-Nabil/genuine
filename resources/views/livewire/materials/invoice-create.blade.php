@@ -223,7 +223,16 @@
                 <div class="card mb-5">
                     <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base">
                         <div class="items-center p-5">
-                            <div class="mb-2">
+                            <div class="mb-5">
+                                <label for="entry_date" class="form-label !m-0">Entry Date</label>
+                                <input wire:model='entry_date' type="date" name="entry_date"
+                                    class="form-control  @error('entry_date') !border-danger-500 @enderror">
+                                @error('entry_date')
+                                    <span
+                                        class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                @enderror
+                            </div>
+                            <div class="">
                                 <label for="payment_due" class="form-label !m-0">Payment Due</label>
                                 <input wire:model='payment_due' type="date" name="payment_due"
                                     class="form-control  @error('payment_due') !border-danger-500 @enderror">

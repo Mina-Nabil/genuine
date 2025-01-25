@@ -20,16 +20,20 @@ class SupplierInvoice extends Model
 
     const MORPH_TYPE = 'supplier-invoice';
 
-    protected $fillable = ['code', 'title', 'note', 'supplier_id', 'total_items', 'total_amount','extra_fee_description','extra_fee_amount' , 'payment_due', 'is_paid'];
+    protected $fillable = ['code', 'title', 'note', 'supplier_id', 'total_items', 'total_amount','extra_fee_description','extra_fee_amount' , 'payment_due', 'is_paid', 'entry_date'];
 
     protected $casts = [
         'payment_due' => 'date',
     ];
 
-    public static function createInvoice($supplierId, $code, $title, $note, $paymentDue, $rawMaterials, $updateSupplierMaterials = false)
+    public static function createInvoice($supplierId, $entryDate, $rawMaterials, $code = null, $title = null, $note = null, $paymentDue = null,  $updateSupplierMaterials = false)
     {
+        if (!$entryDate) {
+            throw new Exception('Entry date is required.');
+        }
+
         try {
-            return DB::transaction(function () use ($supplierId, $code, $title, $note, $paymentDue, $rawMaterials, $updateSupplierMaterials) {
+            return DB::transaction(function () use ($supplierId, $code, $title, $note, $paymentDue, $rawMaterials, $updateSupplierMaterials, $entryDate) {
                 $totalItems = 0;
                 $totalAmount = 0;
 
@@ -47,6 +51,7 @@ class SupplierInvoice extends Model
                     'payment_due' => $paymentDue,
                     'total_items' => $totalItems,
                     'total_amount' => $totalAmount,
+                    'entry_date' => $entryDate,
                 ]);
 
                 foreach ($rawMaterials as $material) {

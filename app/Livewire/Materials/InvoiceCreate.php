@@ -39,6 +39,7 @@ class InvoiceCreate extends Component
     public $supplierContactName;
     public $supplierContactPhone;
 
+    public $entry_date;
     public $payment_due;
     public $note;
     public $update_supplier_materials = false;
@@ -195,6 +196,7 @@ class InvoiceCreate extends Component
                 'invoiceCode' => 'nullable|string|max:255|unique:supplier_invoices,code',
                 'invoiceTitle' => 'nullable|string|max:255',
                 'note' => 'nullable|string|max:500',
+                'entry_date' => 'required|date',
                 'payment_due' => 'nullable|date|after_or_equal:today',
                 'fetchedMaterials' => 'required|array|min:1',
                 'fetchedMaterials.*.id' => 'required|exists:raw_materials,id',
@@ -209,6 +211,8 @@ class InvoiceCreate extends Component
                 'invoiceCode.max' => 'The invoice code may not be greater than 255 characters.',
                 'invoiceTitle.max' => 'The title may not be greater than 255 characters.',
                 'note.max' => 'The note may not be greater than 500 characters.',
+                'entry_date.required' => 'The entry date is required.',
+                'entry_date.date' => 'The entry date must be a valid date.',
                 'payment_due.date' => 'The payment due date must be a valid date.',
                 'payment_due.after_or_equal' => 'The payment due date cannot be in the past.',
                 'fetchedMaterials.required' => 'At least one raw material is required.',
@@ -227,7 +231,7 @@ class InvoiceCreate extends Component
             ],
         );
 
-        $res = SupplierInvoice::createInvoice($this->supplierIsNew ? $supplier->id : $this->supplierId, $this->invoiceCode, $this->invoiceTitle, $this->note, $this->payment_due, $this->fetchedMaterials, $this->update_supplier_materials);
+        $res = SupplierInvoice::createInvoice($this->supplierIsNew ? $supplier->id : $this->supplierId, $this->entry_date, $this->fetchedMaterials, $this->invoiceCode, $this->invoiceTitle, $this->note,  $this->payment_due,  $this->update_supplier_materials);
 
         if ($res) {
             $this->reset();

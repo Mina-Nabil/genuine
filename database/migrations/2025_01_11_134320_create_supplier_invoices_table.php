@@ -16,6 +16,7 @@ return new class extends Migration
             $table->id();
             $table->string('code')->nullable(); //رقم الفاتوره
             $table->string('title')->nullable();
+            $table->date('entry_date');
             $table->string('note')->nullable();
             $table->foreignId('supplier_id')->constrained();
             $table->integer('total_items'); //lena e7na
