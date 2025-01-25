@@ -21,10 +21,11 @@ class InvoiceIndex extends Component
     public $supplierSearchText;
     public $selectedSupplier;
 
-    public $dueDate = [];
-    public $Edited_dueDate;
+    public $dueDateFrom;
+    public $dueDateTo;
     public $Edited_dueDate_sec;
-    public $selectedDueDates = [];
+    public $editedDueDateFrom;
+    public $editedDueDateTo;
     public $is_paid = null;
 
     public function filterisPaid()
@@ -41,47 +42,36 @@ class InvoiceIndex extends Component
         $this->reset('is_paid');
     }
 
-    public function updatedEditedDueDate($value)
-    {
-        foreach ($this->selectedDueDates as $date) {
-            if ($date->toDateString() === $value) {
-                return;
-            }
-        }
-        $this->selectedDueDates[] = Carbon::parse($value);
-        $this->Edited_dueDate = null;
-    }
-
-    public function removeSelectedDate($index)
-    {
-        unset($this->selectedDueDates[$index]);
-        $this->selectedDueDates = array_values($this->selectedDueDates); // Reset array keys
-    }
-
     public function clearDueDate()
     {
-        $this->dueDate = [];
+        $this->reset(['dueDateFrom', 'dueDateTo']);
     }
 
     public function openFilteryDueDate()
     {
+        $this->editedDueDateFrom = $this->dueDateFrom;
+        $this->editedDueDateTo = $this->dueDateTo;
         $this->Edited_dueDate_sec = true;
-
-        foreach ($this->dueDate as $date) {
-            $this->selectedDueDates[] = $date;
-        }
     }
 
     public function closeFilteryDueDate()
     {
         $this->Edited_dueDate_sec = false;
-        $this->Edited_dueDate = null;
-        $this->selectedDueDates = [];
+        $this->reset(['editedDueDateFrom', 'editedDueDateTo']);
     }
 
     public function setFilteryDueDate()
     {
-        $this->dueDate = $this->selectedDueDates;
+        $this->validate([
+            'editedDueDateFrom' => 'nullable|date|required_without:editedDueDateTo',
+            'editedDueDateTo' => 'nullable|date|required_without:editedDueDateFrom|after_or_equal:editedDueDateFrom',
+        ], [
+            'editedDueDateFrom.required_without' => 'The from date field is required.',
+            'editedDueDateTo.required_without' => 'The to date field is required.',
+            'editedDueDateTo.after_or_equal' => 'The to date must be a date after or equal to the from date.',
+        ]);
+        $this->dueDateFrom = $this->editedDueDateFrom;
+        $this->dueDateTo = $this->editedDueDateTo;
         $this->closeFilteryDueDate();
     }
 
@@ -117,7 +107,7 @@ class InvoiceIndex extends Component
 
     public function render()
     {
-        $invoices = SupplierInvoice::search($this->search, $this->selectedSupplier?->id, $this->dueDate, $this->is_paid)->paginate(50);
+        $invoices = SupplierInvoice::search($this->search, $this->selectedSupplier?->id, $this->dueDateFrom, $this->dueDateTo, $this->is_paid)->paginate(50);
         $suppliers = Supplier::search($this->supplierSearchText)
             ->limit(10)
             ->get();

@@ -424,7 +424,7 @@ class SupplierInvoice extends Model
         return $datePart . '-' . $serialPart;
     }
 
-    public function scopeSearch($query, $term, $supplierId = null, $dueDates = [] , $isPaid = null)
+    public function scopeSearch($query, $term, $supplierId = null, $dueDateFrom = null, $dueDateTo = null, $isPaid = null)
     {
         return $query->where(function ($q) use ($term) {
             $q->where('code', 'like', '%' . $term . '%')
@@ -443,13 +443,15 @@ class SupplierInvoice extends Model
         ->when($supplierId, function ($query, $supplierId) {
             $query->where('supplier_id', $supplierId);
         })
-        ->when(!empty($dueDates), function ($query) use ($dueDates) {
-            $query->whereIn('payment_due', $dueDates);
+        ->when($dueDateFrom, function ($query, $dueDateFrom) {
+            $query->where('payment_due', '>=', $dueDateFrom);
+        })
+        ->when($dueDateTo, function ($query, $dueDateTo) {
+            $query->where('payment_due', '<=', $dueDateTo);
         })
         ->when($isPaid !== null, function ($query) use ($isPaid) {
             $query->where('is_paid', $isPaid);
         });
-        ;
     }
 
     public function payments(): HasMany

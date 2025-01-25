@@ -53,24 +53,16 @@
 
         <header class="card-header cust-card-header noborder">
 
-            @if ($dueDate)
-
+            @if ($dueDateFrom || $dueDateTo)
                 <span class="badge bg-slate-900 text-white capitalize">
                     <span class="cursor-pointer" wire:click='openFilteryDueDate'>
                         <span class="text-secondary-500 ">Due Date:</span>
-                        @foreach ($dueDate as $sDdate)
-                            &nbsp;
-                            {{ $sDdate->isToday()
-                                ? 'Today'
-                                : ($sDdate->isYesterday()
-                                    ? 'Yesterday'
-                                    : ($sDdate->isTomorrow()
-                                        ? 'Tomorrow'
-                                        : $sDdate->format('l d-m-Y'))) }}
-                            @if (!$loop->last)
-                                ,
-                            @endif
-                        @endforeach
+                        &nbsp;
+                        {{ $dueDateFrom ? \Carbon\Carbon::parse($dueDateFrom)->format('l d/m/Y') : '' }}
+                        @if ($dueDateFrom && $dueDateTo)
+                            &nbsp;-&nbsp;
+                        @endif
+                        {{ $dueDateTo ? \Carbon\Carbon::parse($dueDateTo)->format('l d/m/Y') : '' }}
                     </span>
 
                     &nbsp;&nbsp;<iconify-icon wire:click="clearDueDate(closed)" icon="material-symbols:close"
@@ -120,13 +112,13 @@
                                 style="position: sticky; left: -25px;  z-index: 10;">
                                 Name
                             </th>
-                                <th scope="col" class="table-th">Serial</th>
-                                <th scope="col" class="table-th">Code</th>
-                                <th scope="col" class="table-th">Supplier</th>
-                                <th scope="col" class="table-th">Total</th>
-                                <th scope="col" class="table-th">Items</th>
-                                <th scope="col" class="table-th">Payment Status</th>
-                                <th scope="col" class="table-th">Payment Due</th>
+                            <th scope="col" class="table-th">Serial</th>
+                            <th scope="col" class="table-th">Code</th>
+                            <th scope="col" class="table-th">Supplier</th>
+                            <th scope="col" class="table-th">Total</th>
+                            <th scope="col" class="table-th">Items</th>
+                            <th scope="col" class="table-th">Payment Status</th>
+                            <th scope="col" class="table-th">Payment Due</th>
 
                         </tr>
                     </thead>
@@ -137,10 +129,10 @@
 
                                 <td class="table-td flex items-center sticky-column colomn-shadow even:bg-slate-100 dark:even:bg-slate-700"
                                     style="position: sticky; left: -25px;  z-index: 10;">
-                                    <a href="{{ route('invoice.show', $invoice->id) }}"> <span
-                                            class="hover-underline">
+                                    <a href="{{ route('invoice.show', $invoice->id) }}"> <span class="hover-underline">
                                             <b>
-                                                {{ $invoice->entry_date->format('d-m-Y') }} • {{ $invoice->supplier->name }}
+                                                {{ $invoice->entry_date->format('d-m-Y') }} •
+                                                {{ $invoice->supplier->name }}
                                             </b>
                                         </span>
                                     </a>
@@ -383,48 +375,31 @@
 
                         <!-- Modal body -->
                         <div class="p-6 space-y-4">
-
                             <div class="from-group">
                                 <div class="input-area">
-                                    <label for="Edited_dueDate" class="form-label">Due Date*</label>
-                                    <p class="text-gray-600 text-xs mb-2">
-                                        *You can select multiple dates by clicking on the date. Once done, click
-                                        "Submit" to apply the filter.
-                                    </p>
-                                    <input name="Edited_dueDate" id="Edited_dueDate" type="date"
-                                        class="form-control w-full mt-2 @error('Edited_dueDate') !border-danger-500 @enderror"
-                                        wire:model.live="Edited_dueDate" autocomplete="off">
-                                    {{-- <label for="multipleDate-picker" class="form-label">Multiple Dates</label>
-                                    <input wire:model="Edited_dueDate"
-                                        class="form-control py-2 flatpickr flatpickr-input active @error('Edited_dueDate') !border-danger-500 @enderror"
-                                        id="multipleDate-picker" data-mode="multiple" value="" type="text"
-                                        readonly="readonly"> --}}
-
+                                    <label for="editedDueDateFrom" class="form-label">From</label>
+                                    <input name="editedDueDateFrom" id="editedDueDateFrom" type="date"
+                                        class="form-control w-full mt-2 @error('editedDueDateFrom') !border-danger-500 @enderror"
+                                        wire:model="editedDueDateFrom" autocomplete="off">
                                 </div>
-                                @error('Edited_dueDate')
+                                @error('editedDueDateFrom')
                                     <span
                                         class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
                                 @enderror
                             </div>
 
-                            @foreach ($selectedDueDates as $index => $date)
-                                <span class="badge bg-slate-900 text-white capitalize">
-                                    <span class="cursor-pointer">
-                                        {{ $date->isToday()
-                                            ? 'Today'
-                                            : ($date->isYesterday()
-                                                ? 'Yesterday'
-                                                : ($date->isTomorrow()
-                                                    ? 'Tomorrow'
-                                                    : $date->format('l d-m-Y'))) }}
-                                    </span>
-
-                                    &nbsp;&nbsp;<iconify-icon wire:click="removeSelectedDate({{ $index }})"
-                                        icon="material-symbols:close" class="cursor-pointer" width="1.2em"
-                                        height="1.2em"></iconify-icon>
-                                </span>
-                            @endforeach
-
+                            <div class="from-group">
+                                <div class="input-area">
+                                    <label for="editedDueDateTo" class="form-label">To</label>
+                                    <input name="editedDueDateTo" id="editedDueDateTo" type="date"
+                                        class="form-control w-full mt-2 @error('editedDueDateTo') !border-danger-500 @enderror"
+                                        wire:model="editedDueDateTo" autocomplete="off">
+                                </div>
+                                @error('editedDueDateTo')
+                                    <span
+                                        class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                @enderror
+                            </div>
                         </div>
 
                         <!-- Modal footer -->
