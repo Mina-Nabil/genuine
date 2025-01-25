@@ -13,6 +13,7 @@ use App\Livewire\Materials\InvoiceIndex;
 use App\Livewire\Materials\InvoiceShow;
 use App\Livewire\Materials\MaterialIndex;
 use App\Livewire\Materials\MaterialShow;
+use App\Livewire\Materials\PaidInvoiceIndex;
 use App\Livewire\Materials\SupplierIndex;
 use App\Livewire\Materials\SupplierShow;
 use App\Livewire\Orders\CancelledOrderIndex;
@@ -73,8 +74,9 @@ Route::middleware(['auth', 'no_driver'])->group(function () {
     Route::get('/materials/{id}', MaterialShow::class)->name('material.show');
 
     Route::get('/invoices/create', InvoiceCreate::class)->name('invoice.create');
-    Route::get('/invoices/{id}', InvoiceShow::class)->name('invoice.show');
     Route::get('/invoices', InvoiceIndex::class)->name('invoice.index');
+    Route::get('/invoices/paid', PaidInvoiceIndex::class)->name('paid.invoice.index');
+    Route::get('/invoices/{id}', InvoiceShow::class)->name('invoice.show');
 
     Route::get('/products', ProductIndex::class)->name('product.index');
     Route::get('/products/{id}', ProductShow::class)->name('product.show');
@@ -104,7 +106,7 @@ Route::middleware(['auth', 'no_driver'])->group(function () {
     Route::get('/orders', OrderIndex::class)->name('orders.index');
     Route::get('/orders/pastdue', PastDueOrderIndex::class)->name('orders.past.due');
     Route::get('/orders/closed', ClosedOrderIndex::class)->name('orders.closed');
-    Route::get('/orders/cancelled', CancelledOrderIndex::class)->name('orders.closed');
+    Route::get('/orders/cancelled', CancelledOrderIndex::class)->name('orders.cancelled');
     Route::get('/orders/periodic', PeriodicOrderIndex::class)->name('orders.periodic.index');
     Route::get('/orders/inventory', OrderInventory::class)->name('orders.inventory');
     Route::get('/orders/{id}', OrderShow::class)->name('orders.show');

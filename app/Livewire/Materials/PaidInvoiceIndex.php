@@ -8,11 +8,11 @@ use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-class InvoiceIndex extends Component
+class PaidInvoiceIndex extends Component
 {
     use WithPagination;
 
-    public $page_title = '• Active Invoices';
+    public $page_title = '• Paid Invoices';
 
     public $search;
 
@@ -26,6 +26,7 @@ class InvoiceIndex extends Component
     public $Edited_dueDate_sec;
     public $editedDueDateFrom;
     public $editedDueDateTo;
+
 
     public function clearDueDate()
     {
@@ -92,14 +93,14 @@ class InvoiceIndex extends Component
 
     public function render()
     {
-        $invoices = SupplierInvoice::search($this->search, $this->selectedSupplier?->id, $this->dueDateFrom, $this->dueDateTo, false)->paginate(50);
+        $invoices = SupplierInvoice::search($this->search, $this->selectedSupplier?->id, $this->dueDateFrom, $this->dueDateTo, true )->paginate(50);
         $suppliers = Supplier::search($this->supplierSearchText)
             ->limit(10)
             ->get();
 
-        return view('livewire.materials.invoice-index', [
+        return view('livewire.materials.paid-invoice-index', [
             'invoices' => $invoices,
             'suppliers' => $suppliers,
-        ])->layout('layouts.app', ['page_title' => $this->page_title, 'invoices' => 'active']);
+        ])->layout('layouts.app', ['page_title' => $this->page_title, 'paidInvoices' => 'active']);
     }
 }
