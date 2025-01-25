@@ -20,8 +20,6 @@ class SupplierShow extends Component
     public $supplierName;
     public $supplierPhone1;
     public $supplierPhone2;
-    public $supplierEmail;
-    public $supplierAddress;
     public $supplierContactName;
     public $supplierContactPhone;
 
@@ -38,8 +36,6 @@ class SupplierShow extends Component
         $this->supplierName = $this->supplier->name;
         $this->supplierPhone1 = $this->supplier->phone1;
         $this->supplierPhone2 = $this->supplier->phone2;
-        $this->supplierEmail = $this->supplier->email;
-        $this->supplierAddress = $this->supplier->address;
         $this->supplierContactName = $this->supplier->contact_name;
         $this->supplierContactPhone = $this->supplier->contact_phone;
 
@@ -48,7 +44,7 @@ class SupplierShow extends Component
 
     public function closeEditInfoSection()
     {
-        $this->reset(['supplierName', 'supplierPhone1', 'supplierPhone2', 'supplierEmail', 'supplierAddress', 'supplierContactName', 'supplierContactPhone', 'editInfoSection']);
+        $this->reset(['supplierName', 'supplierPhone1', 'supplierPhone2', 'supplierContactName', 'supplierContactPhone', 'editInfoSection']);
     }
 
     public function editInfo()
@@ -57,13 +53,11 @@ class SupplierShow extends Component
             'supplierName' => 'required|string|max:255',
             'supplierPhone1' => 'required|string|max:255',
             'supplierPhone2' => 'nullable|string|max:255',
-            'supplierEmail' => 'nullable|email',
-            'supplierAddress' => 'nullable|string|max:255',
             'supplierContactName' => 'nullable|string|max:255',
             'supplierContactPhone' => 'nullable|string|max:255',
         ]);
 
-        $res = $this->supplier->editInfo($this->supplierName, $this->supplierPhone1, $this->supplierPhone2, $this->supplierEmail, $this->supplierAddress, $this->supplierContactName, $this->supplierContactPhone);
+        $res = $this->supplier->editInfo($this->supplierName, $this->supplierPhone1, $this->supplierPhone2, null, null, $this->supplierContactName, $this->supplierContactPhone);
 
         if ($res) {
             $this->closeEditInfoSection();

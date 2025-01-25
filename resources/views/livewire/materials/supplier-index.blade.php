@@ -36,7 +36,6 @@
 
                             <th scope="col" class="table-th">Phone 1</th>
                             <th scope="col" class="table-th">Phone 2</th>
-                            <th scope="col" class="table-th">Email</th>
                             <th scope="col" class="table-th">Contact Name</th>
                             <th scope="col" class="table-th">Contact Phone</th>
 
@@ -64,10 +63,6 @@
 
                                 <td class="table-td">
                                     {{ $supplier->phone2 }}
-                                </td>
-
-                                <td class="table-td">
-                                    {{ $supplier->email }}
                                 </td>
 
                                 <td class="table-td">
@@ -182,32 +177,6 @@
                                             class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
                                     @enderror
                                     @error('supplierPhone2')
-                                        <span
-                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
-                                    @enderror
-                                </div>
-
-                                <div class="from-group">
-                                    <div class="input-area">
-                                        <label for="supplierEmail" class="form-label">Email</label>
-                                        <input id="supplierEmail" type="email"
-                                            class="form-control @error('supplierEmail') !border-danger-500 @enderror"
-                                            wire:model="supplierEmail" autocomplete="off">
-                                    </div>
-                                    @error('supplierEmail')
-                                        <span
-                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
-                                    @enderror
-                                </div>
-
-                                <div class="from-group">
-                                    <div class="input-area">
-                                        <label for="supplierAddress" class="form-label">Address</label>
-                                        <textarea id="supplierAddress" type="text"
-                                            class="form-control @error('supplierAddress') !border-danger-500 @enderror" wire:model="supplierAddress"
-                                            autocomplete="off"></textarea>
-                                    </div>
-                                    @error('supplierAddress')
                                         <span
                                             class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
                                     @enderror

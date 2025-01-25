@@ -37,22 +37,6 @@
                         </div>
 
                         <div class="mt-5">
-                            <p><iconify-icon icon="ic:outline-email" width="16"
-                                    height="16"></iconify-icon>&nbsp;<b>Email</b></p>
-                            <div class="flex">
-                                <p>{{ $supplier->email ?? 'N/A' }}</p>
-                            </div>
-                        </div>
-
-                        <div class="mt-5">
-                            <p><iconify-icon icon="mdi:address-marker-outline" width="16"
-                                    height="16"></iconify-icon>&nbsp;<b>Address</b></p>
-                            <div class="flex">
-                                <p>{{ $supplier->address ?? 'N/A' }}</p>
-                            </div>
-                        </div>
-
-                        <div class="mt-5">
                             <p><iconify-icon icon="hugeicons:contact-01" width="16"
                                     height="16"></iconify-icon>&nbsp;<b>Contact</b></p>
                             <div class="flex">
@@ -391,32 +375,6 @@
                                             class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
                                     @enderror
                                     @error('supplierPhone2')
-                                        <span
-                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
-                                    @enderror
-                                </div>
-
-                                <div class="from-group">
-                                    <div class="input-area">
-                                        <label for="supplierEmail" class="form-label">Email</label>
-                                        <input id="supplierEmail" type="email"
-                                            class="form-control @error('supplierEmail') !border-danger-500 @enderror"
-                                            wire:model="supplierEmail" autocomplete="off">
-                                    </div>
-                                    @error('supplierEmail')
-                                        <span
-                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
-                                    @enderror
-                                </div>
-
-                                <div class="from-group">
-                                    <div class="input-area">
-                                        <label for="supplierAddress" class="form-label">Address</label>
-                                        <textarea id="supplierAddress" type="text"
-                                            class="form-control @error('supplierAddress') !border-danger-500 @enderror" wire:model="supplierAddress"
-                                            autocomplete="off"></textarea>
-                                    </div>
-                                    @error('supplierAddress')
                                         <span
                                             class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
                                     @enderror
