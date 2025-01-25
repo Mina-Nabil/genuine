@@ -106,6 +106,7 @@ class Supplier extends Model
         }
     }
 
+    // for supplier payments outside invoice
     public function deductBalanceWithPayment($amount, $paymentMethod, $paymentDate, $note = 'Balance update')
     {
         try {

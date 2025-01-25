@@ -23,14 +23,6 @@ class SupplierShow extends Component
     public $supplierContactName;
     public $supplierContactPhone;
 
-    //balance
-    public $isOpenAddToBalance;
-    public $AddedAmount;
-    public $AddedPaymentMethod;
-    public $AddedPaymentDate;
-    public $AddedIsNowPaymentDate = true;
-    public $AddedPaymentNote;
-
     public function openEditInfoSection()
     {
         $this->supplierName = $this->supplier->name;
@@ -65,47 +57,6 @@ class SupplierShow extends Component
         } else {
             $this->alertFailed();
         }
-    }
-
-    public function addToBalance()
-    {
-        $this->authorize('updateSupplierBalance', $this->supplier);
-
-        $paymentDate = null;
-        if ($this->AddedIsNowPaymentDate) {
-            $paymentDate = now();
-        } else {
-            $this->validate([
-                'AddedPaymentDate' => 'required|date',
-            ]);
-            $paymentDate = $this->AddedPaymentDate;
-        }
-
-        $this->validate([
-            'AddedAmount' => 'required|numeric|min:1',
-            'AddedPaymentMethod' => 'required|in:' . implode(',', CustomerPayment::PAYMENT_METHODS),
-            'AddedPaymentNote' => 'nullable|string',
-        ]);
-
-        $res = $this->supplier->deductBalanceWithPayment($this->AddedAmount, $this->AddedPaymentMethod, Carbon::parse($paymentDate), $this->AddedPaymentNote);
-
-        if ($res) {
-            $this->closeAddToBalanceSection();
-            $this->mount($this->supplier->id);
-            $this->alertSuccess('Balance updated!');
-        } else {
-            $this->alertFailed();
-        }
-    }
-
-    public function openAddToBalanceSection()
-    {
-        $this->isOpenAddToBalance = true;
-    }
-
-    public function closeAddToBalanceSection()
-    {
-        $this->reset(['isOpenAddToBalance', 'AddedAmount', 'AddedPaymentMethod', 'AddedPaymentDate', 'AddedIsNowPaymentDate', 'AddedPaymentNote']);
     }
 
     public function mount($id)

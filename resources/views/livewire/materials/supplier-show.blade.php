@@ -127,9 +127,6 @@
                                 class="mr-2"></iconify-icon>
                             Balance
                         </span>
-                        <button wire:click='openAddToBalanceSection' class="action-btn" type="button">
-                            <iconify-icon icon="material-symbols:add"></iconify-icon>
-                        </button>
                     </div>
                     <span class="block mb- text-2xl text-slate-900 dark:text-white font-medium mb-6">
                         EGP {{ $supplier->balance }}
@@ -414,124 +411,6 @@
                                     <span wire:loading.remove wire:target="editInfo">Submit</span>
                                     <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
                                         wire:loading wire:target="editInfo"
-                                        icon="line-md:loading-twotone-loop"></iconify-icon>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endif
-    @endcan
-
-    @can('updateSupplierBalance', $supplier)
-        @if ($isOpenAddToBalance)
-            <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
-                style="display: block" style="z-index: 999999999999999;" tabindex="-1"
-                aria-labelledby="vertically_center" aria-modal="true" role="dialog" style="display: block;">
-                <div class="modal-dialog relative w-auto pointer-events-none">
-                    <div
-                        class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
-                        <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
-                            <!-- Modal header -->
-                            <div
-                                class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
-                                <h3 class="text-xl font-medium text-white dark:text-white capitalize">
-                                    Add Balance Payment
-                                </h3>
-                                <button wire:click="closeAddToBalanceSection" type="button"
-                                    class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
-                                    data-bs-dismiss="modal">
-                                    <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path fill-rule="evenodd"
-                                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                            clip-rule="evenodd"></path>
-                                    </svg>
-                                    <span class="sr-only">Close modal</span>
-                                </button>
-                            </div>
-                            <!-- Modal body -->
-                            <div class="p-6 space-y-4">
-                                <div class="from-group">
-                                    <div class="input-area">
-                                        <label for="AddedAmount" class="form-label">Amount*</label>
-                                        <input id="AddedAmount" type="number" min="0"
-                                            class="form-control @error('AddedAmount') !border-danger-500 @enderror"
-                                            wire:model="AddedAmount" autocomplete="off">
-                                    </div>
-                                    @error('AddedAmount')
-                                        <span
-                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                                <div class="from-group">
-
-                                    <div class="checkbox-area">
-                                        <label class="inline-flex items-center cursor-pointer">
-                                            <input wire:model.live='AddedIsNowPaymentDate' type="checkbox" class="hidden"
-                                                name="checkbox" checked="checked">
-                                            <span
-                                                class="h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 bg-slate-100 dark:bg-slate-900">
-                                                <img src="{{ asset('assets/images/icon/ck-white.svg') }}" alt=""
-                                                    class="h-[10px] w-[10px] block m-auto opacity-0"></span>
-                                            <span class="text-slate-500 dark:text-slate-400 text-sm leading-6">is paid
-                                                today ?</span>
-                                        </label>
-                                    </div>
-                                    @if (!$AddedIsNowPaymentDate)
-                                        <div class="input-area mt-3">
-                                            <label for="AddedPaymentDate" class="form-label">Payment Date*</label>
-                                            <input id="AddedPaymentDate" type="date"
-                                                class="form-control @error('AddedPaymentDate') !border-danger-500 @enderror"
-                                                wire:model="AddedPaymentDate" autocomplete="off">
-                                        </div>
-                                    @endif
-
-                                </div>
-
-
-                                <div class="from-group">
-                                    <div class="input-area">
-                                        <label for="AddedPaymentMethod" class="form-label">Payment method*</label>
-                                        <select name="AddedPaymentMethod" id="AddedPaymentMethod"
-                                            class="form-control w-full mt-2 @error('AddedPaymentMethod') !border-danger-500 @enderror"
-                                            wire:model="AddedPaymentMethod" autocomplete="off">
-                                            <option value="">Select method</option>
-                                            @foreach ($PAYMENT_METHODS as $PAYMENT_METHOD)
-                                                <option value="{{ $PAYMENT_METHOD }}">
-                                                    {{ ucwords(str_replace('_', ' ', $PAYMENT_METHOD)) }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    @error('AddedPaymentMethod')
-                                        <span
-                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
-                                    @enderror
-                                </div>
-
-                                <div class="from-group">
-                                    <div class="input-area">
-                                        <label for="AddedPaymentNote" class="form-label">Note</label>
-                                        <textarea id="AddedPaymentNote" type="text"
-                                            class="form-control @error('AddedPaymentNote') !border-danger-500 @enderror" wire:model="AddedPaymentNote"
-                                            autocomplete="off"></textarea>
-                                    </div>
-                                    @error('AddedPaymentNote')
-                                        <span
-                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
-                                    @enderror
-                                </div>
-
-                            </div>
-                            <!-- Modal footer -->
-                            <div
-                                class="flex items-center justify-end p-6 space-x-2 border-t border-slate-200 rounded-b dark:border-slate-600">
-                                <button wire:click="addToBalance" data-bs-dismiss="modal"
-                                    class="btn inline-flex justify-center text-white bg-black-500">
-                                    <span wire:loading.remove wire:target="addToBalance">Submit</span>
-                                    <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
-                                        wire:loading wire:target="addToBalance"
                                         icon="line-md:loading-twotone-loop"></iconify-icon>
                                 </button>
                             </div>
