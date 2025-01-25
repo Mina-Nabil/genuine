@@ -24,7 +24,7 @@ class SupplierInvoice extends Model
 
     protected $casts = [
         'payment_due' => 'date',
-        'entryDate' => 'date',
+        'entry_date' => 'date',
     ];
 
     public static function createInvoice($supplierId, $entryDate, $rawMaterials, $code = null, $title = null, $note = null, $paymentDue = null,  $updateSupplierMaterials = false)

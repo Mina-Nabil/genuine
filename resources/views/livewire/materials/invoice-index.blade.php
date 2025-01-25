@@ -140,7 +140,7 @@
                                     <a href="{{ route('invoice.show', $invoice->id) }}"> <span
                                             class="hover-underline">
                                             <b>
-                                                {{ $invoice->title }}
+                                                {{ $invoice->entry_date->format('d-m-Y') }} • {{ $invoice->supplier->name }}
                                             </b>
                                         </span>
                                     </a>

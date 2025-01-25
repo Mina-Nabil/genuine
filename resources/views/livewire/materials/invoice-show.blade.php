@@ -12,7 +12,7 @@
                                 Invoice
                             </div>
                             @if ($invoice->title)
-                                <h5><b>{{ ucwords($invoice->title) }}</b></h5>
+                                <h5><b>{{ $invoice->entry_date->format('d/m/Y') }} • {{ $invoice->supplier->name }}</b></h5>
                             @endif
 
                         </div>
@@ -69,7 +69,7 @@
                             <div class="flex items-center">
                                 <iconify-icon icon="heroicons-outline:calendar" width="15" height="15"
                                     class="mr-1"></iconify-icon>
-                                Payment Due: {{ \Carbon\Carbon::parse($invoice->payment_due)->format('l, Y-m-d') }}
+                                Payment Due: {{ \Carbon\Carbon::parse($invoice->payment_due)->format('l, d/m/Y') }}
                             </div>
 
                             @if (\Carbon\Carbon::now()->greaterThan(\Carbon\Carbon::parse($invoice->payment_due)) && $invoice->remaining_to_pay > 0)
