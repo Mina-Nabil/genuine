@@ -152,6 +152,28 @@ class Supplier extends Model
         }
     }
 
+    public function addRawMaterial($rawMaterialId, $price, $expirationDate)
+    {
+        try {
+            DB::transaction(function () use ($rawMaterialId, $price, $expirationDate) {
+                if ($this->rawMaterials()->wherePivot('raw_material_id', $rawMaterialId)->exists()) {
+                    throw new Exception('This raw material is already assigned to this supplier.');
+                }
+                $this->rawMaterials()->attach($rawMaterialId, [
+                    'price' => $price,
+                    'expiration_date' => $expirationDate,
+                ]);
+
+                AppLog::info("Added raw material (ID: $rawMaterialId) to supplier {$this->name}", loggable: $this);
+            });
+            return true;
+        } catch (Exception $e) {
+            report($e);
+            AppLog::error('Failed to add raw material to supplier', $e->getMessage(), loggable: $this);
+            return false;
+        }
+    }
+
     public function scopeSearch($query, $term)
     {
         $term = "%{$term}%";
@@ -175,8 +197,13 @@ class Supplier extends Model
         return $this->hasMany(SupplierInvoice::class);
     }
 
+    public function avialableRawMaterials()
+    {
+        return $this->rawMaterials()->wherePivot('expiration_date', '>', now())->get();
+    }
+
     public function rawMaterials()
     {
-        return $this->belongsToMany(RawMaterial::class, 'supplier_raw_materials')->withPivot('price');
+        return $this->belongsToMany(RawMaterial::class, 'supplier_raw_materials')->withPivot('price','expiration_date');
     }
 }

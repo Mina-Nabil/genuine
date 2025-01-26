@@ -43,6 +43,7 @@ return new class extends Migration
             $table->foreignId('supplier_id')->constrained()->onDelete('cascade');
             $table->foreignId('raw_material_id')->constrained()->onDelete('cascade');
             $table->decimal('price', 15, 2);
+            $table->date('expiration_date');
             $table->timestamps();
         });
     }

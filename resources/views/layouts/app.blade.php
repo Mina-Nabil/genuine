@@ -366,7 +366,7 @@
                         <a href="{{ auth()->user()->can('viewAny', App\Models\Materials\SupplierInvoice::class)? url('/invoices'): '#' }}"
                             class="navItem {{ $invoices ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Materials\SupplierInvoice::class)? '': 'disabled' }}">
                             <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="mdi:account-supervisor">
+                                <iconify-icon class=" nav-icon" icon="mdi:file-document-outline">
                                 </iconify-icon>
                                 <span>Active Invoices</span>
                             </span>
@@ -377,7 +377,7 @@
                         <a href="{{ auth()->user()->can('viewAny', App\Models\Materials\SupplierInvoice::class)? url('/invoices/paid'): '#' }}"
                             class="navItem {{ $paidInvoices ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Materials\SupplierInvoice::class)? '': 'disabled' }}">
                             <span class="flex items-center">
-                                <iconify-icon class="nav-icon" icon="mdi:cash-check"></iconify-icon>
+                                <iconify-icon class="nav-icon" icon="stash:invoice"></iconify-icon>
                                 <span>Paid Invoices</span>
                             </span>
                         </a>

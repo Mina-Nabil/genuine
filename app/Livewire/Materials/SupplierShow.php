@@ -2,7 +2,9 @@
 
 namespace App\Livewire\Materials;
 
+use App\Models\Materials\RawMaterial;
 use App\Models\Materials\Supplier;
+use App\Models\materials\SupplierRawMaterial;
 use App\Models\Payments\CustomerPayment;
 use App\Traits\AlertFrontEnd;
 use Carbon\Carbon;
@@ -11,7 +13,7 @@ use Livewire\WithPagination;
 
 class SupplierShow extends Component
 {
-    use AlertFrontEnd , WithPagination;
+    use AlertFrontEnd, WithPagination;
     public $page_title;
 
     public $supplier;
@@ -22,6 +24,149 @@ class SupplierShow extends Component
     public $supplierPhone2;
     public $supplierContactName;
     public $supplierContactPhone;
+
+    //materials
+    public $isOpenAssignMaterialSection = false;
+    public $price;
+    public $expirationDate;
+    public $availableRawMaterials;
+    public $selectedRawMaterial;
+    public $materialsSearch;
+
+    public $isOpenUpdateRawMaterialSection = false;
+
+    public $deleteRawMaterialId;
+
+    public function openConfirmDeleteMaterial($id)
+    {
+        $this->deleteRawMaterialId = $id;
+    }
+
+    public function closeConfirmDeleteMaterial()
+    {
+        $this->deleteRawMaterialId = null;
+    }
+
+    public function deleteRawMaterial()
+    {
+        $res = SupplierRawMaterial::where('supplier_id', $this->supplier->id)
+            ->where('raw_material_id', $this->deleteRawMaterialId)
+            ->firstOrFail()
+            ->deleteRawMaterial();
+        if ($res) {
+            $this->closeConfirmDeleteMaterial();
+            $this->alertSuccess('Material removed!');
+        } else {
+            $this->alertFailed();
+        }
+    }
+
+    public function openUpdateRawMaterialSection($materal_id)
+    {
+        $r = SupplierRawMaterial::where('supplier_id', $this->supplier->id)
+            ->where('raw_material_id', $materal_id)
+            ->firstOrFail();
+        $this->price = $r->price;
+        $this->expirationDate = $r->expiration_date->todatestring();
+        $this->isOpenUpdateRawMaterialSection = $materal_id;
+    }
+
+    public function closeUpdateRawMaterialSection()
+    {
+        $this->reset(['price', 'expirationDate', 'isOpenUpdateRawMaterialSection']);
+    }
+
+    public function updateRawMaterial()
+    {
+        $this->validate(
+            [
+                'price' => 'required|numeric|min:0',
+                'expirationDate' => 'required|date|after:today',
+            ],
+            [
+                'price.required' => 'The price field is required.',
+                'price.numeric' => 'The price must be a number.',
+                'price.min' => 'The price must be at least 0.',
+                'expirationDate.required' => 'The expiration date field is required.',
+                'expirationDate.date' => 'The expiration date is not a valid date.',
+                'expirationDate.after' => 'The expiration date must be a date after today.',
+            ],
+        );
+
+        $r = SupplierRawMaterial::where('supplier_id', $this->supplier->id)
+            ->where('raw_material_id', $this->isOpenUpdateRawMaterialSection)
+            ->firstOrFail();
+
+        $res = $r->editInfo($this->price, $this->expirationDate);
+
+        if ($res) {
+            $this->closeUpdateRawMaterialSection();
+            $this->alertSuccess('Material updated!');
+        } else {
+            $this->alertFailed();
+        }
+    }
+
+    public function openAssignMaterialSection()
+    {
+        $this->isOpenAssignMaterialSection = true;
+    }
+
+    public function closeAssignMaterialSection()
+    {
+        $this->reset(['isOpenAssignMaterialSection', 'selectedRawMaterial', 'price', 'expirationDate']);
+    }
+
+    public function selectRawMaterial($id)
+    {
+        $this->selectedRawMaterial = RawMaterial::findOrFail($id);
+    }
+
+    public function clearSelectedMaterial()
+    {
+        $this->selectedRawMaterial = null;
+    }
+
+    public function assignMaterial()
+    {
+        $this->validate(
+            [
+                'selectedRawMaterial.id' => 'required|exists:raw_materials,id',
+                'price' => 'required|numeric|min:0',
+                'expirationDate' => 'required|date|after:today',
+            ],
+            [
+                'selectedRawMaterial.id.required' => 'The raw material is required.',
+                'selectedRawMaterial.id.exists' => 'The selected raw material does not exist.',
+                'price.required' => 'The price field is required.',
+                'price.numeric' => 'The price must be a number.',
+                'price.min' => 'The price must be at least 0.',
+                'expirationDate.required' => 'The expiration date field is required.',
+                'expirationDate.date' => 'The expiration date is not a valid date.',
+                'expirationDate.after' => 'The expiration date must be a date after today.',
+            ],
+        );
+
+        // Check if the raw material is already assigned to the supplier
+        if (
+            $this->supplier
+                ->rawMaterials()
+                ->where('raw_material_id', $this->selectedRawMaterial->id)
+                ->exists()
+        ) {
+            $this->addError('selectedRawMaterial.id', 'This raw material is already assigned to the supplier.');
+            return;
+        }
+
+        $res = $this->supplier->addRawMaterial($this->selectedRawMaterial->id, $this->price, $this->expirationDate);
+
+        if ($res) {
+            $this->closeAssignMaterialSection();
+            $this->alertSuccess('Material assigned!');
+        } else {
+            $this->alertFailed();
+        }
+    }
 
     public function openEditInfoSection()
     {
@@ -68,15 +213,27 @@ class SupplierShow extends Component
     public function render()
     {
         $PAYMENT_METHODS = CustomerPayment::PAYMENT_METHODS;
-        $supplierPayments = $this->supplier->payments()->latest()->paginate(5, ['*'], 'paymentsPage');
-        $supplierTransactions = $this->supplier->transactions()->latest()->paginate(5, ['*'], 'transactionsPage');
+        $supplierPayments = $this->supplier
+            ->payments()
+            ->latest()
+            ->paginate(5, ['*'], 'paymentsPage');
+        $supplierTransactions = $this->supplier
+            ->transactions()
+            ->latest()
+            ->paginate(5, ['*'], 'transactionsPage');
         $supplierMaterials = $this->supplier->rawMaterials()->paginate(10, ['*'], 'materialsPage');
 
-        return view('livewire.materials.supplier-show',[
+        if ($this->isOpenAssignMaterialSection) {
+            $this->availableRawMaterials = RawMaterial::search($this->materialsSearch)
+                ->take(5)
+                ->get();
+        }
+
+        return view('livewire.materials.supplier-show', [
             'PAYMENT_METHODS' => $PAYMENT_METHODS,
             'supplierPayments' => $supplierPayments,
             'supplierTransactions' => $supplierTransactions,
-            'supplierMaterials' => $supplierMaterials
+            'supplierMaterials' => $supplierMaterials,
         ])->layout('layouts.app', ['page_title' => $this->page_title, 'suppliers' => 'active']);
     }
 }
