@@ -26,49 +26,30 @@ class InvoiceCreate extends Component
     public $totalItems;
     public $total;
 
-    public $supplierIsNew = false;
     public $supplierId;
     public $supplierName;
-    public $isOpenSelectSupplierSec;
     public $suppliersSearchText;
-
-    public $supplierPhone1;
-    public $supplierPhone2;
-    public $supplierEmail;
-    public $supplierAddress;
-    public $supplierContactName;
-    public $supplierContactPhone;
 
     public $entry_date;
     public $payment_due;
     public $note;
-    public $update_supplier_materials = false;
 
-    public function openSupplierSection()
-    {
-        $this->isOpenSelectSupplierSec = true;
-    }
 
-    public function NewSupplierSection()
-    {
-        $this->supplierIsNew = true;
-    }
-
-    public function closeSupplierSection()
-    {
-        $this->isOpenSelectSupplierSec = false;
-        $this->suppliersSearchText = null;
-    }
 
     public function addMaterials()
     {
         foreach ($this->selectedMaterials as $materialId) {
-            $material = RawMaterial::findOrFail($materialId);
+
+            $material = Supplier::findOrFail($this->supplierId)
+                ->avialableRawMaterials()
+                ->where('raw_materials.id', $materialId)
+                ->firstOrFail();
+
             $this->fetchedMaterials[] = [
                 'id' => $materialId,
                 'name' => $material->name,
                 'quantity' => 1, // Default quantity
-                'price' => 0, // Default price
+                'price' => $material->pivot->price, // Price from pivot table
             ];
         }
 
@@ -85,7 +66,7 @@ class InvoiceCreate extends Component
 
     public function clearSupplier()
     {
-        $this->reset(['supplierIsNew', 'supplierId', 'supplierName']);
+        $this->reset(['supplierId', 'supplierName','fetchedMaterials']);
         $this->refreshPayments();
     }
 
@@ -153,7 +134,6 @@ class InvoiceCreate extends Component
         $this->supplierId = $supplier->id;
         $this->supplierName = $supplier->name;
 
-        $this->closeSupplierSection();
         $this->refreshPayments();
     }
 
@@ -176,23 +156,9 @@ class InvoiceCreate extends Component
 
     public function addInvoice()
     {
-        if ($this->supplierIsNew) {
-            $this->validate([
-                'supplierName' => 'required|string|max:255',
-                'supplierPhone1' => 'required|string|max:255',
-                'supplierPhone2' => 'nullable|string|max:255',
-                'supplierEmail' => 'nullable|email',
-                'supplierAddress' => 'nullable|string|max:255',
-                'supplierContactName' => 'nullable|string|max:255',
-                'supplierContactPhone' => 'nullable|string|max:255',
-            ]);
-
-            $supplier = Supplier::newSupplier($this->supplierName, $this->supplierPhone1, $this->supplierPhone2, $this->supplierEmail, $this->supplierAddress, $this->supplierContactName, $this->supplierContactPhone);
-        }
-
         $this->validate(
             [
-                'supplierId' => $this->supplierIsNew ? 'nullable' :  'required|exists:suppliers,id',
+                'supplierId' =>  'required|exists:suppliers,id',
                 'invoiceCode' => 'nullable|string|max:255|unique:supplier_invoices,code',
                 'invoiceTitle' => 'nullable|string|max:255',
                 'note' => 'nullable|string|max:500',
@@ -202,7 +168,6 @@ class InvoiceCreate extends Component
                 'fetchedMaterials.*.id' => 'required|exists:raw_materials,id',
                 'fetchedMaterials.*.quantity' => 'required|integer|min:1',
                 'fetchedMaterials.*.price' => 'required|numeric|min:0',
-                'update_supplier_materials' => 'required|boolean',
             ],
             [
                 'supplierId.required' => 'The supplier is required.',
@@ -226,12 +191,10 @@ class InvoiceCreate extends Component
                 'fetchedMaterials.*.price.required' => 'Each raw material must have a price.',
                 'fetchedMaterials.*.price.numeric' => 'The price of each raw material must be a numeric value.',
                 'fetchedMaterials.*.price.min' => 'The price of each raw material must be at least 0.',
-                'update_supplier_materials.required' => 'The update supplier materials field is required.',
-                'update_supplier_materials.boolean' => 'The update supplier materials field must be true or false.',
             ],
         );
 
-        $res = SupplierInvoice::createInvoice($this->supplierIsNew ? $supplier->id : $this->supplierId, $this->entry_date, $this->fetchedMaterials, $this->invoiceCode, $this->invoiceTitle, $this->note,  $this->payment_due,  $this->update_supplier_materials);
+        $res = SupplierInvoice::createInvoice($this->supplierId, $this->entry_date, $this->fetchedMaterials, $this->invoiceCode, null, $this->note,  $this->payment_due);
 
         if ($res) {
             $this->reset();
@@ -243,9 +206,18 @@ class InvoiceCreate extends Component
 
     public function render()
     {
-        $rawMaterials = RawMaterial::search($this->materialsSearchText)
-            ->limit(20)
+        if ($this->supplierId) {
+            $rawMaterials = Supplier::findOrFail($this->supplierId)
+            ->avialableRawMaterials()
+            ->take(20)
             ->get();
+            // $rawMaterials = RawMaterial::search($this->materialsSearchText)
+            // ->limit(20)
+            // ->get();
+        }else{
+            $rawMaterials = null;
+        }
+        
 
         $suppliers = Supplier::search($this->suppliersSearchText)
             ->limit(10)

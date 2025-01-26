@@ -199,7 +199,7 @@ class Supplier extends Model
 
     public function avialableRawMaterials()
     {
-        return $this->rawMaterials()->wherePivot('expiration_date', '>', now())->get();
+        return $this->rawMaterials()->wherePivot('expiration_date', '>', now());
     }
 
     public function rawMaterials()

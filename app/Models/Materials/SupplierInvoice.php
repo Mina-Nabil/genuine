@@ -27,14 +27,14 @@ class SupplierInvoice extends Model
         'entry_date' => 'date',
     ];
 
-    public static function createInvoice($supplierId, $entryDate, $rawMaterials, $code = null, $title = null, $note = null, $paymentDue = null,  $updateSupplierMaterials = false)
+    public static function createInvoice($supplierId, $entryDate, $rawMaterials, $code = null, $title = null, $note = null, $paymentDue = null)
     {
         if (!$entryDate) {
             throw new Exception('Entry date is required.');
         }
 
         try {
-            return DB::transaction(function () use ($supplierId, $code, $title, $note, $paymentDue, $rawMaterials, $updateSupplierMaterials, $entryDate) {
+            return DB::transaction(function () use ($supplierId, $code, $title, $note, $paymentDue, $rawMaterials, $entryDate) {
                 $totalItems = 0;
                 $totalAmount = 0;
 
@@ -63,16 +63,6 @@ class SupplierInvoice extends Model
                         'quantity' => $material['quantity'],
                         'price' => $material['price'],
                     ]);
-
-                    if ($updateSupplierMaterials) {
-                        SupplierRawMaterial::updateOrCreate(
-                            [
-                                'supplier_id' => $supplierId,
-                                'raw_material_id' => $material['id'],
-                            ],
-                            ['price' => $material['price']],
-                        );
-                    }
 
                     $m->rawMaterial->inventory->addTransaction($material['quantity'], 'Added From Invoice');
                 }
