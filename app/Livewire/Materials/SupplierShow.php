@@ -224,9 +224,11 @@ class SupplierShow extends Component
         $supplierMaterials = $this->supplier->rawMaterials()->paginate(10, ['*'], 'materialsPage');
 
         if ($this->isOpenAssignMaterialSection) {
-            $this->availableRawMaterials = RawMaterial::search($this->materialsSearch)
-                ->take(5)
-                ->get();
+            $assignedMaterialIds = $this->supplier->rawMaterials()->pluck('raw_material_id')->toArray();
+            $this->availableRawMaterials = RawMaterial::whereNotIn('id', $assignedMaterialIds)
+            ->search($this->materialsSearch)
+            ->take(5)
+            ->get();
         }
 
         return view('livewire.materials.supplier-show', [

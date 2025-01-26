@@ -487,7 +487,7 @@
                             <!-- Modal body -->
                             <div class="p-6 space-y-4">
 
-                                @error('rawMaterialId')
+                                @error('selectedRawMaterial.id')
                                     <div
                                         class="py-[18px] px-6 font-normal font-Inter text-sm rounded-md bg-danger-500 bg-opacity-[14%] text-danger-500">
                                         <div class="flex items-start space-x-3 rtl:space-x-reverse">
