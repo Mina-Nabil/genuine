@@ -182,7 +182,6 @@
                                             </td>
 
                                             <td class="table-td">
-                                                {{ $user->idss }}
                                                 @php
                                                     $zones = explode(',', $user->zone_names); // Convert the comma-separated zone names into an array
                                                 @endphp

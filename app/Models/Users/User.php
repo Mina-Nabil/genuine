@@ -336,7 +336,6 @@ class User extends Authenticatable
             ->selectRaw('COUNT(DISTINCT o1.zone_id) as total_zones')
             ->selectRaw('COUNT(DISTINCT Date(o1.delivery_date)) as total_days')
             ->selectRaw('GROUP_CONCAT(DISTINCT zones.name ORDER BY zones.name ASC) as zone_names')
-            ->selectRaw('GROUP_CONCAT(DISTINCT o1.id) as idss')
             ->selectRaw('COUNT(DISTINCT o1.zone_id) as total_zones')
             ->selectRaw('SUM((SELECT SUM(amount) from customer_payments as c2 where o1.id = c2.order_id)) as total_paid')
 
@@ -345,6 +344,7 @@ class User extends Authenticatable
             ->leftJoin('zones', 'o1.zone_id', '=', 'zones.id')
 
             ->whereIn('o1.status', Order::OK_STATUSES)
+            ->whereNull('o1.deleted_at')
             ->whereBetween('o1.delivery_date', [$fromDate->format('Y-m-d 00:00:00'), $toDate->format('Y-m-d 23:59:59')])
 
             ->groupBy('users.id')
