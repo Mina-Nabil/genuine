@@ -336,7 +336,7 @@ class User extends Authenticatable
             ->selectRaw('COUNT(DISTINCT o1.zone_id) as total_zones')
             ->selectRaw('COUNT(DISTINCT Date(o1.delivery_date)) as total_days')
             ->selectRaw('GROUP_CONCAT(DISTINCT zones.name ORDER BY zones.name ASC) as zone_names')
-            ->selectRaw('GROUP_CONCAT(DISTINCT o1.id) as ids')
+            ->selectRaw('GROUP_CONCAT(DISTINCT o1.id) as idss')
             ->selectRaw('COUNT(DISTINCT o1.zone_id) as total_zones')
             ->selectRaw('SUM((SELECT SUM(amount) from customer_payments as c2 where o1.id = c2.order_id)) as total_paid')
 
