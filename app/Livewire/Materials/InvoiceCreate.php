@@ -209,11 +209,9 @@ class InvoiceCreate extends Component
         if ($this->supplierId) {
             $rawMaterials = Supplier::findOrFail($this->supplierId)
             ->avialableRawMaterials()
+            ->search($this->materialsSearchText)
             ->take(20)
             ->get();
-            // $rawMaterials = RawMaterial::search($this->materialsSearchText)
-            // ->limit(20)
-            // ->get();
         }else{
             $rawMaterials = null;
         }
