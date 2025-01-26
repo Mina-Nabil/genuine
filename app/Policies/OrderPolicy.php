@@ -55,7 +55,7 @@ class OrderPolicy
         return $user->is_admin;
     }
 
-    public function cancelOrder(User $user, Order $order): bool
+    public function cancelOrder(User $user, Order $order = null): bool
     {
         return $user->is_admin;
     }
