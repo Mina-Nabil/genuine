@@ -271,19 +271,12 @@ class Customer extends Model
                 $this->save();
 
                 // Step 2: Create a positive balance transaction
-                BalanceTransaction::create([
-                    'customer_id' => $this->id,
-                    'amount' => $amount, // Positive amount added to the balance
-                    'balance' => $this->balance,
-                    'description' => $note ?? 'Add to balance',
-                    'created_by' => $loggedInUser->id,
-                    // 'balance' => $this->balance,
-                ]);
+                
 
                 $new_type_balance = CustomerPayment::calculateNewBalance($amount, $paymentMethod);
 
                 // Step 3: Create the payment record for the added amount
-                CustomerPayment::create([
+                $payment = CustomerPayment::create([
                     'customer_id' => $this->id,
                     'amount' => $amount, // Payment amount (same as the added balance)
                     'payment_method' => $paymentMethod,
@@ -291,6 +284,14 @@ class Customer extends Model
                     'payment_date' => $paymentDate,
                     'note' => $note ?? 'Add to balance',
                     'created_by' => $loggedInUser->id,
+                ]);
+
+                $this->transactions()->create([
+                    'amount' => $amount, // Positive amount added to the balance
+                    'balance' => $this->balance,
+                    'description' => $note ?? 'Add to balance',
+                    'created_by' => $loggedInUser->id,
+                    'customer_payment_id' => $payment->id
                 ]);
 
                 // Step 4: Log the action (optional)
@@ -436,9 +437,9 @@ class Customer extends Model
         return $this->hasMany(AppLog::class, 'loggable_id')->where('loggable_type', self::MORPH_TYPE);
     }
 
-    public function transactions(): HasMany
+    public function transactions(): MorphMany
     {
-        return $this->hasMany(BalanceTransaction::class);
+        return $this->morphMany(BalanceTransaction::class, 'transactionable');
     }
 
     public function zone()

@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Reports;
 
+use App\Models\Materials\RawMaterial;
 use App\Models\Orders\OrderProduct;
 use App\Models\Products\Product;
 use Carbon\Carbon;
@@ -19,12 +20,21 @@ class ProductionPlanning extends Component
 
     public $fetched_products_IDs;
     public $search;
+    public $searchRm;
     public $selectAll = false; //to select all in the page
     public $selectedProducts = [];
     public $selectedAllProducts = false; //to select all products
 
     public $sortColomn;
     public $sortDirection = 'asc';
+
+    public function updatedSearch(){
+        $this->resetPage('productPage');
+    }
+
+    public function updatedSearchRm(){
+        $this->resetPage('materialPage');
+    }
 
     public function mount()
     {
@@ -34,9 +44,11 @@ class ProductionPlanning extends Component
 
     public function render()
     {
-        $orderProducts = OrderProduct::productionPlanning($this->deliveryDate,$this->isToDate,$this->searchTerm)->paginate(50);
+        $orderProducts = OrderProduct::productionPlanning($this->deliveryDate,$this->isToDate,$this->searchTerm)->paginate(50, ['*'] , 'productPage');
+        $rawMaterials = RawMaterial::search($this->searchRm)->paginate(10 , ['*'] , 'materialPage');
         return view('livewire.reports.production-planning',[
-            'orderProducts' => $orderProducts
+            'orderProducts' => $orderProducts,
+            'rawMaterials' => $rawMaterials
         ])->layout('layouts.app', ['page_title' => $this->page_title, 'productions' => 'active']);;
     }
 }

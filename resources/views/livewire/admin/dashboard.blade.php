@@ -73,7 +73,7 @@
                                         Weight sold
                                     </div>
                                     <div class="text-slate-900 dark:text-white text-lg font-medium">
-                                        {{ $totalOrdersWeight/1000 }} <small>KG</small>
+                                        {{ $totalOrdersWeight / 1000 }} <small>KG</small>
                                     </div>
                                 </div>
                             </div>
@@ -94,7 +94,7 @@
                                         Total / Paid
                                     </div>
                                     <div class="text-slate-900 dark:text-white text-lg font-medium">
-                                        {{ number_format($totalAmount) }}  /  {{ number_format($totalPaid) }}
+                                        {{ number_format($totalAmount) }} / {{ number_format($totalPaid) }}
                                     </div>
                                 </div>
                             </div>
@@ -112,9 +112,6 @@
                 <h4 class="card-title">Analysis</h4>
             </header>
             <div class="card-body p-6 pt-0">
-
-                <!-- BEGIN: Company Table -->
-
 
                 <div class="overflow-x-auto -mx-6">
                     <div class="inline-block min-w-full align-middle">
@@ -203,8 +200,7 @@
                                                                 <iconify-icon
                                                                     icon="icon-park-solid:analysis"></iconify-icon>
                                                             </h2>
-                                                            <h2
-                                                                class="card-title text-slate-900 dark:text-white mb-3">
+                                                            <h2 class="card-title text-slate-900 dark:text-white mb-3">
                                                                 There was no data found for this date range</h2>
                                                             <p class="card-text">Try changing the date range.
                                                             </p>
@@ -223,7 +219,208 @@
                         </div>
                     </div>
                 </div>
-                <!-- END: Company Table -->
+
+
+
+            </div>
+        </div>
+
+        <div class="card">
+            <header class="card-header">
+                <h4 class="card-title flex justify-start content-center gap-2">
+                    <span>Raw Materials</span>
+                    @if (!$materialsUnderLimit->isEmpty())
+                        <span><span class="badge bg-danger-500 text-white capitalize rounded-3xl">Below Minimum
+                                Limit</span></span>
+                    @endif
+                </h4>
+                <div>
+                </div>
+            </header>
+            <div class="card-body p-6">
+                @if (!$materialsUnderLimit->isEmpty())
+                    <ul class="divide-y divide-slate-100 dark:divide-slate-700">
+                        <li
+                            class="first:text-xs text-sm first:text-slate-600 text-slate-600 dark:text-slate-300 py-2 first:uppercase">
+                            <div class="flex justify-between">
+                                <span>Material</span>
+                                <span>Available / Minimum Limit</span>
+                            </div>
+                        </li>
+
+                        @foreach ($materialsUnderLimit as $material)
+                            <li
+                                class="first:text-xs text-sm first:text-slate-600 text-slate-600 dark:text-slate-300 py-2 first:uppercase
+                            hover:bg-slate-200 dark:hover:bg-slate-700">
+                                <div class="flex justify-between">
+                                    <span class="hover-underline">
+                                        <a href="{{ route('material.show', $material->id) }}">
+                                            <b>{{ $material->name }}</b>
+                                        </a>
+                                    </span>
+                                    <div>
+                                        <b>
+                                            <span class="text-danger-500">{{ $material->inventory->on_hand }}</span>
+                                            <span>/ {{ $material->min_limit }}</span>
+                                        </b>
+                                    </div>
+                                </div>
+                            </li>
+                        @endforeach
+                    </ul>
+                @else
+                    <div class="flex justify-center p-5">
+                        <div class="text-center">
+                            <iconify-icon class="text-success-500" icon="hugeicons:shopping-basket-done-03" width="50"
+                                height="50"></iconify-icon>
+                            <div class="text-gray-500 text-sm mt-2">No materials below limit found.</div>
+                        </div>
+                    </div>
+                @endif
+
+
+
+            </div>
+        </div>
+
+        <div class="card">
+            <header class=" card-header noborder">
+                <h4 class="card-title">Supplier Raw Materials (Expired) Pricing
+                </h4>
+            </header>
+            <div class="card-body px-6 pb-6">
+                <div class="overflow-x-auto -mx-6">
+                    <div class="inline-block min-w-full align-middle">
+                        <div class="overflow-hidden ">
+                            <table class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700">
+                                <thead class=" border-t border-slate-100 dark:border-slate-800">
+                                    <tr>
+
+                                        <th scope="col" class=" table-th ">
+                                            Supplier
+                                        </th>
+
+                                        <th scope="col" class=" table-th ">
+                                            Material
+                                        </th>
+
+                                        <th scope="col" class=" table-th ">
+                                            Expiration Date
+                                        </th>
+
+                                        <th scope="col" class=" table-th ">
+                                            Price
+                                        </th>
+
+                                    </tr>
+                                </thead>
+                                <tbody
+                                    class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
+
+                                    @if (!$nearlyExpiredMaterials->isEmpty() || !$expiredMaterials->isEmpty())
+
+                                        @if (!$nearlyExpiredMaterials->isEmpty())
+                                            <tr>
+                                                <td class="table-td" colspan="4">
+                                                    <span
+                                                        class="badge bg-warning-500 text-warning-500 bg-opacity-30 capitalize rounded-3xl w-full">Nearly
+                                                        Expired</span>
+                                                </td>
+                                            </tr>
+                                            @foreach ($nearlyExpiredMaterials as $nearlyExpiredMaterial)
+                                                <tr>
+                                                    <td class="table-td">
+                                                        <span class="hover-underline">
+                                                            <a
+                                                                href="{{ route('material.show', $nearlyExpiredMaterial->rawMaterial->id) }}">
+                                                                {{ $nearlyExpiredMaterial->rawMaterial->name }}
+                                                            </a>
+                                                        </span>
+                                                    </td>
+                                                    <td class="table-td">
+                                                        <span class="hover-underline">
+                                                            <a
+                                                                href="{{ route('supplier.show', $nearlyExpiredMaterial->supplier->id) }}">
+                                                                {{ $nearlyExpiredMaterial->supplier->name }}
+                                                            </a>
+                                                        </span>
+                                                    </td>
+                                                    <td class="table-td">
+                                                        <span class="text-warning-500">
+                                                            <b>
+                                                                {{ \Carbon\Carbon::parse($nearlyExpiredMaterial->expiration_date)->format('l d/m/Y') }}
+                                                            </b>
+                                                        </span>
+                                                    </td>
+                                                    <td class="table-td">
+                                                        {{ number_format($nearlyExpiredMaterial->price, 2) }}
+                                                        <small>EGP</small>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        @endif
+                                        @if (!$expiredMaterials->isEmpty())
+                                            <tr>
+                                                <td class="table-td" colspan="4">
+                                                    <span
+                                                        class="badge bg-danger-500 text-danger-500 bg-opacity-30 capitalize rounded-3xl w-full">Expired</span>
+                                                </td>
+                                            </tr>
+                                            @foreach ($expiredMaterials as $expiredMaterial)
+                                                <tr>
+                                                    <td class="table-td">
+                                                        <span class="hover-underline">
+                                                            <a
+                                                                href="{{ route('material.show', $expiredMaterial->rawMaterial->id) }}">
+                                                                {{ $expiredMaterial->rawMaterial->name }}
+                                                            </a>
+                                                        </span>
+                                                    </td>
+                                                    <td class="table-td">
+                                                        <span class="hover-underline">
+                                                            <a
+                                                                href="{{ route('supplier.show', $expiredMaterial->supplier->id) }}">
+                                                                {{ $expiredMaterial->supplier->name }}
+                                                            </a>
+                                                        </span>
+                                                    </td>
+                                                    <td class="table-td ">
+                                                        <span class="text-danger-500">
+                                                            <b>
+                                                                {{ \Carbon\Carbon::parse($expiredMaterial->expiration_date)->format('l d/m/Y') }}
+                                                            </b>
+                                                        </span>
+                                                    </td>
+                                                    <td class="table-td">
+                                                        {{ number_format($expiredMaterial->price, 2) }}
+                                                        <small>EGP</small>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        @endif
+                                    @else
+                                        <tr>
+                                            <td class="table-td" colspan="4" class="text-center">
+                                                <div class="flex justify-center p-5">
+                                                    <div class="text-center">
+                                                        <iconify-icon class="text-success-500"
+                                                            icon="hugeicons:task-done-01" width="50"
+                                                            height="50"></iconify-icon>
+                                                        <div class="text-gray-500 text-sm mt-2">No nearly expired or
+                                                            expired materials found.</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endif
+
+
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
