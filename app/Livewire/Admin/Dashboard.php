@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin;
 
+use App\Models\Materials\RawMaterial;
 use App\Models\Users\Driver;
 use App\Models\Users\User;
 use Livewire\Component;
@@ -38,6 +39,8 @@ class Dashboard extends Component
         $toDate = Carbon::parse($this->toDate);
 
         $usersStatistics = User::orderStatisticsBetween($fromDate,$toDate)->get();
+
+        $materialsUnderLimit = RawMaterial::UnderLimit()->get();
         
         // Ensure the data is properly sent to the view
         return view('livewire.admin.dashboard', [
@@ -46,6 +49,7 @@ class Dashboard extends Component
             'totalOrdersCount' => $usersStatistics->sum('total_orders'),
             'totalAmount' =>$usersStatistics->sum('total_amount'),
             'totalPaid' =>$usersStatistics->sum('total_paid'),
+            'materialsUnderLimit' => $materialsUnderLimit,
         ])->layout('layouts.app', ['dashboard' => 'active']);
     }
 }

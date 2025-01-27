@@ -73,7 +73,7 @@
                                         Weight sold
                                     </div>
                                     <div class="text-slate-900 dark:text-white text-lg font-medium">
-                                        {{ $totalOrdersWeight/1000 }} <small>KG</small>
+                                        {{ $totalOrdersWeight / 1000 }} <small>KG</small>
                                     </div>
                                 </div>
                             </div>
@@ -94,7 +94,7 @@
                                         Total / Paid
                                     </div>
                                     <div class="text-slate-900 dark:text-white text-lg font-medium">
-                                        {{ number_format($totalAmount) }}  /  {{ number_format($totalPaid) }}
+                                        {{ number_format($totalAmount) }} / {{ number_format($totalPaid) }}
                                     </div>
                                 </div>
                             </div>
@@ -114,33 +114,28 @@
                     <!-- BEGIN: Card Dropdown -->
                     <div class="relative">
                         <div class="dropdown relative">
-                            <button class="text-xl text-center block w-full " type="button"
-                                data-bs-toggle="dropdown" aria-expanded="false">
+                            <button class="text-xl text-center block w-full " type="button" data-bs-toggle="dropdown"
+                                aria-expanded="false">
                                 <span
-                                    class="text-lg inline-flex h-6 w-6 flex-col items-center justify-center border border-slate-200 dark:border-slate-700
-        rounded dark:text-slate-400">
+                                    class="text-lg inline-flex h-6 w-6 flex-col items-center justify-center border border-slate-200 dark:border-slate-700 rounded dark:text-slate-400">
                                     <iconify-icon icon="heroicons-outline:dots-horizontal"></iconify-icon>
                                 </span>
                             </button>
                             <ul
-                                class=" dropdown-menu min-w-[120px] absolute text-sm text-slate-700 dark:text-white hidden bg-white dark:bg-slate-700
-    shadow z-[2] overflow-hidden list-none text-left rounded-lg mt-1 m-0 bg-clip-padding border-none">
+                                class=" dropdown-menu min-w-[120px] absolute text-sm text-slate-700 dark:text-white hidden bg-white dark:bg-slate-700 shadow z-[2] overflow-hidden list-none text-left rounded-lg mt-1 m-0 bg-clip-padding border-none">
                                 <li>
                                     <a href="#"
-                                        class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600
-            dark:hover:text-white">
+                                        class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white">
                                         Last 28 Days</a>
                                 </li>
                                 <li>
                                     <a href="#"
-                                        class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600
-            dark:hover:text-white">
+                                        class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white">
                                         Last Month</a>
                                 </li>
                                 <li>
                                     <a href="#"
-                                        class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600
-            dark:hover:text-white">
+                                        class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white">
                                         Last Year</a>
                                 </li>
                             </ul>
@@ -150,9 +145,6 @@
                 </div>
             </header>
             <div class="card-body p-6 pt-0">
-
-                <!-- BEGIN: Company Table -->
-
 
                 <div class="overflow-x-auto -mx-6">
                     <div class="inline-block min-w-full align-middle">
@@ -241,8 +233,7 @@
                                                                 <iconify-icon
                                                                     icon="icon-park-solid:analysis"></iconify-icon>
                                                             </h2>
-                                                            <h2
-                                                                class="card-title text-slate-900 dark:text-white mb-3">
+                                                            <h2 class="card-title text-slate-900 dark:text-white mb-3">
                                                                 There was no data found for this date range</h2>
                                                             <p class="card-text">Try changing the date range.
                                                             </p>
@@ -261,7 +252,85 @@
                         </div>
                     </div>
                 </div>
-                <!-- END: Company Table -->
+
+
+
+            </div>
+        </div>
+
+        <div class="card">
+            <header class="card-header">
+                <h4 class="card-title">
+                    Campaigns
+                </h4>
+                <div>
+                    <!-- BEGIN: Card Dropdown -->
+                    <div class="relative">
+                        <div class="dropdown relative">
+                            <button class="text-xl text-center block w-full " type="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                <span
+                                    class="text-lg inline-flex h-6 w-6 flex-col items-center justify-center border border-slate-200 dark:border-slate-700 rounded dark:text-slate-400">
+                                    <iconify-icon icon="heroicons-outline:dots-horizontal"></iconify-icon>
+                                </span>
+                            </button>
+                            <ul
+                                class=" dropdown-menu min-w-[120px] absolute text-sm text-slate-700 dark:text-white hidden bg-white dark:bg-slate-700 shadow z-[2] overflow-hidden list-none text-left rounded-lg mt-1 m-0 bg-clip-padding border-none">
+                                <li>
+                                    <a href="#"
+                                        class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white">
+                                        Last 28 Days</a>
+                                </li>
+                                <li>
+                                    <a href="#"
+                                        class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white">
+                                        Last Month</a>
+                                </li>
+                                <li>
+                                    <a href="#"
+                                        class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white">
+                                        Last Year</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- END: Card Droopdown -->
+                </div>
+            </header>
+            <div class="card-body p-6">
+                <ul class="divide-y divide-slate-100 dark:divide-slate-700">
+
+                    <li
+                        class="first:text-xs text-sm first:text-slate-600 text-slate-600 dark:text-slate-300 py-2 first:uppercase">
+                        <div class="flex justify-between">
+                            <span>Material</span>
+                            <span>Available / Minimum Limit</span>
+                        </div>
+                    </li>
+
+                    @foreach ($materialsUnderLimit as $material)
+                        <li
+                            class="first:text-xs text-sm first:text-slate-600 text-slate-600 dark:text-slate-300 py-2 first:uppercase
+                            hover:bg-slate-200 dark:hover:bg-slate-700">
+                            <div class="flex justify-between">
+                                <span class="hover-underline">
+                                    <a href="{{ route('material.show',$material->id) }}">
+                                        <b>{{ $material->name }}</b>
+                                    </a>
+                                </span>
+                                <div>
+                                    <b>
+                                        <span class="text-danger-500">{{ $material->inventory->on_hand }}</span>
+                                        <span>/ {{ $material->min_limit }}</span>
+                                    </b>
+                                </div>
+                            </div>
+                        </li>
+                    @endforeach
+
+
+
+                </ul>
             </div>
         </div>
     </div>

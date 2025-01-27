@@ -66,6 +66,13 @@ class RawMaterial extends Model
         });
     }
 
+    public function scopeUnderLimit($query)
+    {
+        return $query->whereHas('inventory', function ($q) {
+            $q->whereColumn('on_hand', '<', 'min_limit');
+        });
+    }
+
     public function transactions()
     {
         return $this->hasManyThrough(Transaction::class, Inventory::class, 'inventoryable_id', 'inventory_id')->where('inventoryable_type', self::MORPH_TYPE);
