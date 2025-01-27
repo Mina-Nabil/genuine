@@ -4,6 +4,7 @@ namespace App\Livewire\Materials;
 
 use App\Models\Materials\InvoiceRawMaterial;
 use App\Models\Materials\RawMaterial;
+use App\Models\Materials\Supplier;
 use App\Models\Materials\SupplierInvoice;
 use App\Models\Payments\CustomerPayment;
 use App\Traits\AlertFrontEnd;
@@ -268,9 +269,11 @@ class InvoiceShow extends Component
 
     public function render()
     {
-        $rawMaterials = RawMaterial::search($this->searchRawMaterialText)
-            ->take(10)
-            ->get();
+        $rawMaterials = $this->invoice->supplier
+        ->avialableRawMaterials()
+        ->search($this->searchRawMaterialText)
+        ->take(10)
+        ->get();
 
         $PAYMENT_METHODS =  CustomerPayment::PAYMENT_METHODS;
 

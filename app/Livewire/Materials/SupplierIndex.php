@@ -18,8 +18,8 @@ class SupplierIndex extends Component
     public $supplierName;
     public $supplierPhone1;
     public $supplierPhone2;
-    public $supplierEmail;
-    public $supplierAddress;
+    // public $supplierEmail;
+    // public $supplierAddress;
     public $supplierContactName;
     public $supplierContactPhone;
 
@@ -29,13 +29,13 @@ class SupplierIndex extends Component
             'supplierName' => 'required|string|max:255',
             'supplierPhone1' => 'required|string|max:255',
             'supplierPhone2' => 'nullable|string|max:255',
-            'supplierEmail' => 'nullable|email',
-            'supplierAddress' => 'nullable|string|max:255',
+            // 'supplierEmail' => 'nullable|email',
+            // 'supplierAddress' => 'nullable|string|max:255',
             'supplierContactName' => 'nullable|string|max:255',
             'supplierContactPhone' => 'nullable|string|max:255',
         ]);
 
-        $res = Supplier::newSupplier($this->supplierName, $this->supplierPhone1, $this->supplierPhone2, $this->supplierEmail, $this->supplierAddress, $this->supplierContactName, $this->supplierContactPhone);
+        $res = Supplier::newSupplier($this->supplierName, $this->supplierPhone1, $this->supplierPhone2, null, null, $this->supplierContactName, $this->supplierContactPhone);
 
         if ($res) {
             return redirect(route('supplier.show', $res->id));
@@ -50,7 +50,7 @@ class SupplierIndex extends Component
 
     public function closeNewSupplierSection()
     {
-        $this->reset(['newSupplierSection', 'supplierName', 'supplierPhone1', 'supplierPhone2', 'supplierEmail', 'supplierAddress', 'supplierContactName', 'supplierContactPhone']);
+        $this->reset(['newSupplierSection', 'supplierName', 'supplierPhone1', 'supplierPhone2', 'supplierContactName', 'supplierContactPhone']);
     }
 
     public function updatingSearch()

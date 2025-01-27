@@ -2,7 +2,7 @@
     <div class="flex justify-between flex-wrap items-center">
         <div class="md:mb-6 mb-4 flex space-x-3 rtl:space-x-reverse">
             <h4 class="font-medium lg:text-2xl text-xl capitalize text-slate-900 inline-block ltr:pr-4 rtl:pl-4">
-                Active Invoices
+                Paid Invoices
             </h4>
         </div>
         <div class="flex sm:space-x-4 space-x-2 sm:justify-end items-center md:mb-6 mb-4 rtl:space-x-reverse">
@@ -163,24 +163,11 @@
                                 </td>
 
                                 <td class="table-td">
-                                    @if ($invoice->is_paid)
-                                        <span class="badge bg-success-500 text-dark-500 bg-opacity-50 capitalize">
-                                            <iconify-icon icon="icon-park-outline:dot" width="1.2em"
-                                                height="1.2em"></iconify-icon>
-                                            Paid
-                                        </span>
-                                    @elseif ($invoice->isPartlyPaid())
-                                        <span class="badge bg-warning-500 text-dark-500 bg-opacity-50 capitalize">
-                                            Remaining:
-                                            {{ number_format($invoice->remaining_to_pay, 2) }}<small>&nbsp;EGP</small>
-                                        </span>
-                                    @else
-                                        <span class="badge bg-warning-500 text-dark-500 bg-opacity-50 capitalize">
-                                            <iconify-icon icon="octicon:dot-16" width="1.2em"
-                                                height="1.2em"></iconify-icon>
-                                            Payment pending
-                                        </span>
-                                    @endif
+                                    <span class="badge bg-success-500 text-dark-500 bg-opacity-50 capitalize">
+                                        <iconify-icon icon="icon-park-outline:dot" width="1.2em"
+                                            height="1.2em"></iconify-icon>
+                                        Paid
+                                    </span>
                                 </td>
 
                                 <td class="table-td">
@@ -216,7 +203,7 @@
                                     filters</h2>
                                 <p class="card-text">Try changing the filters or search terms for this view.
                                 </p>
-                                <a href="{{ url('/invoices') }}"
+                                <a href="{{ url('/invoices/paid') }}"
                                     class="btn inline-flex justify-center mx-2 mt-3 btn-primary active btn-sm">View
                                     all invoices</a>
                             </div>

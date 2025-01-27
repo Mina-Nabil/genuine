@@ -14,8 +14,10 @@ return new class extends Migration
         //admins only
         Schema::create('supplier_invoices', function (Blueprint $table) {
             $table->id();
+            $table->string('serial');
             $table->string('code')->nullable(); //رقم الفاتوره
             $table->string('title')->nullable();
+            $table->date('entry_date');
             $table->string('note')->nullable();
             $table->foreignId('supplier_id')->constrained();
             $table->integer('total_items'); //lena e7na
@@ -41,6 +43,7 @@ return new class extends Migration
             $table->foreignId('supplier_id')->constrained()->onDelete('cascade');
             $table->foreignId('raw_material_id')->constrained()->onDelete('cascade');
             $table->decimal('price', 15, 2);
+            $table->date('expiration_date');
             $table->timestamps();
         });
     }
