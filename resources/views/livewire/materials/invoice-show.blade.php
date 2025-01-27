@@ -781,7 +781,7 @@
                                 <label for="extraFeeDesc"
                                     class="block text-sm font-medium text-gray-700">Description</label>
                                 <input wire:model='extraFeeDesc' type="text" name="extraFeeDesc"
-                                    placeholder="Enter quantity..."
+                                    placeholder="Enter description..."
                                     class="form-control @error('extraFeeDesc') !border-danger-500 @enderror">
                                 @error('extraFeeDesc')
                                     <span class="font-Inter text-sm text-danger-500 pt-2 inline-block">
