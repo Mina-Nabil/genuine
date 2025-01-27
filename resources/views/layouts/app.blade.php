@@ -236,7 +236,7 @@
                                 <span class="flex items-center">
                                     <iconify-icon class=" nav-icon" icon="mdi:package-variant-closed">
                                     </iconify-icon>
-                                    <span>المخزون الخام</span>
+                                    <span>مخزن خامات</span>
                                 </span>
                             </a>
                         </li>
@@ -418,7 +418,7 @@
                             </a>
                         </li>
                     @endcan
-                    
+
                     @can('viewAny', App\Models\Materials\Supplier::class)
                     <li>
                         <a href="{{ auth()->user()->can('viewAny', App\Models\Materials\Supplier::class)? url('/suppliers'): '#' }}"
