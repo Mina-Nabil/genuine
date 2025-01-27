@@ -202,6 +202,16 @@
                                                     </td>
                                                 </tr>
 
+                                                @if($extraFeeAmount)
+                                                <tr>
+                                                    <td class=" text-xs text-slate-500 dark:text-slate-400">Extra Fees
+                                                    </td>
+                                                    <td class=" text-xs text-slate-500 dark:text-slate-400"></td>
+                                                    <td class="float-right text-dark">
+                                                        <b>{{ number_format($extraFeeAmount, 2) }}<small>&nbsp;EGP</small></b>
+                                                    </td>
+                                                </tr>
+                                                @endif
 
                                                 <tr>
                                                     <td class=" text-xs text-slate-500 dark:text-slate-400"></td>
@@ -324,6 +334,31 @@
                                 <input wire:model='payment_due' type="date" name="payment_due"
                                     class="form-control  @error('payment_due') !border-danger-500 @enderror">
                                 @error('payment_due')
+                                    <span
+                                        class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-5">
+                    <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base">
+                        <div class="items-center p-5">
+                            <div class="mb-5">
+                                <label for="extraFeeDesc" class="form-label !m-0">Extra Fee Description</label>
+                                <input wire:model='extraFeeDesc' type="text" name="extraFeeDesc"
+                                    class="form-control  @error('extraFeeDesc') !border-danger-500 @enderror">
+                                @error('extraFeeDesc')
+                                    <span
+                                        class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                @enderror
+                            </div>
+                            <div class="">
+                                <label for="extraFeeAmount" class="form-label !m-0">Extra Fee Amount</label>
+                                <input wire:model.live.debounce.400ms='extraFeeAmount' type="number" min="0" name="extraFeeAmount"
+                                    class="form-control  @error('extraFeeAmount') !border-danger-500 @enderror">
+                                @error('extraFeeAmount')
                                     <span
                                         class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
                                 @enderror

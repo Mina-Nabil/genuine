@@ -33,13 +33,12 @@ class InvoiceCreate extends Component
     public $entry_date;
     public $payment_due;
     public $note;
-
-
+    public $extraFeeAmount;
+    public $extraFeeDesc;
 
     public function addMaterials()
     {
         foreach ($this->selectedMaterials as $materialId) {
-
             $material = Supplier::findOrFail($this->supplierId)
                 ->avialableRawMaterials()
                 ->where('raw_materials.id', $materialId)
@@ -66,7 +65,7 @@ class InvoiceCreate extends Component
 
     public function clearSupplier()
     {
-        $this->reset(['supplierId', 'supplierName','fetchedMaterials']);
+        $this->reset(['supplierId', 'supplierName', 'fetchedMaterials']);
         $this->refreshPayments();
     }
 
@@ -118,6 +117,7 @@ class InvoiceCreate extends Component
 
         $subtotal = 0;
         $totalItems = 0;
+        $extraFee = $this->extraFeeAmount ?? 0;
         foreach ($this->fetchedMaterials as $m) {
             $subtotal = $subtotal + $m['quantity'] * $m['price'];
             $totalItems = $totalItems + $m['quantity'];
@@ -125,7 +125,7 @@ class InvoiceCreate extends Component
 
         $this->subtotal = $subtotal;
         $this->totalItems = $totalItems;
-        $this->total = $subtotal;
+        $this->total = $subtotal  + $extraFee;
     }
 
     public function selectSupplier($id)
@@ -158,7 +158,7 @@ class InvoiceCreate extends Component
     {
         $this->validate(
             [
-                'supplierId' =>  'required|exists:suppliers,id',
+                'supplierId' => 'required|exists:suppliers,id',
                 'invoiceCode' => 'nullable|string|max:255|unique:supplier_invoices,code',
                 'invoiceTitle' => 'nullable|string|max:255',
                 'note' => 'nullable|string|max:500',
@@ -168,6 +168,8 @@ class InvoiceCreate extends Component
                 'fetchedMaterials.*.id' => 'required|exists:raw_materials,id',
                 'fetchedMaterials.*.quantity' => 'required|integer|min:1',
                 'fetchedMaterials.*.price' => 'required|numeric|min:0',
+                'extraFeeAmount' => 'nullable|numeric|not_in:0',
+                'extraFeeDesc' => 'nullable|string|max:255',
             ],
             [
                 'supplierId.required' => 'The supplier is required.',
@@ -191,10 +193,22 @@ class InvoiceCreate extends Component
                 'fetchedMaterials.*.price.required' => 'Each raw material must have a price.',
                 'fetchedMaterials.*.price.numeric' => 'The price of each raw material must be a numeric value.',
                 'fetchedMaterials.*.price.min' => 'The price of each raw material must be at least 0.',
+                'extraFeeAmount.numeric' => 'The extra fee amount must be a number.',
+                'extraFeeAmount.not_in' => 'The extra fee amount must not be zero.',
+                'extraFeeDesc.string' => 'The description must be a string.',
+                'extraFeeDesc.max' => 'The description may not be greater than 255 characters.',
             ],
         );
 
-        $res = SupplierInvoice::createInvoice($this->supplierId, $this->entry_date, $this->fetchedMaterials, $this->invoiceCode, null, $this->note,  $this->payment_due);
+        if (
+            (is_null($this->extraFeeAmount) && !is_null($this->extraFeeDesc)) ||
+            (!is_null($this->extraFeeAmount) && is_null($this->extraFeeDesc))
+        ) {
+            $this->addError('extraFeeDesc', 'Both the extra fee amount and description must be provided together or left empty.');
+            return;
+        }
+
+        $res = SupplierInvoice::createInvoice($this->supplierId, $this->entry_date, $this->fetchedMaterials, $this->invoiceCode, null, $this->note, $this->payment_due, $this->extraFeeDesc,$this->extraFeeAmount);
 
         if ($res) {
             $this->reset();
@@ -204,18 +218,21 @@ class InvoiceCreate extends Component
         }
     }
 
+    public function updatedExtraFeeAmount(){
+        $this->refreshPayments();
+    }
+
     public function render()
     {
         if ($this->supplierId) {
             $rawMaterials = Supplier::findOrFail($this->supplierId)
-            ->avialableRawMaterials()
-            ->search($this->materialsSearchText)
-            ->take(20)
-            ->get();
-        }else{
+                ->avialableRawMaterials()
+                ->search($this->materialsSearchText)
+                ->take(20)
+                ->get();
+        } else {
             $rawMaterials = null;
         }
-        
 
         $suppliers = Supplier::search($this->suppliersSearchText)
             ->limit(10)
