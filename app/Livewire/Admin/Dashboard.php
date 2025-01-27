@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin;
 
 use App\Models\Materials\RawMaterial;
+use App\Models\materials\SupplierRawMaterial;
 use App\Models\Users\Driver;
 use App\Models\Users\User;
 use Livewire\Component;
@@ -41,6 +42,8 @@ class Dashboard extends Component
         $usersStatistics = User::orderStatisticsBetween($fromDate,$toDate)->get();
 
         $materialsUnderLimit = RawMaterial::UnderLimit()->get();
+        $nearlyExpiredMaterials = SupplierRawMaterial::NearlyExpired()->get();
+        $expiredMaterials = SupplierRawMaterial::Expired()->get();
         
         // Ensure the data is properly sent to the view
         return view('livewire.admin.dashboard', [
@@ -50,6 +53,8 @@ class Dashboard extends Component
             'totalAmount' =>$usersStatistics->sum('total_amount'),
             'totalPaid' =>$usersStatistics->sum('total_paid'),
             'materialsUnderLimit' => $materialsUnderLimit,
+            'nearlyExpiredMaterials' => $nearlyExpiredMaterials,
+            'expiredMaterials' => $expiredMaterials
         ])->layout('layouts.app', ['dashboard' => 'active']);
     }
 }
