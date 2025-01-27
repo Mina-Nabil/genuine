@@ -339,7 +339,7 @@
                         </a>
                     </li> --}}
 
-                    <li class="sidebar-menu-title">Raw Materials</li>
+                    <li class="sidebar-menu-title">Finance</li>
                     <li>
                         <a href="{{ auth()->user()->can('viewAny', App\Models\Materials\RawMaterial::class)? url('/materials'): '#' }}"
                             class="navItem {{ $materials ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Materials\RawMaterial::class)? '': 'disabled' }}">
