@@ -11,9 +11,8 @@
                                     class="mr-2"></iconify-icon>
                                 Invoice
                             </div>
-                            @if ($invoice->title)
-                                <h5><b>{{ $invoice->entry_date->format('d/m/Y') }} • {{ $invoice->supplier->name }}</b></h5>
-                            @endif
+                            <h5><b>{{ $invoice->entry_date->format('d/m/Y') }} • {{ $invoice->supplier->name }}</b></h5>
+                            <p><b>Serial: {{ $invoice->serial }}</b></p>
 
                         </div>
                         @if ($invoice->code)
@@ -54,16 +53,13 @@
                                     class="mr-1"></iconify-icon>
                                 Supplier
                             </div>
-                            <a href="{{ route('supplier.show',$invoice->supplier->id) }}">
+                            <a href="{{ route('supplier.show', $invoice->supplier->id) }}">
                                 <h6 class="hover-underline cursor-pointer">
                                     <b>{{ ucwords($invoice->supplier->name) }}</b>
                                 </h6>
                             </a>
-
                             <p class="text-xs">{{ $invoice->supplier->phone1 }}</p>
-
                         </div>
-
 
                         <div class="text-xs text-slate-500 dark:text-slate-400 mt-2 mb-3">
                             <div class="flex items-center">
@@ -176,7 +172,8 @@
                                                             <div class="flex space-x-3 rtl:space-x-reverse">
                                                                 <button wire:click='openUpdateExtraFeeModal'
                                                                     class="action-btn" type="button">
-                                                                    <iconify-icon icon="heroicons:pencil-square"></iconify-icon>
+                                                                    <iconify-icon
+                                                                        icon="heroicons:pencil-square"></iconify-icon>
                                                                 </button>
                                                                 <button wire:click='confirmRemoveExtraFees'
                                                                     class="action-btn" type="button">
@@ -531,7 +528,7 @@
                                                 class="flex-none bg-white dark:bg-slate-500 rounded-full border inline-flex ltr:mr-2 rtl:ml-2 relative transition-all
                                                 duration-150 h-[16px] w-[16px] border-slate-400 dark:border-slate-600 dark:ring-slate-700"></span>
                                             <span
-                                                class="text-secondary-500 text-sm leading-6 capitalize">{{ $rawMaterial->name }}</span>
+                                                class="text-secondary-500 text-sm leading-6 capitalize">{{ $rawMaterial->name }} </span>&nbsp; <small>({{ $rawMaterial->pivot->price }} EGP)</small>
                                         </label>
                                     </div>
                                 @empty
@@ -548,14 +545,6 @@
                                     <input wire:model='quantity' type="number" name="quantity"
                                         placeholder="Enter quantity..."
                                         class="form-control @error('quantity') !border-danger-500 @enderror">
-                                </div>
-
-                                <div class="flex-1">
-                                    <label for="price"
-                                        class="block text-sm font-medium text-gray-700">Price/item</label>
-                                    <input wire:model='price' type="number" name="price"
-                                        placeholder="Enter price..."
-                                        class="form-control @error('price') !border-danger-500 @enderror">
                                 </div>
                             </div>
                         </div>

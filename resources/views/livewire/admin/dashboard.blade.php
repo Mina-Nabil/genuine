@@ -262,77 +262,57 @@
             <header class="card-header">
                 <h4 class="card-title flex justify-start content-center gap-2">
                     <span>Raw Materials</span>
-                    <span><span class="badge bg-danger-500 text-white capitalize rounded-3xl">Below Minimum
-                            Limit</span></span>
+                    @if (!$materialsUnderLimit->isEmpty())
+                        <span><span class="badge bg-danger-500 text-white capitalize rounded-3xl">Below Minimum
+                                Limit</span></span>
+                    @endif
                 </h4>
                 <div>
-                    <!-- BEGIN: Card Dropdown -->
-                    <div class="relative">
-                        <div class="dropdown relative">
-                            <button class="text-xl text-center block w-full " type="button"
-                                data-bs-toggle="dropdown" aria-expanded="false">
-                                <span
-                                    class="text-lg inline-flex h-6 w-6 flex-col items-center justify-center border border-slate-200 dark:border-slate-700 rounded dark:text-slate-400">
-                                    <iconify-icon icon="heroicons-outline:dots-horizontal"></iconify-icon>
-                                </span>
-                            </button>
-                            <ul
-                                class=" dropdown-menu min-w-[120px] absolute text-sm text-slate-700 dark:text-white hidden bg-white dark:bg-slate-700 shadow z-[2] overflow-hidden list-none text-left rounded-lg mt-1 m-0 bg-clip-padding border-none">
-                                <li>
-                                    <a href="#"
-                                        class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white">
-                                        Last 28 Days</a>
-                                </li>
-                                <li>
-                                    <a href="#"
-                                        class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white">
-                                        Last Month</a>
-                                </li>
-                                <li>
-                                    <a href="#"
-                                        class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white">
-                                        Last Year</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                    <!-- END: Card Droopdown -->
                 </div>
             </header>
             <div class="card-body p-6">
-                <ul class="divide-y divide-slate-100 dark:divide-slate-700">
-
-                    <li
-                        class="first:text-xs text-sm first:text-slate-600 text-slate-600 dark:text-slate-300 py-2 first:uppercase">
-                        <div class="flex justify-between">
-                            <span>Material</span>
-                            <span>Available / Minimum Limit</span>
-                        </div>
-                    </li>
-
-                    @foreach ($materialsUnderLimit as $material)
+                @if (!$materialsUnderLimit->isEmpty())
+                    <ul class="divide-y divide-slate-100 dark:divide-slate-700">
                         <li
-                            class="first:text-xs text-sm first:text-slate-600 text-slate-600 dark:text-slate-300 py-2 first:uppercase
-                            hover:bg-slate-200 dark:hover:bg-slate-700">
+                            class="first:text-xs text-sm first:text-slate-600 text-slate-600 dark:text-slate-300 py-2 first:uppercase">
                             <div class="flex justify-between">
-                                <span class="hover-underline">
-                                    <a href="{{ route('material.show', $material->id) }}">
-                                        <b>{{ $material->name }}</b>
-                                    </a>
-                                </span>
-                                <div>
-                                    <b>
-                                        <span class="text-danger-500">{{ $material->inventory->on_hand }}</span>
-                                        <span>/ {{ $material->min_limit }}</span>
-                                    </b>
-                                </div>
+                                <span>Material</span>
+                                <span>Available / Minimum Limit</span>
                             </div>
                         </li>
-                    @endforeach
+
+                        @foreach ($materialsUnderLimit as $material)
+                            <li
+                                class="first:text-xs text-sm first:text-slate-600 text-slate-600 dark:text-slate-300 py-2 first:uppercase
+                            hover:bg-slate-200 dark:hover:bg-slate-700">
+                                <div class="flex justify-between">
+                                    <span class="hover-underline">
+                                        <a href="{{ route('material.show', $material->id) }}">
+                                            <b>{{ $material->name }}</b>
+                                        </a>
+                                    </span>
+                                    <div>
+                                        <b>
+                                            <span class="text-danger-500">{{ $material->inventory->on_hand }}</span>
+                                            <span>/ {{ $material->min_limit }}</span>
+                                        </b>
+                                    </div>
+                                </div>
+                            </li>
+                        @endforeach
+                    </ul>
+                @else
+                    <div class="flex justify-center p-5">
+                        <div class="text-center">
+                            <iconify-icon class="text-success-500" icon="hugeicons:shopping-basket-done-03" width="50"
+                                height="50"></iconify-icon>
+                            <div class="text-gray-500 text-sm mt-2">No materials below limit found.</div>
+                        </div>
+                    </div>
+                @endif
 
 
 
-                </ul>
             </div>
         </div>
 
@@ -440,7 +420,7 @@
                                                     <td class="table-td ">
                                                         <span class="text-danger-500">
                                                             <b>
-                                                            {{ \Carbon\Carbon::parse($expiredMaterial->expiration_date)->format('l d/m/Y') }}
+                                                                {{ \Carbon\Carbon::parse($expiredMaterial->expiration_date)->format('l d/m/Y') }}
                                                             </b>
                                                         </span>
                                                     </td>

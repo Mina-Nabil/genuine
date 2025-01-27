@@ -2,6 +2,7 @@
 
 namespace App\Models\Materials;
 
+use App\Models\materials\SupplierRawMaterial;
 use App\Models\Payments\BalanceTransaction;
 use App\Models\Payments\CustomerPayment;
 use App\Models\Users\AppLog;
@@ -163,13 +164,16 @@ class SupplierInvoice extends Model
         }
     }
 
-    public function addRawMaterial($rawMaterialId, $quantity, $price, $updateSupplierMaterials = false)
+    public function addRawMaterial($rawMaterialId, $quantity, $updateSupplierMaterials = false)
     {
         try {
-            return DB::transaction(function () use ($rawMaterialId, $quantity, $price, $updateSupplierMaterials) {
+            return DB::transaction(function () use ($rawMaterialId, $quantity, $updateSupplierMaterials) {
                 $invoiceRawMaterial = InvoiceRawMaterial::where('supplier_invoice_id', $this->id)
                     ->where('raw_material_id', $rawMaterialId)
                     ->first();
+
+                $price = SupplierRawMaterial::where('supplier_id', $this->id)
+                ->where('raw_material_id', $rawMaterialId)->first()->price;
 
                 if ($invoiceRawMaterial) {
                     $invoiceRawMaterial->quantity += $quantity;

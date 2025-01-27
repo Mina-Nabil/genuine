@@ -28,7 +28,6 @@ class InvoiceShow extends Component
 
     public $selectedRawMaterial;
     public $quantity;
-    public $price;
 
     public $payAmountSection = false;
     public $payAmountValue;
@@ -161,8 +160,6 @@ class InvoiceShow extends Component
         }
     }
 
-
-
     public function openReturnRawMaterialQtyModal($rawMaterialId)
     {
         $this->returnedRawMaterial = InvoiceRawMaterial::where('supplier_invoice_id', $this->invoice->id)
@@ -215,7 +212,6 @@ class InvoiceShow extends Component
             [
                 'selectedRawMaterial' => 'required|exists:raw_materials,id',
                 'quantity' => 'required|numeric|min:1',
-                'price' => 'required|numeric|min:0',
             ],
             [
                 'selectedRawMaterial.required' => 'Please select a raw material',
@@ -223,13 +219,10 @@ class InvoiceShow extends Component
                 'quantity.required' => 'Please enter the quantity',
                 'quantity.numeric' => 'The quantity must be a number',
                 'quantity.min' => 'The quantity must be at least 1',
-                'price.required' => 'Please enter the price',
-                'price.numeric' => 'The price must be a number',
-                'price.min' => 'The price must be at least 0',
             ],
         );
 
-        $res = $this->invoice->addRawMaterial($this->selectedRawMaterial, $this->quantity, $this->price);
+        $res = $this->invoice->addRawMaterial($this->selectedRawMaterial, $this->quantity);
 
         if ($res) {
             $this->alertSuccess('Raw material added successfully');
