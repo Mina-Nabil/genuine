@@ -26,11 +26,43 @@ class CustomerTransactionReport extends Component
     public $newCustomerSection = false;
     public $selectedAllCustomers = false; //to select all customers
 
+    //ADD TRANSACTION
+    public $isOpenAddTrans;
+    public $amount;
+    public $paymentMethod = CustomerPayment::PYMT_CASH;
+    public $note;
+    
+
     public $section = CustomerPayment::PYMT_CASH;
     protected $queryString = ['section'];
 
     public function mount(){
         $this->section = CustomerPayment::PYMT_CASH;
+    }
+
+    public function openAddTransSec(){
+        $this->isOpenAddTrans = true;
+    }
+
+    public function closeAddTransSec(){
+        $this->reset(['isOpenAddTrans','amount','note']);
+    }
+
+    public function addTransaction(){
+        $this->validate([
+            'amount' => 'required|numeric',
+            'note' => 'required|string|max:255',
+            'paymentMethod' => 'required|in:' . implode(',', CustomerPayment::PAYMENT_METHODS),
+        ]);
+
+        $res = CustomerPayment::createPayment($this->amount,$this->paymentMethod,$this->note);
+
+        if ($res) {
+            $this->closeAddTransSec();
+            $this->alertSuccess('Added Successfuly!');
+        }else{
+            $this->alertFailed();
+        }
     }
 
     public function changeSection($section)
