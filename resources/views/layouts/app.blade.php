@@ -230,17 +230,17 @@
                                 </span>
                             </a>
                         </li>
-
-                        {{-- <li>
-                            <a href="{{ auth()->user()->can('viewAny', App\Models\Products\Inventory::class)? url('/transactions'): '#' }}"
-                                class="navItem {{ $Trans ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Products\Inventory::class)? '': 'disabled' }}">
+                        <li>
+                            <a href="{{ auth()->user()->can('viewAny', App\Models\Materials\RawMaterial::class)? url('/materials'): '#' }}"
+                                class="navItem {{ $materials ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Materials\RawMaterial::class)? '': 'disabled' }}">
                                 <span class="flex items-center">
-                                    <iconify-icon class=" nav-icon" icon="grommet-icons:transaction">
+                                    <iconify-icon class=" nav-icon" icon="mdi:package-variant-closed">
                                     </iconify-icon>
-                                    <span>معاملات</span>
+                                    <span>المخزون الخام</span>
                                 </span>
                             </a>
-                        </li> --}}
+                        </li>
+
                     @endcan
 
                     <li class="sidebar-menu-title">Reports</li>
@@ -328,39 +328,11 @@
                         </li>
                     @endcan
 
-                    {{-- <li>
-                        <a href="{{ url('/report/customers') }}" class="navItem {{ $customerReport ?? '' }}">
-                            <span class="flex
-                            items-center">
-                                <iconify-icon class=" nav-icon" icon="garden:customer-lists-fill-26">
-                                </iconify-icon>
-                                <span>تقرير عملاء</span>
-                            </span>
-                        </a>
-                    </li> --}}
 
                     <li class="sidebar-menu-title">Finance</li>
-                    <li>
-                        <a href="{{ auth()->user()->can('viewAny', App\Models\Materials\RawMaterial::class)? url('/materials'): '#' }}"
-                            class="navItem {{ $materials ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Materials\RawMaterial::class)? '': 'disabled' }}">
-                            <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="mdi:package-variant-closed">
-                                </iconify-icon>
-                                <span>Raw Materials</span>
-                            </span>
-                        </a>
-                    </li>
 
-                    <li>
-                        <a href="{{ auth()->user()->can('viewAny', App\Models\Materials\Supplier::class)? url('/suppliers'): '#' }}"
-                            class="navItem {{ $suppliers ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Materials\Supplier::class)? '': 'disabled' }}">
-                            <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="mdi:account-supervisor">
-                                </iconify-icon>
-                                <span>Suppliers</span>
-                            </span>
-                        </a>
-                    </li>
+
+
 
                     <li>
                         <a href="{{ auth()->user()->can('viewAny', App\Models\Materials\SupplierInvoice::class)? url('/invoices'): '#' }}"
@@ -445,6 +417,19 @@
                                 </span>
                             </a>
                         </li>
+                    @endcan
+                    
+                    @can('viewAny', App\Models\Materials\Supplier::class)
+                    <li>
+                        <a href="{{ auth()->user()->can('viewAny', App\Models\Materials\Supplier::class)? url('/suppliers'): '#' }}"
+                            class="navItem {{ $suppliers ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Materials\Supplier::class)? '': 'disabled' }}">
+                            <span class="flex items-center">
+                                <iconify-icon class=" nav-icon" icon="mdi:account-supervisor">
+                                </iconify-icon>
+                                <span>الموردين</span>
+                            </span>
+                        </a>
+                    </li>
                     @endcan
 
                     @can('viewAny', App\Models\Customers\Combo::class)

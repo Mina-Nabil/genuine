@@ -13,7 +13,7 @@ class SupplierPolicy
      */
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->is_admin || $user->is_inventory;
     }
 
     /**
