@@ -3,7 +3,7 @@
 namespace App\Livewire\Admin;
 
 use App\Models\Materials\RawMaterial;
-use App\Models\materials\SupplierRawMaterial;
+use App\Models\Materials\SupplierRawMaterial;
 use App\Models\Users\Driver;
 use App\Models\Users\User;
 use Livewire\Component;

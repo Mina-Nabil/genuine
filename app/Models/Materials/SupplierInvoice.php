@@ -2,7 +2,7 @@
 
 namespace App\Models\Materials;
 
-use App\Models\materials\SupplierRawMaterial;
+use App\Models\Materials\SupplierRawMaterial;
 use App\Models\Payments\BalanceTransaction;
 use App\Models\Payments\CustomerPayment;
 use App\Models\Users\AppLog;

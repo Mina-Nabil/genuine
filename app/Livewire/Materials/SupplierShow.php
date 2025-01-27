@@ -4,7 +4,7 @@ namespace App\Livewire\Materials;
 
 use App\Models\Materials\RawMaterial;
 use App\Models\Materials\Supplier;
-use App\Models\materials\SupplierRawMaterial;
+use App\Models\Materials\SupplierRawMaterial;
 use App\Models\Payments\CustomerPayment;
 use App\Traits\AlertFrontEnd;
 use Carbon\Carbon;
