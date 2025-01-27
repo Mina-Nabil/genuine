@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\materials;
+namespace App\Models\Materials;
 
 use App\Models\Users\AppLog;
 use Exception;
