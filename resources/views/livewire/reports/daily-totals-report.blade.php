@@ -58,8 +58,8 @@
 
                             <th scope="col" class="table-th">Day</th>
                             <th scope="col" class="table-th">Confirmed Orders ({{ number_format($dailyTotals->sum('orders_count')) }})</th>
-                            <th scope="col" class="table-th">Total Weight ({{ number_format($dailyTotals->sum('total_weightsss') / 1000) }})</th>
-                            <th scope="col" class="table-th">Total Amount ({{ number_format($dailyTotals->sum('total_amount')) }})</th>
+                            <th scope="col" class="table-th">Confirmed Total Weight ({{ number_format($dailyTotals->sum('total_weightsss') / 1000) }})</th>
+                            <th scope="col" class="table-th">Confirmed Total Amount ({{ number_format($dailyTotals->sum('total_amount')) }})</th>
 
                         </tr>
                     </thead>
