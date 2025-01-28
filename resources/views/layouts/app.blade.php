@@ -215,7 +215,7 @@
                                 <span class="flex items-center">
                                     <iconify-icon class=" nav-icon" icon="la:industry">
                                     </iconify-icon>
-                                    <span>المخزون الفعلي</span>
+                                    <span>مخزون منتج تام</span>
                                 </span>
                             </a>
                         </li>
@@ -426,7 +426,7 @@
                             <span class="flex items-center">
                                 <iconify-icon class=" nav-icon" icon="mdi:account-supervisor">
                                 </iconify-icon>
-                                <span>الموردين</span>
+                                <span>Suppliers</span>
                             </span>
                         </a>
                     </li>
