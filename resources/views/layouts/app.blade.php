@@ -225,7 +225,7 @@
                                 <span class="flex items-center">
                                     <iconify-icon class=" nav-icon" icon="la:industry">
                                     </iconify-icon>
-                                    <span>مخزون منتج تام</span>
+                                    <span>مخزن منتج تام</span>
                                 </span>
                             </a>
                         </li>

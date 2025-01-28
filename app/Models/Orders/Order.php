@@ -1595,6 +1595,7 @@ class Order extends Model
     public function scopeReport($query, $searchText, $zone_ids = null, $driver_id = null, Carbon $created_from = null, Carbon $created_to = null, Carbon $delivery_from = null, Carbon $delivery_to = null, $creator_id = null, $status = null)
     {
         return $query
+            ->notCancelledOrReturned()
             ->select('orders.*')
             ->when($searchText || $status, fn($q) => $q->search(searchText: $searchText, status: $status))
             ->when(count($zone_ids), fn($q) => $q->whereIn('orders.zone_id', $zone_ids))
