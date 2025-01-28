@@ -2,6 +2,7 @@
 
 namespace App\Models\Materials;
 
+use App\Models\materials\SupplierRawMaterial;
 use App\Models\Payments\BalanceTransaction;
 use App\Models\Payments\CustomerPayment;
 use App\Models\Users\AppLog;
@@ -20,27 +21,31 @@ class SupplierInvoice extends Model
 
     const MORPH_TYPE = 'supplier-invoice';
 
-    protected $fillable = ['code','serial', 'title', 'note', 'supplier_id', 'total_items', 'total_amount','extra_fee_description','extra_fee_amount' , 'payment_due', 'is_paid', 'entry_date'];
+    protected $fillable = ['code', 'serial', 'title', 'note', 'supplier_id', 'total_items', 'total_amount', 'extra_fee_description', 'extra_fee_amount', 'payment_due', 'is_paid', 'entry_date'];
 
     protected $casts = [
         'payment_due' => 'date',
         'entry_date' => 'date',
     ];
 
-    public static function createInvoice($supplierId, $entryDate, $rawMaterials, $code = null, $title = null, $note = null, $paymentDue = null)
+    public static function createInvoice($supplierId, $entryDate, $rawMaterials, $code = null, $title = null, $note = null, $paymentDue = null , $extraFeeDescription = null, $extraFeeAmount = null)
     {
         if (!$entryDate) {
             throw new Exception('Entry date is required.');
         }
 
         try {
-            return DB::transaction(function () use ($supplierId, $code, $title, $note, $paymentDue, $rawMaterials, $entryDate) {
+            return DB::transaction(function () use ($supplierId, $code, $title, $note, $paymentDue, $rawMaterials, $entryDate , $extraFeeDescription ,$extraFeeAmount) {
                 $totalItems = 0;
                 $totalAmount = 0;
 
                 foreach ($rawMaterials as $material) {
                     $totalItems += $material['quantity'];
                     $totalAmount += $material['quantity'] * $material['price'];
+                }
+
+                if ($extraFeeAmount) {
+                    $totalAmount += $extraFeeAmount;
                 }
 
                 // Create the invoice
@@ -54,6 +59,8 @@ class SupplierInvoice extends Model
                     'total_items' => $totalItems,
                     'total_amount' => $totalAmount,
                     'entry_date' => $entryDate,
+                    'extra_fee_description' => $extraFeeDescription,
+                    'extra_fee_amount' => $extraFeeAmount,
                 ]);
 
                 foreach ($rawMaterials as $material) {
@@ -163,13 +170,17 @@ class SupplierInvoice extends Model
         }
     }
 
-    public function addRawMaterial($rawMaterialId, $quantity, $price, $updateSupplierMaterials = false)
+    public function addRawMaterial($rawMaterialId, $quantity, $updateSupplierMaterials = false)
     {
         try {
-            return DB::transaction(function () use ($rawMaterialId, $quantity, $price, $updateSupplierMaterials) {
+            return DB::transaction(function () use ($rawMaterialId, $quantity, $updateSupplierMaterials) {
                 $invoiceRawMaterial = InvoiceRawMaterial::where('supplier_invoice_id', $this->id)
                     ->where('raw_material_id', $rawMaterialId)
                     ->first();
+
+                $price = SupplierRawMaterial::where('supplier_id', $this->id)
+                    ->where('raw_material_id', $rawMaterialId)
+                    ->first()->price;
 
                 if ($invoiceRawMaterial) {
                     $invoiceRawMaterial->quantity += $quantity;
@@ -365,6 +376,8 @@ class SupplierInvoice extends Model
 
                 $this->total_items = $totalItems;
                 $this->total_amount = $totalAmount;
+
+
                 $this->save();
                 return true;
             });
@@ -403,51 +416,49 @@ class SupplierInvoice extends Model
     {
         $entryDate = new \DateTime($entryDate);
         $datePart = $entryDate->format('Ymd');
-        $lastInvoice = self::whereYear('entry_date', $entryDate->format('Y'))
-            ->whereMonth('entry_date', $entryDate->format('m'))
-            ->orderBy('entry_date', 'desc')
-            ->first();
-            
-        $lastSerial = $lastInvoice ? (int)substr($lastInvoice->serial, -4) : 0;
-        
+        $lastInvoice = self::whereYear('entry_date', $entryDate->format('Y'))->whereMonth('entry_date', $entryDate->format('m'))->orderBy('entry_date', 'desc')->first();
+
+        $lastSerial = $lastInvoice ? (int) substr($lastInvoice->serial, -4) : 0;
+
         $serialPart = str_pad($lastSerial + 1, 4, '0', STR_PAD_LEFT);
         return $datePart . '-' . $serialPart;
     }
 
     public function scopeSearch($query, $term, $supplierId = null, $dueDateFrom = null, $dueDateTo = null, $isPaid = null, $entryDateFrom = null, $entryDateTo = null)
     {
-        return $query->where(function ($q) use ($term) {
-            $q->where('code', 'like', '%' . $term . '%')
-                ->orWhere('title', 'like', '%' . $term . '%')
-                ->orWhere('note', 'like', '%' . $term . '%')
-                ->orWhere('total_items', 'like', '%' . $term . '%')
-                ->orWhere('total_amount', 'like', '%' . $term . '%')
-                ->orWhere('payment_due', 'like', '%' . $term . '%')
-                ->orWhereHas('supplier', function ($q) use ($term) {
-                    $q->where('name', 'like', '%' . $term . '%');
-                })
-                ->orWhereHas('rawMaterials', function ($q) use ($term) {
-                    $q->where('name', 'like', '%' . $term . '%');
-                });
-        })
-        ->when($supplierId, function ($query, $supplierId) {
-            $query->where('supplier_id', $supplierId);
-        })
-        ->when($dueDateFrom, function ($query, $dueDateFrom) {
-            $query->where('payment_due', '>=', $dueDateFrom);
-        })
-        ->when($dueDateTo, function ($query, $dueDateTo) {
-            $query->where('payment_due', '<=', $dueDateTo);
-        })
-        ->when($isPaid !== null, function ($query) use ($isPaid) {
-            $query->where('is_paid', $isPaid);
-        })
-        ->when($entryDateFrom, function ($query, $entryDateFrom) {
-            $query->where('entry_date', '>=', $entryDateFrom);
-        })
-        ->when($entryDateTo, function ($query, $entryDateTo) {
-            $query->where('entry_date', '<=', $entryDateTo);
-        });
+        return $query
+            ->where(function ($q) use ($term) {
+                $q->where('code', 'like', '%' . $term . '%')
+                    ->orWhere('title', 'like', '%' . $term . '%')
+                    ->orWhere('note', 'like', '%' . $term . '%')
+                    ->orWhere('total_items', 'like', '%' . $term . '%')
+                    ->orWhere('total_amount', 'like', '%' . $term . '%')
+                    ->orWhere('payment_due', 'like', '%' . $term . '%')
+                    ->orWhereHas('supplier', function ($q) use ($term) {
+                        $q->where('name', 'like', '%' . $term . '%');
+                    })
+                    ->orWhereHas('rawMaterials', function ($q) use ($term) {
+                        $q->where('name', 'like', '%' . $term . '%');
+                    });
+            })
+            ->when($supplierId, function ($query, $supplierId) {
+                $query->where('supplier_id', $supplierId);
+            })
+            ->when($dueDateFrom, function ($query, $dueDateFrom) {
+                $query->where('payment_due', '>=', $dueDateFrom);
+            })
+            ->when($dueDateTo, function ($query, $dueDateTo) {
+                $query->where('payment_due', '<=', $dueDateTo);
+            })
+            ->when($isPaid !== null, function ($query) use ($isPaid) {
+                $query->where('is_paid', $isPaid);
+            })
+            ->when($entryDateFrom, function ($query, $entryDateFrom) {
+                $query->where('entry_date', '>=', $entryDateFrom);
+            })
+            ->when($entryDateTo, function ($query, $entryDateTo) {
+                $query->where('entry_date', '<=', $entryDateTo);
+            });
     }
 
     public function payments(): HasMany

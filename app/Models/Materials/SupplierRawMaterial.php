@@ -30,7 +30,7 @@ class SupplierRawMaterial extends Model
             return true;
         } catch (Exception $e) {
             report($e);
-            AppLog::error('Failed to update supplier raw material info: ', $e->getMessage(),loggable: $this);
+            AppLog::error('Failed to update supplier raw material info: ', $e->getMessage(), loggable: $this);
             return false;
         }
     }
@@ -48,6 +48,16 @@ class SupplierRawMaterial extends Model
             AppLog::error('Failed to delete supplier raw material: ', $e->getMessage());
             return false;
         }
+    }
+
+    public function scopeNearlyExpired($query)
+    {
+        return $query->where('expiration_date', '<=', now()->addWeek())->where('expiration_date', '>', now());
+    }
+
+    public function scopeExpired($query)
+    {
+        return $query->where('expiration_date', '<', now());
     }
 
     public function supplier()
