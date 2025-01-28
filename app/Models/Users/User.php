@@ -14,6 +14,8 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Events\AppNotification;
 use App\Models\Orders\Order;
+use App\Models\Payments\BalanceTransaction;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class User extends Authenticatable
 {
@@ -450,5 +452,10 @@ class User extends Authenticatable
     public function getAuthPassword()
     {
         return $this->password;
+    }
+
+    public function transactions(): MorphMany
+    {
+        return $this->morphMany(BalanceTransaction::class, 'transactionable');
     }
 }

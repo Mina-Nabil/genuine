@@ -11,8 +11,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class ZoneIndex extends Component
 {
-
-    use WithFileUploads, AlertFrontEnd, WithPagination,AuthorizesRequests;
+    use WithFileUploads, AlertFrontEnd, WithPagination, AuthorizesRequests;
     public $page_title = '• Zones';
 
     public $fetched_zones_IDs;
@@ -20,36 +19,45 @@ class ZoneIndex extends Component
     public $selectAll = false; //to select all in the page
     public $selectedZones = [];
     public $newZoneSection = false;
-    public $selectedAllZones = false;//to select all zones
+    public $selectedAllZones = false; //to select all zones
 
     public $name;
     public $deliveryRate;
+    public $orderRate;
+    public $returnRate;
 
     public $updatedZone; //to edit model
 
-    public function updateThisZone($id){
-        $this->updatedZone =  Zone::findOrFail($id);
-        $this->authorize('update' ,  $this->updatedZone);
+    public function updateThisZone($id)
+    {
+        $this->updatedZone = Zone::findOrFail($id);
+        $this->authorize('update', $this->updatedZone);
         $this->name = $this->updatedZone->name;
         $this->deliveryRate = $this->updatedZone->delivery_rate;
+        $this->orderRate = $this->updatedZone->driver_order_rate;
+        $this->returnRate = $this->updatedZone->driver_return_rate;
     }
 
-    public function closeUpdateZoneSec(){
-        $this->reset(['updatedZone','name','deliveryRate']);
+    public function closeUpdateZoneSec()
+    {
+        $this->reset(['updatedZone', 'name', 'deliveryRate', 'orderRate', 'returnRate']);
     }
 
-    public function updateZone(){
+    public function updateZone()
+    {
         $this->validate([
             'name' => 'required|string|max:255',
             'deliveryRate' => 'required|numeric|regex:/^\d+(\.\d{1,2})?$/', // Ensure up to 2 decimal places
+            'orderRate' => 'required|numeric|regex:/^\d+(\.\d{1,2})?$/', // Ensure up to 2 decimal places
+            'returnRate' => 'required|numeric|regex:/^\d+(\.\d{1,2})?$/', // Ensure up to 2 decimal places
         ]);
 
-        $res = $this->updatedZone->editInfo($this->name,$this->deliveryRate);
+        $res = $this->updatedZone->editInfo($this->name, $this->deliveryRate, $this->orderRate, $this->returnRate);
 
-        if($res){
+        if ($res) {
             $this->alertSuccess('Zone updated!');
             $this->closeUpdateZoneSec();
-        }else{
+        } else {
             $this->alertFailed();
         }
     }
@@ -63,16 +71,17 @@ class ZoneIndex extends Component
         }
     }
 
-    public function selectAllZones(){
+    public function selectAllZones()
+    {
         $this->selectedAllZones = true;
         $this->selectedZones = Zone::pluck('id')->toArray();
     }
 
-    public function undoSelectAllZones(){
+    public function undoSelectAllZones()
+    {
         $this->selectedAllZones = false;
         $this->selectedZones = $this->fetched_zones_IDs;
     }
-
 
     ///// Frontend Hnadling
     public function openNewZoneSec()
@@ -82,7 +91,7 @@ class ZoneIndex extends Component
 
     public function closeNewZoneSec()
     {
-        $this->reset(['name', 'deliveryRate',  'newZoneSection']);
+        $this->reset(['name', 'deliveryRate', 'newZoneSection', 'orderRate', 'returnRate']);
     }
 
     public function updatingSearch()
@@ -97,14 +106,16 @@ class ZoneIndex extends Component
         $this->validate([
             'name' => 'required|string|max:255',
             'deliveryRate' => 'required|numeric|regex:/^\d+(\.\d{1,2})?$/', // Ensure up to 2 decimal places
+            'orderRate' => 'required|numeric|regex:/^\d+(\.\d{1,2})?$/', // Ensure up to 2 decimal places
+            'returnRate' => 'required|numeric|regex:/^\d+(\.\d{1,2})?$/', // Ensure up to 2 decimal places
         ]);
 
-        $res = Zone::newZone($this->name,$this->deliveryRate);
+        $res = Zone::newZone($this->name, $this->deliveryRate, $this->orderRate, $this->returnRate);
 
-        if($res){
+        if ($res) {
             $this->alertSuccess('Zone added!');
             $this->closeNewZoneSec();
-        }else{
+        } else {
             $this->alertFailed();
         }
     }
@@ -113,8 +124,8 @@ class ZoneIndex extends Component
     {
         $zones = Zone::when($this->search, fn($q) => $q->search($this->search))->paginate(30);
         $this->fetched_zones_IDs = $zones->pluck('id')->toArray();
-        return view('livewire.customers.zone-index',[
-            'zones' => $zones
+        return view('livewire.customers.zone-index', [
+            'zones' => $zones,
         ])->layout('layouts.app', ['page_title' => $this->page_title, 'zones' => 'active']);
     }
 }

@@ -62,6 +62,8 @@
                                     @endif
                                 @else
                                     <th scope="col" class="table-th">Delivery Rate</th>
+                                    <th scope="col" class="table-th">Driver Order Rate</th>
+                                    <th scope="col" class="table-th">Driver Return Rate</th>
                                     <th scope="col" class="table-th">Action</th>
                                 @endif
 
@@ -95,6 +97,15 @@
 
                                     <td class="table-td">
                                         EGP {{ $zone->delivery_rate }}
+                                    </td>
+
+                                    <td class="table-td">
+                                        <span class="@if($zone->driver_order_rate == 0) text-danger-500 @endif ">EGP {{ $zone->driver_order_rate }}</span>
+                                        
+                                    </td>
+
+                                    <td class="table-td">
+                                        <span class="@if($zone->driver_return_rate == 0) text-danger-500 @endif ">EGP {{ $zone->driver_return_rate }}</span>
                                     </td>
 
                                     <td>
@@ -217,6 +228,32 @@
                                     @enderror
                                 </div>
 
+                                <div class="from-group">
+                                    <div class="input-area">
+                                        <label for="orderRate" class="form-label">Driver order rate</label>
+                                        <input id="orderRate" type="number"
+                                            class="form-control @error('orderRate') !border-danger-500 @enderror"
+                                            wire:model.lazy="orderRate" autocomplete="off">
+                                    </div>
+                                    @error('orderRate')
+                                        <span
+                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <div class="from-group">
+                                    <div class="input-area">
+                                        <label for="returnRate" class="form-label">Driver return rate</label>
+                                        <input id="returnRate" type="number"
+                                            class="form-control @error('returnRate') !border-danger-500 @enderror"
+                                            wire:model.lazy="returnRate" autocomplete="off">
+                                    </div>
+                                    @error('returnRate')
+                                        <span
+                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
                             </div>
                             <!-- Modal footer -->
                             <div
@@ -285,6 +322,32 @@
                                             wire:model.lazy="deliveryRate" autocomplete="off">
                                     </div>
                                     @error('deliveryRate')
+                                        <span
+                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <div class="from-group">
+                                    <div class="input-area">
+                                        <label for="orderRate" class="form-label">Driver order rate</label>
+                                        <input id="orderRate" type="number"
+                                            class="form-control @error('orderRate') !border-danger-500 @enderror"
+                                            wire:model.lazy="orderRate" autocomplete="off">
+                                    </div>
+                                    @error('orderRate')
+                                        <span
+                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <div class="from-group">
+                                    <div class="input-area">
+                                        <label for="returnRate" class="form-label">Driver return rate</label>
+                                        <input id="returnRate" type="number"
+                                            class="form-control @error('returnRate') !border-danger-500 @enderror"
+                                            wire:model.lazy="returnRate" autocomplete="off">
+                                    </div>
+                                    @error('returnRate')
                                         <span
                                             class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
                                     @enderror
