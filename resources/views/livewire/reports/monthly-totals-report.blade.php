@@ -40,9 +40,9 @@
 
 
                             <th scope="col" class="table-th">Month</th>
-                            <th scope="col" class="table-th">Orders</th>
-                            <th scope="col" class="table-th">Total Weight (kg)</th>
-                            <th scope="col" class="table-th">Total Amount</th>
+                            <th scope="col" class="table-th">Confirmed Orders</th>
+                            <th scope="col" class="table-th">Confirmed Total Weight (kg)</th>
+                            <th scope="col" class="table-th">Confirmed Total Amount</th>
 
                         </tr>
                     </thead>
