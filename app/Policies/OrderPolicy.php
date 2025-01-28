@@ -42,7 +42,7 @@ class OrderPolicy
 
     public function updateDeliveryInfo(User $user, Order $order): bool
     {
-        return $order->is_new || $order->is_ready || $user->is_admin;
+        return ($order->is_new || $order->is_ready) && $user->is_admin;
     }
 
     public function updateConfirm(User $user, Order $order): bool

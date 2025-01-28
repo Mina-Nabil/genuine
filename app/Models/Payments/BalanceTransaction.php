@@ -4,9 +4,12 @@ namespace App\Models\Payments;
 
 use App\Models\Customers\Customer;
 use App\Models\Orders\Order;
+use App\Models\Users\AppLog;
 use App\Models\Users\User;
+use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class BalanceTransaction extends Model
 {
@@ -24,6 +27,33 @@ class BalanceTransaction extends Model
         'created_by',
     ];
 
+    public static function createBalanceTransaction(Model $model, $amount, $description = null, $order_id = null): bool
+    {
+        try {
+            return DB::transaction(function () use ($model, $amount, $description, $order_id) {
+                // Update the balance in the given model
+                $model->balance += $amount;
+                $model->save();
+
+                // Create the balance transaction
+                self::create([
+                    'order_id' => $order_id,
+                    'transactionable_id' => $model->id,
+                    'transactionable_type' => $model->getMorphClass(),
+                    'amount' => $amount,
+                    'balance' => $model->balance,
+                    'description' => $description,
+                    'created_by' => auth()->id(), // Assumes the user is authenticated
+                ]);
+
+                return true;
+            });
+        } catch (Exception $e) {
+            report($e);
+            AppLog::error('Failed to create balance transaction', $e->getMessage());
+            return false;
+        }
+    }
 
     // relations
     public function transactionable()
