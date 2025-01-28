@@ -56,7 +56,7 @@
                 <table class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700">
                     <thead class="border-t border-slate-100 dark:border-slate-800 bg-slate-200 dark:bg-slate-700">
                         <tr>
-                            <th scope="col" class="table-th text-center">Day</th>
+                            <th scope="col" class="table-th text-center">Day ({{$performanceReport->sum('total_orders')}})</th>
                             @foreach ($performanceReport->unique('user_name') as $report)
                                 <th scope="col" class="table-th">{{ $report->user_name }} ({{ $performanceReport->where('user_name',$report->user_name )->sum('total_orders') }}) </th>
                             @endforeach
