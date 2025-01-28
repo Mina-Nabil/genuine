@@ -342,7 +342,7 @@ class User extends Authenticatable
             ->join('drivers', 'drivers.user_id', '=', 'users.id')
             ->join('orders as o1', 'drivers.id', '=', 'o1.driver_id')
             ->leftJoin('zones', 'o1.zone_id', '=', 'zones.id')
-
+            ->where('o1.is_confirmed', true)
             ->whereIn('o1.status', Order::OK_STATUSES)
             ->whereNull('o1.deleted_at')
             ->whereBetween('o1.delivery_date', [$fromDate->format('Y-m-d 00:00:00'), $toDate->format('Y-m-d 23:59:59')])
