@@ -207,7 +207,17 @@
                                 </span>
                             </a>
                         </li>
-
+          
+                        <li>
+                            <a href="{{ auth()->user()->can('viewAny', App\Models\Products\Inventory::class)? url('/inventories'): '#' }}"
+                                class="navItem {{ $inventories ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Products\Inventory::class)? '': 'disabled' }}">
+                                <span class="flex items-center">
+                                    <iconify-icon class=" nav-icon" icon="ic:sharp-inventory">
+                                    </iconify-icon>
+                                    <span>انتاجيه اليوم</span>
+                                </span>
+                            </a>
+                        </li>
                         <li>
                             <a href="{{ auth()->user()->can('viewAny', App\Models\Products\Inventory::class)? url('/productions'): '#' }}"
                                 class="navItem {{ $productions ?? '' }}
@@ -220,16 +230,6 @@
                             </a>
                         </li>
 
-                        <li>
-                            <a href="{{ auth()->user()->can('viewAny', App\Models\Products\Inventory::class)? url('/inventories'): '#' }}"
-                                class="navItem {{ $inventories ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Products\Inventory::class)? '': 'disabled' }}">
-                                <span class="flex items-center">
-                                    <iconify-icon class=" nav-icon" icon="ic:sharp-inventory">
-                                    </iconify-icon>
-                                    <span>انتاجيه اليوم</span>
-                                </span>
-                            </a>
-                        </li>
                         <li>
                             <a href="{{ auth()->user()->can('viewAny', App\Models\Materials\RawMaterial::class)? url('/materials'): '#' }}"
                                 class="navItem {{ $materials ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Materials\RawMaterial::class)? '': 'disabled' }}">
