@@ -1884,6 +1884,7 @@ class Order extends Model
     public function scopeMonthlyTotals($query, $year)
     {
         return $query
+            ->confirmed()
             ->selectRaw('MONTH(o1.delivery_date) as month')
             ->selectRaw('COUNT(o1.id) as total_orders')
             ->selectRaw('SUM(o1.total_amount) as monthly_total_amount')
