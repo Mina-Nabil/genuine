@@ -168,6 +168,12 @@ class Order extends Model
 
     public function resetStatus(): bool
     {
+        /** @var User */
+        $user = Auth::user();
+        if (!$user && !$user->can('resetStatus', $this)) {
+            return false;
+        }
+
         DB::beginTransaction();
 
         try {
@@ -179,7 +185,7 @@ class Order extends Model
                     AppLog::info("Order product {$product->product->name} is back to stock", loggable: $this);
                 }
 
-                if (self::STATUS_IN_DELIVERY) {
+                if ($this->status === self::STATUS_IN_DELIVERY) {
                     $this->debitDriverPerOrder();
                 }
 
@@ -254,10 +260,16 @@ class Order extends Model
                     $product->save();
                 }
             }
-            
+
             if ($newStatus === self::STATUS_IN_DELIVERY) {
+                $orderInAnotherShift = $this->driverHasOrdersInAnotherShift();
+                if ($orderInAnotherShift) {
+                    $orderInAnotherShift->creditDriverForReturnedShift();
+                }
                 $this->calculateStartDeliveryCrDriver();
                 $this->creditDriverPerOrder();
+            } elseif ($newStatus === self::STATUS_RETURNED) {
+                $this->creditDriverForReturnedShift();
             }
 
             // If the new status is returned or cancelled, handle product cancellation
@@ -573,6 +585,31 @@ class Order extends Model
         } catch (Exception $e) {
             report($e);
             AppLog::error('Failed to update delivery date for order', $e->getMessage());
+            return false;
+        }
+    }
+
+    public function rescheduleOrder(Carbon $newDeliveryDate = null): bool
+    {
+        /** @var User */
+        $loggedInUser = Auth::user();
+        if ($loggedInUser && !$loggedInUser->can('rescheduleOrder', $this)) {
+            return false;
+        }
+
+        try {
+            return DB::transaction(function () use ($newDeliveryDate) {
+                $this->creditDriverForReturnedShift();
+                $this->delivery_date = $newDeliveryDate;
+                $this->status = self::STATUS_READY;
+                $this->save();
+
+                AppLog::info('Order rescheduled', loggable: $this);
+                return true;
+            });
+        } catch (Exception $e) {
+            report($e);
+            AppLog::error('Failed to reschedule order', $e->getMessage());
             return false;
         }
     }
@@ -1555,7 +1592,7 @@ class Order extends Model
         return response()->download($public_file_path)->deleteFileAfterSend(true);
     }
 
-    public function calculateStartDeliveryCrDriver(string $creditDescription = null): bool
+    public function calculateStartDeliveryCrDriver(): bool
     {
         try {
             $driver = $this->driver;
@@ -1564,17 +1601,17 @@ class Order extends Model
             }
 
             $driverUser = $driver->user;
-
-            // Check if any order for this driver has already been credited today
-            $existingOrder = self::where('driver_id', $driver->id)
-                ->whereIn('status', [self::STATUS_IN_DELIVERY, self::STATUS_RETURNED, self::STATUS_DONE])
-                ->whereDate('delivery_date', $this->delivery_date)
+            $driverUserId = $driverUser->id;
+            $existingOrder = self::whereHas('driver', function (Builder $query) use ($driverUserId) {
+                $query->where('user_id', $driverUserId
+            );})
+                ->where('description', "بداية توصيل الأوردرات عن يوم {$this->delivery_date->format('d/m/Y')}")
                 ->exists();
 
             if (!$existingOrder) {
-                $description = $creditDescription ?? "Start orders delivery credit for {$driver->user->full_name} at {$this->delivery_date}";
+                $description = "بداية توصيل الأوردرات عن يوم {$this->delivery_date->format('d/m/Y')}";
 
-                BalanceTransaction::createBalanceTransaction($driverUser, $this->zone->driver_order_rate, $description);
+                BalanceTransaction::createBalanceTransaction($driverUser, $driver->user->driver_day_fees, $description);
 
                 return true;
             }
@@ -1588,11 +1625,9 @@ class Order extends Model
         }
     }
 
-    // In the Order model
     public function creditDriverPerOrder(): bool
     {
         try {
-            
             $driver = $this->driver;
 
             if (!$driver || !$driver->user) {
@@ -1602,12 +1637,57 @@ class Order extends Model
             $driverUser = $driver->user;
 
             // Add balance transaction for this order
-            BalanceTransaction::createBalanceTransaction(
-                $driverUser,
-                $this->zone->driver_order_rate,
-                "Delivery credit for order #{$this->id} in {$this->zone->name}",
-                $this->id
-            );
+            BalanceTransaction::createBalanceTransaction($driverUser, $this->zone->driver_order_rate, "توصيل أوردر رقم {$this->order_number} إلى منطقة {$this->zone->name} يوم {$this->delivery_date->format('d/m/Y')}", $this->id);
+
+            return true;
+        } catch (Exception $e) {
+            AppLog::error("Failed to credit driver for order #{$this->id}", $e->getMessage());
+            report($e);
+            return false;
+        }
+    }
+
+    public function driverHasOrdersInAnotherShift()
+    {
+        if (!$this->driver || !$this->driver->user) {
+            return false;
+        }
+
+        $driverUserId = $this->driver->user_id;
+
+        return self::whereHas('driver', function (Builder $query) use ($driverUserId) {
+            $query->where('user_id', $driverUserId);
+        })
+            ->whereDate('delivery_date', $this->delivery_date)
+            ->whereIn('status', [self::STATUS_IN_DELIVERY, self::STATUS_DONE, self::STATUS_RETURNED])
+            ->where('driver_id', '!=', $this->driver_id)
+            ->first();
+    }
+
+    public function creditDriverForReturnedShift(): bool
+    {
+        try {
+            $driver = $this->driver;
+
+            if (!$driver || !$driver->user) {
+                return false;
+            }
+
+            $driverUser = $driver->user;
+
+            $description = "رجوع يوم توصيل عن يوم {$this->delivery_date->format('d/m/Y')}";
+
+            $returnedTrans = BalanceTransaction::where('transactionable_id', $driverUser->id)->where('transactionable_type', User::MORPH_TYPE)->where('description', $description)->get();
+
+            foreach ($returnedTrans as $transaction) {
+                if ($transaction->order_id) {
+                    if ($transaction->order->driver_id === $this->driver_id) {
+                        return true;
+                    }
+                }
+            }
+
+            BalanceTransaction::createBalanceTransaction($driverUser, $this->zone->driver_return_rate, $description, $this->id);
 
             return true;
         } catch (Exception $e) {
@@ -1629,11 +1709,7 @@ class Order extends Model
             $driverUser = $driver->user;
 
             // Fetch the existing balance transaction for this order and user
-            $existingTransaction = $this->balanceTransactions()
-                ->where('transactionable_id', $driverUser->id)
-                ->where('transactionable_type', $driverUser->getMorphClass())
-                ->where('order_id', $this->id)
-                ->first();
+            $existingTransaction = $this->balanceTransactions()->where('transactionable_id', $driverUser->id)->where('transactionable_type', $driverUser->getMorphClass())->where('order_id', $this->id)->first();
 
             if (!$existingTransaction) {
                 AppLog::error("No existing balance transaction found for order #{$this->id} and user #{$driverUser->id}");
@@ -1645,7 +1721,7 @@ class Order extends Model
                 $driverUser,
                 -1 * $existingTransaction->amount, // Use the negated amount from the existing transaction
                 "Reversal of delivery credit for order #{$this->id} in {$this->zone->name}",
-                $this->id 
+                $this->id,
             );
 
             return true;

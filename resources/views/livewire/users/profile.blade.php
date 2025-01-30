@@ -187,11 +187,19 @@
             <div>
                 <div class="card">
                     <header class=" card-header noborder flex justify-bewteen">
-                        <h4 class="card-title">Driver Shifts
-                        </h4>
+                        <div>
+                            <h4 class="card-title">Driver Shifts</h4>
+                            <button wire:click='openUpdateDayFee' class="btn inline-flex items-center justify-center btn-dark btn-sm">
+                                <span class="mr-3"> Day Fee </span>
+                                <span class="inline-flex items-center justify-center bg-white text-slate-900 rounded-md font-Inter text-xs ltr:ml-1 rtl:mr-1 p-1">
+                                    {{ number_format($user->driver_day_fees, 2) }}&nbsp;<small>EGP</small>
+                                </span>
+                            </button>
+                        </div>
                         <button wire:click='openNewDriverSec'
                             class="btn inline-flex justify-center btn-outline-light btn-sm">Add Driver Shift</button>
                     </header>
+
                     <div class="card-body px-6 pb-6">
                         <div class="overflow-x-auto -mx-6">
                             <div class="inline-block min-w-full align-middle">
@@ -241,9 +249,9 @@
                                                     </td>
                                                     <td class="table-td">
                                                         <div class="flex-1 text-start flex justify-between">
-                                                                <span>{{ $shift->start_time->format('h:i A') }}</span>
-                                                                <span>-></span>
-                                                                <span>{{ $shift->end_time->format('h:i A') }}</span>
+                                                            <span>{{ $shift->start_time->format('h:i A') }}</span>
+                                                            <span>-></span>
+                                                            <span>{{ $shift->end_time->format('h:i A') }}</span>
                                                         </div>
                                                     </td>
                                                     <td class="table-td">
@@ -587,7 +595,69 @@
             </div>
         @endif
 
+        
+
     </div>
+
+    @if ($is_open_update_day_fee)
+            <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+                tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
+                style="display: block;">
+                <div class="modal-dialog relative w-auto pointer-events-none">
+                    <div
+                        class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
+                        <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
+                            <!-- Modal header -->
+                            <div
+                                class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
+                                <h3 class="text-xl font-medium text-white dark:text-white capitalize">
+                                    Update day delivery fees
+                                </h3>
+
+                                <button wire:click="closeUpdateDayFee" type="button"
+                                    class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
+                                    data-bs-dismiss="modal">
+                                    <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10
+                            11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                            clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span class="sr-only">Close modal</span>
+                                </button>
+                            </div>
+                            <!-- Modal body -->
+                            <div class="p-6 space-y-4">
+                                <div class="form-group">
+                                    <div class="input-area">
+                                        <label for="editedDayFee" class="form-label">Day fee</label>
+                                        <input id="editedDayFee" wire:keydown.enter='updateDayFee' type="number"
+                                            class="form-control @error('editedDayFee') !border-danger-500 @enderror"
+                                            wire:model="editedDayFee">
+                                        @error('editedDayFee')
+                                            <span
+                                                class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Modal footer -->
+                            <div
+                                class="flex items-center justify-end p-6 space-x-2 border-t border-slate-200 rounded-b dark:border-slate-600">
+                                <button wire:click="updateDayFee" data-bs-dismiss="modal"
+                                    class="btn inline-flex justify-center text-white bg-black-500">
+                                    <span wire:loading.remove wire:target="updateDayFee">Submit</span>
+                                    <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
+                                        wire:loading wire:target="updateDayFee" icon="line-md:loading-twotone-loop">
+                                    </iconify-icon>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
 
     @if ($isOpenNewDriverSec || $isEditDriverSec)
         <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"

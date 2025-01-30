@@ -55,6 +55,15 @@ class BalanceTransaction extends Model
         }
     }
 
+    public function scopeUserTransactions($query , $user_id){
+        return $query->where('transactionable_type',User::MORPH_TYPE)
+        ->where('transactionable_id',$user_id);
+    }
+    
+    public function getForDriverAttribute(){
+        return $this->transactionable_type === User::MORPH_TYPE;
+    }
+
     // relations
     public function transactionable()
     {

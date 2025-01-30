@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->decimal('balance', 15, 2)->default(0)->after('phone');
+            $table->decimal('driver_day_fees', 15, 2)->default(0)->after('balance');
         });
     }
 
@@ -22,7 +23,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('balance');
+            $table->dropColumn(['balance', 'driver_day_fees']);
         });
     }
 };

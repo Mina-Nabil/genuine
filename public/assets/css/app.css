@@ -578,6 +578,10 @@ video {
 .form-control:focus {
     box-shadow: 0 0 0 1px rgb(37, 99, 235);
 }
+.system-font{
+    font-family: system-ui;
+    font-weight: bold;
+}
 .form-control::file-selector-button {
     padding: 0.375rem 0.75rem;
     margin: -0.375rem -0.75rem;

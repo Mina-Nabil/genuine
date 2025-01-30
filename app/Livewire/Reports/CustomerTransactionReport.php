@@ -6,6 +6,8 @@ use App\Models\Customers\Customer;
 use App\Models\Customers\Zone;
 use App\Models\Payments\CustomerPayment;
 use App\Models\Pets\Pet;
+use App\Models\Users\Driver;
+use App\Models\Users\User;
 use Livewire\Component;
 use App\Traits\AlertFrontEnd;
 use Illuminate\Routing\Route;
@@ -32,6 +34,11 @@ class CustomerTransactionReport extends Component
     public $paymentMethod = CustomerPayment::PYMT_CASH;
     public $note;
     
+    public $isOpenAddDriverTrans;
+    public $transDriverId;
+    public $driverAmount;
+    public $driverPaymentMethod = CustomerPayment::PYMT_CASH;
+    public $driverPymtNote;
 
     public $section = CustomerPayment::PYMT_CASH;
     protected $queryString = ['section'];
@@ -39,6 +46,33 @@ class CustomerTransactionReport extends Component
     public function mount(){
         $this->section = CustomerPayment::PYMT_CASH;
     }
+
+    public function openAddDriverTrans(){
+        $this->isOpenAddDriverTrans = true;
+    }
+
+    public function closeAddDriverTrans(){
+        $this->reset(['isOpenAddDriverTrans','driverAmount','driverPymtNote']);
+    }
+
+    public function addDriverTrnasaction(){
+        $this->validate([
+            'driverAmount' => 'required|numeric',
+            'driverPymtNote' => 'required|string|max:255',
+            'paymentMethod' => 'required|in:' . implode(',', CustomerPayment::PAYMENT_METHODS),
+        ]);
+
+        $res = User::findOrFail($this->transDriverId)->addDriverPayment($this->driverAmount,$this->driverPaymentMethod,$this->driverPymtNote);
+    
+        if ($res) {
+            $this->closeAddDriverTrans();
+            $this->alertSuccess('payment added!');
+        }else{
+            $this->alertFailed();
+        }
+    
+    }
+
 
     public function openAddTransSec(){
         $this->isOpenAddTrans = true;
@@ -103,11 +137,13 @@ class CustomerTransactionReport extends Component
             ->orderByDesc('id')
             ->latest()
             ->paginate(50);
+        $driverUsers = User::where('type',User::TYPE_DRIVER)->get();
         $this->fetched_customers_IDs = $payments->pluck('id')->toArray();
         $PAYMENT_METHODS = CustomerPayment::PAYMENT_METHODS;
         return view('livewire.reports.customer-transaction-report', [
             'payments' => $payments,
-            'PAYMENT_METHODS' => $PAYMENT_METHODS
+            'PAYMENT_METHODS' => $PAYMENT_METHODS,
+            'driverUsers' => $driverUsers
         ])->layout('layouts.app', ['page_title' => $this->page_title, 'customerTransReport' => 'active']);;
     }
 }

@@ -15,7 +15,10 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Events\AppNotification;
 use App\Models\Orders\Order;
 use App\Models\Payments\BalanceTransaction;
+use App\Models\Payments\CustomerPayment;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Support\Facades\DB;
 
 class User extends Authenticatable
 {
@@ -32,7 +35,7 @@ class User extends Authenticatable
 
     const TYPES = [self::TYPE_ADMIN, self::TYPE_INVENTORY, self::TYPE_SALES, self::TYPE_DRIVER];
 
-    protected $fillable = ['username', 'first_name', 'last_name', 'type', 'email', 'phone', 'id_number', 'id_doc_url', 'driving_license_number', 'driving_license_doc_url', 'car_license_number', 'car_license_doc_url', 'password', 'image_url', 'is_active'];
+    protected $fillable = ['username', 'first_name', 'last_name', 'type', 'email', 'phone', 'id_number', 'id_doc_url', 'driving_license_number', 'driving_license_doc_url', 'car_license_number', 'car_license_doc_url', 'password', 'image_url', 'is_active', 'driver_day_fees', 'balance'];
 
     protected $hidden = ['password', 'remember_token'];
 
@@ -153,6 +156,47 @@ class User extends Authenticatable
             report($e);
             return false;
         }
+    }
+
+    public function updateDeliveryFee($driver_day_fees): bool
+    {
+        try {
+            $this->driver_day_fees = $driver_day_fees;
+
+            if ($this->save()) {
+                AppLog::info('User updated', ' driver delivery fee updated', loggable: $this);
+                return true;
+            } else {
+                return false;
+            }
+        } catch (Exception $e) {
+            AppLog::error('driver delivery fee updated failed', $e->getMessage(), loggable: $this);
+            report($e);
+            return false;
+        }
+    }
+
+    public function addDriverPayment($amount, $paymentMethod, $note){
+        return DB::transaction(function () use ($amount, $paymentMethod, $note) {
+            try {
+
+                /** @var User */
+                $loggedInUser = Auth::user();
+                if ($loggedInUser && !$loggedInUser->can('addPayment', Driver::class)) {
+                    return false;
+                }
+
+                CustomerPayment::createPayment($amount, $paymentMethod, "Payment to driver ".$this->full_name.' ('.$note.')');
+                BalanceTransaction::createBalanceTransaction($this,-$amount,$note);
+
+                return true;
+
+            } catch (Exception $e) {
+                report($e);
+                AppLog::error('Failed creating payment', $e->getMessage());
+                return false;
+            }
+        });
     }
 
     public function switchSession($username)
@@ -331,10 +375,12 @@ class User extends Authenticatable
             ->select('users.*')
             ->selectRaw('COUNT(o1.id) as total_orders')
             ->selectRaw('SUM(o1.total_amount) as total_amount')
-            ->selectRaw('SUM((SELECT (SUM(order_products.quantity * products.weight)) 
-            from order_products 
-            join products on order_products.product_id = products.id 
-            where o1.id = order_products.order_id and order_products.deleted_at is null )) as total_weight')
+            ->selectRaw(
+                'SUM((SELECT (SUM(order_products.quantity * products.weight))
+            from order_products
+            join products on order_products.product_id = products.id
+            where o1.id = order_products.order_id and order_products.deleted_at is null )) as total_weight',
+            )
             ->selectRaw('COUNT(DISTINCT o1.zone_id) as total_zones')
             ->selectRaw('COUNT(DISTINCT Date(o1.delivery_date)) as total_days')
             ->selectRaw('GROUP_CONCAT(DISTINCT zones.name ORDER BY zones.name ASC) as zone_names')
@@ -351,7 +397,6 @@ class User extends Authenticatable
             ->groupBy('users.id')
             ->orderByDesc('total_orders');
     }
-
 
     public function scopeAdmin($query)
     {
@@ -454,8 +499,13 @@ class User extends Authenticatable
         return $this->password;
     }
 
-    public function transactions(): MorphMany
+    // public function transactions(): MorphMany
+    // {
+    //     return $this->morphMany(BalanceTransaction::class, 'transactionable');
+    // }
+
+    public function transactions(): HasManyThrough
     {
-        return $this->morphMany(BalanceTransaction::class, 'transactionable');
+        return $this->hasManyThrough(BalanceTransaction::class, Driver::class, 'user_id', 'transactionable_id')->where('transactionable_type', Driver::MORPH_TYPE);
     }
 }

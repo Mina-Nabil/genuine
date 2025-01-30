@@ -58,6 +58,8 @@ Route::get('/', function () {
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/orders/driver', OrderDriverShift::class)->name('orders.driver.shift');
+    Route::get('/report/drivers/transactions', DriverBalanceTransactionReport::class)->name('reports.drivers.transactions');
+
 });
 
 Route::middleware(['auth', 'no_driver'])->group(function () {
@@ -121,7 +123,6 @@ Route::middleware(['auth', 'no_driver'])->group(function () {
     Route::get('/report/orders/weekly', WeeklyTotalsReport::class)->name('reports.orders.weekly');
     Route::get('/report/orders/performance', DailySalesPerformanceReport::class)->name('reports.orders.performance');
     Route::get('/report/customers/transactions', CustomerTransactionReport::class)->name('reports.customers.transactions');
-    Route::get('/report/drivers/transactions', DriverBalanceTransactionReport::class)->name('reports.drivers.transactions');
 
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
 

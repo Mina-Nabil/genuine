@@ -2,13 +2,16 @@
 
 namespace App\Livewire\Reports;
 
+use App\Models\Payments\BalanceTransaction;
 use App\Models\Users\Driver;
 use App\Models\Users\User;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class DriverBalanceTransactionReport extends Component
 {
+    use WithPagination;
     public $userId;
 
     protected $queryString = ['userId'];
@@ -32,16 +35,20 @@ class DriverBalanceTransactionReport extends Component
     }
 
     public function ChangeUser($id){
+        if (Auth::user()->is_driver) return;
         $this->user = User::find($id);
         $this->userId = $this->user->id;
     }
 
     public function render()
     {
+        if (Auth::user()->is_driver) $this->mount();
+        $transactions = BalanceTransaction::UserTransactions($this->userId)->latest()->paginate(50);
         $this->userId = $this->user->id;
-        $drivers = Driver::all();
+        $drivers = User::where('type',User::TYPE_DRIVER)->get();
         return view('livewire.reports.driver-balance-transaction-report', [
             'drivers' => $drivers,
+            'transactions' => $transactions
         ]);
     }
 }
