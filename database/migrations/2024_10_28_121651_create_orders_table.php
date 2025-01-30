@@ -45,7 +45,7 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(Order::class)->constrained()->onDelete('cascade');
             $table->foreignIdFor(Product::class);
-            $table->foreignIdFor(Combo::class)->nullable()->constrained();
+            $table->foreignIdFor(Combo::class)->nullable()->constrained()->nullOnDelete();
             $table->integer('quantity');
             $table->decimal('price', 10, 2);
             $table->boolean('is_ready')->default(false);

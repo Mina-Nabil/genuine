@@ -13,6 +13,11 @@
                 <div>
                     <button class="btn inline-flex justify-center btn-dark btn-sm" wire:click='openEditComboSec'>Edit</button>
                 </div>
+                <div>
+                    <button class="btn inline-flex justify-center btn-dark btn-sm" wire:click='deleteCombo'
+                    wire:confirm='Are you sure you want to remove this combo?'
+                    >Delete</button>
+                </div>
             @endcan
         </div>
 

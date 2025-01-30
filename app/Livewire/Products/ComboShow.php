@@ -34,6 +34,13 @@ class ComboShow extends Component
         $this->editComboSec = true;
     }
 
+    public function deleteCombo(){
+        $this->authorize('update',$this->combo);
+        $this->combo->delete();
+        $this->alertSuccess('Combo deleted!');
+        return redirect()->route('combos.index');
+    }
+
     public function editCombo(){
         $this->authorize('update',$this->combo);
         $this->validate([
