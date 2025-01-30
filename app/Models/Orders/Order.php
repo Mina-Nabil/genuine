@@ -1686,7 +1686,7 @@ class Order extends Model
     {
         $res = true;
         foreach ($this->products as $orderProduct) {
-            $res &= ($orderProduct->product->inventory->on_hand - $orderProduct->quantity) > 0;
+            $res &= ($orderProduct->product->inventory->on_hand - $orderProduct->quantity) >= 0;
         }
         return $res;
     }
