@@ -374,7 +374,7 @@ class Customer extends Model
     }
 
     // Scopes
-    public function scopeZonesCountReport($query, Carbon $start_date, Carbon $end_date)
+    public function scopeZonesCountReport($query, Carbon $start_date, Carbon $end_date, $zone_name)
     {
         $query->selectRaw('zones.name as zone_name, COUNT(customers.id) as customers_count')
             ->where('customers.created_at', '>=', $start_date->format('Y-m-d 00:00:00'))
@@ -382,6 +382,13 @@ class Customer extends Model
             ->join('zones', 'zones.id', '=', 'customers.zone_id')
             ->groupBy('zones.id')
             ->orderBy('zones.name');
+
+            if (!is_null($zone_name)) {
+                $query->where('zones.name', 'like', '%' . $zone_name . '%');
+            }
+        
+            $query->groupBy('zones.id')
+                ->orderBy('zones.name');
     }
 
     public function scopeByZones($query, array $zones)

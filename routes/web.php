@@ -44,6 +44,7 @@ use App\Livewire\Reports\MonthlyTotalsReport;
 use App\Livewire\Reports\OrderReport;
 use App\Livewire\Reports\ProductionPlanning;
 use App\Livewire\Reports\WeeklyTotalsReport;
+use App\Livewire\Reports\ZoneCountReport;
 use App\Livewire\Tasks\TaskIndex;
 use App\Livewire\Tasks\TaskShow;
 use App\Livewire\Users\NotificationIndex;
@@ -120,6 +121,7 @@ Route::middleware(['auth', 'no_driver'])->group(function () {
     Route::get('/report/orders/weekly', WeeklyTotalsReport::class)->name('reports.orders.weekly');
     Route::get('/report/orders/performance', DailySalesPerformanceReport::class)->name('reports.orders.performance');
     Route::get('/report/customers/transactions', CustomerTransactionReport::class)->name('reports.customers.transactions');
+    Route::get('/report/Zones/count', ZoneCountReport::class)->name('reports.zones.count');
 
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
 
