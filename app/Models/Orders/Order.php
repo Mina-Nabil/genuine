@@ -266,6 +266,7 @@ class Order extends Model
                 if ($orderInAnotherShift) {
                     $orderInAnotherShift->creditDriverForReturnedShift();
                 }
+                
                 $this->calculateStartDeliveryCrDriver();
                 $this->creditDriverPerOrder();
             } elseif ($newStatus === self::STATUS_RETURNED) {
@@ -1595,20 +1596,21 @@ class Order extends Model
     public function calculateStartDeliveryCrDriver(): bool
     {
         try {
+            
             $driver = $this->driver;
             if (!$driver || !$driver->user) {
                 return false;
             }
-
+            // dd('tets');
             $driverUser = $driver->user;
             $driverUserId = $driverUser->id;
-            $existingOrder = self::whereHas('driver', function (Builder $query) use ($driverUserId) {
-                $query->where('user_id', $driverUserId
-            );})
-                ->where('description', "بداية توصيل الأوردرات عن يوم {$this->delivery_date->format('d/m/Y')}")
-                ->exists();
 
-            if (!$existingOrder) {
+            $existingTransaction = BalanceTransaction::where('transactionable_id', $driverUserId)
+            ->where('transactionable_type', $driverUser->getMorphClass())
+            ->where('description', "بداية توصيل الأوردرات عن يوم {$this->delivery_date->format('d/m/Y')}")
+            ->exists();
+
+            if (!$existingTransaction) {
                 $description = "بداية توصيل الأوردرات عن يوم {$this->delivery_date->format('d/m/Y')}";
 
                 BalanceTransaction::createBalanceTransaction($driverUser, $driver->user->driver_day_fees, $description);
@@ -1680,10 +1682,8 @@ class Order extends Model
             $returnedTrans = BalanceTransaction::where('transactionable_id', $driverUser->id)->where('transactionable_type', User::MORPH_TYPE)->where('description', $description)->get();
 
             foreach ($returnedTrans as $transaction) {
-                if ($transaction->order_id) {
-                    if ($transaction->order->driver_id === $this->driver_id) {
-                        return true;
-                    }
+                if ($transaction->order_id && $transaction->order->driver_id === $this->driver_id) {
+                    return true;
                 }
             }
 
