@@ -14,16 +14,14 @@
             </div>
         </div> --}}
 
-        <div class="card dark active">
-            <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base menu-open"  style="min-width: 150px">
-                <div class="items-center p-5">
+            <div class="card-body rounded-md bg-slate-800 dark:bg-slate-800 shadow-base menu-open dark" style="direction: rtl; text-align: right;min-width: 150px">
+                <div class="items-center px-5 py-2">
                     <h3 class="card-title text-slate-900 dark:text-white">حسابك</h3>
                     <p class="text-lg my-2" style="{{ $user->balance > 0 ? 'color:#00ff5d;' : 'color:#e50000;' }}"><b>{{ number_format($user->balance,2) }}</b>&nbsp;ج.م</p>
                 </div>
             </div>
-        </div>
 
-        <div class="md:mb-6 mb-4 space-x-3 float-right rtl:space-x-reverse">
+        <div class="md:mb-6 space-x-3 float-right rtl:space-x-reverse">
             <h4 class="font-medium lg:text-2xl text-xl capitalize text-slate-900 inline-block  rtl:pl-4 system-font">
                 <b>حســاب مــندوب</b>
             </h4>

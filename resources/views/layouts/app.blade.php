@@ -195,6 +195,18 @@
                         </a>
                     </li>
 
+                    <li>
+                        <a href="{{ auth()->user()->can('viewAny', App\Models\Orders\Order::class)? url('/report/drivers/transactions'): '#' }}"
+                            class="navItem {{ $driverTransactions ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Orders\Order::class)? '': 'disabled' }}">
+                            <span class="flex
+                            items-center">
+                                <iconify-icon class=" nav-icon" icon="tdesign:undertake-transaction">
+                                </iconify-icon>
+                                <span>حساب مندوب</span>
+                            </span>
+                        </a>
+                    </li>
+
                     @can('viewOrderInventory', App\Models\Products\Order::class)
                         <li class="sidebar-menu-title">Inventory</li>
                         <li>

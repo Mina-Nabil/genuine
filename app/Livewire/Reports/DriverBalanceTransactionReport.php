@@ -12,6 +12,8 @@ use Livewire\WithPagination;
 class DriverBalanceTransactionReport extends Component
 {
     use WithPagination;
+    public $page_title = '• حساب مندوب';
+
     public $userId;
 
     protected $queryString = ['userId'];
@@ -49,6 +51,6 @@ class DriverBalanceTransactionReport extends Component
         return view('livewire.reports.driver-balance-transaction-report', [
             'drivers' => $drivers,
             'transactions' => $transactions
-        ]);
+        ])->layout('layouts.app', ['page_title' => $this->page_title, 'driverTransactions' => 'active']);
     }
 }
