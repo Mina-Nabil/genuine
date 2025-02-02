@@ -125,7 +125,7 @@ class InvoiceCreate extends Component
 
         $this->subtotal = $subtotal;
         $this->totalItems = $totalItems;
-        $this->total = $subtotal  + $extraFee;
+        $this->total = $subtotal  + is_numeric($extraFee) ? $extraFee : 0;
     }
 
     public function selectSupplier($id)
