@@ -25,6 +25,7 @@ class DriverBalanceTransactionReport extends Component
         if (Auth::user()->is_driver) {
             if (!$this->user) {
                 $this->user = Auth::user();
+                $this->userId = $this->user->id;
             }
         } else {
             if ($this->userId) {
