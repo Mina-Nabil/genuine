@@ -195,17 +195,7 @@
                         </a>
                     </li>
 
-                    <li>
-                        <a href="{{ auth()->user()->can('viewAny', App\Models\Orders\Order::class)? url('/report/drivers/transactions'): '#' }}"
-                            class="navItem {{ $driverTransactions ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Orders\Order::class)? '': 'disabled' }}">
-                            <span class="flex
-                            items-center">
-                                <iconify-icon class=" nav-icon" icon="tdesign:undertake-transaction">
-                                </iconify-icon>
-                                <span>حساب مندوب</span>
-                            </span>
-                        </a>
-                    </li>
+
 
                     @can('viewOrderInventory', App\Models\Products\Order::class)
                         <li class="sidebar-menu-title">Inventory</li>
@@ -356,8 +346,6 @@
                     <li class="sidebar-menu-title">Finance</li>
 
 
-
-
                     <li>
                         <a href="{{ auth()->user()->can('viewAny', App\Models\Materials\SupplierInvoice::class)? url('/invoices'): '#' }}"
                             class="navItem {{ $invoices ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Materials\SupplierInvoice::class)? '': 'disabled' }}">
@@ -375,6 +363,18 @@
                             <span class="flex items-center">
                                 <iconify-icon class="nav-icon" icon="stash:invoice"></iconify-icon>
                                 <span>Paid Invoices</span>
+                            </span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ auth()->user()->can('update', App\Models\Users\Driver::class)? url('/report/drivers/transactions'): '#' }}"
+                            class="navItem {{ $driverTransactions ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Orders\Order::class)? '': 'disabled' }}">
+                            <span class="flex
+                            items-center">
+                                <iconify-icon class=" nav-icon" icon="tdesign:undertake-transaction">
+                                </iconify-icon>
+                                <span>حساب مندوب</span>
                             </span>
                         </a>
                     </li>

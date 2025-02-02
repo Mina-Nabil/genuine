@@ -34,7 +34,7 @@ class DriverPolicy
 
     public function addPayment(User $user): bool
     {
-        return true;
+        return $user->is_admin;
     }
 
     /**
@@ -42,7 +42,7 @@ class DriverPolicy
      */
     public function update(User $user, Driver $driver): bool
     {
-        return true;
+        return $user->is_admin || $user->is_driver;
     }
 
     /**
