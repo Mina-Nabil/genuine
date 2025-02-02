@@ -2,7 +2,7 @@
     <div class="flex justify-between flex-wrap items-center">
         <div class="md:mb-6 mb-4 flex space-x-3 rtl:space-x-reverse">
             <h4 class="font-medium lg:text-2xl text-xl capitalize text-slate-900 inline-block ltr:pr-4 rtl:pl-4">
-                Customers
+                Customers ({{ $customers->total() }})
             </h4>
         </div>
         <div class="flex sm:space-x-4 space-x-2 sm:justify-end items-center md:mb-6 mb-4 rtl:space-x-reverse">

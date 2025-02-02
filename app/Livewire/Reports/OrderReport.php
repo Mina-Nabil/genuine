@@ -270,6 +270,7 @@ class OrderReport extends Component
         if(!$this->creation_date_from) {
             $this->creation_date_from = Carbon::now()->startOfMonth();
         }
+        
         $AllOrders = Order::Report(
             searchText: $this->search,
             zone_ids: $this->zones,
