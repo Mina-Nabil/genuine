@@ -40,7 +40,7 @@ class DriverPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Driver $driver): bool
+    public function update(User $user, Driver $driver=null): bool
     {
         return $user->is_admin || $user->is_driver;
     }
