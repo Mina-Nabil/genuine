@@ -291,7 +291,7 @@ class Customer extends Model
                     'balance' => $this->balance,
                     'description' => $note ?? 'Add to balance',
                     'created_by' => $loggedInUser->id,
-                    'customer_payment_id' => $payment->id
+                    'payment_id' => $payment->id
                 ]);
 
                 // Step 4: Log the action (optional)

@@ -769,7 +769,7 @@ class Order extends Model
                 if ($isTakeFromBalance) {
                     BalanceTransaction::create([
                         'customer_id' => $customer->id,
-                        'customer_payment_id' => $payment->id,
+                        'payment_id' => $payment->id,
                         'order_id' => $this->id,
                         'amount' => $amount,
                         'balance' => $customer->balance,
@@ -2131,14 +2131,20 @@ class Order extends Model
 
     public function payments(): HasMany
     {
-        return $this->hasMany(CustomerPayment::class);
+        return $this->hasMany(CustomerPayment::class,'order_id')->where('customer_id',$this->customer_id);
     }
 
     public function balanceTransactions(): HasMany
     {
-        return $this->hasMany(BalanceTransaction::class);
+        return $this->hasMany(BalanceTransaction::class)
+            ->where('customer_id', function ($query) {
+                $query->select('customer_id')
+                    ->from('orders')
+                    ->whereColumn('orders.id', 'balance_transactions.order_id')
+                    ->limit(1);
+            });
     }
-
+        
     public function removedProducts(): HasMany
     {
         return $this->hasMany(OrderRemovedProduct::class);
