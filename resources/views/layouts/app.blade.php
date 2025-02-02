@@ -328,6 +328,18 @@
                         </li>
                     @endcan
 
+                    @can('viewReports', App\Models\Orders\Order::class)
+                        <li>
+                            <a href="{{ auth()->user()->can('viewReports', App\Models\Orders\Order::class)? url('/report/Zones/count'): '#' }}"
+                                class="navItem {{ $zoneCountReport ?? '' }} {{ auth()->user()->can('viewReports', App\Models\Orders\Order::class)? '': 'disabled' }}">
+                                <span class="flex items-center">
+                                    <iconify-icon class="nav-icon" icon="carbon:sales-ops"></iconify-icon>
+                                    <span>العملاء الجدد</span>
+                                </span>
+                            </a>
+                        </li>
+                    @endcan
+
 
                     <li class="sidebar-menu-title">Finance</li>
 
