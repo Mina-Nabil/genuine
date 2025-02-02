@@ -366,7 +366,7 @@
                             </span>
                         </a>
                     </li>
-
+                    @can('update', App\Models\Users\Driver::class)
                     <li>
                         <a href="{{ auth()->user()->can('update', App\Models\Users\Driver::class)? url('/report/drivers/transactions'): '#' }}"
                             class="navItem {{ $driverTransactions ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Orders\Order::class)? '': 'disabled' }}">
@@ -378,7 +378,7 @@
                             </span>
                         </a>
                     </li>
-
+                    @endcan
                     <li class="sidebar-menu-title">Calendar</li>
 
                     <li>
