@@ -40,6 +40,7 @@ use App\Livewire\Reports\CustomerTransactionReport;
 use App\Livewire\Reports\DailyLoadingReport;
 use App\Livewire\Reports\DailySalesPerformanceReport;
 use App\Livewire\Reports\DailyTotalsReport;
+use App\Livewire\Reports\DriverBalanceTransactionReport;
 use App\Livewire\Reports\MonthlyTotalsReport;
 use App\Livewire\Reports\OrderReport;
 use App\Livewire\Reports\ProductionPlanning;
@@ -58,6 +59,8 @@ Route::get('/', function () {
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/orders/driver', OrderDriverShift::class)->name('orders.driver.shift');
+    Route::get('/report/drivers/transactions', DriverBalanceTransactionReport::class)->name('reports.drivers.transactions');
+
 });
 
 Route::middleware(['auth', 'no_driver'])->group(function () {

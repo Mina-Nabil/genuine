@@ -32,6 +32,11 @@ class DriverPolicy
         return true;
     }
 
+    public function addPayment(User $user): bool
+    {
+        return true;
+    }
+
     /**
      * Determine whether the user can update the model.
      */

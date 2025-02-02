@@ -89,6 +89,35 @@ class OrderShow extends Component
     public $EdeliveryAmount;
     public $isOpenEditDelivery = false;
 
+    public $isOpenConfirmReshedule = false;
+    public $rescheduleDate = false;
+
+    public function confirmReschedule()  {
+        $this->isOpenConfirmReshedule = true;
+    }
+
+    public function closeConfirmReschedule(){
+        $this->isOpenConfirmReshedule = false;
+        $this->rescheduleDate = null;
+    }
+
+    public function rescheduleOder(){
+        $this->authorize('rescheduleOrder',$this->order);
+
+        $this->validate([
+            'rescheduleDate' => 'required|date'
+        ]);
+
+        $res = $this->order->rescheduleOrder(Carbon::parse($this->rescheduleDate));
+
+        if ($res) {
+            $this->closeConfirmReschedule();
+            $this->alertSuccess('Order Rescheduled');
+        }else{
+            $this->alertFailed();
+        }
+    }
+
     public function openSetCreatorSection()
     {
         $this->isOpenCreatorSec = true;

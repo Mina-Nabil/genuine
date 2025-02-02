@@ -56,6 +56,35 @@ class Profile extends Component
     public $oldPass, $password, $newPasswordConfirm;
     public $passwordsMatch = true; // Used to track if the passwords match
 
+    public $is_open_update_day_fee;
+    public $editedDayFee;
+
+    public function closeUpdateDayFee(){
+        $this->is_open_update_day_fee = false;
+        $this->editedDayFee = null;
+    }
+
+    public function openUpdateDayFee(){
+        $this->is_open_update_day_fee = true;
+        $this->editedDayFee = $this->user->driver_day_fees;
+
+    }
+
+    public function updateDayFee(){
+        $this->validate([
+            'editedDayFee' => 'required|numeric|min:0'
+        ]);
+        
+        $res = $this->user->updateDeliveryFee($this->editedDayFee);
+
+        if ($res) {
+            $this->closeUpdateDayFee();
+            $this->alertSuccess('updated successfuly!');
+        }else{
+            $this->alertFailed();
+        }
+    }
+
     public function openDeleteDriverConfirmation($id){
         $this->deleteDriverShiftId = $id;
     }

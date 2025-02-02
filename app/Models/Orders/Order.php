@@ -168,6 +168,12 @@ class Order extends Model
 
     public function resetStatus(): bool
     {
+        /** @var User */
+        $user = Auth::user();
+        if (!$user && !$user->can('resetStatus', $this)) {
+            return false;
+        }
+
         DB::beginTransaction();
 
         try {
@@ -179,9 +185,13 @@ class Order extends Model
                     AppLog::info("Order product {$product->product->name} is back to stock", loggable: $this);
                 }
 
+                if ($this->status === self::STATUS_IN_DELIVERY) {
+                    $this->debitDriverPerOrder();
+                }
+
                 $this->status = self::STATUS_NEW;
                 $this->save();
-                AppLog::info("Order reset completed", loggable: $this);
+                AppLog::info('Order reset completed', loggable: $this);
                 DB::commit();
                 return true;
             } else {
@@ -224,12 +234,8 @@ class Order extends Model
         try {
             /** @var User */
             $loggedInUser = Auth::user();
-            if (($newStatus == self::STATUS_READY || $newStatus == self::STATUS_IN_DELIVERY) &&
-                !$loggedInUser->can('updateInventoryInfo', self::class)
-            ) {
-                throw new Exception("User unauthorized");
-            } elseif ($newStatus == self::STATUS_CANCELLED && !$loggedInUser->can('cancelOrder', self::class)) {
-                throw new Exception("User unauthorized");
+            if (($newStatus == self::STATUS_READY || $newStatus == self::STATUS_IN_DELIVERY) && !$loggedInUser->can('updateInventoryInfo', self::class)) {
+                throw new Exception('User unauthorized');
             }
 
             // Get the current status and check the allowed next statuses
@@ -253,6 +259,18 @@ class Order extends Model
                     $product->is_ready = true;
                     $product->save();
                 }
+            }
+
+            if ($newStatus === self::STATUS_IN_DELIVERY) {
+                $orderInAnotherShift = $this->driverHasOrdersInAnotherShift();
+                if ($orderInAnotherShift) {
+                    $orderInAnotherShift->creditDriverForReturnedShift();
+                }
+                
+                $this->calculateStartDeliveryCrDriver();
+                $this->creditDriverPerOrder();
+            } elseif ($newStatus === self::STATUS_RETURNED) {
+                $this->creditDriverForReturnedShift();
             }
 
             // If the new status is returned or cancelled, handle product cancellation
@@ -366,7 +384,7 @@ class Order extends Model
             /** @var User */
             $user = Auth::user();
 
-            if (!$user->can("updateDeliveryInfo", $this)) {
+            if (!$user->can('updateDeliveryInfo', $this)) {
                 return false;
             }
 
@@ -568,6 +586,31 @@ class Order extends Model
         } catch (Exception $e) {
             report($e);
             AppLog::error('Failed to update delivery date for order', $e->getMessage());
+            return false;
+        }
+    }
+
+    public function rescheduleOrder(Carbon $newDeliveryDate = null): bool
+    {
+        /** @var User */
+        $loggedInUser = Auth::user();
+        if ($loggedInUser && !$loggedInUser->can('rescheduleOrder', $this)) {
+            return false;
+        }
+
+        try {
+            return DB::transaction(function () use ($newDeliveryDate) {
+                $this->creditDriverForReturnedShift();
+                $this->delivery_date = $newDeliveryDate;
+                $this->status = self::STATUS_READY;
+                $this->save();
+
+                AppLog::info('Order rescheduled', loggable: $this);
+                return true;
+            });
+        } catch (Exception $e) {
+            report($e);
+            AppLog::error('Failed to reschedule order', $e->getMessage());
             return false;
         }
     }
@@ -944,10 +987,7 @@ class Order extends Model
                     continue;
                 }
 
-                $orderProduct = $this->products()
-                    ->where('product_id', $product['product_id'])
-                    ->whereNull('combo_id')
-                    ->first();
+                $orderProduct = $this->products()->where('product_id', $product['product_id'])->whereNull('combo_id')->first();
 
                 if ($orderProduct && !$product['combo_id']) {
                     // Update the existing order product with the additional quantity and updated
@@ -1099,9 +1139,7 @@ class Order extends Model
                 }
 
                 // Check if the product has already been cancelled and update the record if it exists
-                $existingRemovedProduct = OrderRemovedProduct::where('order_id', $this->id)
-                    ->where('product_id', $orderProduct->product_id)
-                    ->first();
+                $existingRemovedProduct = OrderRemovedProduct::where('order_id', $this->id)->where('product_id', $orderProduct->product_id)->first();
 
                 if ($existingRemovedProduct) {
                     // Update the existing record with the new return quantity and reason
@@ -1315,23 +1353,14 @@ class Order extends Model
             $this->driver_order = $newPosition;
             $this->save();
 
-            $dayOrderedOrders = self::where('driver_id', $this->driver_id)
-                ->whereDate('delivery_date', $this->delivery_date)
-                ->whereNotNull('driver_order')
-                ->orderBy('driver_order')
-                ->whereNot('id', $this->id)
-                ->get();
+            $dayOrderedOrders = self::where('driver_id', $this->driver_id)->whereDate('delivery_date', $this->delivery_date)->whereNotNull('driver_order')->orderBy('driver_order')->whereNot('id', $this->id)->get();
 
             foreach ($dayOrderedOrders as $index => $or) {
                 $or->driver_order = $index + 1 + ($newPosition <= $index + 1 ? 1 : 0);
                 $or->save();
             }
 
-            $dayOrderedOrders = self::where('driver_id', $this->driver_id)
-                ->whereDate('delivery_date', $this->delivery_date)
-                ->whereNotNull('driver_order')
-                ->orderBy('driver_order')
-                ->get();
+            $dayOrderedOrders = self::where('driver_id', $this->driver_id)->whereDate('delivery_date', $this->delivery_date)->whereNotNull('driver_order')->orderBy('driver_order')->get();
 
             foreach ($dayOrderedOrders as $index => $or) {
                 $or->driver_order = $index + 1;
@@ -1564,6 +1593,145 @@ class Order extends Model
         return response()->download($public_file_path)->deleteFileAfterSend(true);
     }
 
+    public function calculateStartDeliveryCrDriver(): bool
+    {
+        try {
+            
+            $driver = $this->driver;
+            if (!$driver || !$driver->user) {
+                return false;
+            }
+            // dd('tets');
+            $driverUser = $driver->user;
+            $driverUserId = $driverUser->id;
+
+            $existingTransaction = BalanceTransaction::where('transactionable_id', $driverUserId)
+            ->where('transactionable_type', $driverUser->getMorphClass())
+            ->where('description', "بداية توصيل الأوردرات عن يوم {$this->delivery_date->format('d/m/Y')}")
+            ->exists();
+
+            if (!$existingTransaction) {
+                $description = "بداية توصيل الأوردرات عن يوم {$this->delivery_date->format('d/m/Y')}";
+
+                BalanceTransaction::createBalanceTransaction($driverUser, $driver->user->driver_day_fees, $description);
+
+                return true;
+            }
+
+            return true;
+        } catch (Exception $e) {
+            // Log and handle the exception
+            AppLog::error('Failed to credit driver for delivery', $e->getMessage());
+            report($e);
+            return false;
+        }
+    }
+
+    public function creditDriverPerOrder(): bool
+    {
+        try {
+            $driver = $this->driver;
+
+            if (!$driver || !$driver->user) {
+                return false;
+            }
+
+            $driverUser = $driver->user;
+
+            // Add balance transaction for this order
+            BalanceTransaction::createBalanceTransaction($driverUser, $this->zone->driver_order_rate, "توصيل أوردر رقم {$this->order_number} إلى منطقة {$this->zone->name} يوم {$this->delivery_date->format('d/m/Y')}", $this->id);
+
+            return true;
+        } catch (Exception $e) {
+            AppLog::error("Failed to credit driver for order #{$this->id}", $e->getMessage());
+            report($e);
+            return false;
+        }
+    }
+
+    public function driverHasOrdersInAnotherShift()
+    {
+        if (!$this->driver || !$this->driver->user) {
+            return false;
+        }
+
+        $driverUserId = $this->driver->user_id;
+
+        return self::whereHas('driver', function (Builder $query) use ($driverUserId) {
+            $query->where('user_id', $driverUserId);
+        })
+            ->whereDate('delivery_date', $this->delivery_date)
+            ->whereIn('status', [self::STATUS_IN_DELIVERY, self::STATUS_DONE, self::STATUS_RETURNED])
+            ->where('driver_id', '!=', $this->driver_id)
+            ->first();
+    }
+
+    public function creditDriverForReturnedShift(): bool
+    {
+        try {
+            $driver = $this->driver;
+
+            if (!$driver || !$driver->user) {
+                return false;
+            }
+
+            $driverUser = $driver->user;
+
+            $description = "رجوع يوم توصيل عن يوم {$this->delivery_date->format('d/m/Y')}";
+
+            $returnedTrans = BalanceTransaction::where('transactionable_id', $driverUser->id)->where('transactionable_type', User::MORPH_TYPE)->where('description', $description)->get();
+
+            foreach ($returnedTrans as $transaction) {
+                if ($transaction->order_id && $transaction->order->driver_id === $this->driver_id) {
+                    return true;
+                }
+            }
+
+            BalanceTransaction::createBalanceTransaction($driverUser, $this->zone->driver_return_rate, $description, $this->id);
+
+            return true;
+        } catch (Exception $e) {
+            AppLog::error("Failed to credit driver for order #{$this->id}", $e->getMessage());
+            report($e);
+            return false;
+        }
+    }
+
+    public function debitDriverPerOrder(): bool
+    {
+        try {
+            $driver = $this->driver;
+
+            if (!$driver || !$driver->user) {
+                return false;
+            }
+
+            $driverUser = $driver->user;
+
+            // Fetch the existing balance transaction for this order and user
+            $existingTransaction = $this->balanceTransactions()->where('transactionable_id', $driverUser->id)->where('transactionable_type', $driverUser->getMorphClass())->where('order_id', $this->id)->first();
+
+            if (!$existingTransaction) {
+                AppLog::error("No existing balance transaction found for order #{$this->id} and user #{$driverUser->id}");
+                return false;
+            }
+
+            // Reverse the transaction with the negated amount
+            BalanceTransaction::createBalanceTransaction(
+                $driverUser,
+                -1 * $existingTransaction->amount, // Use the negated amount from the existing transaction
+                "Reversal of delivery credit for order #{$this->id} in {$this->zone->name}",
+                $this->id,
+            );
+
+            return true;
+        } catch (Exception $e) {
+            AppLog::error("Failed to debit driver for order #{$this->id}", $e->getMessage());
+            report($e);
+            return false;
+        }
+    }
+
     public static function exportReport($searchText, $zone_id = null, $driver_id = null, Carbon $created_from = null, Carbon $created_to = null, Carbon $delivery_from = null, Carbon $delivery_to = null, $creator_id = null, $status = null)
     {
         $orders = self::report($searchText, $zone_id, $driver_id, $created_from, $created_to, $delivery_from, $delivery_to, $creator_id, $status)->get();
@@ -1786,8 +1954,7 @@ class Order extends Model
 
     public function scopeDeliveryBetween(Builder $query, Carbon $from, Carbon $to): Builder
     {
-        return $query->where('delivery_date', ">=", $from->format('Y-m-d 00:00:00'))
-            ->where('delivery_date', "<=", $to->format('Y-m-d 00:00:00'));
+        return $query->where('delivery_date', '>=', $from->format('Y-m-d 00:00:00'))->where('delivery_date', '<=', $to->format('Y-m-d 00:00:00'));
     }
 
     public function scopeNotCancelledOrReturned(Builder $query): Builder
@@ -1865,13 +2032,15 @@ class Order extends Model
             ->selectRaw('DAYNAME(o1.delivery_date) as dayName')
             ->selectRaw('COUNT(o1.id) as orders_count')
             ->selectRaw('SUM(o1.total_amount) as total_amount')
-            ->selectRaw('SUM(
+            ->selectRaw(
+                'SUM(
                                 (SELECT SUM(order_products.quantity * products.weight)
                                 FROM order_products
                                 JOIN products ON order_products.product_id = products.id
                                 WHERE o1.id = order_products.order_id
                                 AND order_products.deleted_at is null )
-                            ) AS total_weightsss')
+                            ) AS total_weightsss',
+            )
 
             ->join('orders as o1', 'o1.id', '=', 'orders.id')
             ->whereYear('o1.delivery_date', $year)
@@ -1888,13 +2057,15 @@ class Order extends Model
             ->selectRaw('MONTH(o1.delivery_date) as month')
             ->selectRaw('COUNT(o1.id) as total_orders')
             ->selectRaw('SUM(o1.total_amount) as monthly_total_amount')
-            ->selectRaw('SUM((
+            ->selectRaw(
+                'SUM((
                 SELECT SUM(order_products.quantity * products.weight)
-                FROM order_products 
+                FROM order_products
                 JOIN products ON order_products.product_id = products.id
-                WHERE o1.id = order_products.order_id 
+                WHERE o1.id = order_products.order_id
                 AND order_products.deleted_at is null
-            )) as monthly_total_weight')
+            )) as monthly_total_weight',
+            )
             ->join('orders as o1', 'o1.id', '=', 'orders.id')
             ->whereYear('o1.delivery_date', $year)
             ->whereIn('o1.status', Order::OK_STATUSES)
@@ -1906,11 +2077,13 @@ class Order extends Model
     {
         $query
             ->selectRaw('zones.name as zone_name')
-            ->selectRaw('CASE
+            ->selectRaw(
+                'CASE
                     WHEN DAY(orders.delivery_date) BETWEEN 1 AND 7 THEN 1
                     WHEN DAY(orders.delivery_date) BETWEEN 8 AND 14 THEN 2
                     WHEN DAY(orders.delivery_date) BETWEEN 15 AND 21 THEN 3
-                    ELSE 4 END AS week')
+                    ELSE 4 END AS week',
+            )
             ->selectRaw('COUNT(orders.id) as total_orders')
             ->join('zones', 'zones.id', '=', 'orders.zone_id')
             ->whereYear('orders.delivery_date', $year)
@@ -1925,33 +2098,17 @@ class Order extends Model
             $query->where('zones.name', 'LIKE', '%' . $searchText . '%');
         }
 
-        return $query
-            ->groupBy('zones.name', 'week')
-            ->orderBy('zones.name')
-            ->orderBy('week');
+        return $query->groupBy('zones.name', 'week')->orderBy('zones.name')->orderBy('week');
     }
 
     public function scopeUserPerformanceReport($query, $year, $month)
     {
-        return $query
-            ->selectRaw('CONCAT(users.first_name, " ", users.last_name) as user_name')
-            ->selectRaw('DAY(orders.created_at) as day')
-            ->selectRaw('COUNT(orders.id) as total_orders')
-            ->selectRaw('SUM(orders.total_amount) as total_amount')
-            ->join('users', 'users.id', '=', 'orders.created_by')
-            ->whereYear('orders.created_at', $year)
-            ->whereMonth('orders.created_at', $month)
-            ->whereIn('orders.status', Order::OK_STATUSES)
-            ->groupBy('users.id', 'day')
-            ->orderBy('day', 'ASC');
+        return $query->selectRaw('CONCAT(users.first_name, " ", users.last_name) as user_name')->selectRaw('DAY(orders.created_at) as day')->selectRaw('COUNT(orders.id) as total_orders')->selectRaw('SUM(orders.total_amount) as total_amount')->join('users', 'users.id', '=', 'orders.created_by')->whereYear('orders.created_at', $year)->whereMonth('orders.created_at', $month)->whereIn('orders.status', Order::OK_STATUSES)->groupBy('users.id', 'day')->orderBy('day', 'ASC');
     }
 
     public function getTotalWeightAttribute()
     {
-        return $this->products()
-            ->join('products', 'order_products.product_id', '=', 'products.id')->selectRaw('SUM(products.weight * order_products.quantity) as total_weight')
-            ->whereNull('order_products.deleted_at')
-            ->value('total_weight') ?? 0;
+        return $this->products()->join('products', 'order_products.product_id', '=', 'products.id')->selectRaw('SUM(products.weight * order_products.quantity) as total_weight')->whereNull('order_products.deleted_at')->value('total_weight') ?? 0;
     }
 
     public static function getTotalZonesForOrders($orders)

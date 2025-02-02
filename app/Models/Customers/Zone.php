@@ -14,7 +14,7 @@ class Zone extends Model
 
     const MORPH_TYPE = 'zone';
 
-    protected $fillable = ['name', 'delivery_rate'];
+    protected $fillable = ['name', 'delivery_rate', 'driver_order_rate', 'driver_return_rate'];
 
     //import from genuine file
     public static function importData($file)
@@ -29,28 +29,36 @@ class Zone extends Model
         for ($i = 1; $i <= $highestRow; $i++) {
             $name = $activeSheet->getCell('A' . $i)->getValue();
             $rate = $activeSheet->getCell('B' . $i)->getValue();
+            $orderRate = $activeSheet->getCell('C' . $i)->getValue();
+            $returnRate = $activeSheet->getCell('D' . $i)->getValue();
             //skip if no car category found
             if (!$name) {
                 continue;
             }
-            self::newZone($name, $rate);
+            self::newZone($name, $rate, $orderRate, $returnRate);
         }
     }
 
     public static function getZoneByName($name, $create = false)
     {
         $tmp = self::byName($name)->first();
-        if ($tmp) return $tmp;
-        if ($create) return self::create(['name' => $name, 'delivery_rate' => 0]);
+        if ($tmp) {
+            return $tmp;
+        }
+        if ($create) {
+            return self::create(['name' => $name, 'delivery_rate' => 0]);
+        }
     }
 
     // Create a new zone
-    public static function newZone($name, $delivery_rate)
+    public static function newZone($name, $delivery_rate, $driver_order_rate, $driver_return_rate)
     {
         try {
             $zone = new self();
             $zone->name = $name;
             $zone->delivery_rate = $delivery_rate;
+            $zone->driver_order_rate = $driver_order_rate;
+            $zone->driver_return_rate = $driver_return_rate;
 
             if ($zone->save()) {
                 AppLog::info('Zone created', "Zone $name created successfully.");
@@ -66,11 +74,13 @@ class Zone extends Model
     }
 
     // Edit zone info
-    public function editInfo($name, $delivery_rate)
+    public function editInfo($name, $delivery_rate, $driver_order_rate, $driver_return_rate)
     {
         try {
             $this->name = $name;
             $this->delivery_rate = $delivery_rate;
+            $this->driver_order_rate = $driver_order_rate;
+            $this->driver_return_rate = $driver_return_rate;
 
             if ($this->save()) {
                 AppLog::info('Zone updated', "Zone $name updated successfully.");
@@ -130,6 +140,44 @@ class Zone extends Model
         } catch (Exception $e) {
             // Log the error
             AppLog::error('Updating delivery rate failed', $e->getMessage());
+            report($e);
+            return false;
+        }
+    }
+
+    public function updateDriverOrderRate($newRate): bool
+    {
+        try {
+            $this->driver_order_rate = $newRate;
+
+            if ($this->save()) {
+                AppLog::info('Driver order rate updated successfully', "New driver order rate: $newRate");
+                return true;
+            } else {
+                AppLog::warning('Failed to update driver order rate', "Driver order rate could not be saved for Zone ID: {$this->id}");
+                return false;
+            }
+        } catch (Exception $e) {
+            AppLog::error('Updating driver order rate failed', $e->getMessage());
+            report($e);
+            return false;
+        }
+    }
+
+    public function updateDriverReturnRate($newRate): bool
+    {
+        try {
+            $this->driver_return_rate = $newRate;
+
+            if ($this->save()) {
+                AppLog::info('Driver return rate updated successfully', "New driver return rate: $newRate");
+                return true;
+            } else {
+                AppLog::warning('Failed to update driver return rate', "Driver return rate could not be saved for Zone ID: {$this->id}");
+                return false;
+            }
+        } catch (Exception $e) {
+            AppLog::error('Updating driver return rate failed', $e->getMessage());
             report($e);
             return false;
         }

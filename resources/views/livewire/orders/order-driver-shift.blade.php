@@ -39,8 +39,7 @@
                 <div class="space-y-2">
                     <div class="dropdown relative" style="display: contents">
                         <span class="badge bg-slate-900 text-white capitalize"
-                            @if (auth()->user()->is_driver) type="button"
-                    id="secondaryFlatDropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" @endif>
+                            @if (!auth()->user()->is_driver) type="button" id="secondaryFlatDropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" @endif>
                             <span class="cursor-pointer"
                                 @if (!auth()->user()->is_driver) wire:click='openFilteryDriver' @endif>
                                 <span class="text-secondary-500 ">Driver:</span>&nbsp;

@@ -52,6 +52,6 @@ class ZoneCountReport extends Component
         $zones = Customer::ZonesCountReport(Carbon::parse($this->creation_date_from),Carbon::parse($this->creation_date_to),$this->searchText)->paginate(50);
         return view('livewire.reports.zone-count-report',[
             'zones' => $zones
-        ]);
+        ])->layout('layouts.app', ['page_title' => $this->page_title, 'zoneCountReport' => 'active']);
     }
 }
