@@ -47,7 +47,7 @@
                                     class="table-th  flex items-center border-t border-slate-100 dark:border-slate-800 bg-slate-200 dark:bg-slate-700">
                                     Zone
                                 </th>
-                                <th scope="col" class="table-th">Customers Count</th>
+                                <th scope="col" class="table-th">Customers Count ({{ $zones->sum('customers_count') }})</th>
                             </tr>
                         </thead>
                         <tbody
