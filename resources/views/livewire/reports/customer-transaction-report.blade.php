@@ -185,7 +185,7 @@
 
 
                                 <td class="table-td">
-                                    {{ $payment->payment_date->format('l Y-m-d H:i A') }}
+                                    {{ $payment->created_at->format('l d/m/Y H:i A') }}
                                 </td>
 
                                 <td class="table-td">
