@@ -336,7 +336,7 @@ class SupplierInvoice extends Model
 
                 // Step 3: create a balance transaction log
                 $this->supplier->transactions()->create([
-                    'customer_payment_id' => $payment->id,
+                    'payment_id' => $payment->id,
                     'amount' => -$amount,
                     'balance' => $supplier->balance,
                     'description' => 'Payment to supplier',

@@ -20,6 +20,7 @@ class BalanceTransaction extends Model
         'transactionable_id',
         'transactionable_type',
         'payment_id',
+        'customer_id',
         'order_id',
         'amount', //can be negative or positive
         'balance',

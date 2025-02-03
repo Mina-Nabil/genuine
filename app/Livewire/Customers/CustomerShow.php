@@ -14,10 +14,11 @@ use App\Traits\ToggleSectionLivewire;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Livewire\WithPagination;
 
 class CustomerShow extends Component
 {
-    use AlertFrontEnd, AuthorizesRequests, ToggleSectionLivewire;
+    use AlertFrontEnd, AuthorizesRequests, ToggleSectionLivewire, WithPagination;
 
     public $page_title;
 
@@ -492,6 +493,16 @@ class CustomerShow extends Component
             ->take($this->visibleCommentsCount)
             ->get();
 
+            $customerPayments = $this->customer
+            ->payments()
+            ->latest()
+            ->paginate(5, ['*'], 'paymentsPage');
+
+        $customerTransactions = $this->customer
+            ->transactions()
+            ->latest()
+            ->paginate(5, ['*'], 'transactionsPage');
+
         $PET_TYPES = Pet::getDistinctPetTypes($this->petCategory);
         return view('livewire.customers.customer-show', [
             'ZONES' => $ZONES,
@@ -500,6 +511,8 @@ class CustomerShow extends Component
             'PAYMENT_METHODS' => $PAYMENT_METHODS,
             'orders' => $orders,
             'periodcOrders' => $periodcOrders,
+            'customerPayments' => $customerPayments,
+            'customerTransactions' => $customerTransactions
         ])->layout('layouts.app', ['page_title' => $this->page_title, 'customers' => 'active']);
     }
 }

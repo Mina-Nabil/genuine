@@ -262,26 +262,27 @@
                                                                     Default
                                                                 </span>
                                                             @endif
-                                                            </div>
+                                                        </div>
 
                                                     </div>
                                                 </div>
                                                 <div class="flex">
                                                     <div class="dropdown relative">
-                                                        <button class="text-xl text-center block w-full " type="button"
-                                                            id="tableDropdownMenuButton1" data-bs-toggle="dropdown"
-                                                            aria-expanded="false">
+                                                        <button class="text-xl text-center block w-full "
+                                                            type="button" id="tableDropdownMenuButton1"
+                                                            data-bs-toggle="dropdown" aria-expanded="false">
                                                             <iconify-icon
                                                                 icon="heroicons-outline:dots-vertical"></iconify-icon>
                                                         </button>
                                                         <ul
                                                             class=" dropdown-menu min-w-[120px] absolute text-sm text-slate-700 dark:text-white hidden bg-white dark:bg-slate-700 shadow z-[2] float-left overflow-hidden list-none text-left rounded-lg mt-1 m-0 bg-clip-padding border-none">
-        
-                                                                <li>
-                                                                    <button wire:click="setPeriodicAsDefault({{ $order->id }})"
-                                                                        class="text-slate-600 dark:text-white block font-Inter font-normal px-4  w-full text-left py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white">
-                                                                        Set as default</button>
-                                                                </li>
+
+                                                            <li>
+                                                                <button
+                                                                    wire:click="setPeriodicAsDefault({{ $order->id }})"
+                                                                    class="text-slate-600 dark:text-white block font-Inter font-normal px-4  w-full text-left py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white">
+                                                                    Set as default</button>
+                                                            </li>
                                                         </ul>
                                                     </div>
                                                 </div>
@@ -290,7 +291,8 @@
                                             <div class=" flex text-sm justify-between">
                                                 <span>
                                                     <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                                                        <b>{{ $order->total_items }}</b> {{ $order->total_items > 1 ? 'items' : 'item' }}
+                                                        <b>{{ $order->total_items }}</b>
+                                                        {{ $order->total_items > 1 ? 'items' : 'item' }}
                                                     </p>
                                                 </span>
                                             </div>
@@ -470,7 +472,9 @@
                                             class="text-light">EGP</small>{{ number_format($customer->balance, 2) }}
                                     </span>
                                 </div>
-                                <iconify-icon class="toolTip onTop cursor-pointer" data-tippy-content="Balance updates and transactions are temporarily under maintenance." icon="line-md:alert" width="24" height="24"></iconify-icon>
+                                <iconify-icon class="toolTip onTop cursor-pointer"
+                                    data-tippy-content="Balance updates and transactions are temporarily under maintenance."
+                                    icon="line-md:alert" width="24" height="24"></iconify-icon>
                                 @can('updateCustomerBalance', $customer)
                                     <div>
                                         <button wire:click='openAddToBalanceSection' type="button"
@@ -517,7 +521,7 @@
                                             <tbody
                                                 class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
 
-                                                @forelse ($customer->payments()->orderByDesc('id')->get() as $payment)
+                                                @forelse ($customerPayments as $payment)
                                                     <tr>
                                                         <td class="table-td ">
                                                             {{ \Carbon\Carbon::parse($payment->payment_date)->format('Y-m-d') }}
@@ -562,6 +566,10 @@
                                             </tbody>
                                         </table>
                                     </div>
+                                    <div style="position: sticky ; bottom:0;width:100%; z-index:10;"
+                                        class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
+                                        {{ $customerPayments->links('vendor.livewire.simple-bootstrap') }}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -600,7 +608,7 @@
                                             <tbody
                                                 class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
 
-                                                @forelse ($customer->transactions as $transaction)
+                                                @forelse ($customerTransactions as $transaction)
                                                     <tr>
                                                         <td class="table-td ">
                                                             {{ \Carbon\Carbon::parse($transaction->payment_date)->format('Y-m-d') }}
@@ -644,6 +652,10 @@
 
                                             </tbody>
                                         </table>
+                                    </div>
+                                    <div style="position: sticky ; bottom:0;width:100%; z-index:10;"
+                                        class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
+                                        {{ $customerTransactions->links('vendor.livewire.simple-bootstrap') }}
                                     </div>
                                 </div>
                             </div>
@@ -1691,7 +1703,7 @@
                                         xmlns="http://www.w3.org/2000/svg">
                                         <path fill-rule="evenodd"
                                             d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10
-                                                                11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                                                    11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
                                             clip-rule="evenodd"></path>
                                     </svg>
                                     <span class="sr-only">Close modal</span>
