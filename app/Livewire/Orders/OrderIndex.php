@@ -67,6 +67,10 @@ class OrderIndex extends Component
     {
         $this->isOpenPayAlert = $paymentMethod;
     }
+    public function closePayOrders($paymentMethod)
+    {
+        $this->isOpenPayAlert = null;
+    }
 
     public function resetStatuses()
     {
