@@ -2131,7 +2131,12 @@ class Order extends Model
 
     public function payments(): HasMany
     {
-        return $this->hasMany(CustomerPayment::class,'order_id')->where('customer_id',$this->customer_id);
+        return $this->hasMany(CustomerPayment::class,'order_id')->where('customer_id', function ($query) {
+            $query->select('customer_id')
+                ->from('orders')
+                ->whereColumn('orders.id', 'customer_payments.order_id')
+                ->limit(1);
+        });
     }
 
     public function balanceTransactions(): HasMany
