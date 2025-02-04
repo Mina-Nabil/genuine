@@ -258,16 +258,7 @@
                         </li>
                     @endcan
 
-                    <li>
-                        <a href="{{ auth()->user()->can('viewReports', App\Models\Orders\Order::class) ? url('/report/customers/transactions') : '#' }}"
-                            class="navItem {{ $customerTransReport ?? '' }} {{ auth()->user()->can('viewReports', App\Models\Orders\Order::class) ? '' : 'disabled' }}">
-                            <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="grommet-icons:transaction">
-                                </iconify-icon>
-                                <span>معاملات ماليه</span>
-                            </span>
-                        </a>
-                    </li>
+               
 
                     @can('viewSalesReports', App\Models\Orders\Order::class)
                         <li>
@@ -354,6 +345,17 @@
                                         <iconify-icon class=" nav-icon" icon="mdi:file-document-outline">
                                         </iconify-icon>
                                         <span>Active Invoices</span>
+                                    </span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="{{ auth()->user()->can('viewReports', App\Models\Orders\Order::class) ? url('/report/customers/transactions') : '#' }}"
+                                    class="navItem {{ $customerTransReport ?? '' }} {{ auth()->user()->can('viewReports', App\Models\Orders\Order::class) ? '' : 'disabled' }}">
+                                    <span class="flex items-center">
+                                        <iconify-icon class=" nav-icon" icon="grommet-icons:transaction">
+                                        </iconify-icon>
+                                        <span>معاملات ماليه</span>
                                     </span>
                                 </a>
                             </li>
