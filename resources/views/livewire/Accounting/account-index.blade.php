@@ -174,7 +174,7 @@
                             </div>
                             <div class="form-group mb-5">
                                 <label for="mainAccountId" class="form-label">Main Account</label>
-                                <select id="mainAccountId" class="form-control mt-2 w-full {{ $errors->has('mainAccountId') ? '!border-danger-500' : '' }}" wire:model="mainAccountId">
+                                <select id="mainAccountId" class="form-control mt-2 w-full {{ $errors->has('mainAccountId') ? '!border-danger-500' : '' }}" wire:model.live="mainAccountId">
                                     <option value="">Select Type</option>
                                     @foreach ($main_accounts as $main_account)
                                         <option value="{{ $main_account->id }}">{{ ucwords($main_account->name) . ' • ' . ucwords($main_account->type) }}</option>
