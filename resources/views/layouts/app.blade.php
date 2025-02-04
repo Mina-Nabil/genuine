@@ -258,7 +258,7 @@
                         </li>
                     @endcan
 
-               
+
 
                     @can('viewSalesReports', App\Models\Orders\Order::class)
                         <li>
@@ -334,21 +334,9 @@
 
                     @if (auth()->user()->is_admin || auth()->user()->is_driver)
 
-
                         <li class="sidebar-menu-title">Finance</li>
 
                         @if (auth()->user()->is_admin)
-                            <li>
-                                <a href="{{ auth()->user()->can('viewAny', App\Models\Materials\SupplierInvoice::class) ? url('/invoices') : '#' }}"
-                                    class="navItem {{ $invoices ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Materials\SupplierInvoice::class) ? '' : 'disabled' }}">
-                                    <span class="flex items-center">
-                                        <iconify-icon class=" nav-icon" icon="mdi:file-document-outline">
-                                        </iconify-icon>
-                                        <span>Active Invoices</span>
-                                    </span>
-                                </a>
-                            </li>
-
                             <li>
                                 <a href="{{ auth()->user()->can('viewReports', App\Models\Orders\Order::class) ? url('/report/customers/transactions') : '#' }}"
                                     class="navItem {{ $customerTransReport ?? '' }} {{ auth()->user()->can('viewReports', App\Models\Orders\Order::class) ? '' : 'disabled' }}">
@@ -356,6 +344,17 @@
                                         <iconify-icon class=" nav-icon" icon="grommet-icons:transaction">
                                         </iconify-icon>
                                         <span>معاملات ماليه</span>
+                                    </span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="{{ auth()->user()->can('viewAny', App\Models\Materials\SupplierInvoice::class) ? url('/invoices') : '#' }}"
+                                    class="navItem {{ $invoices ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Materials\SupplierInvoice::class) ? '' : 'disabled' }}">
+                                    <span class="flex items-center">
+                                        <iconify-icon class=" nav-icon" icon="mdi:file-document-outline">
+                                        </iconify-icon>
+                                        <span>Active Invoices</span>
                                     </span>
                                 </a>
                             </li>
@@ -542,12 +541,14 @@
                                         class="leading-none bg-transparent relative text-xl top-[2px] text-slate-900 dark:text-white"
                                         icon="heroicons-outline:menu-alt-3"></iconify-icon>
                                 </button>
-                                @if(auth()->user()->is_admin)
-                                <div class="text-right">
-                                    <a href="/accounts">
-                                        <button class="btn btn-sm inline-flex justify-center btn-outline-light rounded-[25px]">Accounting APP</button>
-                                    </a>
-                                </div>
+                                @if (auth()->user()->is_admin)
+                                    <div class="text-right">
+                                        <a href="/accounts">
+                                            <button
+                                                class="btn btn-sm inline-flex justify-center btn-outline-light rounded-[25px]">Accounting
+                                                APP</button>
+                                        </a>
+                                    </div>
                                 @endif
                             </div>
                             <!-- end vertcial -->
