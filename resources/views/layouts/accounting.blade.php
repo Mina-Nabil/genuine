@@ -7,31 +7,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <title>Genuine {{ $page_title ?? '' }}</title>
-    <link rel="icon" type="image/png" href="{{ asset('assets/images/logo/genuine-favicon.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('assets/images/logo/wise-favicon.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
     <!-- BEGIN: Theme CSS-->
-    {{--
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    --}}
+    {{-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous"> --}}
     <link rel="stylesheet" href="{{ asset('assets/css/rt-plugins.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/app.css') }}">
     {{ $page_css_head ?? '' }}
-    @yield('head_content')
 
     <script src="https://unpkg.com/dropzone@6.0.0-beta.1/dist/dropzone-min.js"></script>
     <link href="https://unpkg.com/dropzone@6.0.0-beta.1/dist/dropzone.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 
 
     <!-- End : Theme CSS-->
     <script src="{{ asset('assets/js/settings.js') }}" sync></script>
-    {{-- @auth
-      
+    @auth
+        {{-- Sweet Alert --}}
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
+        {{-- Pusher file --}}
         <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
         <script>
             @env(['development', 'staging'])
@@ -65,10 +62,8 @@
                 });
             });
         </script>
-    @endauth --}}
-
-    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+    @endauth
+    @livewireStyles
 </head>
 
 <body class=" font-inter dashcode-app">
@@ -80,13 +75,12 @@
             <div id="bodyOverlay"
                 class="w-screen h-screen fixed top-0 bg-slate-900 bg-opacity-50 backdrop-blur-sm z-10 hidden"></div>
             <div class="logo-segment">
-                <a class="flex items-center" href="{{ url('/') }}">
+                <a class="flex items-center" href="{{ url('/accounts/entries') }}">
                     <img src="{{ asset('assets/images/logo/genuine-logo-wide.png') }}" class="black_logo"
-                        alt="logo">
-                    <img src="{{ asset('assets/images/logo/genuine-logo-wide-white.png') }}" class="white_logo"
-                        alt="logo">
-                    {{-- <span
-                        class="ltr:ml-3 rtl:mr-3 text-xl font-Inter font-bold text-slate-900 dark:text-white">Wise
+                    alt="logo">
+                <img src="{{ asset('assets/images/logo/genuine-logo-wide-white.png') }}" class="white_logo"
+                    alt="logo">
+                    {{-- <span class="ltr:ml-3 rtl:mr-3 text-xl font-Inter font-bold text-slate-900 dark:text-white">Wise
                         Ins.</span> --}}
                 </a>
                 <!-- Sidebar Type Button -->
@@ -103,8 +97,8 @@
                     </span>
                 </div>
                 <button class="sidebarCloseIcon text-2xl">
-                    <iconify-icon class="text-slate-900 dark:text-slate-200" icon="clarity:window-close-line">
-                    </iconify-icon>
+                    <iconify-icon class="text-slate-900 dark:text-slate-200"
+                        icon="clarity:window-close-line"></iconify-icon>
                 </button>
             </div>
             <div id="nav_shadow"
@@ -114,404 +108,47 @@
             <div class="sidebar-menus bg-white dark:bg-slate-800 py-2 px-4 h-[calc(100%-80px)] overflow-y-auto z-50"
                 id="sidebar_menus">
                 <ul class="sidebar-menu">
-                    @can('viewReports', App\Models\Orders\Order::class)
-                        <li>
-                            <a href="{{ auth()->user()->can('viewReports', App\Models\Orders\Order::class) ? url('/dashboard') : '#' }}"
-                                class="navItem {{ $dashboard ?? '' }} {{ auth()->user()->can('viewReports', App\Models\Orders\Order::class) ? '' : 'disabled' }}">
-                                <span class="flex items-center">
-                                    <iconify-icon class="nav-icon" icon="icon-park-outline:ad-product"></iconify-icon>
-                                    <span>Dashboard</span>
-                                </span>
-                            </a>
-                        </li>
-                    @endcan
-
-                    <li class="sidebar-menu-title">Orders</li>
-
-
+                    <li class="sidebar-menu-title">Main</li>
                     <li>
-                        <a href="{{ auth()->user()->can('viewAny', App\Models\Orders\Order::class) ? url('/orders') : '#' }}"
-                            class="navItem {{ $orders ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Orders\Order::class) ? '' : 'disabled' }}">
+                        <a href="{{ url('/accounts/main') }}" class="navItem {{ $main_accounts ?? '' }}">
                             <span class="flex items-center">
-                                <iconify-icon class="nav-icon" icon="icon-park-outline:ad-product"></iconify-icon>
-                                <span>Active</span>
+                                <iconify-icon class=" nav-icon" icon="material-symbols-light:account-tree-rounded"></iconify-icon>
+                                <span>Main Account</span>
                             </span>
                         </a>
-                    </li>
-
+                    </li>  
                     <li>
-                        <a href="{{ auth()->user()->can('viewAny', App\Models\Orders\Order::class) ? url('/orders/closed') : '#' }}"
-                            class="navItem {{ $ordersClosed ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Orders\Order::class) ? '' : 'disabled' }}">
+                        <a href="{{ url('/accounts') }}" class="navItem {{ $accounts ?? '' }}">
                             <span class="flex items-center">
-                                <iconify-icon class="nav-icon" icon="lsicon:order-done-outline"></iconify-icon>
-                                <span>Closed</span>
+                                <iconify-icon class=" nav-icon" icon="solar:banknote-2-bold"></iconify-icon>
+                                <span>Accounts</span>
                             </span>
                         </a>
-                    </li>
-
+                    </li>  
                     <li>
-                        <a href="{{ auth()->user()->can('viewAny', App\Models\Orders\Order::class) ? url('/orders/pastdue') : '#' }}"
-                            class="navItem {{ $ordersPastDue ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Orders\Order::class) ? '' : 'disabled' }}">
+                        <a href="{{ url('accounts/entries') }}" class="navItem {{ $entries ?? '' }}">
                             <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="lsicon:order-abnormal-outline">
-                                </iconify-icon>
-                                <span>Debit</span>
+                                <iconify-icon class=" nav-icon" icon="vaadin:money-exchange"></iconify-icon>
+                                <span>Journal Entry</span>
                             </span>
                         </a>
                     </li>
-
                     <li>
-                        <a href="{{ auth()->user()->can('viewAny', App\Models\Orders\Order::class) ? url('/orders/cancelled') : '#' }}"
-                            class="navItem {{ $ordersCancelled ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Orders\Order::class) ? '' : 'disabled' }}">
+                        <a href="{{ url('accounts/entries/unapproved') }}" class="navItem {{ $unapproved_entries ?? '' }}">
                             <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="lsicon:order-abnormal-outline">
-                                </iconify-icon>
-                                <span>Cancelled Orders</span>
+                                <iconify-icon class=" nav-icon" icon="material-symbols:do-not-touch-rounded"></iconify-icon>
+                                <span>Unapproved Entry</span>
                             </span>
                         </a>
-                    </li>
-
-                    <li class="sidebar-menu-title">Logistics</li>
+                    </li> 
                     <li>
-                        <a href="{{ auth()->user()->can('viewAny', App\Models\Users\Driver::class) ? route('orders.driver.shift') : '#' }}"
-                            class="navItem {{ $driverShift ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Users\Driver::class) ? '' : 'disabled' }}">
+                        <a href="{{ url('accounts/titles') }}" class="navItem {{ $entry_titles ?? '' }}">
                             <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="iconoir:delivery-truck">
-                                </iconify-icon>
-                                <span>يوميه مندوب</span>
+                                <iconify-icon class=" nav-icon" icon="material-symbols:text-fields"></iconify-icon>
+                                <span>Titles</span>
                             </span>
                         </a>
-                    </li>
-
-                    <li>
-                        <a href="{{ auth()->user()->can('viewAny', App\Models\Orders\Order::class) ? url('/report/daily-loading') : '#' }}"
-                            class="navItem {{ $dailyLoading ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Orders\Order::class) ? '' : 'disabled' }}">
-                            <span class="flex
-                            items-center">
-                                <iconify-icon class=" nav-icon" icon="material-symbols:event">
-                                </iconify-icon>
-                                <span>يوميه تحميل</span>
-                            </span>
-                        </a>
-                    </li>
-
-
-
-                    @can('viewOrderInventory', App\Models\Products\Order::class)
-                        <li class="sidebar-menu-title">Inventory</li>
-                        <li>
-                            <a href="{{ auth()->user()->can('viewOrderInventory', App\Models\Products\Order::class) ? url('/orders/inventory') : '#' }}"
-                                class="navItem {{ $ordersInventory ?? '' }} {{ auth()->user()->can('viewOrderInventory', App\Models\Orders\Order::class) ? '' : 'disabled' }}">
-                                <span class="flex items-center">
-                                    <iconify-icon class=" nav-icon" icon="gridicons:product">
-                                    </iconify-icon>
-                                    <span>تحضير</span>
-                                </span>
-                            </a>
-                        </li>
-
-                        <li>
-                            <a href="{{ auth()->user()->can('viewAny', App\Models\Products\Inventory::class) ? url('/inventories') : '#' }}"
-                                class="navItem {{ $inventories ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Products\Inventory::class) ? '' : 'disabled' }}">
-                                <span class="flex items-center">
-                                    <iconify-icon class=" nav-icon" icon="ic:sharp-inventory">
-                                    </iconify-icon>
-                                    <span>انتاجيه اليوم</span>
-                                </span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ auth()->user()->can('viewAny', App\Models\Products\Inventory::class) ? url('/productions') : '#' }}"
-                                class="navItem {{ $productions ?? '' }}
-                            {{ auth()->user()->can('viewAny', App\Models\Products\Inventory::class) ? '' : 'disabled' }}">
-                                <span class="flex items-center">
-                                    <iconify-icon class=" nav-icon" icon="la:industry">
-                                    </iconify-icon>
-                                    <span>مخزن منتج تام</span>
-                                </span>
-                            </a>
-                        </li>
-
-                        <li>
-                            <a href="{{ auth()->user()->can('viewAny', App\Models\Materials\RawMaterial::class) ? url('/materials') : '#' }}"
-                                class="navItem {{ $materials ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Materials\RawMaterial::class) ? '' : 'disabled' }}">
-                                <span class="flex items-center">
-                                    <iconify-icon class=" nav-icon" icon="mdi:package-variant-closed">
-                                    </iconify-icon>
-                                    <span>مخزن خامات</span>
-                                </span>
-                            </a>
-                        </li>
-                    @endcan
-
-                    <li class="sidebar-menu-title">Reports</li>
-                    @can('viewAny', App\Models\Products\Customer::class)
-                        <li>
-                            <a href="{{ url('/report/followup') }}" class="navItem {{ $followupReport ?? '' }}">
-                                <span class="flex
-                            items-center">
-                                    <iconify-icon class=" nav-icon" icon="material-symbols:order-approve-outline-sharp">
-                                    </iconify-icon>
-                                    <span>متابعه عملاء</span>
-                                </span>
-                            </a>
-                        </li>
-                    @endcan
-
-                    <li>
-                        <a href="{{ auth()->user()->can('viewReports', App\Models\Orders\Order::class) ? url('/report/customers/transactions') : '#' }}"
-                            class="navItem {{ $customerTransReport ?? '' }} {{ auth()->user()->can('viewReports', App\Models\Orders\Order::class) ? '' : 'disabled' }}">
-                            <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="grommet-icons:transaction">
-                                </iconify-icon>
-                                <span>معاملات ماليه</span>
-                            </span>
-                        </a>
-                    </li>
-
-                    @can('viewSalesReports', App\Models\Orders\Order::class)
-                        <li>
-                            <a href="{{ auth()->user()->can('viewSalesReports', App\Models\Orders\Order::class) ? url('/report/orders') : '#' }}"
-                                class="navItem {{ $ordersReport ?? '' }} {{ auth()->user()->can('viewSalesReports', App\Models\Orders\Order::class) ? '' : 'disabled' }}">
-                                <span class="flex items-center">
-                                    <iconify-icon class="nav-icon" icon="icon-park-outline:ad-product"></iconify-icon>
-                                    <span>متابعه Sales</span>
-                                </span>
-                            </a>
-                        </li>
-                    @endcan
-
-                    @can('viewReports', App\Models\Orders\Order::class)
-                        <li>
-                            <a href="{{ auth()->user()->can('viewReports', App\Models\Orders\Order::class) ? url('/report/orders/totals') : '#' }}"
-                                class="navItem {{ $dailyTotalsReport ?? '' }} {{ auth()->user()->can('viewReports', App\Models\Orders\Order::class) ? '' : 'disabled' }}">
-                                <span class="flex items-center">
-                                    <iconify-icon class="nav-icon" icon="fluent-mdl2:bookmark-report"></iconify-icon>
-                                    <span>المبيعات اليوميه</span>
-                                </span>
-                            </a>
-                        </li>
-                    @endcan
-
-                    @can('viewReports', App\Models\Orders\Order::class)
-                        <li>
-                            <a href="{{ auth()->user()->can('viewReports', App\Models\Orders\Order::class) ? url('/report/orders/monthly') : '#' }}"
-                                class="navItem {{ $monthlyTotalsReport ?? '' }} {{ auth()->user()->can('viewReports', App\Models\Orders\Order::class) ? '' : 'disabled' }}">
-                                <span class="flex items-center">
-                                    <iconify-icon class="nav-icon" icon="fluent-mdl2:analytics-report"></iconify-icon>
-                                    <span>المبيعات الشهرية</span>
-                                </span>
-                            </a>
-                        </li>
-                    @endcan
-
-                    @can('viewReports', App\Models\Orders\Order::class)
-                        <li>
-                            <a href="{{ auth()->user()->can('viewReports', App\Models\Orders\Order::class) ? url('/report/orders/weekly') : '#' }}"
-                                class="navItem {{ $weeklyTotalsReport ?? '' }} {{ auth()->user()->can('viewReports', App\Models\Orders\Order::class) ? '' : 'disabled' }}">
-                                <span class="flex items-center">
-                                    <iconify-icon class="nav-icon" icon="tabler:chart-area-line-filled"></iconify-icon>
-                                    <span>مبيعات المناطق</span>
-                                </span>
-                            </a>
-                        </li>
-                    @endcan
-
-                    @can('viewReports', App\Models\Orders\Order::class)
-                        <li>
-                            <a href="{{ auth()->user()->can('viewReports', App\Models\Orders\Order::class) ? url('/report/orders/performance') : '#' }}"
-                                class="navItem {{ $salesPerformanceReport ?? '' }} {{ auth()->user()->can('viewReports', App\Models\Orders\Order::class) ? '' : 'disabled' }}">
-                                <span class="flex items-center">
-                                    <iconify-icon class="nav-icon" icon="carbon:sales-ops"></iconify-icon>
-                                    <span>أداء المبيعات اليومي</span>
-                                </span>
-                            </a>
-                        </li>
-                    @endcan
-
-                    @can('viewReports', App\Models\Orders\Order::class)
-                        <li>
-                            <a href="{{ auth()->user()->can('viewReports', App\Models\Orders\Order::class) ? url('/report/Zones/count') : '#' }}"
-                                class="navItem {{ $zoneCountReport ?? '' }} {{ auth()->user()->can('viewReports', App\Models\Orders\Order::class) ? '' : 'disabled' }}">
-                                <span class="flex items-center">
-                                    <iconify-icon class="nav-icon" icon="carbon:sales-ops"></iconify-icon>
-                                    <span>العملاء الجدد</span>
-                                </span>
-                            </a>
-                        </li>
-                    @endcan
-
-                    @if (auth()->user()->is_admin || auth()->user()->is_driver)
-
-
-                        <li class="sidebar-menu-title">Finance</li>
-
-                        @if (auth()->user()->is_admin)
-                            <li>
-                                <a href="{{ auth()->user()->can('viewAny', App\Models\Materials\SupplierInvoice::class) ? url('/invoices') : '#' }}"
-                                    class="navItem {{ $invoices ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Materials\SupplierInvoice::class) ? '' : 'disabled' }}">
-                                    <span class="flex items-center">
-                                        <iconify-icon class=" nav-icon" icon="mdi:file-document-outline">
-                                        </iconify-icon>
-                                        <span>Active Invoices</span>
-                                    </span>
-                                </a>
-                            </li>
-
-                            <li>
-                                <a href="{{ auth()->user()->can('viewAny', App\Models\Materials\SupplierInvoice::class) ? url('/invoices/paid') : '#' }}"
-                                    class="navItem {{ $paidInvoices ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Materials\SupplierInvoice::class) ? '' : 'disabled' }}">
-                                    <span class="flex items-center">
-                                        <iconify-icon class="nav-icon" icon="stash:invoice"></iconify-icon>
-                                        <span>Paid Invoices</span>
-                                    </span>
-                                </a>
-                            </li>
-                        @endif
-                        @can('update', App\Models\Users\Driver::class)
-                            <li>
-                                <a href="{{ auth()->user()->can('update', App\Models\Users\Driver::class) ? url('/report/drivers/transactions') : '#' }}"
-                                    class="navItem {{ $driverTransactions ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Orders\Order::class) ? '' : 'disabled' }}">
-                                    <span class="flex
-                            items-center">
-                                        <iconify-icon class=" nav-icon" icon="tdesign:undertake-transaction">
-                                        </iconify-icon>
-                                        <span>حساب مندوب</span>
-                                    </span>
-                                </a>
-                            </li>
-                        @endcan
-
-                    @endif
-                    <li class="sidebar-menu-title">Calendar</li>
-
-                    <li>
-                        <a href="{{ auth()->user()->can('viewAny', App\Models\Tasks\Task::class) ? url('/tasks') : '#' }}"
-                            class="navItem {{ $tasks ?? '' }}  {{ auth()->user()->can('viewAny', App\Models\Tasks\Task::class) ? '' : 'disabled' }}">
-                            <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="ic:round-add-task">
-                                </iconify-icon>
-                                <span>Tasks</span>
-                            </span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ url('/calendar') }}" class="navItem">
-                            <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="grommet-icons:calendar">
-                                </iconify-icon>
-                                <span>To-do</span>
-                            </span>
-                        </a>
-                    </li>
-
-                    <li>
-                        <a href="{{ auth()->user()->can('viewAny', App\Models\Customers\Followup::class) ? url('/followups') : '#' }}"
-                            class="navItem {{ $followups ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Customers\Followup::class) ? '' : 'disabled' }}">
-                            <span class="flex items-center">
-                                <iconify-icon class=" nav-icon" icon="icon-park-outline:cycle-arrow">
-                                </iconify-icon>
-                                <span>Follow-ups</span>
-                            </span>
-                        </a>
-                    </li>
-
-
-
-                    <li class="sidebar-menu-title">Database</li>
-
-                    @can('viewAny', App\Models\Products\Product::class)
-                        <li>
-                            <a href="{{ auth()->user()->can('viewAny', App\Models\Products\Product::class) ? url('/products') : '#' }}"
-                                class="navItem {{ $products ?? '' }} 
-                            {{ auth()->user()->can('viewAny', App\Models\Products\Product::class) ? '' : 'disabled' }}">
-                                <span class="flex items-center">
-                                    <iconify-icon class=" nav-icon" icon="flowbite:tag-outline">
-                                    </iconify-icon>
-                                    <span>Products</span>
-                                </span>
-                            </a>
-                        </li>
-                    @endcan
-
-                    @can('viewAny', App\Models\Customers\Customer::class)
-                        <li>
-                            <a href="{{ auth()->user()->can('viewAny', App\Models\Customers\Customer::class) ? url('/customers') : '#' }}"
-                                class="navItem {{ $customers ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Customers\Customer::class) ? '' : 'disabled' }}">
-                                <span class="flex items-center">
-                                    <iconify-icon class=" nav-icon" icon="mdi:user">
-                                    </iconify-icon>
-                                    <span>Customers</span>
-                                </span>
-                            </a>
-                        </li>
-                    @endcan
-
-                    @can('viewAny', App\Models\Materials\Supplier::class)
-                        <li>
-                            <a href="{{ auth()->user()->can('viewAny', App\Models\Materials\Supplier::class) ? url('/suppliers') : '#' }}"
-                                class="navItem {{ $suppliers ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Materials\Supplier::class) ? '' : 'disabled' }}">
-                                <span class="flex items-center">
-                                    <iconify-icon class=" nav-icon" icon="mdi:account-supervisor">
-                                    </iconify-icon>
-                                    <span>Suppliers</span>
-                                </span>
-                            </a>
-                        </li>
-                    @endcan
-
-                    @can('viewAny', App\Models\Customers\Combo::class)
-                        <li>
-                            <a href="{{ auth()->user()->can('viewAny', App\Models\Products\Combo::class) ? url('/combos') : '#' }}"
-                                class="navItem {{ $combos ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Products\Combo::class) ? '' : 'disabled' }}">
-                                <span class="flex items-center">
-                                    <iconify-icon class=" nav-icon" icon="mage:box-3d-plus">
-                                    </iconify-icon>
-                                    <span>Offers</span>
-                                </span>
-                            </a>
-                        </li>
-                    @endcan
-
-                    @can('viewAny', App\Models\Customers\User::class)
-                        <li>
-                            <a href="{{ auth()->user()->can('viewAny', App\Models\Users\User::class) ? route('profile', auth()->id()) : '#' }}"
-                                class="navItem {{ $profile ?? '' }}  {{ auth()->user()->can('viewAny', App\Models\Users\User::class) ? '' : 'disabled' }}">
-                                <span class="flex items-center">
-                                    <iconify-icon class=" nav-icon" icon="ph:user-bold">
-                                    </iconify-icon>
-                                    <span>Profile</span>
-                                </span>
-                            </a>
-                        </li>
-                    @endcan
-
-                    @can('viewAny', App\Models\Customers\User::class)
-                        <li>
-                            <a href="{{ auth()->user()->can('viewAny', App\Models\Users\User::class) ? url('/users') : '#' }}"
-                                class="navItem {{ $users ?? '' }}  {{ auth()->user()->can('viewAny', App\Models\Users\User::class) ? '' : 'disabled' }}">
-                                <span class="flex items-center">
-                                    <iconify-icon class=" nav-icon" icon="material-symbols-light:account-tree-rounded">
-                                    </iconify-icon>
-                                    <span>Users</span>
-                                </span>
-                            </a>
-                        </li>
-                    @endcan
-
-                    @can('viewAny', App\Models\Customers\Zone::class)
-                        <li>
-                            <a href="{{ auth()->user()->can('viewAny', App\Models\Customers\Zone::class) ? url('/zones') : '#' }}"
-                                class="navItem {{ $zones ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Customers\Zone::class) ? '' : 'disabled' }}">
-                                <span class="flex items-center">
-                                    <iconify-icon class=" nav-icon" icon="ri:time-zone-line">
-                                    </iconify-icon>
-                                    <span>Zones</span>
-                                </span>
-                            </a>
-                        </li>
-                    @endcan
-
+                    </li> 
                 </ul>
             </div>
         </div>
@@ -540,13 +177,13 @@
                                         class="leading-none bg-transparent relative text-xl top-[2px] text-slate-900 dark:text-white"
                                         icon="heroicons-outline:menu-alt-3"></iconify-icon>
                                 </button>
-                                @if(auth()->user()->is_admin)
+                               
+
                                 <div class="text-right">
-                                    <a href="/accounts">
-                                        <button class="btn btn-sm inline-flex justify-center btn-outline-light rounded-[25px]">Accounting APP</button>
+                                    <a href="/">
+                                        <button class="btn btn-sm inline-flex justify-center btn-outline-light rounded-[25px]">CRM APP</button>
                                     </a>
                                 </div>
-                                @endif
                             </div>
                             <!-- end vertcial -->
                             <div class="items-center space-x-4 rtl:space-x-reverse horizental-box">
@@ -606,8 +243,8 @@
                                     <li>
                                         <a href="{{ url('/tasks') }}" class="navItem @yield('tasks')">
                                             <div class="flex space-x-2 items-start rtl:space-x-reverse">
-                                                <iconify-icon class="leading-[1] text-base" icon="ic:round-add-task">
-                                                </iconify-icon>
+                                                <iconify-icon class="leading-[1] text-base"
+                                                    icon="ic:round-add-task"></iconify-icon>
                                                 <span class="leading-[1]">
                                                     Tasks
                                                 </span>
@@ -717,11 +354,11 @@
                                     <button id="themeMood"
                                         class="h-[28px] w-[28px] lg:h-[32px] lg:w-[32px] lg:bg-gray-500-f7 bg-slate-50 dark:bg-slate-900 lg:dark:bg-slate-900 dark:text-white text-slate-900 cursor-pointer rounded-full text-[20px] flex flex-col items-center justify-center">
                                         <iconify-icon class="text-slate-800 dark:text-white text-xl dark:block hidden"
-                                            id="moonIcon" icon="line-md:sunny-outline-to-moon-alt-loop-transition">
-                                        </iconify-icon>
+                                            id="moonIcon"
+                                            icon="line-md:sunny-outline-to-moon-alt-loop-transition"></iconify-icon>
                                         <iconify-icon class="text-slate-800 dark:text-white text-xl dark:hidden block"
-                                            id="sunIcon" icon="line-md:moon-filled-to-sunny-filled-loop-transition">
-                                        </iconify-icon>
+                                            id="sunIcon"
+                                            icon="line-md:moon-filled-to-sunny-filled-loop-transition"></iconify-icon>
                                     </button>
                                 </div>
                                 <!-- END: TOggle Theme -->
@@ -729,16 +366,13 @@
                                 <!-- BEGIN: gray-scale Dropdown -->
                                 <div>
                                     <button id="grayScale"
-                                        class="lg:h-[32px] lg:w-[32px] lg:bg-slate-100 lg:dark:bg-slate-900 dark:text-white text-slate-900 cursor-pointer rounded-full text-[20px] flex flex-col items-center justify-center">
+                                        class="lg:h-[32px] lg:w-[32px] lg:bg-slate-100 lg:dark:bg-slate-900 dark:text-white text-slate-900 cursor-pointer
+            rounded-full text-[20px] flex flex-col items-center justify-center">
                                         <iconify-icon class="text-slate-800 dark:text-white text-xl"
                                             icon="mdi:paint-outline"></iconify-icon>
                                     </button>
                                 </div>
-                                <!-- END: gray-scale Dropdown -->
 
-
-                                <!-- BEGIN: gray-scale Dropdown -->
-                                <!-- END: gray-scale Dropdown -->
 
 
                                 <!-- BEGIN: Notification Dropdown -->
@@ -776,12 +410,10 @@
                                                     class="text-slate-600 dark:text-slate-300 block w-full px-4 py-2 text-sm">
                                                     <div class="flex ltr:text-left rtl:text-right relative">
                                                         <div class="flex-none ltr:mr-3 rtl:ml-3">
-                                                            <div
-                                                                class="lg:h-8 lg:w-8 h-7 w-7 rounded-full flex-1 ltr:mr-[10px] rtl:ml-[10px]">
-                                                                <span
-                                                                    class="block w-full h-full object-cover text-center text-lg leading-8 user-initial">
-                                                                    {{ strtoupper(substr(Auth::user()->username, 0, 1)) }}
-                                                                </span>
+                                                            <div class="h-8 w-8 bg-white rounded-full">
+                                                                <img src="{{ asset('assets/images/all-img/user3.png') }}"
+                                                                    alt="user"
+                                                                    class="border-transparent block w-full h-full object-cover rounded-full border">
                                                             </div>
                                                         </div>
                                                         <div class="flex-1">
@@ -853,8 +485,7 @@
                                                     class="block px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white font-inter text-sm text-slate-600
             dark:text-white font-normal">
                                                     <iconify-icon icon="heroicons-outline:user"
-                                                        class="relative top-[2px] text-lg ltr:mr-1 rtl:ml-1">
-                                                    </iconify-icon>
+                                                        class="relative top-[2px] text-lg ltr:mr-1 rtl:ml-1"></iconify-icon>
                                                     <span class="font-Inter">Dashboard</span>
                                                 </a>
                                             </li>
@@ -864,20 +495,18 @@
                                                     class="block px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white font-inter text-sm text-slate-600
             dark:text-white font-normal">
                                                     <iconify-icon icon="heroicons-outline:clipboard-check"
-                                                        class="relative top-[2px] text-lg ltr:mr-1 rtl:ml-1">
-                                                    </iconify-icon>
+                                                        class="relative top-[2px] text-lg ltr:mr-1 rtl:ml-1"></iconify-icon>
                                                     <span class="font-Inter">Tasks</span>
                                                 </a>
                                             </li>
 
 
                                             <li>
-                                                <a href="{{ route('profile', auth()->id()) }}"
+                                                <a href="{{ url('profile') }}"
                                                     class="block px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white font-inter text-sm text-slate-600
             dark:text-white font-normal">
                                                     <iconify-icon icon="iconamoon:profile-bold"
-                                                        class="relative top-[2px] text-lg ltr:mr-1 rtl:ml-1">
-                                                    </iconify-icon>
+                                                        class="relative top-[2px] text-lg ltr:mr-1 rtl:ml-1"></iconify-icon>
                                                     <span class="font-Inter">Profile</span>
                                                 </a>
                                             </li>
@@ -886,8 +515,7 @@
                                                     class="block px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white font-inter text-sm text-slate-600
             dark:text-white font-normal">
                                                     <iconify-icon icon="heroicons-outline:login"
-                                                        class="relative top-[2px] text-lg ltr:mr-1 rtl:ml-1">
-                                                    </iconify-icon>
+                                                        class="relative top-[2px] text-lg ltr:mr-1 rtl:ml-1"></iconify-icon>
                                                     <span class="font-Inter">Logout</span>
                                                 </a>
                                             </li>
@@ -941,7 +569,6 @@
                                 </div>
 
 
-                                {{-- <livewire:confirmation-modal /> --}}
                                 <div class=" space-y-5">
                                     {{ $slot }}
                                 </div>
@@ -1010,40 +637,41 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script>
-        // $(function() {
-        //     var start = moment().subtract(4, 'months');
-        //     var end = moment();
+        $(function() {
+            var start = moment().subtract(4, 'months');
+            var end = moment().add(1, 'days');
 
-        //     function cb(start, end) {
-        //         $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
-        //         // console.log('Start date: ' + start.format('YYYY-MM-DD'));
-        //         // console.log('End date: ' + end.format('YYYY-MM-DD'));
+            function cb(start, end) {
+                $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+                // console.log('Start date: ' + start.format('YYYY-MM-DD'));
+                // console.log('End date: ' + end.format('YYYY-MM-DD'));
 
-        //         Livewire.emit('dateRangeSelected', start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD'));
-        //     }
+                Livewire.emit('dateRangeSelected', start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD'));
+            }
 
-        //     $('#reportrange').daterangepicker({
-        //         startDate: start,
-        //         endDate: end,
-        //         "alwaysShowCalendars": true,
-        //         ranges: {
-        //             'Today': [moment(), moment()],
-        //             'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-        //             'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-        //             'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-        //             'This Month': [moment().startOf('month'), moment().endOf('month')],
-        //             // 'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1,
-        //             //     'month').endOf('month')],
-        //             'Last 3 Months': [moment().subtract(3, 'months'), moment()],
-        //         }
-        //     }, cb);
+            $('#reportrange').daterangepicker({
+                startDate: start,
+                endDate: end,
+                "alwaysShowCalendars": true,
+                ranges: {
+                    'Today': [moment(), moment()],
+                    'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                    'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                    'This Month': [moment().startOf('month'), moment().endOf('month')],
+                    // 'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1,
+                    //     'month').endOf('month')],
+                    'Last 3 Months': [moment().subtract(3, 'months'), moment()],
+                }
+            }, cb);
 
-        //     cb(start, end);
+            cb(start, end);
 
 
-        // });
+        });
     </script>
 
+    @yield('body')
 
     <script>
         @if (session('alert_msg'))
@@ -1063,9 +691,8 @@
     </script>
 
     @yield('child_scripts')
-    {{-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
-    </script> --}}
+    {{-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script> --}}
+    @livewireScripts
 </body>
 
 </html>

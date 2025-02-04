@@ -95,3 +95,50 @@ if (!function_exists('paymentMethodInArabic')) {
         }
     }
 }
+/**
+ * Get the arabic name of each method
+ *
+ * @param string $date
+ * @return string
+ */
+if (!function_exists('dayInArabic')) {
+    function dayInArabic($day)
+    {
+        switch ($day) {
+            case 0:
+                return "حد";
+            case 1:
+                return "اثنين";
+            case 2:
+                return "ثلاثاء";
+            case 4:
+                return "اربعاء";
+            case 5:
+                return "خميس";
+            case 6:
+                return "جمعه";
+            case 7:
+                return "سبت";
+        }
+    }
+}
+
+/**
+ * Get the arabic name of each method
+ *
+ * @param string $date
+ * @return string
+ */
+if (!function_exists('printAccountChildren')) {
+    function printAccountChildren($indentation, $account, &$printed_arr = [])
+    {
+        if (in_array($account->id, $printed_arr)) return;
+
+        echo "<option value='$account->id'>$indentation$account->name</option>";
+        array_push($printed_arr, $account->id);
+
+        foreach ($account->children_accounts as $ac) {
+            printAccountChildren($indentation . "* ", $ac, $printed_arr);
+        }
+    }
+}

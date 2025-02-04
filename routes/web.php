@@ -2,6 +2,13 @@
 
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
+use App\Livewire\Accounting\AccountIndex;
+use App\Livewire\Accounting\AccountShow;
+use App\Livewire\Accounting\CreateJournalEntry;
+use App\Livewire\Accounting\EntryTitleIndex;
+use App\Livewire\Accounting\JournalEntryIndex;
+use App\Livewire\Accounting\MainAccountIndex;
+use App\Livewire\Accounting\UnapprovedEntryIndex;
 use App\Livewire\Admin\Dashboard;
 use App\Livewire\Users\Calendar;
 use App\Livewire\Customers\CustomerIndex;
@@ -51,6 +58,7 @@ use App\Livewire\Tasks\TaskShow;
 use App\Livewire\Users\NotificationIndex;
 use App\Livewire\Users\Profile;
 use App\Livewire\Users\UserIndex;
+use App\Models\Accounting\Account;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -60,10 +68,9 @@ Route::get('/', function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/orders/driver', OrderDriverShift::class)->name('orders.driver.shift');
     Route::get('/report/drivers/transactions', DriverBalanceTransactionReport::class)->name('reports.drivers.transactions');
-
 });
 
-Route::middleware(['auth', 'no_driver'])->group(function () {
+Route::middleware(['auth', 'no_driver', 'accounting_only_admin'])->group(function () {
 
     Route::get('/profile/{id}', Profile::class)->name('profile');
     Route::get('/users', UserIndex::class);
@@ -129,6 +136,23 @@ Route::middleware(['auth', 'no_driver'])->group(function () {
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
 
     Route::get('/productions', ProductionPlanning::class)->name('production.planning');
+
+
+    //accounting
+    Route::get('/accounts/main', MainAccountIndex::class);
+    Route::get('/accounts', AccountIndex::class);
+    Route::get('/accounts/importtree', function () {
+        Account::importAccounts();
+        return response()->redirectTo('/accounts/main');
+    });
+    Route::get('/accounts/entries', JournalEntryIndex::class);
+    Route::get('/accounts/titles', EntryTitleIndex::class);
+    Route::get('/accounts/entries/new', CreateJournalEntry::class);
+    Route::get('/accounts/entries/unapproved', UnapprovedEntryIndex::class);
+    Route::get('/accounts/gettree/{id}', function ($id) {
+        return response()->json(Account::findOrFail($id)->getTree());
+    });
+    Route::get('/accounts/{id}', AccountShow::class)->name('accounts.show');
 });
 
 

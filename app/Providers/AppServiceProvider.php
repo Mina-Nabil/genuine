@@ -2,6 +2,11 @@
 
 namespace App\Providers;
 
+use App\Models\Accounting\Account;
+use App\Models\Accounting\EntryTitle;
+use App\Models\Accounting\JournalEntry;
+use App\Models\Accounting\MainAccount;
+use App\Models\Accounting\UnapprovedEntry;
 use App\Models\Customers\Customer;
 use App\Models\Customers\Zone;
 use App\Models\Materials\RawMaterial;
@@ -47,6 +52,11 @@ class AppServiceProvider extends ServiceProvider
             Driver::MORPH_TYPE => Driver::class,
             TaskWatcher::MORPH_TYPE => TaskWatcher::class,
             User::MORPH_TYPE => User::class,
+            JournalEntry::MORPH_TYPE => JournalEntry::class,
+            MainAccount::MORPH_TYPE => MainAccount::class,
+            Account::MORPH_TYPE => Account::class,
+            UnapprovedEntry::MORPH_TYPE => UnapprovedEntry::class,
+            EntryTitle::MORPH_TYPE => EntryTitle::class,
         ]);
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\RouteDriverToShiftPage;
+use App\Http\Middleware\RouteToOrdersPages;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -14,7 +15,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
 
         $middleware->alias([
-            'no_driver' => RouteDriverToShiftPage::class
+            'no_driver' => RouteDriverToShiftPage::class,
+            'accounting_only_admin' => RouteToOrdersPages::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
