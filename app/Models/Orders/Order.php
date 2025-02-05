@@ -494,7 +494,7 @@ class Order extends Model
             and o2.deleted_at is null 
             and o2.is_confirmed=1
             and o2.delivery_date between "' . $startDay->format('Y-m-d 00:00:00') . '" and "' . $endDay->format('Y-m-d 23:59:59')  . '"
-            and o2.status in ("' . implode("\",\"", Order::OK_STATUSES) . ')
+            and o2.status in ("done", "new", "ready", "in_delivery")
             )) as total_debit ')
             ->leftjoin('drivers', 'drivers.id', '=', 'o1.driver_id')
             ->leftjoin('users', 'users.id', '=', 'drivers.user_id')
