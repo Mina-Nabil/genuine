@@ -125,6 +125,10 @@
                                             class="px-2 border border-slate-100 dark:bg-slate-800 dark:border-slate-700 text-slate-100 text-center">
                                             {{ number_format($driverRecords->sum('total_bank'),2) }} <small>EGP</small>
                                         </td>
+                                        <td
+                                            class="px-2 border border-slate-100 dark:bg-slate-800 dark:border-slate-700 text-slate-100 text-center">
+                                            {{ number_format($driverRecords->sum('total_debit'),2) }} <small>EGP</small>
+                                        </td>
                                     </tr>
                                 @endif
                             @endforeach
