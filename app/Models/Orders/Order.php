@@ -280,7 +280,10 @@ class Order extends Model
 
             // Update the status
             $this->status = $newStatus;
-            $this->save();
+
+            if ($this->save()) {
+                AppLog::info('Order status changed to ' . $newStatus, loggable: $this);
+            }
 
             DB::commit();
             return true;
