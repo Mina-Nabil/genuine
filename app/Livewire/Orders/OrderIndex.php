@@ -407,7 +407,7 @@ class OrderIndex extends Component
         $this->fetched_orders_IDs = $orders->pluck('id')->toArray();
         return view('livewire.orders.order-index', [
             'orders' => $orders,
-            'totalWeight' => $totalWeight,
+            'totalWeight' => $totalWeight ?? 0,
             'totalZones' => $totalZones,
             'ordersCount' => $ordersCount,
         ])->layout('layouts.app', ['page_title' => $this->page_title, 'orders' => 'active']);
