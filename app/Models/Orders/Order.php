@@ -266,7 +266,7 @@ class Order extends Model
                 if ($orderInAnotherShift) {
                     $orderInAnotherShift->creditDriverForReturnedShift();
                 }
-                
+
                 $this->calculateStartDeliveryCrDriver();
                 $this->creditDriverPerOrder();
             } elseif ($newStatus === self::STATUS_RETURNED) {
@@ -949,6 +949,7 @@ class Order extends Model
                     $this->save();
                     if (($this->is_confirmed && $this->is_ready) || $this->is_in_delivery || $this->is_delivered) {
                         $this->is_delivered = true;
+                        $this->save();
                         $this->setStatus(self::STATUS_DONE, true);
                     }
                 }
@@ -1596,7 +1597,7 @@ class Order extends Model
     public function calculateStartDeliveryCrDriver(): bool
     {
         try {
-            
+
             $driver = $this->driver;
             if (!$driver || !$driver->user) {
                 return false;
@@ -1606,9 +1607,9 @@ class Order extends Model
             $driverUserId = $driverUser->id;
 
             $existingTransaction = BalanceTransaction::where('transactionable_id', $driverUserId)
-            ->where('transactionable_type', $driverUser->getMorphClass())
-            ->where('description', "بداية توصيل الأوردرات عن يوم {$this->delivery_date->format('d/m/Y')}")
-            ->exists();
+                ->where('transactionable_type', $driverUser->getMorphClass())
+                ->where('description', "بداية توصيل الأوردرات عن يوم {$this->delivery_date->format('d/m/Y')}")
+                ->exists();
 
             if (!$existingTransaction) {
                 $description = "بداية توصيل الأوردرات عن يوم {$this->delivery_date->format('d/m/Y')}";
@@ -1624,6 +1625,27 @@ class Order extends Model
             AppLog::error('Failed to credit driver for delivery', $e->getMessage());
             report($e);
             return false;
+        }
+    }
+
+    public function checkOrderPayment($closeIfDelivered = true)
+    {
+
+        /** @var User */
+        $user = Auth::user();
+        if (!$user && !$user->can('resetStatus', $this)) {
+            return false;
+        }
+
+        if ($this->remaining_to_pay == 0) {
+            $this->is_paid = 1;
+            $this->save();
+        }
+
+        if ($closeIfDelivered && ($this->is_confirmed && $this->is_ready) || $this->is_in_delivery || $this->is_delivered) {
+            $this->is_delivered = true;
+            $this->save();
+            $this->setStatus(self::STATUS_DONE, true);
         }
     }
 
@@ -1843,6 +1865,11 @@ class Order extends Model
     public function getIsInDeliveryAttribute(): bool
     {
         return $this->status === self::STATUS_IN_DELIVERY;
+    }
+
+    public function getIsDoneAttribute(): bool
+    {
+        return $this->status === self::STATUS_DONE;
     }
 
     public function areAllProductsReady(): bool
@@ -2131,7 +2158,7 @@ class Order extends Model
 
     public function payments(): HasMany
     {
-        return $this->hasMany(CustomerPayment::class,'order_id')->where('customer_id', function ($query) {
+        return $this->hasMany(CustomerPayment::class, 'order_id')->where('customer_id', function ($query) {
             $query->select('customer_id')
                 ->from('orders')
                 ->whereColumn('orders.id', 'customer_payments.order_id')
@@ -2149,7 +2176,7 @@ class Order extends Model
                     ->limit(1);
             });
     }
-        
+
     public function removedProducts(): HasMany
     {
         return $this->hasMany(OrderRemovedProduct::class);

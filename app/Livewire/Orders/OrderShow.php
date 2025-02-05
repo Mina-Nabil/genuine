@@ -205,6 +205,16 @@ class OrderShow extends Component
         }
     }
 
+    public function checkOrderPayment()
+    {
+        $res = $this->order->checkOrderPayment();
+        if ($res) {
+            $this->alertSuccess('updated!');
+        } else {
+            $this->alertFailed();
+        }
+    }
+
     public function resetStatus()
     {
         $res = $this->order->resetStatus();
