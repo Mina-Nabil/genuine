@@ -1647,6 +1647,8 @@ class Order extends Model
             $this->save();
             $this->setStatus(self::STATUS_DONE, true);
         }
+
+        return true;
     }
 
     public function creditDriverPerOrder(): bool
