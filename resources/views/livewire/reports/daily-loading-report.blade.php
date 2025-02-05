@@ -158,6 +158,9 @@
                             <th scope="col" class="table-th">
                                 {{ $totals->sum('total_bank') }}
                             </th>
+                            <th scope="col" class="table-th">
+                                {{ $totals->sum('total_debit') }}
+                            </th>
                         </tfoot>
                     </table>
 
