@@ -41,7 +41,8 @@
                         !(
                             $availableBulkStatus == App\Models\Orders\Order::STATUS_READY ||
                             $availableBulkStatus == App\Models\Orders\Order::STATUS_IN_DELIVERY
-                        ) || auth()->user()->can('updateInventoryInfo', App\Models\Orders\Order::class))
+                        ) ||
+                            auth()->user()->can('updateInventoryInfo', App\Models\Orders\Order::class))
                         <li wire:click="setBulkStatus('{{ $availableBulkStatus }}')"
                             class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
                             Set as {{ ucwords(str_replace('_', ' ', $availableBulkStatus)) }}
@@ -415,11 +416,16 @@
                                                 height="1.2em"></iconify-icon>
                                             Paid
                                         </span>
+                                    {{-- @elseif ($order->isPartlyPaid())
+                                        <span class="badge bg-warning-500 text-dark-500 bg-opacity-50 capitalize">
+                                            Remaining:
+                                            {{ number_format($order->remaining_to_pay, 2) }}
+                                        </span> --}}
                                     @else
                                         <span class="badge bg-warning-500 text-dark-500 bg-opacity-50 capitalize">
                                             <iconify-icon icon="octicon:dot-16" width="1.2em"
                                                 height="1.2em"></iconify-icon>
-                                            Remaining:  {{ number_format($order->remaining_to_pay, 2) }}
+                                                Pending
                                         </span>
                                     @endif
                                 </td>
