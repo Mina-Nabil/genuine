@@ -19,11 +19,11 @@ class OrderIndex extends Component
     public $page_title = '• Orders';
 
 
-    public $drivers; 
-    public $STATUSES; 
-    public $DRIVERS; 
-    public $saved_zones; 
-    public $PAYMENT_METHODS; 
+    public $drivers;
+    public $STATUSES;
+    public $DRIVERS;
+    public $saved_zones;
+    public $PAYMENT_METHODS;
 
     public $fetched_orders_IDs = [];
     public $search;
@@ -250,7 +250,6 @@ class OrderIndex extends Component
         $this->STATUSES = Order::STATUSES;
         $this->drivers = Driver::all();
         $this->PAYMENT_METHODS = CustomerPayment::PAYMENT_METHODS_WITH_DEBIT;
-
     }
 
     public function clearProperty(string $propertyName)
@@ -388,6 +387,7 @@ class OrderIndex extends Component
     public function render()
     {
         $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneIds: $this->zones)->OpenOrders()
+            ->with('customer', 'zone', 'driver', 'creator')
             ->sortByDeliveryDate()->notDebitOrders()
             ->paginate(30);
 
@@ -399,7 +399,7 @@ class OrderIndex extends Component
         $totalZones = Order::getTotalZonesForOrders($orders);
         $ordersCount = count($orders);
 
-     
+
 
         $this->fetched_orders_IDs = $orders->pluck('id')->toArray();
         return view('livewire.orders.order-index', [
