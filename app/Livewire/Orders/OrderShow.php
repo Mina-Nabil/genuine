@@ -209,7 +209,7 @@ class OrderShow extends Component
     {
         $res = $this->order->checkOrderPayment();
         if ($res) {
-            $this->alertSuccess('updated!');
+            $this->alertSuccess('Order checked!');
         } else {
             $this->alertFailed();
         }
