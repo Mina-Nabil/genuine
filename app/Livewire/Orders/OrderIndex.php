@@ -388,7 +388,8 @@ class OrderIndex extends Component
     {
         $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneIds: $this->zones)->OpenOrders()
             ->with('customer', 'zone', 'driver', 'creator')
-            ->sortByDeliveryDate()->notDebitOrders()
+            // ->sortByDeliveryDate()
+            ->notDebitOrders()
             ->paginate(20);
 
         $totalWeight = 0;
