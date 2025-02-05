@@ -32,6 +32,7 @@
                                 <th scope="col" class="table-th">Cash</th>
                                 <th scope="col" class="table-th">Wallet</th>
                                 <th scope="col" class="table-th">Bank</th>
+                                <th scope="col" class="table-th">Debit</th>
 
                             </tr>
                         </thead>
@@ -70,6 +71,10 @@
                                     <td
                                         class="table-td border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
                                         {{ $t->total_bank }}
+                                    </td>
+                                    <td
+                                        class="table-td border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
+                                        {{ $t->total_debit }}
                                     </td>
                                 </tr>
 
