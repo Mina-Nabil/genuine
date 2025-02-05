@@ -489,7 +489,7 @@ class Order extends Model
             ->selectRaw('SUM((SELECT SUM(amount) from customer_payments as c2 where o1.id = c2.order_id and c2.payment_method = "' . CustomerPayment::PYMT_CASH . '")) as total_cash ')
             ->selectRaw('SUM((SELECT SUM(amount) from customer_payments as c2 where o1.id = c2.order_id and c2.payment_method = "' . CustomerPayment::PYMT_BANK_TRANSFER . '")) as total_bank ')
             ->selectRaw('SUM((SELECT SUM(amount) from customer_payments as c2 where o1.id = c2.order_id and c2.payment_method = "' . CustomerPayment::PYMT_WALLET . '")) as total_wallet ')
-            ->selectRaw('SUM((SELECT SUM(total_amount) from orders as o2 where o1.id = o2.id and o2.is_debit = 1 )) as total_debit ')
+            ->selectRaw('SUM(CASE WHEN o1.is_debit = 1 THEN o1.total_amount ELSE 0 END) as total_debit ')
             ->leftjoin('drivers', 'drivers.id', '=', 'o1.driver_id')
             ->leftjoin('users', 'users.id', '=', 'drivers.user_id')
             ->join('zones', 'zones.id', '=', 'o1.zone_id')
