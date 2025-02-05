@@ -18,6 +18,13 @@ class OrderIndex extends Component
     use AlertFrontEnd, WithPagination;
     public $page_title = '• Orders';
 
+
+    public $drivers;
+    public $STATUSES;
+    public $DRIVERS;
+    public $saved_zones;
+    public $PAYMENT_METHODS;
+
     public $fetched_orders_IDs = [];
     public $search;
     public $selectAll = false; //to select all in the page
@@ -237,6 +244,12 @@ class OrderIndex extends Component
                 $this->deliveryDate[$i] = Carbon::parse($d);
             }
         }
+
+        $this->DRIVERS = Driver::all();
+        $this->saved_zones = Zone::all();
+        $this->STATUSES = Order::STATUSES;
+        $this->drivers = Driver::all();
+        $this->PAYMENT_METHODS = CustomerPayment::PAYMENT_METHODS_WITH_DEBIT;
     }
 
     public function clearProperty(string $propertyName)
@@ -374,34 +387,29 @@ class OrderIndex extends Component
     public function render()
     {
         $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneIds: $this->zones)->OpenOrders()
-            ->sortByDeliveryDate()->notDebitOrders()
-            ->paginate(50);
+            ->with('customer', 'zone', 'driver', 'creator')
+            ->sortByDeliveryDate()
+            ->notDebitOrders()
+            ->paginate(20);
 
-        $totalWeight = 0;
-        foreach ($orders as $order) {
-            $totalWeight = $totalWeight + $order->total_weight;
+        if ($this->driver) {
+            $totalWeight = 0;
+            foreach ($orders as $order) {
+                $totalWeight = $totalWeight + $order->total_weight;
+            }
         }
 
         $totalZones = Order::getTotalZonesForOrders($orders);
         $ordersCount = count($orders);
 
-        $DRIVERS = Driver::all();
-        $saved_zones = Zone::all();
-        $STATUSES = Order::STATUSES;
-        $drivers = Driver::all();
-        $PAYMENT_METHODS = CustomerPayment::PAYMENT_METHODS_WITH_DEBIT;
+
 
         $this->fetched_orders_IDs = $orders->pluck('id')->toArray();
         return view('livewire.orders.order-index', [
             'orders' => $orders,
-            'drivers' => $drivers,
-            'STATUSES' => $STATUSES,
-            'DRIVERS' => $DRIVERS,
-            'saved_zones' => $saved_zones,
-            'totalWeight' => $totalWeight,
+            'totalWeight' => $totalWeight ?? 0,
             'totalZones' => $totalZones,
             'ordersCount' => $ordersCount,
-            'PAYMENT_METHODS' => $PAYMENT_METHODS,
         ])->layout('layouts.app', ['page_title' => $this->page_title, 'orders' => 'active']);
     }
 }

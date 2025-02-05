@@ -32,6 +32,7 @@
                                 <th scope="col" class="table-th">Cash</th>
                                 <th scope="col" class="table-th">Wallet</th>
                                 <th scope="col" class="table-th">Bank</th>
+                                <th scope="col" class="table-th">Debit</th>
 
                             </tr>
                         </thead>
@@ -70,6 +71,10 @@
                                     <td
                                         class="table-td border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
                                         {{ $t->total_bank }}
+                                    </td>
+                                    <td
+                                        class="table-td border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
+                                        {{ $t->total_debit }}
                                     </td>
                                 </tr>
 
@@ -120,6 +125,10 @@
                                             class="px-2 border border-slate-100 dark:bg-slate-800 dark:border-slate-700 text-slate-100 text-center">
                                             {{ number_format($driverRecords->sum('total_bank'),2) }} <small>EGP</small>
                                         </td>
+                                        <td
+                                            class="px-2 border border-slate-100 dark:bg-slate-800 dark:border-slate-700 text-slate-100 text-center">
+                                            {{ number_format($driverRecords->sum('total_debit'),2) }} <small>EGP</small>
+                                        </td>
                                     </tr>
                                 @endif
                             @endforeach
@@ -148,6 +157,9 @@
                             </th>
                             <th scope="col" class="table-th">
                                 {{ $totals->sum('total_bank') }}
+                            </th>
+                            <th scope="col" class="table-th">
+                                {{ $totals->sum('total_debit') }}
                             </th>
                         </tfoot>
                     </table>

@@ -416,16 +416,16 @@
                                                 height="1.2em"></iconify-icon>
                                             Paid
                                         </span>
-                                    @elseif ($order->isPartlyPaid())
+                                    {{-- @elseif ($order->isPartlyPaid())
                                         <span class="badge bg-warning-500 text-dark-500 bg-opacity-50 capitalize">
                                             Remaining:
                                             {{ number_format($order->remaining_to_pay, 2) }}
-                                        </span>
+                                        </span> --}}
                                     @else
                                         <span class="badge bg-warning-500 text-dark-500 bg-opacity-50 capitalize">
                                             <iconify-icon icon="octicon:dot-16" width="1.2em"
                                                 height="1.2em"></iconify-icon>
-                                            Pending
+                                                Pending
                                         </span>
                                     @endif
                                 </td>
