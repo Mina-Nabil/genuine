@@ -6,6 +6,7 @@ use App\Models\Customers\Customer;
 use App\Models\Orders\Order;
 use App\Models\Users\AppLog;
 use App\Models\Users\User;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -15,6 +16,12 @@ class BalanceTransaction extends Model
 {
     use HasFactory;
     protected $table = 'balance_transactions';
+
+    const WITHDRAWAL_TYPES = [self::WD_TYPE_ADVANCE, self::WD_TYPE_SALARY, self::WD_TYPE_X2, self::WD_TYPE_ROAD_FEES];
+    const WD_TYPE_ADVANCE = 'سلفة';
+    const WD_TYPE_SALARY = 'مرتب';
+    const WD_TYPE_X2 = 'x2';
+    const WD_TYPE_ROAD_FEES = 'كارتة';
 
     protected $fillable = [
         'transactionable_id',
@@ -56,12 +63,45 @@ class BalanceTransaction extends Model
         }
     }
 
-    public function scopeUserTransactions($query , $user_id){
-        return $query->where('transactionable_type',User::MORPH_TYPE)
-        ->where('transactionable_id',$user_id);
+    public function scopeDateRange($query, $from, $to)
+    {
+        $from = Carbon::parse($from)->startOfDay();
+        $to = Carbon::parse($to)->endOfDay();
+        return $query->whereBetween('created_at', [$from, $to]);
     }
-    
-    public function getForDriverAttribute(){
+
+    public function scopeTotalOrderDelivery($query)
+    {
+        return $query->where('description', 'like', '%توصيل أوردر%')->sum('amount');
+    }
+
+    public function scopeTotalStartDayDelivery($query)
+    {
+        return $query->where('description', 'like', '%بداية توصيل%')->sum('amount');
+    }
+
+    public function scopeTotalReturn($query)
+    {
+        return $query->where('description', 'like', '%رجوع%')->sum('amount');
+    }
+
+    public function scopeUserTransactions($query, $user_id)
+    {
+        return $query->where('transactionable_type', User::MORPH_TYPE)->where('transactionable_id', $user_id);
+    }
+
+    public function scopeWithdrawalTypeSum($query, $withdrawalType)
+    {
+        // Check if the withdrawal type exists in the constants
+        if (!in_array($withdrawalType, [self::WD_TYPE_ADVANCE, self::WD_TYPE_SALARY, self::WD_TYPE_X2, self::WD_TYPE_ROAD_FEES])) {
+            return 0; // Return 0 if the type is invalid
+        }
+
+        return $query->where('description', 'like', '%' . $withdrawalType . '%')->sum('amount');
+    }
+
+    public function getForDriverAttribute()
+    {
         return $this->transactionable_type === User::MORPH_TYPE;
     }
 

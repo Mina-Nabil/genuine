@@ -33,12 +33,6 @@ class CustomerTransactionReport extends Component
     public $amount;
     public $paymentMethod = CustomerPayment::PYMT_CASH;
     public $note;
-    
-    public $isOpenAddDriverTrans;
-    public $transDriverId;
-    public $driverAmount;
-    public $driverPaymentMethod = CustomerPayment::PYMT_CASH;
-    public $driverPymtNote;
 
     public $section = CustomerPayment::PYMT_CASH;
     protected $queryString = ['section'];
@@ -46,33 +40,6 @@ class CustomerTransactionReport extends Component
     public function mount(){
         $this->section = CustomerPayment::PYMT_CASH;
     }
-
-    public function openAddDriverTrans(){
-        $this->isOpenAddDriverTrans = true;
-    }
-
-    public function closeAddDriverTrans(){
-        $this->reset(['isOpenAddDriverTrans','driverAmount','driverPymtNote']);
-    }
-
-    public function addDriverTrnasaction(){
-        $this->validate([
-            'driverAmount' => 'required|numeric',
-            'driverPymtNote' => 'required|string|max:255',
-            'paymentMethod' => 'required|in:' . implode(',', CustomerPayment::PAYMENT_METHODS),
-        ]);
-
-        $res = User::findOrFail($this->transDriverId)->addDriverPayment($this->driverAmount,$this->driverPaymentMethod,$this->driverPymtNote);
-    
-        if ($res) {
-            $this->closeAddDriverTrans();
-            $this->alertSuccess('payment added!');
-        }else{
-            $this->alertFailed();
-        }
-    
-    }
-
 
     public function openAddTransSec(){
         $this->isOpenAddTrans = true;

@@ -44,6 +44,11 @@ class UserPolicy
         return Response::deny("Unauthorized action");
     }
 
+    public function updateBalance(User $user, User $model): bool
+    {
+        return $user->is_admin;
+    }
+
     /**
      * Determine whether the user can delete the model.
      */

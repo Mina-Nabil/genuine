@@ -176,8 +176,8 @@ class User extends Authenticatable
         }
     }
 
-    public function addDriverPayment($amount, $paymentMethod, $note){
-        return DB::transaction(function () use ($amount, $paymentMethod, $note) {
+    public function addDriverBalance($amount, $note){
+        return DB::transaction(function () use ($amount, $note) {
             try {
 
                 /** @var User */
@@ -185,9 +185,7 @@ class User extends Authenticatable
                 if ($loggedInUser && !$loggedInUser->can('addPayment', Driver::class)) {
                     return false;
                 }
-
-                CustomerPayment::createPayment($amount, $paymentMethod, "Payment to driver ".$this->full_name.' ('.$note.')');
-                BalanceTransaction::createBalanceTransaction($this,-$amount,$note);
+                BalanceTransaction::createBalanceTransaction($this,$amount,$note);
 
                 return true;
 
