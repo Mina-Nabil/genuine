@@ -386,12 +386,16 @@ class OrderIndex extends Component
 
     public function render()
     {
+        $to_time = new Carbon();
         $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneIds: $this->zones)
             ->OpenOrders()
             ->with('customer', 'zone', 'driver', 'creator')
             ->sortByDeliveryDate()
             ->notDebitOrders()
             ->paginate(20);
+        $from_time = new Carbon();
+        
+        Log::info($from_time->diffInSeconds($to_time));
 
         if ($this->driver) {
             $totalWeight = 0;
