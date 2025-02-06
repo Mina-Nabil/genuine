@@ -170,14 +170,14 @@ class Order extends Model
     {
         /** @var User */
         $user = Auth::user();
-        if (!$user && !$user->can('resetStatus', $this)) {
+        if (!$user || !$user->can('resetStatus', $this)) {
             return false;
         }
 
         DB::beginTransaction();
 
         try {
-            if ($this->status === self::STATUS_READY || $this->status === self::STATUS_IN_DELIVERY) {
+            if ($this->status === self::STATUS_READY) {
                 foreach ($this->products as $product) {
                     $product->product->inventory->unfulfillCommit($product->quantity);
                     $product->is_ready = false;
@@ -185,19 +185,20 @@ class Order extends Model
                     AppLog::info("Order product {$product->product->name} is back to stock", loggable: $this);
                 }
 
-                if ($this->status === self::STATUS_IN_DELIVERY) {
-                    $this->debitDriverPerOrder();
-                }
-
                 $this->status = self::STATUS_NEW;
-                $this->save();
                 AppLog::info('Order reset completed', loggable: $this);
-                DB::commit();
-                return true;
+            } elseif ($this->status === self::STATUS_DONE) {
+                $this->debitDriverPerOrder();
+                $this->status = self::STATUS_IN_DELIVERY;
+                AppLog::info('Order reset from done to in delivery', loggable: $this);
             } else {
                 DB::rollBack();
                 return false;
             }
+
+            $this->save();
+            DB::commit();
+            return true;
         } catch (Exception $e) {
             DB::rollBack();
             report($e);
@@ -205,6 +206,7 @@ class Order extends Model
             return false;
         }
     }
+
 
     public static function resetBulkStatus(array $orderIds): bool
     {
@@ -1670,7 +1672,7 @@ class Order extends Model
 
             $driverUser = $driver->user;
 
-            BalanceTransaction::createBalanceTransaction($driverUser, $this->zone->driver_order_rate, "توصيل أوردر إلى {$this->customer_name} يوم {$this->delivery_date->format('d/m/Y')}", $this->id);
+            BalanceTransaction::createBalanceTransaction($driverUser, $this->zone->driver_order_rate, "توصيل أوردر للعميل {$this->customer_name} يوم {$this->delivery_date->format('d/m/Y')}", $this->id);
 
             return true;
         } catch (Exception $e) {
@@ -1753,7 +1755,7 @@ class Order extends Model
             $driverUser = $driver->user;
 
             // Fetch the existing balance transaction for this order and user
-            $existingTransaction = $this->balanceTransactions()->where('transactionable_id', $driverUser->id)->where('transactionable_type', $driverUser->getMorphClass())->where('order_id', $this->id)->first();
+            $existingTransaction = BalanceTransaction::where('transactionable_id', $driverUser->id)->where('transactionable_type', User::MORPH_TYPE)->where('order_id', $this->id)->first();
 
             if (!$existingTransaction) {
                 AppLog::error("No existing balance transaction found for order #{$this->id} and user #{$driverUser->id}");
@@ -1764,7 +1766,7 @@ class Order extends Model
             BalanceTransaction::createBalanceTransaction(
                 $driverUser,
                 -1 * $existingTransaction->amount, // Use the negated amount from the existing transaction
-                "Reversal of delivery credit for order #{$this->id} in {$this->zone->name}",
+                "إلغاء رصيد توصيل الأوردر للعميل {$this->customer_name} بتاريخ {$this->delivery_date->format('d/m/Y')}",
                 $this->id,
             );
 
