@@ -392,12 +392,8 @@ class OrderIndex extends Component
             ->with('customer', 'zone', 'driver', 'creator')
             ->sortByDeliveryDate()
             ->notDebitOrders()
-            ->cursorPaginate(20);
-        $ordersTotal = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneIds: $this->zones)
-        ->OpenOrders()
-        ->sortByDeliveryDate()
-        ->notDebitOrders()
-        ->selectRaw('COUNT(orders.id) as ordersCount')->get()->first()?->ordersCount;
+            ->cursorPaginate(50);
+
         $from_time = new Carbon();
 
         Log::info($from_time->diffInSeconds($to_time));
@@ -419,7 +415,7 @@ class OrderIndex extends Component
             'ordersTotal' => $ordersTotal ?? 0,
             'totalWeight' => $totalWeight ?? 0,
             'totalZones' => $totalZones ?? 0,
-            'ordersCount' => $ordersTotal,
+            'ordersCount' => $orders->count(),
         ]);
     }
 }
