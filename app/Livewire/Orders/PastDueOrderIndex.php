@@ -307,6 +307,7 @@ class PastDueOrderIndex extends Component
         $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate, driverId: $this->driver?->id, zoneId: $this->zone?->id)->OpenOrders()->debitOrders()->withTotalQuantity()->paginate(50);
 
         $totalZones = Order::getTotalZonesForOrders($orders);
+        $totalDebit = Order::getTotalDebit();
         $ordersCount = count($orders);
 
         $DRIVERS = Driver::all();

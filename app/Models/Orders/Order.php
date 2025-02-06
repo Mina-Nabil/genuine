@@ -268,11 +268,11 @@ class Order extends Model
                 if ($orderInAnotherShift) {
                     $orderInAnotherShift->creditDriverForReturnedShift();
                 }
-        
+
                 if (!empty($this->rescheduleHistory())) {
                     $this->creditDriverForReturnedShift($this->rescheduleHistory());
                 }
-        
+
                 $this->calculateStartDeliveryCrDriver();
                 $this->creditDriverPerOrder();
             }
@@ -1827,14 +1827,14 @@ class Order extends Model
             ->where('loggable_id', $this->id)
             ->where('loggable_type', Order::MORPH_TYPE)
             ->where('title', 'Order rescheduled')
-            ->orderBy('created_at') 
-            ->pluck('desc') 
+            ->orderBy('created_at')
+            ->pluck('desc')
             ->toArray();
         $history = [];
-    
+
         foreach ($logs as $log) {
             $dates = explode(' → ', $log);
-    
+
             if (count($dates) === 2) {
                 $history[] = [
                     'from' => Carbon::createFromFormat('d/m/Y', trim($dates[0])),
@@ -1842,7 +1842,7 @@ class Order extends Model
                 ];
             }
         }
-    
+
         return $history;
     }
 
@@ -2185,6 +2185,13 @@ class Order extends Model
     public function getTotalWeightAttribute()
     {
         return $this->products()->join('products', 'order_products.product_id', '=', 'products.id')->selectRaw('SUM(products.weight * order_products.quantity) as total_weight')->whereNull('order_products.deleted_at')->value('total_weight') ?? 0;
+    }
+
+    public static function getTotalDebit()
+    {
+        return self::selectRaw('SUM(amount) as total_debit')
+            ->where('is_debit')->whereNot('is_paid')
+            ->get()->first()?->total_debit;
     }
 
     public static function getTotalZonesForOrders($orders)
