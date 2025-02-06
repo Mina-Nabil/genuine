@@ -393,6 +393,11 @@ class OrderIndex extends Component
             ->sortByDeliveryDate()
             ->notDebitOrders()
             ->cursorPaginate(20);
+        $ordersTotal = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneIds: $this->zones)
+        ->OpenOrders()
+        ->sortByDeliveryDate()
+        ->notDebitOrders()
+        ->selectRaw('COUNT(orders.id) as ordersCount')->get()->first()?->ordersCount;
         $from_time = new Carbon();
 
         Log::info($from_time->diffInSeconds($to_time));
@@ -405,16 +410,16 @@ class OrderIndex extends Component
             $totalZones = Order::getTotalZonesForOrders($orders);
         }
 
-        $ordersCount = count($orders);
 
 
 
         $this->fetched_orders_IDs = $orders->pluck('id')->toArray();
         return view('livewire.orders.order-index', [
             'orders' => $orders,
+            'ordersTotal' => $ordersTotal ?? 0,
             'totalWeight' => $totalWeight ?? 0,
             'totalZones' => $totalZones ?? 0,
-            'ordersCount' => $ordersCount,
+            'ordersCount' => $ordersTotal,
         ]);
     }
 }
