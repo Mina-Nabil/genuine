@@ -386,30 +386,31 @@ class OrderIndex extends Component
 
     public function render()
     {
-        $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneIds: $this->zones)->OpenOrders()
+        $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneIds: $this->zones)
+            ->OpenOrders()
             ->with('customer', 'zone', 'driver', 'creator')
             ->sortByDeliveryDate()
             ->notDebitOrders()
-            ->paginate(20);
+            ->cursorPaginate(50);
 
         if ($this->driver) {
             $totalWeight = 0;
             foreach ($orders as $order) {
                 $totalWeight = $totalWeight + $order->total_weight;
             }
+            $totalZones = Order::getTotalZonesForOrders($orders);
         }
 
-        $totalZones = Order::getTotalZonesForOrders($orders);
-        $ordersCount = count($orders);
 
 
 
         $this->fetched_orders_IDs = $orders->pluck('id')->toArray();
         return view('livewire.orders.order-index', [
             'orders' => $orders,
+            'ordersTotal' => $ordersTotal ?? 0,
             'totalWeight' => $totalWeight ?? 0,
-            'totalZones' => $totalZones,
-            'ordersCount' => $ordersCount,
-        ])->layout('layouts.app', ['page_title' => $this->page_title, 'orders' => 'active']);
+            'totalZones' => $totalZones ?? 0,
+            'ordersCount' => $orders->count(),
+        ]);
     }
 }

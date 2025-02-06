@@ -272,7 +272,7 @@ class Order extends Model
                 if ($newStatus === self::STATUS_RETURNED) {
                     $this->creditDriverForReturnedShift();
                 }
-        
+
                 $this->calculateStartDeliveryCrDriver();
                 $this->creditDriverPerOrder();
             }
@@ -1824,6 +1824,7 @@ class Order extends Model
             ->when($creator_id, fn($q) => $q->where('orders.created_by', $creator_id));
     }
 
+
     public function scopeWithTotalQuantity(Builder $query)
     {
         $query->withCount([
@@ -1978,7 +1979,8 @@ class Order extends Model
     public function scopeOpenOrders(Builder $query): Builder
     {
         return $query->where(function (Builder $query) {
-            $query->whereNotIn('status', [self::STATUS_DONE, self::STATUS_RETURNED, self::STATUS_CANCELLED])->orWhere(function (Builder $query) {
+            $query->whereNotIn('status', [self::STATUS_DONE, self::STATUS_RETURNED, self::STATUS_CANCELLED])
+            ->orWhere(function (Builder $query) {
                 $query->whereNotIn('status', [self::STATUS_RETURNED, self::STATUS_CANCELLED])->where('is_paid', false);
             });
         });
@@ -2163,6 +2165,14 @@ class Order extends Model
     public function getTotalWeightAttribute()
     {
         return $this->products()->join('products', 'order_products.product_id', '=', 'products.id')->selectRaw('SUM(products.weight * order_products.quantity) as total_weight')->whereNull('order_products.deleted_at')->value('total_weight') ?? 0;
+    }
+
+    public static function getTotalDebit()
+    {
+        return self::selectRaw('SUM(total_amount) as total_debit')
+            ->debitOrders()
+            ->openOrders()
+            ->get()->first()?->total_debit;
     }
 
     public static function getTotalZonesForOrders($orders)

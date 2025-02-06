@@ -41,8 +41,7 @@
                         !(
                             $availableBulkStatus == App\Models\Orders\Order::STATUS_READY ||
                             $availableBulkStatus == App\Models\Orders\Order::STATUS_IN_DELIVERY
-                        ) ||
-                            auth()->user()->can('updateInventoryInfo', App\Models\Orders\Order::class))
+                        ) || auth()->user()->can('updateInventoryInfo', App\Models\Orders\Order::class))
                         <li wire:click="setBulkStatus('{{ $availableBulkStatus }}')"
                             class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
                             Set as {{ ucwords(str_replace('_', ' ', $availableBulkStatus)) }}
@@ -62,7 +61,7 @@
     <div class="flex justify-between flex-wrap items-center">
         <div class="md:mb-6 mb-4 flex space-x-3 rtl:space-x-reverse">
             <h4 class="font-medium lg:text-2xl text-xl capitalize text-slate-900 inline-block ltr:pr-4 rtl:pl-4">
-                Active Orders -- {{ $orders->total() }}
+                Active Orders 
             </h4>
         </div>
         <div class="flex sm:space-x-4 space-x-2 sm:justify-end items-center md:mb-6 mb-4 rtl:space-x-reverse">
@@ -416,7 +415,7 @@
                                                 height="1.2em"></iconify-icon>
                                             Paid
                                         </span>
-                                    {{-- @elseif ($order->isPartlyPaid())
+                                        {{-- @elseif ($order->isPartlyPaid())
                                         <span class="badge bg-warning-500 text-dark-500 bg-opacity-50 capitalize">
                                             Remaining:
                                             {{ number_format($order->remaining_to_pay, 2) }}
@@ -425,7 +424,7 @@
                                         <span class="badge bg-warning-500 text-dark-500 bg-opacity-50 capitalize">
                                             <iconify-icon icon="octicon:dot-16" width="1.2em"
                                                 height="1.2em"></iconify-icon>
-                                                Pending
+                                            Pending
                                         </span>
                                     @endif
                                 </td>
