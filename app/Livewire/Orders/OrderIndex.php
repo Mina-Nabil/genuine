@@ -392,7 +392,7 @@ class OrderIndex extends Component
             ->with('customer', 'zone', 'driver', 'creator')
             ->sortByDeliveryDate()
             ->notDebitOrders()
-            ->paginate(20);
+            ->cursorPaginate(20);
         $from_time = new Carbon();
 
         Log::info($from_time->diffInSeconds($to_time));
