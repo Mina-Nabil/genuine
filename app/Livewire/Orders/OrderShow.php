@@ -217,7 +217,14 @@ class OrderShow extends Component
 
     public function resetStatus()
     {
-        $res = $this->order->resetStatus();
+        $this->authorize('resetStatus',$this->order);
+
+        if ($this->order->status === Order::STATUS_READY || $this->order->status === Order::STATUS_DONE) {
+            $res = $this->order->resetStatus();
+        }else{
+            $this->alertFailed();
+        }
+
         if ($res) {
             $this->alertSuccess('updated!');
         } else {

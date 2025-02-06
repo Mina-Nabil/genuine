@@ -170,14 +170,14 @@ class Order extends Model
     {
         /** @var User */
         $user = Auth::user();
-        if (!$user && !$user->can('resetStatus', $this)) {
+        if (!$user || !$user->can('resetStatus', $this)) {
             return false;
         }
 
         DB::beginTransaction();
 
         try {
-            if ($this->status === self::STATUS_READY || $this->status === self::STATUS_IN_DELIVERY) {
+            if ($this->status === self::STATUS_READY) {
                 foreach ($this->products as $product) {
                     $product->product->inventory->unfulfillCommit($product->quantity);
                     $product->is_ready = false;
@@ -185,19 +185,20 @@ class Order extends Model
                     AppLog::info("Order product {$product->product->name} is back to stock", loggable: $this);
                 }
 
-                if ($this->status === self::STATUS_IN_DELIVERY) {
-                    $this->debitDriverPerOrder();
-                }
-
                 $this->status = self::STATUS_NEW;
-                $this->save();
                 AppLog::info('Order reset completed', loggable: $this);
-                DB::commit();
-                return true;
+            } elseif ($this->status === self::STATUS_DONE) {
+                $this->debitDriverPerOrder();
+                $this->status = self::STATUS_IN_DELIVERY;
+                AppLog::info('Order reset from done to in delivery', loggable: $this);
             } else {
                 DB::rollBack();
                 return false;
             }
+
+            $this->save();
+            DB::commit();
+            return true;
         } catch (Exception $e) {
             DB::rollBack();
             report($e);
@@ -205,6 +206,7 @@ class Order extends Model
             return false;
         }
     }
+
 
     public static function resetBulkStatus(array $orderIds): bool
     {
@@ -261,16 +263,18 @@ class Order extends Model
                 }
             }
 
-            if ($newStatus === self::STATUS_IN_DELIVERY) {
+            if ($newStatus === self::STATUS_DONE) {
                 $orderInAnotherShift = $this->driverHasOrdersInAnotherShift();
                 if ($orderInAnotherShift) {
                     $orderInAnotherShift->creditDriverForReturnedShift();
                 }
-
+        
+                if (!empty($this->rescheduleHistory())) {
+                    $this->creditDriverForReturnedShift($this->rescheduleHistory());
+                }
+        
                 $this->calculateStartDeliveryCrDriver();
                 $this->creditDriverPerOrder();
-            } elseif ($newStatus === self::STATUS_RETURNED) {
-                $this->creditDriverForReturnedShift();
             }
 
             // If the new status is returned or cancelled, handle product cancellation
@@ -604,12 +608,15 @@ class Order extends Model
 
         try {
             return DB::transaction(function () use ($newDeliveryDate) {
-                $this->creditDriverForReturnedShift();
+                $oldDeliveryDate = $this->delivery_date?->format('d/m/Y') ?? 'N/A';
                 $this->delivery_date = $newDeliveryDate;
                 $this->status = self::STATUS_READY;
                 $this->save();
 
-                AppLog::info('Order rescheduled', loggable: $this);
+                $newDeliveryDateFormatted = $newDeliveryDate?->format('d/m/Y') ?? 'N/A';
+
+                AppLog::info('Order rescheduled', "$oldDeliveryDate → $newDeliveryDateFormatted", loggable: $this);
+
                 return true;
             });
         } catch (Exception $e) {
@@ -1606,7 +1613,6 @@ class Order extends Model
             if (!$driver || !$driver->user) {
                 return false;
             }
-            // dd('tets');
             $driverUser = $driver->user;
             $driverUserId = $driverUser->id;
 
@@ -1666,8 +1672,7 @@ class Order extends Model
 
             $driverUser = $driver->user;
 
-            // Add balance transaction for this order
-            BalanceTransaction::createBalanceTransaction($driverUser, $this->zone->driver_order_rate, "توصيل أوردر رقم {$this->order_number} إلى منطقة {$this->zone->name} يوم {$this->delivery_date->format('d/m/Y')}", $this->id);
+            BalanceTransaction::createBalanceTransaction($driverUser, $this->zone->driver_order_rate, "توصيل أوردر للعميل {$this->customer_name} يوم {$this->delivery_date->format('d/m/Y')}", $this->id);
 
             return true;
         } catch (Exception $e) {
@@ -1694,7 +1699,7 @@ class Order extends Model
             ->first();
     }
 
-    public function creditDriverForReturnedShift(): bool
+    public function creditDriverForReturnedShift(array $rescheduleHistory = []): bool
     {
         try {
             $driver = $this->driver;
@@ -1705,17 +1710,29 @@ class Order extends Model
 
             $driverUser = $driver->user;
 
-            $description = "رجوع يوم توصيل عن يوم {$this->delivery_date->format('d/m/Y')}";
-
-            $returnedTrans = BalanceTransaction::where('transactionable_id', $driverUser->id)->where('transactionable_type', User::MORPH_TYPE)->where('description', $description)->get();
-
-            foreach ($returnedTrans as $transaction) {
-                if ($transaction->order_id && $transaction->order->driver_id === $this->driver_id) {
-                    return true;
-                }
+            if (empty($rescheduleHistory)) {
+                $rescheduleHistory = [['from' => $this->delivery_date]];
             }
 
-            BalanceTransaction::createBalanceTransaction($driverUser, $this->zone->driver_return_rate, $description, $this->id);
+            foreach ($rescheduleHistory as $reschedule) {
+                $fromDate = $reschedule['from'] instanceof Carbon ? $reschedule['from'] : Carbon::parse($reschedule['from']);
+                $description = "رجوع يوم توصيل عن يوم " . $fromDate->format('d/m/Y');
+
+                $existingTransaction = BalanceTransaction::where('transactionable_id', $driverUser->id)
+                    ->where('transactionable_type', User::MORPH_TYPE)
+                    ->where('description', $description)
+                    ->where('order_id', $this->id)
+                    ->exists();
+
+                if (!$existingTransaction) {
+                    BalanceTransaction::createBalanceTransaction(
+                        $driverUser,
+                        $this->zone->driver_return_rate,
+                        $description,
+                        $this->id
+                    );
+                }
+            }
 
             return true;
         } catch (Exception $e) {
@@ -1724,6 +1741,7 @@ class Order extends Model
             return false;
         }
     }
+
 
     public function debitDriverPerOrder(): bool
     {
@@ -1737,7 +1755,7 @@ class Order extends Model
             $driverUser = $driver->user;
 
             // Fetch the existing balance transaction for this order and user
-            $existingTransaction = $this->balanceTransactions()->where('transactionable_id', $driverUser->id)->where('transactionable_type', $driverUser->getMorphClass())->where('order_id', $this->id)->first();
+            $existingTransaction = BalanceTransaction::where('transactionable_id', $driverUser->id)->where('transactionable_type', User::MORPH_TYPE)->where('order_id', $this->id)->first();
 
             if (!$existingTransaction) {
                 AppLog::error("No existing balance transaction found for order #{$this->id} and user #{$driverUser->id}");
@@ -1748,7 +1766,7 @@ class Order extends Model
             BalanceTransaction::createBalanceTransaction(
                 $driverUser,
                 -1 * $existingTransaction->amount, // Use the negated amount from the existing transaction
-                "Reversal of delivery credit for order #{$this->id} in {$this->zone->name}",
+                "إلغاء رصيد توصيل الأوردر للعميل {$this->customer_name} بتاريخ {$this->delivery_date->format('d/m/Y')}",
                 $this->id,
             );
 
@@ -1801,6 +1819,31 @@ class Order extends Model
             ->when($delivery_from, fn($q) => $q->where('orders.delivery_date', '>=', $delivery_from->format('Y-m-d 00:00:00')))
             ->when($delivery_to, fn($q) => $q->where('orders.delivery_date', '<=', $delivery_to->format('Y-m-d 23:59:59')))
             ->when($creator_id, fn($q) => $q->where('orders.created_by', $creator_id));
+    }
+
+    public function rescheduleHistory(): array
+    {
+        $logs = DB::table('app_logs')
+            ->where('loggable_id', $this->id)
+            ->where('loggable_type', Order::MORPH_TYPE)
+            ->where('title', 'Order rescheduled')
+            ->orderBy('created_at') 
+            ->pluck('desc') 
+            ->toArray();
+        $history = [];
+    
+        foreach ($logs as $log) {
+            $dates = explode(' → ', $log);
+    
+            if (count($dates) === 2) {
+                $history[] = [
+                    'from' => Carbon::createFromFormat('d/m/Y', trim($dates[0])),
+                    'to'   => Carbon::createFromFormat('d/m/Y', trim($dates[1])),
+                ];
+            }
+        }
+    
+        return $history;
     }
 
     public function scopeWithTotalQuantity(Builder $query)

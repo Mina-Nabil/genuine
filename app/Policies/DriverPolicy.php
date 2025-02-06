@@ -31,6 +31,7 @@ class DriverPolicy
     {
         return true;
     }
+    
 
     public function addPayment(User $user): bool
     {
