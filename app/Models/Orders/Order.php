@@ -2189,7 +2189,7 @@ class Order extends Model
 
     public static function getTotalDebit()
     {
-        return self::selectRaw('SUM(amount) as total_debit')
+        return self::selectRaw('SUM(total_amount) as total_debit')
             ->where('is_debit')->whereNot('is_paid')
             ->get()->first()?->total_debit;
     }
