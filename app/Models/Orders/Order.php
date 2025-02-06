@@ -2191,6 +2191,7 @@ class Order extends Model
     {
         return self::selectRaw('SUM(total_amount) as total_debit')
             ->debitOrders()
+            ->openOrders()
             ->get()->first()?->total_debit;
     }
 
