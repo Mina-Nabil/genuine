@@ -386,7 +386,8 @@ class OrderIndex extends Component
 
     public function render()
     {
-        $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneIds: $this->zones)->OpenOrders()
+        $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneIds: $this->zones)
+            ->OpenOrders()
             ->with('customer', 'zone', 'driver', 'creator')
             ->sortByDeliveryDate()
             ->notDebitOrders()
@@ -410,6 +411,6 @@ class OrderIndex extends Component
             'totalWeight' => $totalWeight ?? 0,
             'totalZones' => $totalZones ?? 0,
             'ordersCount' => $ordersCount,
-        ])->layout('layouts.app', ['page_title' => $this->page_title, 'orders' => 'active']);
+        ]);
     }
 }

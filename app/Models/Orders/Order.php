@@ -2000,7 +2000,8 @@ class Order extends Model
     public function scopeOpenOrders(Builder $query): Builder
     {
         return $query->where(function (Builder $query) {
-            $query->whereNotIn('status', [self::STATUS_DONE, self::STATUS_RETURNED, self::STATUS_CANCELLED])->orWhere(function (Builder $query) {
+            $query->whereNotIn('status', [self::STATUS_DONE, self::STATUS_RETURNED, self::STATUS_CANCELLED])
+            ->orWhere(function (Builder $query) {
                 $query->whereNotIn('status', [self::STATUS_RETURNED, self::STATUS_CANCELLED])->where('is_paid', false);
             });
         });
