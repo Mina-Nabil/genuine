@@ -53,7 +53,7 @@ class OrderPolicy
 
     public function rescheduleOrder(User $user, Order $order): bool
     {
-        return $order->is_in_delivery;
+        return $order->is_in_delivery && $user->is_admin;
     }
 
     public function updateConfirm(User $user, Order $order): bool

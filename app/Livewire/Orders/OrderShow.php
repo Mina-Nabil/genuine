@@ -91,24 +91,27 @@ class OrderShow extends Component
 
     public $isOpenConfirmReshedule = false;
     public $rescheduleDate = false;
+    public $isDriverReturned = false;
+    public $is2x;
 
     public function confirmReschedule()  {
         $this->isOpenConfirmReshedule = true;
     }
 
     public function closeConfirmReschedule(){
-        $this->isOpenConfirmReshedule = false;
-        $this->rescheduleDate = null;
+        $this->reset(['isOpenConfirmReshedule','rescheduleDate','isDriverReturned','is2x']);
     }
 
     public function rescheduleOder(){
         $this->authorize('rescheduleOrder',$this->order);
 
         $this->validate([
-            'rescheduleDate' => 'required|date'
+            'rescheduleDate' => 'required|date',
+            'isDriverReturned' => 'boolean',
+            'is2x'  => 'boolean'
         ]);
 
-        $res = $this->order->rescheduleOrder(Carbon::parse($this->rescheduleDate));
+        $res = $this->order->rescheduleOrder(Carbon::parse($this->rescheduleDate),$this->isDriverReturned,$this->is2x);
 
         if ($res) {
             $this->closeConfirmReschedule();

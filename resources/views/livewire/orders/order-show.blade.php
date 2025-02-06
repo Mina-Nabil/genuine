@@ -1376,6 +1376,28 @@
                                     @enderror
                                 </div>
 
+                                <div class="checkbox-area">
+                                    <label class="inline-flex items-center cursor-pointer">
+                                        <input wire:model='isDriverReturned' type="checkbox" class="hidden" name="checkbox">
+                                        <span
+                                            class="h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 bg-slate-100 dark:bg-slate-900">
+                                            <img src="{{ asset('assets/images/icon/ck-white.svg') }}" alt=""
+                                                class="h-[10px] w-[10px] block m-auto opacity-0"></span>
+                                        <span class="text-slate-500 dark:text-slate-400 text-sm leading-6">is driver back to office ?</span>
+                                    </label>
+                                </div>
+
+                                <div class="checkbox-area">
+                                    <label class="inline-flex items-center cursor-pointer">
+                                        <input wire:model='is2x' type="checkbox" class="hidden" name="checkbox">
+                                        <span
+                                            class="h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 bg-slate-100 dark:bg-slate-900">
+                                            <img src="{{ asset('assets/images/icon/ck-white.svg') }}" alt=""
+                                                class="h-[10px] w-[10px] block m-auto opacity-0"></span>
+                                        <span class="text-slate-500 dark:text-slate-400 text-sm leading-6">is driver deliver twice ?</span>
+                                    </label>
+                                </div>
+
                             </div>
 
                             <!-- Modal footer -->
@@ -1840,7 +1862,7 @@
                                         xmlns="http://www.w3.org/2000/svg">
                                         <path fill-rule="evenodd"
                                             d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10
-                                                                                                        11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                                                                                            11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
                                             clip-rule="evenodd"></path>
                                     </svg>
                                     <span class="sr-only">Close modal</span>
