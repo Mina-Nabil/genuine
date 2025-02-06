@@ -321,6 +321,7 @@ class PastDueOrderIndex extends Component
             'drivers' => $drivers,
             'STATUSES' => $STATUSES,
             'DRIVERS' => $DRIVERS,
+            'totalDebit' => $totalDebit,
             'ZONES' => $ZONES,
             'totalZones' => $totalZones,
             'ordersCount' => $ordersCount,
