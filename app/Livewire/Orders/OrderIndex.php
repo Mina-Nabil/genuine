@@ -397,9 +397,9 @@ class OrderIndex extends Component
             foreach ($orders as $order) {
                 $totalWeight = $totalWeight + $order->total_weight;
             }
+            $totalZones = Order::getTotalZonesForOrders($orders);
         }
 
-        $totalZones = Order::getTotalZonesForOrders($orders);
         $ordersCount = count($orders);
 
 
@@ -408,7 +408,7 @@ class OrderIndex extends Component
         return view('livewire.orders.order-index', [
             'orders' => $orders,
             'totalWeight' => $totalWeight ?? 0,
-            'totalZones' => $totalZones,
+            'totalZones' => $totalZones ?? 0,
             'ordersCount' => $ordersCount,
         ])->layout('layouts.app', ['page_title' => $this->page_title, 'orders' => 'active']);
     }
