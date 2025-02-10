@@ -149,6 +149,7 @@ class OrderIndex extends Component
     {
         $this->deliveryDate = $this->selectedDeliveryDates;
         $this->closeFilteryDeliveryDate();
+        $this->resetPage();
     }
 
     public function openFilteryStatus()
@@ -330,11 +331,11 @@ class OrderIndex extends Component
         $res = Order::setDeliveryDateForOrders($this->selectedOrders, Carbon::parse($this->bulkDeliveryDate));
 
         if ($res) {
-            $this->resetPage();
             $this->closeSetDeliveryDate();
             $this->selectedOrders = [];
             $this->selectAll = false;
             $this->alertSuccess('Delivery date set!');
+            $this->resetPagination();
         } else {
             $this->alertFailed();
         }
@@ -391,7 +392,7 @@ class OrderIndex extends Component
             ->with('customer', 'zone', 'driver', 'creator')
             ->sortByDeliveryDate()
             ->notDebitOrders()
-            ->cursorPaginate(50);
+            ->simplePaginate(50);
 
         if ($this->driver) {
             $totalWeight = 0;
