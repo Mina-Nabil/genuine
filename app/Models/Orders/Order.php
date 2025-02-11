@@ -454,6 +454,35 @@ class Order extends Model
         }
     }
 
+    public function updateCustomer($customer_id): bool
+    {
+        /** @var User */
+        $loggedInUser = Auth::user();
+        if ($loggedInUser && !$loggedInUser->can('updateCustomer', $this)) {
+            return false;
+        }
+
+        $customer = Customer::findOrFail($customer_id);
+
+        try {
+            $this->customer_id = $customer->id;
+            $this->customer_name = $customer->name;
+            $this->shipping_address = $customer->address;
+            $this->location_url = $customer->location_url;
+            $this->customer_phone = $customer->phone;
+            $this->zone_id = $customer->zone->id;
+            $this->delivery_amount = $customer->zone->delivery_rate;
+            $this->save();
+            $this->refreshTotalAmount();
+            AppLog::info('Customer updated to ' . $customer->name, loggable: $this);
+            return true;
+        } catch (Exception $e) {
+            report($e);
+            AppLog::error('Failed to update customer for order', $e->getMessage());
+            return false;
+        }
+    }
+
     public function updateDelivery(string $delivery = null): bool
     {
         /** @var User */

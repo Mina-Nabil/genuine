@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Orders;
 
+use App\Models\Customers\Customer;
 use App\Models\Customers\Zone;
 use App\Models\Orders\Order;
 use App\Models\Orders\OrderRemovedProduct;
@@ -93,6 +94,37 @@ class OrderShow extends Component
     public $rescheduleDate = false;
     public $isDriverReturned = false;
     public $is2x;
+
+    //update customer
+    public $isOpenUpdateCustomer = false;
+    public $customerSearchText;
+    public $Allcustomer;
+
+    public function openUpdateCustomer(){
+        $this->isOpenUpdateCustomer = true;
+        $this->Allcustomer = Customer::search($this->customerSearchText)->take(10)->get();
+    }
+
+    public function closeUpdateCustomer(){
+        $this->isOpenUpdateCustomer = false;
+    }
+
+    public function updatedCustomerSearchText(){
+        $this->Allcustomer = Customer::search($this->customerSearchText)->take(10)->get();
+    }
+
+    public function updateCustomer($customer_id){
+        $this->authorize('updateCustomer',$this->order);
+        $res = $this->order->updateCustomer($customer_id);
+
+        if ($res) {
+            $this->closeUpdateCustomer();
+            $this->mount($this->order->id);
+            $this->alertSuccess('Order updated');
+        }else{
+            $this->alertFailed();
+        }
+    }
 
     public function confirmReschedule()  {
         $this->isOpenConfirmReshedule = true;

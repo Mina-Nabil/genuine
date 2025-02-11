@@ -42,13 +42,17 @@ class OrderPolicy
 
     public function resetStatus(User $user, Order $order): bool
     {
-        return $user->is_admin ;
+        return $user->is_admin;
     }
-
 
     public function updateDeliveryInfo(User $user, Order $order): bool
     {
-        return ($order->is_new || $order->is_ready);
+        return $order->is_new || $order->is_ready;
+    }
+
+    public function updateCustomer(User $user, Order $order): bool
+    {
+        return $order->payments->count() === 0 && $order->balanceTransactions->count() === 0 && ($order->is_new || $order->is_ready) && $order->is_paid === 0;
     }
 
     public function rescheduleOrder(User $user, Order $order): bool
@@ -120,17 +124,18 @@ class OrderPolicy
         return true;
     }
 
-
-
     /**
      * Determine whether the user can delete the model.
      */
     public function delete(User $user, Order $order): bool
     {
-        if ((Auth::id() === 1 || Auth::id() === 2)  && $order->is_new) {
+        if ((Auth::id() === 1 || Auth::id() === 2) && $order->is_new) {
             foreach ($order->products as $product) {
-                if (!$product->is_ready) continue;
-                else return false;
+                if (!$product->is_ready) {
+                    continue;
+                } else {
+                    return false;
+                }
             }
             return true;
         } else {

@@ -583,7 +583,14 @@
                     <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base">
                         <div class="items-center p-5">
                             <div class="input-area w-full">
-                                <label for="phone" class="form-label"><b>Customer</b></label>
+                                <div class="flex justify-between">
+                                    <label for="phone" class="form-label"><b>Customer</b></label>
+                                    @can('updateCustomer', $order)
+                                        <button wire:click='openUpdateCustomer' class="action-btn" type="button">
+                                            <iconify-icon icon="heroicons:pencil-square"></iconify-icon>
+                                        </button>
+                                    @endcan
+                                </div>
                                 <p class="text-xs">
                                     <a class="clickable-link"
                                         href="{{ route('customer.show', $order->customer->id) }}">
@@ -1378,12 +1385,14 @@
 
                                 <div class="checkbox-area">
                                     <label class="inline-flex items-center cursor-pointer">
-                                        <input wire:model='isDriverReturned' type="checkbox" class="hidden" name="checkbox">
+                                        <input wire:model='isDriverReturned' type="checkbox" class="hidden"
+                                            name="checkbox">
                                         <span
                                             class="h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 bg-slate-100 dark:bg-slate-900">
                                             <img src="{{ asset('assets/images/icon/ck-white.svg') }}" alt=""
                                                 class="h-[10px] w-[10px] block m-auto opacity-0"></span>
-                                        <span class="text-slate-500 dark:text-slate-400 text-sm leading-6">is driver back to office ?</span>
+                                        <span class="text-slate-500 dark:text-slate-400 text-sm leading-6">is driver back
+                                            to office ?</span>
                                     </label>
                                 </div>
 
@@ -1394,7 +1403,8 @@
                                             class="h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 bg-slate-100 dark:bg-slate-900">
                                             <img src="{{ asset('assets/images/icon/ck-white.svg') }}" alt=""
                                                 class="h-[10px] w-[10px] block m-auto opacity-0"></span>
-                                        <span class="text-slate-500 dark:text-slate-400 text-sm leading-6">is driver deliver twice ?</span>
+                                        <span class="text-slate-500 dark:text-slate-400 text-sm leading-6">is driver
+                                            deliver twice ?</span>
                                     </label>
                                 </div>
 
@@ -1765,6 +1775,78 @@
         @endif
     @endcan
 
+    @if ($isOpenUpdateCustomer)
+        <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+            tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
+            style="display: block;">
+            <div class="modal-dialog relative w-auto pointer-events-none">
+                <div
+                    class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
+                    <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
+                        <!-- Modal header -->
+                        <div
+                            class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
+                            <h3 class="text-xl font-medium text-white dark:text-white capitalize">
+                                Update customer
+                            </h3>
+                            <button wire:click="closeUpdateCustomer" type="button"
+                                class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
+                                data-bs-dismiss="modal">
+                                <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd"
+                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                <span class="sr-only">Close modal</span>
+                            </button>
+                        </div>
+
+                        <!-- Modal body -->
+                        <div class="p-6 space-y-4">
+
+                            <div class="input-area">
+                                <input type="text" placeholder="Search customers..."
+                                    class="form-control @error('customerSearchText') !border-danger-500 @enderror"
+                                    wire:model.live='customerSearchText'>
+                            </div>
+
+                            <div class="overflow-x-auto -mx-6">
+                                <div class="inline-block min-w-full align-middle">
+                                    <div class="overflow-hidden ">
+                                        <table
+                                            class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700">
+                                            <tbody
+                                                class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
+
+                                                @foreach ($Allcustomer as $customer)
+                                                    <tr wire:click='updateCustomer({{ $customer->id }})'
+                                                        class="hover:bg-slate-200 dark:hover:bg-slate-700 cursor-pointer">
+                                                        <td class="table-td">
+                                                            <p>
+                                                                <b>{{ $customer->name }} </b>
+                                                            </p>
+                                                        </td>
+                                                        <td class="table-td">
+                                                            {{ $customer->phone }}
+                                                        </td>
+                                                        <td class="table-td">
+                                                            {{ $customer->zone->name }}
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    @endif
+
     @if ($setDriverSection)
         <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
             tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
@@ -1862,7 +1944,7 @@
                                         xmlns="http://www.w3.org/2000/svg">
                                         <path fill-rule="evenodd"
                                             d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10
-                                                                                                            11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                                                                                                11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
                                             clip-rule="evenodd"></path>
                                     </svg>
                                     <span class="sr-only">Close modal</span>
