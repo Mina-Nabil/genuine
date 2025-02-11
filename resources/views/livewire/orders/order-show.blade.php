@@ -1805,6 +1805,17 @@
                         <!-- Modal body -->
                         <div class="p-6 space-y-4">
 
+                            <div
+                                class="py-[18px] px-6 font-normal text-sm rounded-md bg-warning-500 bg-opacity-[14%]  text-white">
+                                <div class="flex items-center space-x-3 rtl:space-x-reverse">
+                                    <iconify-icon class="text-2xl flex-0 text-slate-900"
+                                        icon="line-md:alert"></iconify-icon>
+                                    <p class="flex-1 text-slate-900 font-Inter">
+                                        Changing the customer may affect the zone-based delivery fees, which could alter the total amount of the order. Please review the updated total before proceeding
+                                    </p>
+                                </div>
+                            </div>
+
                             <div class="input-area">
                                 <input type="text" placeholder="Search customers..."
                                     class="form-control @error('customerSearchText') !border-danger-500 @enderror"
@@ -1944,7 +1955,7 @@
                                         xmlns="http://www.w3.org/2000/svg">
                                         <path fill-rule="evenodd"
                                             d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10
-                                                                                                                11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                                                                                                    11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
                                             clip-rule="evenodd"></path>
                                     </svg>
                                     <span class="sr-only">Close modal</span>
