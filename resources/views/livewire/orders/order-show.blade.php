@@ -640,7 +640,7 @@
                             <div class="input-area w-full">
                                 <div class="flex justify-between">
                                     <label for="phone" class="form-label"><b>Assigned Driver</b></label>
-                                    @if ($order->in_house)
+                                    @if ($order->can_change_driver)
                                         <button wire:click='openSetDriverSection' class="action-btn" type="button">
                                             @if ($order->driver)
                                                 <iconify-icon icon="heroicons:pencil-square"></iconify-icon>

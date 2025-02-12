@@ -1904,6 +1904,11 @@ class Order extends Model
         return $totalPaid;
     }
 
+    public function getCanChangeDriverAttribute(): bool
+    {
+        return $this->status === self::STATUS_NEW || $this->status === self::STATUS_READY || $this->status === self::STATUS_IN_DELIVERY;
+    }
+
     public function getInHouseAttribute(): bool
     {
         return $this->status === self::STATUS_NEW || $this->status === self::STATUS_READY;
