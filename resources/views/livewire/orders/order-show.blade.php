@@ -640,7 +640,7 @@
                             <div class="input-area w-full">
                                 <div class="flex justify-between">
                                     <label for="phone" class="form-label"><b>Assigned Driver</b></label>
-                                    @if ($order->can_change_driver)
+                                    @can('canChangeDriver', $order)
                                         <button wire:click='openSetDriverSection' class="action-btn" type="button">
                                             @if ($order->driver)
                                                 <iconify-icon icon="heroicons:pencil-square"></iconify-icon>
@@ -652,11 +652,11 @@
                                         @if ($order->driver)
                                             <button wire:click='showConfirmRemoveDriver' class="action-btn ml-2"
                                                 type="button">
-                                                <iconify-icon icon="material-symbols-light:delete-outline"
-                                                    width="1.2em" height="1.2em"></iconify-icon>
+                                                <iconify-icon icon="material-symbols-light:delete-outline" width="1.2em"
+                                                    height="1.2em"></iconify-icon>
                                             </button>
                                         @endif
-                                    @endif
+                                    @endcan
                                 </div>
 
                                 @if ($order->driver)
@@ -1811,7 +1811,8 @@
                                     <iconify-icon class="text-2xl flex-0 text-slate-900"
                                         icon="line-md:alert"></iconify-icon>
                                     <p class="flex-1 text-slate-900 font-Inter">
-                                        Changing the customer may affect the zone-based delivery fees, which could alter the total amount of the order. Please review the updated total before proceeding
+                                        Changing the customer may affect the zone-based delivery fees, which could alter
+                                        the total amount of the order. Please review the updated total before proceeding
                                     </p>
                                 </div>
                             </div>
@@ -1955,7 +1956,7 @@
                                         xmlns="http://www.w3.org/2000/svg">
                                         <path fill-rule="evenodd"
                                             d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10
-                                                                                                                    11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                                                                                                                11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
                                             clip-rule="evenodd"></path>
                                     </svg>
                                     <span class="sr-only">Close modal</span>
@@ -2007,7 +2008,7 @@
                                     xmlns="http://www.w3.org/2000/svg">
                                     <path fill-rule="evenodd"
                                         d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10
-                                                            11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                                                11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
                                         clip-rule="evenodd"></path>
                                 </svg>
                                 <span class="sr-only">Close modal</span>

@@ -45,6 +45,11 @@ class OrderPolicy
         return $user->is_admin;
     }
 
+    public function canChangeDriver(User $user, Order $order): bool
+    {
+        return $order->is_new || $order->is_ready || ($user->is_admin && $order->is_in_delivert);
+    }
+
     public function updateDeliveryInfo(User $user, Order $order): bool
     {
         return $order->is_new || $order->is_ready;
