@@ -57,7 +57,7 @@ class OrderPolicy
 
     public function updateCustomer(User $user, Order $order): bool
     {
-        return $order->payments->count() === 0 && $order->balanceTransactions->count() === 0 && ($order->is_new || $order->is_ready) && $order->is_paid === 0;
+        return $user->is_admin && ($order->payments->count() === 0 && $order->balanceTransactions->count() === 0 && ($order->is_new || $order->is_ready) && $order->is_paid === 0);
     }
 
     public function rescheduleOrder(User $user, Order $order): bool
