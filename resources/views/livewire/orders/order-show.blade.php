@@ -542,7 +542,7 @@
                     <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base">
                         <div class="items-center p-5">
                             <div class="input-area w-full mb-5">
-                                <div class="flex justify-bewwteen">
+                                <div class="flex justify-between">
                                     <label for="phone" class="form-label"><b>Delivery date</b></label>
                                     @can('updateDeliveryInfo', $order)
                                         <button wire:click='openUpdateDdate' class="action-btn" type="button">
@@ -555,7 +555,7 @@
                                 </p>
                             </div>
                             <div class="input-area w-full mb-5">
-                                <div class="flex justify-bewwteen">
+                                <div class="flex justify-between">
                                     <label for="phone" class="form-label"><b>Notes</b></label>
                                     <button wire:click='openUpdateNote' class="action-btn" type="button">
                                         <iconify-icon icon="heroicons:pencil-square"></iconify-icon>
@@ -564,13 +564,13 @@
                                 <p class="text-xs">{{ $order->note ?? 'No notes for order' }}</p>
                             </div>
                             <div class="input-area w-full">
-                                <div class="flex justify-bewwteen">
+                                <div class="flex justify-between">
                                     <label for="phone" class="form-label"><b>Driver Notes</b></label>
                                 </div>
                                 <p class="text-xs">{{ $order->driver_note ?? 'No driver notes for order' }}</p>
                             </div>
                             <div class="input-area w-full">
-                                <div class="flex justify-bewwteen">
+                                <div class="flex justify-between">
                                     <label for="phone" class="form-label"><b>Bags Count</b></label>
                                 </div>
                                 <p class="text-xs">{{ $order->no_of_bags }}</p>
@@ -604,7 +604,7 @@
                                 </p>
                             </div>
 
-                            <div class="flex justify-bewwteen mt-5">
+                            <div class="flex justify-between mt-5">
                                 <label for="phone" class="form-label"><b>Shipping Address</b></label>
                                 <button wire:click='openUpdateShippingDetails' class="action-btn" type="button">
                                     <iconify-icon icon="heroicons:pencil-square"></iconify-icon>
@@ -616,7 +616,7 @@
                             <p class="text-xs">{{ $order->shipping_address }}</p>
                             <p class="text-xs mt-1">{{ $order->zone->name }}</p>
 
-                            <div class="flex justify-bewwteen mt-5">
+                            <div class="flex justify-between mt-5">
                                 <label for="phone" class="form-label"><b>Location URL</b></label>
                                 <button wire:click='openUpdateLocationUrl' class="action-btn" type="button">
                                     <iconify-icon icon="heroicons:pencil-square"></iconify-icon>

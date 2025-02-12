@@ -240,7 +240,7 @@
                         <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base">
                             <div class="items-center p-5">
                                 <div class="input-area w-full">
-                                    <div class="flex justify-bewwteen">
+                                    <div class="flex justify-between">
                                         <label for="phone" class="form-label"><b>Notes</b></label>
                                         <button wire:click='openUpdateNote' class="action-btn" type="button">
                                             <iconify-icon icon="heroicons:pencil-square"></iconify-icon>
@@ -266,7 +266,7 @@
                                     <p class="text-xs mt-1">{{ $order->customer->total_orders }}
                                         order{{ $order->customer->total_orders > 1 ? 's' : '' }}</p>
                                 </div>
-                                <div class="flex justify-bewwteen mt-5">
+                                <div class="flex justify-between mt-5">
                                     <label for="phone" class="form-label"><b>Shipping Address</b></label>
                                     <button wire:click='openUpdateShippingDetails' class="action-btn" type="button">
                                         <iconify-icon icon="heroicons:pencil-square"></iconify-icon>
