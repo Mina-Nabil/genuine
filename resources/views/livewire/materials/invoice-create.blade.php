@@ -141,7 +141,12 @@
 
                                                                         <!-- Price Input Column -->
                                                                         <td class="table-td imp-p-2">
-                                                                            {{ $fetchedMaterials[$index]['price'] }}
+                                                                            <input type="number" min="1" max="fetchedMaterials.{{ $index }}.max_price"
+                                                                            class="form-control @error('fetchedMaterials.' . $index . '.price') !border-danger-500 @enderror"
+                                                                            style="width: 100px;"
+                                                                            wire:model="fetchedMaterials.{{ $index }}.price"
+                                                                            wire:input="updateTotal({{ $index }})">
+                                                                            {{-- {{ $fetchedMaterials[$index]['price'] }} --}}
                                                                         </td>
 
                                                                         <!-- Total Calculation Column -->

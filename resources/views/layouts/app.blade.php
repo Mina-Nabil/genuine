@@ -259,7 +259,6 @@
                     @endcan
 
 
-
                     @can('viewSalesReports', App\Models\Orders\Order::class)
                         <li>
                             <a href="{{ auth()->user()->can('viewSalesReports', App\Models\Orders\Order::class) ? url('/report/orders') : '#' }}"

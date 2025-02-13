@@ -49,6 +49,7 @@ class InvoiceCreate extends Component
                 'name' => $material->name,
                 'quantity' => 1, // Default quantity
                 'price' => $material->pivot->price, // Price from pivot table
+                'max_price' => $material->pivot->price + 1, // Price from pivot table
             ];
         }
 
