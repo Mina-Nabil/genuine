@@ -60,7 +60,7 @@ class SupplierInvoice extends Model
                     'total_amount' => $totalAmount,
                     'entry_date' => $entryDate,
                     'extra_fee_description' => $extraFeeDescription,
-                    'extra_fee_amount' => $extraFeeAmount,
+                    'extra_fee_amount' => $extraFeeAmount ?? 0,
                 ]);
 
                 foreach ($rawMaterials as $material) {
