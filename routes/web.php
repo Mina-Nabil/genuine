@@ -48,6 +48,7 @@ use App\Livewire\Reports\DailyLoadingReport;
 use App\Livewire\Reports\DailySalesPerformanceReport;
 use App\Livewire\Reports\DailyTotalsReport;
 use App\Livewire\Reports\DriverBalanceTransactionReport;
+use App\Livewire\Reports\InventoryReport;
 use App\Livewire\Reports\MonthlyTotalsReport;
 use App\Livewire\Reports\OrderReport;
 use App\Livewire\Reports\ProductionPlanning;
@@ -132,6 +133,7 @@ Route::middleware(['auth', 'no_driver', 'accounting_only_admin'])->group(functio
     Route::get('/report/orders/performance', DailySalesPerformanceReport::class)->name('reports.orders.performance');
     Route::get('/report/customers/transactions', CustomerTransactionReport::class)->name('reports.customers.transactions');
     Route::get('/report/Zones/count', ZoneCountReport::class)->name('reports.zones.count');
+    Route::get('/report/inventory', InventoryReport::class)->name('reports.inventory');
 
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
 

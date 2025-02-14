@@ -324,8 +324,17 @@
                             <a href="{{ auth()->user()->can('viewReports', App\Models\Orders\Order::class) ? url('/report/Zones/count') : '#' }}"
                                 class="navItem {{ $zoneCountReport ?? '' }} {{ auth()->user()->can('viewReports', App\Models\Orders\Order::class) ? '' : 'disabled' }}">
                                 <span class="flex items-center">
-                                    <iconify-icon class="nav-icon" icon="carbon:sales-ops"></iconify-icon>
+                                    <iconify-icon class="nav-icon" icon="mdi:account-group-outline"></iconify-icon>
                                     <span>العملاء الجدد</span>
+                                </span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ auth()->user()->can('viewAny', App\Models\Products\Inventory::class) ? url('/report/inventory') : '#' }}"
+                                class="navItem {{ $inventoryReport ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Products\Inventory::class) ? '' : 'disabled' }}">
+                                <span class="flex items-center">
+                                    <iconify-icon class="nav-icon" icon="mdi:chart-box-outline"></iconify-icon>
+                                    <span>تقرير انتاجيه</span>
                                 </span>
                             </a>
                         </li>

@@ -33,89 +33,8 @@
                     <table class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700 no-wrap">
                         <thead class="border-t border-slate-100 dark:border-slate-800 bg-slate-200 dark:bg-slate-700">
                             <tr>
-                                <th scope="col"
-                                    class="table-th  flex items-center border-t border-slate-100 dark:border-slate-800 bg-slate-200 dark:bg-slate-700"
-                                    style="position: sticky; left: -25px;  z-index: 10;">
-                                    <div class="checkbox-area">
-                                        <label class="inline-flex items-center cursor-pointer">
-                                            <input type="checkbox" wire:model.live="selectAll" class="hidden"
-                                                id="select-all">
-                                            <span
-                                                class="h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 bg-slate-100 dark:bg-slate-900">
-                                                <img src="assets/images/icon/ck-white.svg" alt=""
-                                                    class="h-[10px] w-[10px] block m-auto opacity-0"></span>
-                                        </label>
-                                    </div>
-                                    <span wire:click="sortByColomn('name')" class="clickable-header">Name
-                                        @if ($sortColomn === 'name')
-                                            @if ($sortDirection === 'asc')
-                                                <iconify-icon icon="fluent:arrow-up-12-filled"></iconify-icon>
-                                            @else
-                                                <iconify-icon icon="fluent:arrow-down-12-filled"></iconify-icon>
-                                            @endif
-                                        @endif
-                                    </span>
-                                </th>
-                                @if ($selectAll)
-                                    @if ($selectedAllInventories)
-                                        <th colspan="4" class="table-th"><iconify-icon style="vertical-align: top;"
-                                                icon="lucide:info" width="1.2em" height="1.2em"></iconify-icon> A
-                                            {{ count($selectedInventories) }} inventory selected ..
-                                            <span class="clickable-link"
-                                                wire:click='undoSelectAllInventories'>Undo</span>
-                                        </th>
-                                    @else
-                                        <th colspan="4" class="table-th"><iconify-icon style="vertical-align: top;"
-                                                icon="lucide:info" width="1.2em" height="1.2em"></iconify-icon>
-                                            {{ count($selectedInventories) }} inventory
-                                            selected .. <span class="clickable-link"
-                                                wire:click='selectAllInventories'>Select
-                                                All Inventories</span></th>
-                                    @endif
-                                @else
-                                    {{-- <th scope="col" class="table-th">
-                                        <span wire:click="sortByColomn('on_hand')" class="clickable-header">
-                                            On Hand
-                                            @if ($sortColomn === 'on_hand')
-                                                @if ($sortDirection === 'asc')
-                                                    <iconify-icon icon="fluent:arrow-up-12-filled"></iconify-icon>
-                                                @else
-                                                    <iconify-icon icon="fluent:arrow-down-12-filled"></iconify-icon>
-                                                @endif
-                                            @endif
-                                        </span>
-                                    </th> --}}
-
-                                    {{-- <th scope="col" class="table-th">
-                                        <span wire:click="sortByColomn('committed')" class="clickable-header">
-                                            Committed
-                                            @if ($sortColomn === 'committed')
-                                                @if ($sortDirection === 'asc')
-                                                    <iconify-icon icon="fluent:arrow-up-12-filled"></iconify-icon>
-                                                @else
-                                                    <iconify-icon icon="fluent:arrow-down-12-filled"></iconify-icon>
-                                                @endif
-                                            @endif
-                                        </span>
-                                    </th>
-
-                                    <th scope="col" class="table-th">
-                                        <span wire:click="sortByColomn('available')" class="clickable-header">
-                                            Available
-                                            @if ($sortColomn === 'available')
-                                                @if ($sortDirection === 'asc')
-                                                    <iconify-icon icon="fluent:arrow-up-12-filled"></iconify-icon>
-                                                @else
-                                                    <iconify-icon icon="fluent:arrow-down-12-filled"></iconify-icon>
-                                                @endif
-                                            @endif
-                                        </span>
-                                    </th> --}}
-
-                                    <th scope="col" class="table-th">New</th>
-
-                                @endif
-
+                                <th scope="col" class="table-th">Name</th>
+                                <th scope="col" class="table-th">New</th>
                             </tr>
                         </thead>
                         <tbody
@@ -124,19 +43,9 @@
                             @foreach ($inventories as $inventory)
                                 @if ($inventory->inventoryable)
                                     <tr>
-
                                         <td class="table-td flex items-center sticky-column bg-white dark:bg-slate-800 colomn-shadow"
                                             style="position: sticky; left: -25px;  z-index: 10;">
-                                            <div class="checkbox-area">
-                                                <label class="inline-flex items-center cursor-pointer">
-                                                    <input type="checkbox" wire:model="selectedInventories"
-                                                        value="{{ $inventory->id }}" class="hidden" id="select-all">
-                                                    <span
-                                                        class="h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 bg-slate-100 dark:bg-slate-900">
-                                                        <img src="assets/images/icon/ck-white.svg" alt=""
-                                                            class="h-[10px] w-[10px] block m-auto opacity-0"></span>
-                                                </label>
-                                            </div>
+                                      
                                             <a href="{{ route('product.show', $inventory->inventoryable?->id) }}"> <span
                                                     class="hover-underline">
                                                     <b>
@@ -230,90 +139,8 @@
                     <table class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700 no-wrap">
                         <thead class="border-t border-slate-100 dark:border-slate-800 bg-slate-200 dark:bg-slate-700">
                             <tr>
-                                <th scope="col"
-                                    class="table-th  flex items-center border-t border-slate-100 dark:border-slate-800 bg-slate-200 dark:bg-slate-700"
-                                    style="position: sticky; left: -25px;  z-index: 10;">
-                                    <div class="checkbox-area">
-                                        <label class="inline-flex items-center cursor-pointer">
-                                            <input type="checkbox" wire:model.live="selectAll" class="hidden"
-                                                id="select-all">
-                                            <span
-                                                class="h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 bg-slate-100 dark:bg-slate-900">
-                                                <img src="assets/images/icon/ck-white.svg" alt=""
-                                                    class="h-[10px] w-[10px] block m-auto opacity-0"></span>
-                                        </label>
-                                    </div>
-                                    <span wire:click="sortByColomn('name')" class="clickable-header">Name
-                                        @if ($sortColomn === 'name')
-                                            @if ($sortDirection === 'asc')
-                                                <iconify-icon icon="fluent:arrow-up-12-filled"></iconify-icon>
-                                            @else
-                                                <iconify-icon icon="fluent:arrow-down-12-filled"></iconify-icon>
-                                            @endif
-                                        @endif
-                                    </span>
-                                </th>
-                                @if ($selectAll)
-                                    @if ($selectedAllInventories)
-                                        <th colspan="4" class="table-th"><iconify-icon
-                                                style="vertical-align: top;" icon="lucide:info" width="1.2em"
-                                                height="1.2em"></iconify-icon> A
-                                            {{ count($selectedInventories) }} inventory selected ..
-                                            <span class="clickable-link"
-                                                wire:click='undoSelectAllInventories'>Undo</span>
-                                        </th>
-                                    @else
-                                        <th colspan="4" class="table-th"><iconify-icon
-                                                style="vertical-align: top;" icon="lucide:info" width="1.2em"
-                                                height="1.2em"></iconify-icon>
-                                            {{ count($selectedInventories) }} inventory
-                                            selected .. <span class="clickable-link"
-                                                wire:click='selectAllInventories'>Select
-                                                All Inventories</span></th>
-                                    @endif
-                                @else
-                                    {{-- <th scope="col" class="table-th">
-                                        <span wire:click="sortByColomn('on_hand')" class="clickable-header">
-                                            On Hand
-                                            @if ($sortColomn === 'on_hand')
-                                                @if ($sortDirection === 'asc')
-                                                    <iconify-icon icon="fluent:arrow-up-12-filled"></iconify-icon>
-                                                @else
-                                                    <iconify-icon icon="fluent:arrow-down-12-filled"></iconify-icon>
-                                                @endif
-                                            @endif
-                                        </span>
-                                    </th> --}}
-
-                                    {{-- <th scope="col" class="table-th">
-                                        <span wire:click="sortByColomn('committed')" class="clickable-header">
-                                            Committed
-                                            @if ($sortColomn === 'committed')
-                                                @if ($sortDirection === 'asc')
-                                                    <iconify-icon icon="fluent:arrow-up-12-filled"></iconify-icon>
-                                                @else
-                                                    <iconify-icon icon="fluent:arrow-down-12-filled"></iconify-icon>
-                                                @endif
-                                            @endif
-                                        </span>
-                                    </th>
-
-                                    <th scope="col" class="table-th">
-                                        <span wire:click="sortByColomn('available')" class="clickable-header">
-                                            Available
-                                            @if ($sortColomn === 'available')
-                                                @if ($sortDirection === 'asc')
-                                                    <iconify-icon icon="fluent:arrow-up-12-filled"></iconify-icon>
-                                                @else
-                                                    <iconify-icon icon="fluent:arrow-down-12-filled"></iconify-icon>
-                                                @endif
-                                            @endif
-                                        </span>
-                                    </th> --}}
-
-                                    <th scope="col" class="table-th">New</th>
-
-                                @endif
+                                <th scope="col" class="table-th">Name</th>
+                                <th scope="col" class="table-th">New</th>
 
                             </tr>
                         </thead>
@@ -326,16 +153,7 @@
 
                                         <td class="table-td flex items-center sticky-column bg-white dark:bg-slate-800 colomn-shadow"
                                             style="position: sticky; left: -25px;  z-index: 10;">
-                                            <div class="checkbox-area">
-                                                <label class="inline-flex items-center cursor-pointer">
-                                                    <input type="checkbox" wire:model="selectedInventories"
-                                                        value="{{ $inventory->id }}" class="hidden" id="select-all">
-                                                    <span
-                                                        class="h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 bg-slate-100 dark:bg-slate-900">
-                                                        <img src="assets/images/icon/ck-white.svg" alt=""
-                                                            class="h-[10px] w-[10px] block m-auto opacity-0"></span>
-                                                </label>
-                                            </div>
+                                        
                                             <a href="{{ route('material.show', $inventory->inventoryable?->id) }}">
                                                 <span class="hover-underline">
                                                     <b>
@@ -366,7 +184,7 @@
                                         </td> --}}
 
                                         <td class="table-td">
-                                            <input type="number"  wire:key="material-inventory-{{ $inventory->id }}"
+                                            <input type="number" wire:key="material-inventory-{{ $inventory->id }}"
                                                 class="form-control @error("materialsChanges.{{ $inventory->id }}.new") !border-danger-500 @enderror"
                                                 style="max-width: 100px;"
                                                 wire:model.live="materialsChanges.{{ $inventory->id }}.new"
