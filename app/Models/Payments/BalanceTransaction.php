@@ -17,7 +17,13 @@ class BalanceTransaction extends Model
     use HasFactory;
     protected $table = 'balance_transactions';
 
-    const WITHDRAWAL_TYPES = [self::WD_TYPE_ADVANCE, self::WD_TYPE_SALARY, self::WD_TYPE_X2, self::WD_TYPE_ROAD_FEES];
+    const WITHDRAWAL_TYPES = [
+        self::WD_TYPE_ADVANCE,
+        self::WD_TYPE_SALARY,
+        self::WD_TYPE_X2,
+        self::WD_TYPE_ROAD_FEES,
+        self::WD_TYPE_PURCHASES
+    ];
     const WD_TYPE_ADVANCE = 'سلفة';
     const WD_TYPE_SALARY = 'مرتب';
     const WD_TYPE_X2 = 'x2';
