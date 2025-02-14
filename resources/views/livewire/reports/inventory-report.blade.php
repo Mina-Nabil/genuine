@@ -36,7 +36,7 @@
                         <thead class="border-t border-slate-100 dark:border-slate-800 bg-slate-200 dark:bg-slate-700">
                             <tr>
                                 <th scope="col" class="table-th">Product</th>
-                                <th scope="col" class="table-th">Count</th>
+                                <th scope="col" class="table-th">KG</th>
                             </tr>
                         </thead>
                         <tbody
@@ -49,7 +49,7 @@
                                             {{ $inventory->prod_name }}
                                         </td>
                                         <td class="table-td">
-                                            {{ $inventory->trans_count }}
+                                            {{ number_format($inventory->trans_count) }}
                                         </td>
                                     </tr>
                                 @endif
@@ -67,14 +67,13 @@
         </div>
 
         <div class="card">
-
             <div class="card-body px-6 p-6  overflow-x-auto">
                 <div class=""> <!-- Add this wrapper to allow horizontal scroll -->
                     <table class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700 no-wrap">
                         <thead class="border-t border-slate-100 dark:border-slate-800 bg-slate-200 dark:bg-slate-700">
                             <tr>
                                 <th scope="col" class="table-th">Raw Material</th>
-                                <th scope="col" class="table-th">Count</th>
+                                <th scope="col" class="table-th">KG</th>
                             </tr>
                         </thead>
                         <tbody
@@ -88,7 +87,7 @@
                                             {{ $inventory->raw_name }}
                                         </td>
                                         <td class="table-td">
-                                            {{ $inventory->trans_count }}
+                                            {{ number_format($inventory->trans_count) }}
                                         </td>
                                     </tr>
                                 @endif
