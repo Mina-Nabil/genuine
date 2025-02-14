@@ -36,7 +36,7 @@ class Transaction extends Model
             ->when($startDate, function ($q, $v) {
                 $q->where('transactions.created_at', '>=', $v->format('Y-m-d 00:00:00'));
             })->when($endDate, function ($q, $v) {
-                $q->where('transactions.created_at', '>=', $v->format('Y-m-d 23:59:59'));
+                $q->where('transactions.created_at', '<=', $v->format('Y-m-d 23:59:59'));
             })
             ->join('inventories', 'inventories.id', '=', 'transactions.inventory_id')
             ->leftjoin('products', function ($j) {
