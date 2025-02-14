@@ -22,6 +22,7 @@ class BalanceTransaction extends Model
     const WD_TYPE_SALARY = 'مرتب';
     const WD_TYPE_X2 = 'x2';
     const WD_TYPE_ROAD_FEES = 'كارتة';
+    const WD_TYPE_PURCHASES = 'مشتريات';
 
     protected $fillable = [
         'transactionable_id',

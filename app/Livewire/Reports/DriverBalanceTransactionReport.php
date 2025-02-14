@@ -127,6 +127,7 @@ class DriverBalanceTransactionReport extends Component
         $sumOfSalary = $query->clone()->withdrawalTypeSum(BalanceTransaction::WD_TYPE_SALARY);
         $sumOfX2 = $query->clone()->withdrawalTypeSum(BalanceTransaction::WD_TYPE_X2);
         $sumOfRoadFees = $query->clone()->withdrawalTypeSum(BalanceTransaction::WD_TYPE_ROAD_FEES);
+        $sumOfPurchases = $query->clone()->withdrawalTypeSum(BalanceTransaction::WD_TYPE_PURCHASES);
 
         $WITHDRAWAL_TYPES = BalanceTransaction::WITHDRAWAL_TYPES;
         return view('livewire.reports.driver-balance-transaction-report', [
@@ -140,6 +141,7 @@ class DriverBalanceTransactionReport extends Component
             'sumOfSalary' => $sumOfSalary,
             'sumOfX2' => $sumOfX2,
             'sumOfRoadFees' => $sumOfRoadFees,
+            'sumOfPurchases' => $sumOfPurchases,
             'WITHDRAWAL_TYPES' => $WITHDRAWAL_TYPES,
         ])->layout('layouts.app', [
             'page_title' => $this->page_title,
