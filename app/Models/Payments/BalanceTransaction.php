@@ -70,6 +70,11 @@ class BalanceTransaction extends Model
         return $query->whereBetween('created_at', [$from, $to]);
     }
 
+    public function scopeCountOrderDelivery($query)
+    {
+        return $query->where('description', 'like', '%توصيل أوردر%')->count('id');
+    }
+
     public function scopeTotalOrderDelivery($query)
     {
         return $query->where('description', 'like', '%توصيل أوردر%')->sum('amount');

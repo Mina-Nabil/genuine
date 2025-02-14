@@ -80,6 +80,14 @@
         </div>
         <div class="space-y-1">
             <h4 class="text-slate-300 dark:text-slate-200 text-sm arabic-font">
+                عدد اوردرات
+            </h4>
+            <div class="text-sm font-medium text-success-500">
+                {{ $countOrderDelivery }}
+            </div>
+        </div>
+        <div class="space-y-1">
+            <h4 class="text-slate-300 dark:text-slate-200 text-sm arabic-font">
                 ايام
             </h4>
             <div class="text-sm font-medium text-success-500">

@@ -67,7 +67,7 @@ class DriverBalanceTransactionReport extends Component
 
     public function openAddDriverTrans()
     {
-        $this->authorize('updateBalance',$this->user);
+        $this->authorize('updateBalance', $this->user);
         $this->isOpenAddDriverTrans = true;
     }
 
@@ -78,11 +78,18 @@ class DriverBalanceTransactionReport extends Component
 
     public function addDriverTrnasaction()
     {
-        $this->authorize('updateBalance',$this->user);
+        $this->authorize('updateBalance', $this->user);
         $this->validate([
             'driverAmount' => 'required|numeric',
             'driverPymtNote' => 'required|string|max:255',
         ]);
+
+        if (
+            str_contains($this->driverPymtNote, BalanceTransaction::WD_TYPE_ADVANCE)
+            || str_contains($this->driverPymtNote, BalanceTransaction::WD_TYPE_SALARY)
+        ) {
+            $this->driverAmount = -1 * $this->$this->driverAmount;
+        }
 
         $res = User::findOrFail($this->userId)->addDriverBalance($this->driverAmount, $this->driverPymtNote);
 
@@ -112,6 +119,7 @@ class DriverBalanceTransactionReport extends Component
         $transactions = $query->latest()->paginate(50);
 
         $totalOrderDelivery = $query->clone()->totalOrderDelivery();
+        $countOrderDelivery = $query->clone()->countOrderDelivery();
         $totalStartDayDelivery = $query->clone()->totalStartDayDelivery();
         $totalReturn = $query->clone()->totalReturn();
 
@@ -119,12 +127,13 @@ class DriverBalanceTransactionReport extends Component
         $sumOfSalary = $query->clone()->withdrawalTypeSum(BalanceTransaction::WD_TYPE_SALARY);
         $sumOfX2 = $query->clone()->withdrawalTypeSum(BalanceTransaction::WD_TYPE_X2);
         $sumOfRoadFees = $query->clone()->withdrawalTypeSum(BalanceTransaction::WD_TYPE_ROAD_FEES);
-        
+
         $WITHDRAWAL_TYPES = BalanceTransaction::WITHDRAWAL_TYPES;
         return view('livewire.reports.driver-balance-transaction-report', [
             'drivers' => $drivers,
             'transactions' => $transactions,
             'totalOrderDelivery' => $totalOrderDelivery,
+            'countOrderDelivery' => $countOrderDelivery,
             'totalStartDayDelivery' => $totalStartDayDelivery,
             'totalReturn' => $totalReturn,
             'sumOfAdvance' => $sumOfAdvance,
