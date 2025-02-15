@@ -13,23 +13,23 @@ class Transaction extends Model
     use HasFactory;
     protected $fillable = ['inventory_id', 'quantity', 'before', 'after', 'remarks', 'user_id', 'created_at'];
 
-    ////model functions
-    // public function recalculateBalance()
-    // {
-    //     $latest_balance = self::type($this->payment_method)->where('id', '<', $this->id)->orderByDesc('id')->limit(1)->first()?->type_balance ?? 0;
+    //model functions
+    public function recalculateBalance()
+    {
+        $latest_balance = self::type($this->payment_method)->where('id', '<', $this->id)->orderByDesc('id')->limit(1)->first()?->type_balance ?? 0;
 
-    //     $this->before = $latest_balance + $this->amount;
-    //     $this->save();
-    //     $this->after = $this->before + $this->quantity;
-    //     $this->save();
-    // }
+        $this->before = $latest_balance + $this->amount;
+        $this->save();
+        $this->after = $this->before + $this->quantity;
+        $this->save();
+    }
 
-    // public function resetBalance()
-    // {
-    //     $this->before = 0;
-    //     $this->after = $this->quantity;
-    //     $this->save();
-    // }
+    public function resetBalance()
+    {
+        $this->before = 0;
+        $this->after = $this->quantity;
+        $this->save();
+    }
 
     public function scopeFilterByProduct($query, $searchTerm = null, $productId = null)
     {
@@ -73,7 +73,8 @@ class Transaction extends Model
 
     public function scopeType($query, $type)
     {
-        return $query->where('type', $type);
+        return $query->join('inventories', 'inventories.id', '=', 'transactions.inventory_id')
+            ->where('inventory_type', $type);
     }
 
     /**
