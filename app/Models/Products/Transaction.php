@@ -84,6 +84,7 @@ class Transaction extends Model
                 $j->on('raw_materials.id', '=', 'inventories.inventoryable_id')
                     ->where('inventories.inventoryable_type', '=', RawMaterial::MORPH_TYPE)
                     ->where('transactions.quantity', '<', 0)
+                    ->whereNull('transactions.remarks')
                     ->whereIn('users.type', [User::TYPE_INVENTORY, User::TYPE_ADMIN]);
             })
             ->groupBy('transactions.inventory_id');
