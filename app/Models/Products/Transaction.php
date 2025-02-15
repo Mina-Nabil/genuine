@@ -42,7 +42,8 @@ class Transaction extends Model
             ->leftjoin('products', function ($j) {
                 $j->on('products.id', '=', 'inventories.inventoryable_id')
                     ->where('inventories.inventoryable_type', '=', Product::MORPH_TYPE)
-                    ->where('quantity', '>', '0');
+                    ->where('quantity', '>', '0')
+                    ->where('remarks', 'NOT LIKE', '%rder%');
             })->leftjoin('raw_materials', function ($j) {
                 $j->on('raw_materials.id', '=', 'inventories.inventoryable_id')
                     ->where('inventories.inventoryable_type', '=', RawMaterial::MORPH_TYPE)
