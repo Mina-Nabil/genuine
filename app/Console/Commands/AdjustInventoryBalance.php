@@ -28,24 +28,26 @@ class AdjustBalance extends Command
      */
     public function handle()
     {
-        // if (!Carbon::canBeCreatedFromFormat($this->argument('date'), "Y-m-d")) {
-        //     $this->echo("Invalid date, format should be Y-m-d");
-        //     return Command::FAILURE;
-        // }
+        if (!Carbon::canBeCreatedFromFormat($this->argument('date'), "Y-m-d")) {
+            $this->echo("Invalid date, format should be Y-m-d");
+            return Command::FAILURE;
+        }
 
-        // if (!in_array($this->argument('type'), ['raw_material', 'product'])) {
-        //     $this->echo("Invalid Type");
-        //     return Command::FAILURE;
-        // }
+        if (!in_array($this->argument('type'), ['raw_material', 'product'])) {
+            $this->echo("Invalid Type");
+            return Command::FAILURE;
+        }
 
-        // $startDate = Carbon::parse($this->argument('date'));
+        $startDate = Carbon::parse($this->argument('date'));
 
-        // $transactionsToAdjust = Transaction::from($startDate)->type($this->argument('type'))->get();
-        // $i = 0;
-        // foreach ($transactionsToAdjust as $ta) {
-        //     if ($i++ == 0)
-        //         $p->resetBalance();
-        //     else $p->recalculateBalance();
-        // }
+        $transactionsToAdjust = Transaction::from($startDate)->type($this->argument('type'))->get();
+        $i = 0;
+        foreach ($transactionsToAdjust as $ta) {
+            if ($i++ == 0)
+                $ta->resetBalance();
+            else $ta->recalculateBalance();
+        }
+
+        $ta->inventory->updateOnHandWithNewValue($ta->after, 'Adjusted from manual command')
     }
 }

@@ -335,7 +335,6 @@ class OrderIndex extends Component
             $this->selectedOrders = [];
             $this->selectAll = false;
             $this->alertSuccess('Delivery date set!');
-            $this->resetPagination();
         } else {
             $this->alertFailed();
         }
@@ -412,6 +411,6 @@ class OrderIndex extends Component
             'totalWeight' => $totalWeight ?? 0,
             'totalZones' => $totalZones ?? 0,
             'ordersCount' => $orders->count(),
-        ]);
+        ])->layout('layouts.app', ['page_title' => $this->page_title, 'ordersIndex' => 'active']);
     }
 }
