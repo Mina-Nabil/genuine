@@ -78,7 +78,7 @@ class Transaction extends Model
                 $j->on('products.id', '=', 'inventories.inventoryable_id')
                     ->where('inventories.inventoryable_type', '=', Product::MORPH_TYPE)
                     ->where('transactions.quantity', '>', 0)
-                    ->whereNot('transactions.remarks')
+                    ->whereNull('transactions.remarks')
                     ->whereIn('users.type', [User::TYPE_INVENTORY, User::TYPE_ADMIN]);
             })->leftjoin('raw_materials', function ($j) {
                 $j->on('raw_materials.id', '=', 'inventories.inventoryable_id')
