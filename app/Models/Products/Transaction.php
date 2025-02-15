@@ -13,6 +13,24 @@ class Transaction extends Model
     use HasFactory;
     protected $fillable = ['inventory_id', 'quantity', 'before', 'after', 'remarks', 'user_id', 'created_at'];
 
+    ////model functions
+    // public function recalculateBalance()
+    // {
+    //     $latest_balance = self::type($this->payment_method)->where('id', '<', $this->id)->orderByDesc('id')->limit(1)->first()?->type_balance ?? 0;
+
+    //     $this->before = $latest_balance + $this->amount;
+    //     $this->save();
+    //     $this->after = $this->before + $this->quantity;
+    //     $this->save();
+    // }
+
+    // public function resetBalance()
+    // {
+    //     $this->before = 0;
+    //     $this->after = $this->quantity;
+    //     $this->save();
+    // }
+
     public function scopeFilterByProduct($query, $searchTerm = null, $productId = null)
     {
         return $query->whereHas('inventory.inventoryable', function ($query) use ($searchTerm, $productId) {
@@ -39,18 +57,23 @@ class Transaction extends Model
                 $q->where('transactions.created_at', '<=', $v->format('Y-m-d 23:59:59'));
             })
             ->join('inventories', 'inventories.id', '=', 'transactions.inventory_id')
+            ->join('users', 'transactions.user_id', '=', 'users.id')
             ->leftjoin('products', function ($j) {
                 $j->on('products.id', '=', 'inventories.inventoryable_id')
                     ->where('inventories.inventoryable_type', '=', Product::MORPH_TYPE)
-                    ->where('quantity', '>', '0')
-                    ->where('remarks', 'NOT LIKE', '%rder%');
+                    ->where('users.type', '=', User::TYPE_INVENTORY);
             })->leftjoin('raw_materials', function ($j) {
                 $j->on('raw_materials.id', '=', 'inventories.inventoryable_id')
                     ->where('inventories.inventoryable_type', '=', RawMaterial::MORPH_TYPE)
-                    ->where('quantity', '<', '0');
+                    ->where('users.type', '=', User::TYPE_INVENTORY);
             })
             ->groupBy('transactions.inventory_id');
         return $query;
+    }
+
+    public function scopeType($query, $type)
+    {
+        return $query->where('type', $type);
     }
 
     /**
