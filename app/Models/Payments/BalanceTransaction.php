@@ -74,12 +74,24 @@ class BalanceTransaction extends Model
     {
         $from = Carbon::parse($from)->startOfDay();
         $to = Carbon::parse($to)->endOfDay();
-        return $query->whereBetween('created_at', [$from, $to]);
+        return $query->whereBetween('balance_transactions.created_at', [$from, $to]);
+    }
+
+    public function scopeDriversOnly($query)
+    {
+        if (!joined($query, 'users')) {
+            $query->select('balance_transactions.*')
+                ->join('users', function ($q) {
+                    $q->on('users.id', '=', 'transactionable_id')
+                        ->where('transactionable_type', '=', User::MORPH_TYPE);
+                });
+        }
+        return $query->where('users.type', User::TYPE_DRIVER);
     }
 
     public function scopeCountOrderDelivery($query)
     {
-        return $query->where('description', 'like', '%توصيل أوردر%')->count('id');
+        return $query->where('description', 'like', '%توصيل أوردر%')->count('balance_transactions.id');
     }
 
     public function scopeTotalOrderDelivery($query)

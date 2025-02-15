@@ -50,8 +50,7 @@ class InventoryReport extends Component
     public function render()
     {
         $inventories = Transaction::productionReport(Carbon::parse($this->creation_date_from), Carbon::parse($this->creation_date_to))->get();
-        Log::info($this->creation_date_from);
-        Log::info($this->creation_date_to);
+
         $total_raw = $inventories->whereNotNull('raw_name')->sum('trans_count');
         $total_prod = $inventories->whereNotNull('prod_name')->sum('trans_count');
 

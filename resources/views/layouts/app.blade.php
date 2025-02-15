@@ -338,6 +338,15 @@
                                 </span>
                             </a>
                         </li>
+                        <li>
+                            <a href="{{ auth()->user()->can('viewAny', App\Models\Orders\Order::class) ? url('/report/drivers/balance') : '#' }}"
+                                class="navItem {{ $driversBalanceReport ?? '' }} {{ auth()->user()->can('viewAny',  App\Models\Orders\Order::class) ? '' : 'disabled' }}">
+                                <span class="flex items-center">
+                                    <iconify-icon class="nav-icon" icon="mdi:chart-box-outline"></iconify-icon>
+                                    <span>تقرير حساب مندوب</span>
+                                </span>
+                            </a>
+                        </li>
                     @endcan
 
                     @if (auth()->user()->is_admin || auth()->user()->is_driver)
