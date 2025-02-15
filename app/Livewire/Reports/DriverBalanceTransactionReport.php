@@ -88,7 +88,7 @@ class DriverBalanceTransactionReport extends Component
             str_contains($this->driverPymtNote, BalanceTransaction::WD_TYPE_ADVANCE)
             || str_contains($this->driverPymtNote, BalanceTransaction::WD_TYPE_SALARY)
         ) {
-            $this->driverAmount = -1 * $this->$this->driverAmount;
+            $this->driverAmount = -1 * $this->driverAmount;
         }
 
         $res = User::findOrFail($this->userId)->addDriverBalance($this->driverAmount, $this->driverPymtNote);

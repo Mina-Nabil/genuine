@@ -188,7 +188,7 @@ class InventoryTransactionIndex extends Component
             return;
         }
 
-        $new = -$this->materialsChanges[$id]['new'];
+        $new = - (float) $this->materialsChanges[$id]['new'];
         $oldAvailable = $this->oldmaterialsChanges[$id]['available'];
         $oldOnHand = $this->oldmaterialsChanges[$id]['on_hand']; // Old value of on_hand
         $newOnHand = $this->materialsChanges[$id]['on_hand']; // New value of on_hand

@@ -6,6 +6,7 @@ use App\Models\Payments\CustomerPayment;
 use App\Models\Products\Transaction;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class AdjustBalance extends Command
 {
@@ -41,13 +42,10 @@ class AdjustBalance extends Command
         $startDate = Carbon::parse($this->argument('date'));
 
         $transactionsToAdjust = Transaction::from($startDate)->type($this->argument('type'))->get();
-        $i = 0;
+        // Log
         foreach ($transactionsToAdjust as $ta) {
-            if ($i++ == 0)
-                $ta->resetBalance();
-            else $ta->recalculateBalance();
+                $ta->recalculateBalance();
         }
 
-        $ta->inventory->updateOnHandWithNewValue($ta->after, 'Adjusted from manual command')
     }
 }
