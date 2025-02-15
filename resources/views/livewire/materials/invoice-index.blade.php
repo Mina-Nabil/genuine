@@ -113,7 +113,7 @@
                                 Name
                             </th>
                             <th scope="col" class="table-th">Serial</th>
-                            <th scope="col" class="table-th">Code</th>
+                            <th scope="col" class="table-th">Delivery</th>
                             <th scope="col" class="table-th">Supplier</th>
                             <th scope="col" class="table-th">Total</th>
                             <th scope="col" class="table-th">Items</th>
@@ -140,7 +140,7 @@
                                 </td>
 
                                 <td class="table-td">
-                                    {{ $invoice->serial }}
+                                    {{ str_pad($invoice->id, 4, '0', STR_PAD_LEFT) }}
                                 </td>
 
                                 <td class="table-td">

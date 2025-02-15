@@ -49,8 +49,13 @@ class InventoryReport extends Component
     public function render()
     {
         $inventories = Transaction::productionReport(Carbon::parse($this->creation_date_from), Carbon::parse($this->creation_date_to))->get();
+        $total_raw = $inventories->whereNull('prod_name')->sum('trans_count');
+        $total_prod = $inventories->whereNull('raw_name')->sum('trans_count');
+
         return view('livewire.reports.inventory-report', [
-            'inventories' => $inventories
+            'inventories' => $inventories,
+            'total_raw' => $total_raw,
+            'total_prod' => $total_prod,
         ])->layout('layouts.app', ['page_title' => 'Production Report', 'inventoryReport' => 'active']);
     }
 }

@@ -35,8 +35,8 @@
 
                             <div class="items-center p-5">
                                 <div class="mb-2">
-                                    <label for="invoiceCode" class="form-label !m-0">Invoice Code</label>
-                                    <input wire:model='invoiceCode' type="text" name="invoiceCode"
+                                    <label for="invoiceCode" class="form-label !m-0">Invoice Delivery</label>
+                                    <input wire:model='invoiceCode' type="date" name="invoiceCode"
                                         placeholder="Enter invoice code..."
                                         class="form-control @error('invoiceCode') !border-danger-500 @enderror">
                                     @error('invoiceCode')
