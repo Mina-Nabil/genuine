@@ -18,13 +18,17 @@ class Transaction extends Model
     public function recalculateBalance()
     {
         $this->load('inventory', 'user');
-        $latest_balance = self::type($this->inventory->inventoryable_type)
-            ->where('id', '<', $this->id)->orderByDesc('id')->limit(1)->first()?->after ?? 0;
-        Log::info($latest_balance);
-        $this->before = $latest_balance;
+
+        $latest_balance = self::join('inventories', 'inventories.id', '=', 'transactions.inventory_id')
+            ->where('transactions.inventory_id', $this->inventory_id)
+            ->where('transactions.id', '<', $this->id)
+            ->orderByDesc('transactions.id')->limit(1)->first();
+
+        $this->before = $latest_balance->after ?? 0;
         if (
-            $this->inventory->inventoryable_type == 'raw_material' &&
-            in_array($this->user->type, [User::TYPE_ADMIN, User::TYPE_INVENTORY])
+            $this->inventory->inventoryable_type == RawMaterial::MORPH_TYPE &&
+            in_array($this->user->type, [User::TYPE_ADMIN, User::TYPE_INVENTORY]) &&
+            !str_contains($this->remarks, 'Invoice')
         ) {
             $this->quantity = -1 * $this->quantity;
             $this->save();
@@ -83,7 +87,7 @@ class Transaction extends Model
         return $query;
     }
 
-    public function scopeFrom($query, Carbon $startDate = null)
+    public function scopeStartFrom($query, Carbon $startDate = null)
     {
         return $query->when($startDate, function ($q, $v) {
             $q->where('transactions.created_at', '>=', $v->format('Y-m-d 00:00:00'));
@@ -92,7 +96,8 @@ class Transaction extends Model
 
     public function scopeType($query, $type)
     {
-        return $query->join('inventories', 'inventories.id', '=', 'transactions.inventory_id')
+        return $query->select('transactions.*')
+            ->join('inventories', 'inventories.id', '=', 'transactions.inventory_id')
             ->where('inventoryable_type', $type);
     }
 

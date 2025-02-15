@@ -8,7 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
-class AdjustBalance extends Command
+class AdjustInventoryBalance extends Command
 {
     /**
      * The name and signature of the console command.
@@ -30,19 +30,20 @@ class AdjustBalance extends Command
     public function handle()
     {
         if (!Carbon::canBeCreatedFromFormat($this->argument('date'), "Y-m-d")) {
-            $this->echo("Invalid date, format should be Y-m-d");
+            $this->warn("Invalid date, format should be Y-m-d");
             return Command::FAILURE;
         }
 
-        if (!in_array($this->argument('type'), ['raw_material', 'product'])) {
-            $this->echo("Invalid Type");
+        if (!in_array($this->argument('type'), ['raw_materials', 'product'])) {
+            $this->warn("Invalid Type");
             return Command::FAILURE;
         }
 
         $startDate = Carbon::parse($this->argument('date'));
 
-        $transactionsToAdjust = Transaction::from($startDate)->type($this->argument('type'))->get();
-        // Log
+
+        $transactionsToAdjust = Transaction::startFrom($startDate)->type($this->argument('type'))->get();
+
         foreach ($transactionsToAdjust as $ta) {
                 $ta->recalculateBalance();
         }

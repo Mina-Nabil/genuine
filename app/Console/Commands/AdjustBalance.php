@@ -28,12 +28,12 @@ class AdjustBalance extends Command
     public function handle()
     {
         if (!Carbon::canBeCreatedFromFormat($this->argument('date'), "Y-m-d")) {
-            $this->echo("Invalid date, format should be Y-m-d");
+            $this->warn("Invalid date, format should be Y-m-d");
             return Command::FAILURE;
         }
 
         if (!in_array($this->argument('type'), CustomerPayment::PAYMENT_METHODS)) {
-            $this->echo("Invalid Type");
+            $this->warn("Invalid Type");
             return Command::FAILURE;
         }
 
