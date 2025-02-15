@@ -335,7 +335,6 @@ class OrderIndex extends Component
             $this->selectedOrders = [];
             $this->selectAll = false;
             $this->alertSuccess('Delivery date set!');
-            $this->resetPagination();
         } else {
             $this->alertFailed();
         }
