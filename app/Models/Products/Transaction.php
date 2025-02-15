@@ -47,7 +47,7 @@ class Transaction extends Model
             })->leftjoin('raw_materials', function ($j) {
                 $j->on('raw_materials.id', '=', 'inventories.inventoryable_id')
                     ->where('inventories.inventoryable_type', '=', RawMaterial::MORPH_TYPE)
-                    ->where('remarks', 'LIKE', "%Invoice%");
+                    ->where('quantity', '<', '0');
             })
             ->groupBy('transactions.inventory_id');
         return $query;
