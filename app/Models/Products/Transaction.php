@@ -61,11 +61,11 @@ class Transaction extends Model
             ->leftjoin('products', function ($j) {
                 $j->on('products.id', '=', 'inventories.inventoryable_id')
                     ->where('inventories.inventoryable_type', '=', Product::MORPH_TYPE)
-                    ->where('users.type', '=', User::TYPE_INVENTORY);
+                    ->whereIn('users.type', [User::TYPE_INVENTORY, User::TYPE_ADMIN]);
             })->leftjoin('raw_materials', function ($j) {
                 $j->on('raw_materials.id', '=', 'inventories.inventoryable_id')
                     ->where('inventories.inventoryable_type', '=', RawMaterial::MORPH_TYPE)
-                    ->where('users.type', '=', User::TYPE_INVENTORY);
+                    ->whereIn('users.type', [User::TYPE_INVENTORY, User::TYPE_ADMIN]);
             })
             ->groupBy('transactions.inventory_id');
         return $query;
