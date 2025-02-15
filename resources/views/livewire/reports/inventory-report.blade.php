@@ -36,7 +36,7 @@
                         <thead class="border-t border-slate-100 dark:border-slate-800 bg-slate-200 dark:bg-slate-700">
                             <tr>
                                 <th scope="col" class="table-th">Product</th>
-                                <th scope="col" class="table-th">KG {{ $total_prod }}</th>
+                                <th scope="col" class="table-th">KG ({{ number_format($total_prod) }})</th>
                             </tr>
                         </thead>
                         <tbody
@@ -73,7 +73,7 @@
                         <thead class="border-t border-slate-100 dark:border-slate-800 bg-slate-200 dark:bg-slate-700">
                             <tr>
                                 <th scope="col" class="table-th">Raw Material</th>
-                                <th scope="col" class="table-th">KG {{ $total_raw }}</th>
+                                <th scope="col" class="table-th">KG ({{ number_format($total_raw) }})</th>
                             </tr>
                         </thead>
                         <tbody
