@@ -74,18 +74,14 @@ class Transaction extends Model
             })
             ->join('inventories', 'inventories.id', '=', 'transactions.inventory_id')
             ->join('users', 'transactions.user_id', '=', 'users.id')
+            ->whereNull('transactions.remarks')
+            ->whereIn('users.type', [User::TYPE_INVENTORY, User::TYPE_ADMIN])
             ->leftjoin('products', function ($j) {
                 $j->on('products.id', '=', 'inventories.inventoryable_id')
-                    ->where('inventories.inventoryable_type', '=', Product::MORPH_TYPE)
-                    // ->where('transactions.quantity', '>', '0')
-                    ->whereNull('transactions.remarks')
-                    ->whereIn('users.type', [User::TYPE_INVENTORY, User::TYPE_ADMIN]);
+                    ->where('inventories.inventoryable_type', '=', Product::MORPH_TYPE);
             })->leftjoin('raw_materials', function ($j) {
                 $j->on('raw_materials.id', '=', 'inventories.inventoryable_id')
-                    ->where('inventories.inventoryable_type', '=', RawMaterial::MORPH_TYPE)
-                    // ->where('transactions.quantity', '<', '0')
-                    ->whereNull('transactions.remarks')
-                    ->whereIn('users.type', [User::TYPE_INVENTORY, User::TYPE_ADMIN]);
+                    ->where('inventories.inventoryable_type', '=', RawMaterial::MORPH_TYPE);
             })
             ->groupBy('transactions.inventory_id');
         return $query;
