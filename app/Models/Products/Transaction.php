@@ -7,6 +7,7 @@ use App\Models\Users\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 
 class Transaction extends Model
 {
@@ -16,10 +17,21 @@ class Transaction extends Model
     //model functions
     public function recalculateBalance()
     {
-        $latest_balance = self::type($this->payment_method)->where('id', '<', $this->id)->orderByDesc('id')->limit(1)->first()?->type_balance ?? 0;
-
-        $this->before = $latest_balance + $this->amount;
-        $this->save();
+        $this->load('inventory', 'user');
+        $latest_balance = self::type($this->inventory->inventoryable_type)
+            ->where('id', '<', $this->id)->orderByDesc('id')->limit(1)->first()?->after ?? 0;
+        Log::info($latest_balance);
+        $this->before = $latest_balance;
+        if (
+            $this->inventory->inventoryable_type == 'raw_material' &&
+            in_array($this->user->type, [User::TYPE_ADMIN, User::TYPE_INVENTORY])
+        ) {
+            $this->quantity = -1 * $this->quantity;
+            $this->save();
+            $this->inventory->on_hand =  $this->before + $this->quantity;
+            $this->inventory->available =  $this->before + $this->quantity;
+            $this->inventory->save();
+        }
         $this->after = $this->before + $this->quantity;
         $this->save();
     }
@@ -71,10 +83,17 @@ class Transaction extends Model
         return $query;
     }
 
+    public function scopeFrom($query, Carbon $startDate = null)
+    {
+        return $query->when($startDate, function ($q, $v) {
+            $q->where('transactions.created_at', '>=', $v->format('Y-m-d 00:00:00'));
+        });
+    }
+
     public function scopeType($query, $type)
     {
         return $query->join('inventories', 'inventories.id', '=', 'transactions.inventory_id')
-            ->where('inventory_type', $type);
+            ->where('inventoryable_type', $type);
     }
 
     /**

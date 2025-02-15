@@ -72,7 +72,7 @@ class FollowupIndex extends Component
             'desc' => 'nullable|string|max:1000', 
         ]);
 
-        $res =  Followup::findOrFail($this->editFollowupSection)->editInfo($this->$this->title,$this->call_time,$this->desc);
+        $res =  Followup::findOrFail($this->editFollowupSection)->editInfo($this->title,$this->call_time,$this->desc);
 
         if($res){
             $this->closeEditInfoSec();
