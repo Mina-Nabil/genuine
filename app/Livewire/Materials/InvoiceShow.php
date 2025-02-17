@@ -260,6 +260,32 @@ class InvoiceShow extends Component
         $this->page_title = '• Invoice ' . ($this->invoice->invoice_number ? '• '.$this->invoice->invoice_number : $this->invoice->id);   
     }
 
+    public $isOpenUpdateDue;
+    public $editedPaymentDue;
+
+    public function openUpdateDue(){
+        $this->isOpenUpdateDue = true;
+        $this->editedPaymentDue = $this->invoice->payment_due->todatestring();
+    }
+
+    public function closeUpdateDue(){
+        $this->reset(['isOpenUpdateDue','editedPaymentDue']);
+    }
+
+    public function updatePaymentDue(){
+        $this->authorize('updatePaymentDue',$this->invoice);
+
+        $res = $this->invoice->updatePaymentDue($this->editedPaymentDue);
+
+        if ($res) {
+            $this->alertSuccess('Payment due updated successfully');
+            $this->closeUpdateDue();
+            $this->mount($this->invoice->id);
+        } else {
+            $this->alertFailed();
+        }
+    }
+
     public function render()
     {
         $rawMaterials = $this->invoice->supplier

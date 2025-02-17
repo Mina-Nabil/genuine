@@ -673,6 +673,8 @@ class Order extends Model
         }
 
         try {
+
+            $this->creditDriverPerOrder();
             $this->is_debit = 1;
             $this->save();
 
@@ -1702,6 +1704,11 @@ class Order extends Model
     public function creditDriverPerOrder($is2x = false): bool
     {
         try {
+
+            if ($this->is_debit) {
+                return true;
+            }
+
             $driver = $this->driver;
 
             if (!$driver || !$driver->user) {
