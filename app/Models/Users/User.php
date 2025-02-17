@@ -176,8 +176,9 @@ class User extends Authenticatable
         }
     }
 
-    public function addDriverBalance($amount, $note){
-        return DB::transaction(function () use ($amount, $note) {
+    public function addDriverBalance($amount, $note, $payfrom = null)
+    {
+        return DB::transaction(function () use ($amount, $note, $payfrom) {
             try {
 
                 /** @var User */
@@ -185,10 +186,11 @@ class User extends Authenticatable
                 if ($loggedInUser && !$loggedInUser->can('addPayment', Driver::class)) {
                     return false;
                 }
-                BalanceTransaction::createBalanceTransaction($this,$amount,$note);
+                BalanceTransaction::createBalanceTransaction($this, $amount, $note);
+                if ($payfrom) CustomerPayment::createPayment(-$amount, $payfrom, "Driver Payment - " . $note);
+
 
                 return true;
-
             } catch (Exception $e) {
                 report($e);
                 AppLog::error('Failed creating payment', $e->getMessage());

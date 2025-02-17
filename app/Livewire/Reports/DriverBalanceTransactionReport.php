@@ -47,6 +47,7 @@ class DriverBalanceTransactionReport extends Component
     public $isOpenAddDriverTrans;
     public $driverAmount;
     public $driverPymtNote;
+    public $driverPayFrom;
 
     public function openAddDriverTrans()
     {
@@ -65,6 +66,7 @@ class DriverBalanceTransactionReport extends Component
         $this->validate([
             'driverAmount' => 'required|numeric',
             'driverPymtNote' => 'required|string|max:255',
+            'driverPayFrom' => 'nullable|in:' . implode(',', CustomerPayment::PAYMENT_METHODS),
         ]);
 
         if (
@@ -74,7 +76,7 @@ class DriverBalanceTransactionReport extends Component
             $this->driverAmount = -1 * $this->driverAmount;
         }
 
-        $res = User::findOrFail($this->userId)->addDriverBalance($this->driverAmount, $this->driverPymtNote);
+        $res = User::findOrFail($this->userId)->addDriverBalance($this->driverAmount, $this->driverPymtNote, $this->driverPayFrom);
 
         if ($res) {
             $this->closeAddDriverTrans();
@@ -123,6 +125,8 @@ class DriverBalanceTransactionReport extends Component
         $sumOfPurchases = $query->clone()->withdrawalTypeSum(BalanceTransaction::WD_TYPE_PURCHASES);
 
         $WITHDRAWAL_TYPES = BalanceTransaction::WITHDRAWAL_TYPES;
+        $PAYMENT_TYPES = CustomerPayment::PAYMENT_METHODS;
+
         return view('livewire.reports.driver-balance-transaction-report', [
             'drivers' => $drivers,
             'transactions' => $transactions,
@@ -136,6 +140,7 @@ class DriverBalanceTransactionReport extends Component
             'sumOfRoadFees' => $sumOfRoadFees,
             'sumOfPurchases' => $sumOfPurchases,
             'WITHDRAWAL_TYPES' => $WITHDRAWAL_TYPES,
+            'PAYMENT_METHODS' => $PAYMENT_TYPES,
         ])->layout('layouts.app', [
             'page_title' => $this->page_title,
             'driverTransactions' => 'active',

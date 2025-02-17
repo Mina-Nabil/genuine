@@ -264,6 +264,21 @@
                                             class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
                                     @enderror
                                 </div>
+
+                                <div class="form-group mb-5">
+                                    <label for="driverPymtNote" class="form-label">
+                                        Pay From
+                                    </label>
+                                    <select name="driverPayFrom" id="driverPayFrom"
+                                    class="form-control w-full mt-2 @error('driverPayFrom') !border-danger-500 @enderror"
+                                    wire:model="driverPayFrom" autocomplete="off">
+                                    <option value="">None</option>
+                                    @foreach ($PAYMENT_METHODS as $PAYMENT_METHOD)
+                                        <option value="{{ $PAYMENT_METHOD }}">
+                                            {{ ucwords(str_replace('_', ' ', $PAYMENT_METHOD)) }}</option>
+                                    @endforeach
+                                </select>
+                                </div>
                             </div>
 
                         </div>
