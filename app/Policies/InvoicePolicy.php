@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\Users\User;
 use App\Models\Materials\SupplierInvoice;
+use App\Models\Users\AppLog;
 use Illuminate\Auth\Access\Response;
 
 class InvoicePolicy
@@ -30,6 +31,19 @@ class InvoicePolicy
     public function pay(User $user, SupplierInvoice $supplierInvoice): Response
     {
         return Response::allow();
+    }
+
+    /**
+     * Determine whether the user can update the payment due when the invoice is not paid.
+     */
+    public function updatePaymentDue(User $user, SupplierInvoice $supplierInvoice): Response
+    {
+        if (!$supplierInvoice->is_paid) {
+            return Response::allow();
+        }
+
+        AppLog::error('Supplier invoice is not paid to update payment due', loggable: $supplierInvoice);
+        return Response::deny('The invoice is already paid.');
     }
 
     /**

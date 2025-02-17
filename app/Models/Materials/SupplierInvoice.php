@@ -28,14 +28,14 @@ class SupplierInvoice extends Model
         'entry_date' => 'date',
     ];
 
-    public static function createInvoice($supplierId, $entryDate, $rawMaterials, $code = null, $title = null, $note = null, $paymentDue = null , $extraFeeDescription = null, $extraFeeAmount = null)
+    public static function createInvoice($supplierId, $entryDate, $rawMaterials, $code = null, $title = null, $note = null, $paymentDue = null, $extraFeeDescription = null, $extraFeeAmount = null)
     {
         if (!$entryDate) {
             throw new Exception('Entry date is required.');
         }
 
         try {
-            return DB::transaction(function () use ($supplierId, $code, $title, $note, $paymentDue, $rawMaterials, $entryDate , $extraFeeDescription ,$extraFeeAmount) {
+            return DB::transaction(function () use ($supplierId, $code, $title, $note, $paymentDue, $rawMaterials, $entryDate, $extraFeeDescription, $extraFeeAmount) {
                 $totalItems = 0;
                 $totalAmount = 0;
 
@@ -107,6 +107,12 @@ class SupplierInvoice extends Model
 
     public function updatePaymentDue($paymentDue)
     {
+        /** @var User */
+        $loggedInUser = Auth::user();
+        if ($loggedInUser && !$loggedInUser->can('updatePaymentDue', $this)) {
+            return false;
+        }
+
         try {
             $this->update(['payment_due' => $paymentDue]);
 
@@ -174,13 +180,9 @@ class SupplierInvoice extends Model
     {
         try {
             return DB::transaction(function () use ($rawMaterialId, $quantity, $updateSupplierMaterials) {
-                $invoiceRawMaterial = InvoiceRawMaterial::where('supplier_invoice_id', $this->id)
-                    ->where('raw_material_id', $rawMaterialId)
-                    ->first();
+                $invoiceRawMaterial = InvoiceRawMaterial::where('supplier_invoice_id', $this->id)->where('raw_material_id', $rawMaterialId)->first();
 
-                $price = SupplierRawMaterial::where('supplier_id', $this->id)
-                    ->where('raw_material_id', $rawMaterialId)
-                    ->first()->price;
+                $price = SupplierRawMaterial::where('supplier_id', $this->id)->where('raw_material_id', $rawMaterialId)->first()->price;
 
                 if ($invoiceRawMaterial) {
                     $invoiceRawMaterial->quantity += $quantity;
@@ -230,9 +232,7 @@ class SupplierInvoice extends Model
     {
         try {
             return DB::transaction(function () use ($rawMaterialId) {
-                $invoiceRawMaterial = InvoiceRawMaterial::where('supplier_invoice_id', $this->id)
-                    ->where('raw_material_id', $rawMaterialId)
-                    ->first();
+                $invoiceRawMaterial = InvoiceRawMaterial::where('supplier_invoice_id', $this->id)->where('raw_material_id', $rawMaterialId)->first();
 
                 if (!$invoiceRawMaterial) {
                     throw new Exception('No raw material found for the given ID.');
@@ -259,9 +259,7 @@ class SupplierInvoice extends Model
     {
         try {
             return DB::transaction(function () use ($rawMaterialId, $quantity) {
-                $invoiceRawMaterial = InvoiceRawMaterial::where('supplier_invoice_id', $this->id)
-                    ->where('raw_material_id', $rawMaterialId)
-                    ->firstOrFail();
+                $invoiceRawMaterial = InvoiceRawMaterial::where('supplier_invoice_id', $this->id)->where('raw_material_id', $rawMaterialId)->firstOrFail();
 
                 if ($invoiceRawMaterial->quantity < $quantity) {
                     throw new Exception('Quantity to remove exceeds the available quantity.');
@@ -376,7 +374,6 @@ class SupplierInvoice extends Model
 
                 $this->total_items = $totalItems;
                 $this->total_amount = $totalAmount;
-
 
                 $this->save();
                 return true;
