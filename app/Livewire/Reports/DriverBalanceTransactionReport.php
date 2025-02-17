@@ -34,23 +34,6 @@ class DriverBalanceTransactionReport extends Component
         $this->resetPage();
     }
 
-    public function mount()
-    {
-        if (Auth::user()->is_driver) {
-            if (!$this->user) {
-                $this->user = Auth::user();
-                $this->userId = $this->user->id;
-            }
-        } else {
-            if ($this->userId) {
-                $this->user = User::find($this->userId);
-            } else {
-                $this->user = Driver::first()->user;
-                $this->userId = $this->user->id;
-            }
-        }
-    }
-
     public function ChangeUser($id)
     {
         if (Auth::user()->is_driver) {
@@ -105,9 +88,19 @@ class DriverBalanceTransactionReport extends Component
     public function render()
     {
         if (Auth::user()->is_driver) {
-            $this->mount();
+            if (!$this->user) {
+                $this->user = Auth::user();
+                $this->userId = $this->user->id;
+            }
+        } else {
+            if ($this->userId) {
+                $this->user = User::find($this->userId);
+            } else {
+                $this->user = Driver::first()->user;
+                $this->userId = $this->user->id;
+            }
         }
-
+        
         $drivers = User::where('type', User::TYPE_DRIVER)->get();
 
         $query = BalanceTransaction::userTransactions($this->userId);

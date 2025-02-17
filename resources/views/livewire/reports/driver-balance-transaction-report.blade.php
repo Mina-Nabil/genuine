@@ -22,9 +22,15 @@
             style="direction: rtl; text-align: right;min-width: 150px">
             <div class="items-center px-5 py-2">
                 <h3 class="card-title text-slate-900 dark:text-white arabic-font">حسابك</h3>
-                <p class="text-lg my-2" style="{{ $user->balance > 0 ? 'color:#00ff5d;' : 'color:#e50000;' }}">
-                    <b>{{ number_format($user->balance, 2) }}</b>&nbsp;ج.م
-                </p>
+                @if ($user->balance > 0)
+                    <p class="text-lg my-2 text-success-500">
+                        <b>{{ number_format($user->balance, 2) }}</b>&nbsp;ج.م
+                    </p>
+                @else
+                    <p class="text-lg my-2 text-danger-500">
+                        <b>{{ number_format($user->balance, 2) }}</b>&nbsp;ج.م
+                    </p>
+                @endif
             </div>
         </div>
 
@@ -164,8 +170,11 @@
                             <b>{{ $transaction->description }}</b>
                         </div>
                         <div class="flex justify-between">
-                            <div class="text-slate-900 dark:text-white text-lg font-medium system-font"
-                                style="{{ $transaction->amount > 0 ? 'color:#00a53c;' : 'color:#e50000;' }}">
+                            <div @class([
+                                'text-slate-900 dark:text-white text-lg font-medium system-font',
+                                ' text-success-500' => $transaction->amount >= 0,
+                                ' text-danger-500' => $transaction->amount < 0,
+                            ])>
                                 <b>&nbsp;{{ number_format($transaction->amount, 2) }}</b>&nbsp;ج.م
                             </div>
                             <div class="text-xs" style="place-content: space-around;">
