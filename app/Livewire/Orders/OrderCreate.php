@@ -222,7 +222,7 @@ class OrderCreate extends Component
         if ($lastOrder->driver_id) {
             $this->selectDriver($lastOrder->driver_id);
         }
-
+        $i = 0;
         foreach ($lastOrder->products as $product) {
             // dd($product->product_id);
             $origProd = Product::find($product->product_id);
@@ -231,7 +231,7 @@ class OrderCreate extends Component
                     'id' => $product->product_id,
                     'name' => $origProd->name,
                     'combo_id' => $product->combo_id,
-                    'combo_name' => Combo::find($product->combo_id)?->name ,
+                    'combo_name' => Combo::find($product->combo_id)?->name,
                     'quantity' => $product->quantity,
                     'price' => $product->price,
                 ];

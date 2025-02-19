@@ -160,7 +160,7 @@ class InvoiceCreate extends Component
         $this->validate(
             [
                 'supplierId' => 'required|exists:suppliers,id',
-                'invoiceCode' => 'nullable|string|max:255|unique:supplier_invoices,code',
+                'invoiceCode' => 'nullable|string|max:255',
                 'invoiceTitle' => 'nullable|string|max:255',
                 'note' => 'nullable|string|max:500',
                 'entry_date' => 'required|date',
