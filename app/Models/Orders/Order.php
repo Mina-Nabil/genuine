@@ -330,7 +330,9 @@ class Order extends Model
             $order->driver_id = $driverId;
             $order->total_amount = round($totalAmount);
             $order->delivery_amount = $deliveryAmount;
-            $order->discount_amount = $discountAmount;
+            if ($loggedInUser->can('updateDiscount', self::class)) {
+                $order->discount_amount = $discountAmount;
+            }
             $order->delivery_date = $deliveryDate;
             $order->is_paid = false;
             $order->is_debit = false;
@@ -636,7 +638,7 @@ class Order extends Model
         }
 
         try {
-            return DB::transaction(function () use ($newDeliveryDate,$isDriverReturned,$is_2x) {
+            return DB::transaction(function () use ($newDeliveryDate, $isDriverReturned, $is_2x) {
                 $oldDeliveryDate = $this->delivery_date?->format('d/m/Y') ?? 'N/A';
 
                 if ($isDriverReturned) {
@@ -1719,11 +1721,11 @@ class Order extends Model
 
             if ($is2x) {
                 $desc = "توصيل أوردر (x2) للعميل {$this->customer_name} يوم {$this->delivery_date->format('d/m/Y')}";
-            }else{
+            } else {
                 $desc = "توصيل أوردر للعميل {$this->customer_name} يوم {$this->delivery_date->format('d/m/Y')}";
             }
 
-            BalanceTransaction::createBalanceTransaction($driverUser, $this->zone->driver_order_rate, $desc , $this->id);
+            BalanceTransaction::createBalanceTransaction($driverUser, $this->zone->driver_order_rate, $desc, $this->id);
 
             return true;
         } catch (Exception $e) {
@@ -2021,9 +2023,9 @@ class Order extends Model
     {
         return $query->where(function (Builder $query) {
             $query->whereNotIn('status', [self::STATUS_DONE, self::STATUS_RETURNED, self::STATUS_CANCELLED])
-            ->orWhere(function (Builder $query) {
-                $query->whereNotIn('status', [self::STATUS_RETURNED, self::STATUS_CANCELLED])->where('is_paid', false);
-            });
+                ->orWhere(function (Builder $query) {
+                    $query->whereNotIn('status', [self::STATUS_RETURNED, self::STATUS_CANCELLED])->where('is_paid', false);
+                });
         });
     }
 

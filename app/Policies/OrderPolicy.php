@@ -80,7 +80,7 @@ class OrderPolicy
         return $user->is_admin;
     }
 
-    public function updateDiscount(User $user, Order $order): bool
+    public function updateDiscount(User $user, Order $order = null): bool
     {
         return $user->id == 1;
     }
