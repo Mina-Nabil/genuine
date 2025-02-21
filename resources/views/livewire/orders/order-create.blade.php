@@ -163,11 +163,13 @@
 
                                                                 <!-- Price Input Column -->
                                                                 <td class="table-td imp-p-2">
-                                                                    <input type="number" min="0"
+                                                                    {{ $fetchedProducts[$index].price }}
+
+                                                                    {{-- <input type="number" min="0"
                                                                         class="form-control @error('fetchedProducts.' . $index . '.price') !border-danger-500 @enderror"
                                                                         style="width: 100px;"
                                                                         wire:model="fetchedProducts.{{ $index }}.price"
-                                                                        wire:input="updateTotal({{ $index }})">
+                                                                        wire:input="updateTotal({{ $index }})"> --}}
                                                                 </td>
 
                                                                 <!-- Total Calculation Column -->

@@ -1735,11 +1735,12 @@
 
                                                     <!-- price/item -->
                                                     <td class="table-td imp-p-2">
-                                                        <input type="number"
+                                                        {{ $productsToAdd[$index].price }}
+                                                        {{-- <input type="number"
                                                             class="form-control @error('productsToAdd.' . $index . '.price') !border-danger-500 @enderror"
                                                             style="max-width: 100px;"
                                                             wire:model.live='productsToAdd.{{ $index }}.price'
-                                                            min="1">
+                                                            min="1"> --}}
                                                     </td>
 
                                                     <td class="table-td imp-p-2">

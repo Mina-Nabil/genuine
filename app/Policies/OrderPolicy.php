@@ -82,7 +82,7 @@ class OrderPolicy
 
     public function updateDiscount(User $user, Order $order): bool
     {
-        return $user->is_admin || $user->id == 7;
+        return $user->id == 1;
     }
 
     public function updateInventoryInfo(User $user, Order $order = null): bool
