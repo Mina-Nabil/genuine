@@ -1735,7 +1735,7 @@
 
                                                     <!-- price/item -->
                                                     <td class="table-td imp-p-2">
-                                                        {{ $productsToAdd[$index].price }}
+                                                        {{ $productsToAdd[$index]['price'] }}
                                                         {{-- <input type="number"
                                                             class="form-control @error('productsToAdd.' . $index . '.price') !border-danger-500 @enderror"
                                                             style="max-width: 100px;"

@@ -163,7 +163,7 @@
 
                                                                 <!-- Price Input Column -->
                                                                 <td class="table-td imp-p-2">
-                                                                    {{ $fetchedProducts[$index].price }}
+                                                                    {{ $fetchedProducts[$index]['price'] }}
 
                                                                     {{-- <input type="number" min="0"
                                                                         class="form-control @error('fetchedProducts.' . $index . '.price') !border-danger-500 @enderror"
