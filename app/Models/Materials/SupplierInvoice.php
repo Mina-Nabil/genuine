@@ -427,7 +427,7 @@ class SupplierInvoice extends Model
             $j->on('balance_transactions.transactionable_id', '=', 'supplier_invoices.id')
                 ->where('balance_transactions.transactionable_type', self::MORPH_TYPE);
         })->selectRaw('supplier_invoices.*, (total_amount - SUM(balance_transactions.amount)) as total_left')
-            ->groupBy('supplier_invoices.id')->sum('total_left');
+            ->groupBy('supplier_invoices.id')->get()->sum('total_left');
     }
 
     public function scopeUnpaid($query)
