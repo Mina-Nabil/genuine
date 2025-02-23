@@ -425,7 +425,7 @@ class SupplierInvoice extends Model
     {
         return self::unpaid()->leftjoin('customer_payments', function($j){
             $j->on('customer_payments.invoice_id', '=', 'supplier_invoices.id');
-        })->selectRaw('(total_amount - SUM(balance_transactions.amount)) as total_left')
+        })->selectRaw('(total_amount - SUM(customer_payments.amount)) as total_left')
             ->groupBy('supplier_invoices.id')->get()->sum('total_left');
     }
 
