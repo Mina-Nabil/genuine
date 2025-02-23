@@ -44,7 +44,7 @@
                     <thead class="border-t border-slate-100 dark:border-slate-800 bg-slate-200 dark:bg-slate-700">
                         <tr>
                             <th scope="col" class="table-th">Driver</th>
-                            <th scope="col" class="table-th">Balance ({{$totals['balance']}})</th>
+                            <th scope="col" class="table-th">Balance ({{ number_format($totals['balance']) }})</th>
                             <th scope="col" class="table-th">Orders</th>
                             <th scope="col" class="table-th">Orders Total</th>
                             <th scope="col" class="table-th">Days</th>
