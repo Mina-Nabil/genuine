@@ -423,10 +423,11 @@ class SupplierInvoice extends Model
 
     public static function unpaidTotal()
     {
-        return self::unpaid()
+        $unpaid = self::unpaid()
             ->leftjoin('customer_payments', 'customer_payments.invoice_id', '=', 'supplier_invoices.id')
-            ->selectRaw('(total_amount - SUM(customer_payments.amount)) as total_left')
-            ->groupBy('supplier_invoices.id')->get()->sum('total_left');
+            ->selectRaw('supplier_invoices.total_amount, SUM(customer_payments.amount) as total_left')
+            ->groupBy('supplier_invoices.id')->get();
+            return $unpaid->sum('total_amount') - $unpaid->sum('total_left');
     }
 
     public function scopeUnpaid($query)
