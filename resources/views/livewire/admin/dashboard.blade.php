@@ -227,14 +227,14 @@
                             <div class="flex space-x-3 rtl:space-x-reverse">
                                 <div class="flex-none">
                                     <div
-                                        class="h-12 w-12 rounded-full flex flex-col items-center justify-center text-2xl bg-success-100 dark:bg-slate-900	 text-success-500">
-                                        <iconify-icon icon="mdi:wallet"></iconify-icon>
+                                        class="h-12 w-12 rounded-full flex flex-col items-center justify-center text-2xl bg-danger-100 dark:bg-slate-900 text-danger-500">
+                                        <iconify-icon icon="mdi:cash-minus"></iconify-icon>
 
                                     </div>
                                 </div>
                                 <div class="flex-1">
                                     <div class="text-slate-600 dark:text-slate-300 text-sm mb-1 font-medium">
-                                        Total
+                                        Unpaid Invoices
                                     </div>
                                     <div class="text-slate-900 dark:text-white text-lg font-medium">
                                         {{ number_format($totalUnpaidInvoices) }}
