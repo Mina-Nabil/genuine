@@ -29,6 +29,14 @@
 
 
     <div class="card">
+        @php
+            $totals = [];
+        @endphp
+        @foreach ($driversArr as $i => $da)
+            @php
+                $totals['balance'] = ($totals['balance'] ?? 0) + $da['balance'];
+            @endphp
+        @endforeach
 
         <div class="card-body px-6 p-6  overflow-x-auto">
             <div class=""> <!-- Add this wrapper to allow horizontal scroll -->
@@ -36,7 +44,7 @@
                     <thead class="border-t border-slate-100 dark:border-slate-800 bg-slate-200 dark:bg-slate-700">
                         <tr>
                             <th scope="col" class="table-th">Driver</th>
-                            <th scope="col" class="table-th">Balance</th>
+                            <th scope="col" class="table-th">Balance ({{$totals['balance']}})</th>
                             <th scope="col" class="table-th">Orders</th>
                             <th scope="col" class="table-th">Orders Total</th>
                             <th scope="col" class="table-th">Days</th>
@@ -50,48 +58,47 @@
                     </thead>
                     <tbody class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700 no-wrap">
 
-                        @foreach ($driversArr as $da)
+                        @foreach ($driversArr as $i => $da)
+                            <tr>
+                                <td class="table-td">
+                                    {{ $da['name'] }}
+                                </td>
+                                <td class="table-td">
+                                    {{ number_format($da['balance']) }}
+                                </td>
+                                <td class="table-td">
+                                    {{ number_format($da['orders_count']) }}
+                                </td>
+                                <td class="table-td">
+                                    {{ number_format($da['orders_total']) }}
+                                </td>
+                                <td class="table-td">
+                                    {{ number_format($da['start_day']) }}
+                                </td>
+                                <td class="table-td">
+                                    {{ number_format($da['return']) }}
+                                </td>
+                                <td class="table-td">
+                                    {{ number_format($da['salary']) }}
+                                </td>
+                                <td class="table-td">
+                                    {{ number_format($da['solfa']) }}
+                                </td>
+                                <td class="table-td">
+                                    {{ number_format($da['x2']) }}
+                                </td>
+                                <td class="table-td">
+                                    {{ number_format($da['purchases']) }}
+                                </td>
+                                <td class="table-td">
+                                    {{ number_format($da['road']) }}
+                                </td>
 
-                                <tr>
-                                    <td class="table-td">
-                                        {{ $da['name'] }}
-                                    </td>
-                                    <td class="table-td">
-                                        {{ number_format($da['balance']) }}
-                                    </td>
-                                    <td class="table-td">
-                                        {{ number_format($da['orders_count']) }}
-                                    </td>
-                                    <td class="table-td">
-                                        {{ number_format($da['orders_total']) }}
-                                    </td>
-                                    <td class="table-td">
-                                        {{ number_format($da['start_day']) }}
-                                    </td>
-                                    <td class="table-td">
-                                        {{ number_format($da['return']) }}
-                                    </td>
-                                    <td class="table-td">
-                                        {{ number_format($da['salary']) }}
-                                    </td>
-                                    <td class="table-td">
-                                        {{ number_format($da['solfa']) }}
-                                    </td>
-                                    <td class="table-td">
-                                        {{ number_format($da['x2']) }}
-                                    </td>
-                                    <td class="table-td">
-                                        {{ number_format($da['purchases']) }}
-                                    </td>
-                                    <td class="table-td">
-                                        {{ number_format($da['road']) }}
-                                    </td>
-                                  
-                                </tr>
-
+                            </tr>
                         @endforeach
 
                     </tbody>
+
                 </table>
 
 
