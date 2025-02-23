@@ -279,7 +279,7 @@ class SupplierInvoice extends Model
                 $totalAfter = $this->total_amount;
 
                 $supplier = $this->supplier;
-                $supplier->updateBalance(-($totalBefore - $totalAfter), 'Raw materials returned from invoice #' . $this->code ?? '');
+                $supplier->updateBalance(- ($totalBefore - $totalAfter), 'Raw materials returned from invoice #' . $this->code ?? '');
                 $supplier->save();
 
                 $this->save();
@@ -419,6 +419,20 @@ class SupplierInvoice extends Model
 
         $serialPart = str_pad($lastSerial + 1, 4, '0', STR_PAD_LEFT);
         return $datePart . '-' . $serialPart;
+    }
+
+    public static function unpaidTotal()
+    {
+        return self::unpaid()->leftjoin('balance_transactions', function($j){
+            $j->on('balance_transactions.transactionable_id', '=', 'supplier_invoices.id')
+                ->where('balance_transactions.transactionable_type', self::MORPH_TYPE);
+        })->selectRaw('supplier_invoices.*, (total_amount - SUM(balance_transactions.amount)) as total_left')
+            ->groupBy('supplier_invoices.id')->sum('total_left');
+    }
+
+    public function scopeUnpaid($query)
+    {
+        return $query->where('is_paid', false);
     }
 
     public function scopeSearch($query, $term, $supplierId = null, $dueDateFrom = null, $dueDateTo = null, $isPaid = null, $entryDateFrom = null, $entryDateTo = null)

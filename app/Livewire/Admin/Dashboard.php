@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin;
 
 use App\Models\Materials\RawMaterial;
+use App\Models\Materials\SupplierInvoice;
 use App\Models\Materials\SupplierRawMaterial;
 use App\Models\Orders\Order;
 use App\Models\Payments\BalanceTransaction;
@@ -54,6 +55,7 @@ class Dashboard extends Component
             ->selectRaw('Count(orders.id) as active_orders')->first()?->active_orders;
 
 
+        $totalUnpaidInvoices = SupplierInvoice::unpaidTotal();
         $cashBalance = CustomerPayment::PaymentMethod(CustomerPayment::PYMT_CASH)->limit(1)->latest()->first()?->type_balance ?? 0;
         $bankBalance = CustomerPayment::PaymentMethod(CustomerPayment::PYMT_BANK_TRANSFER)->limit(1)->latest()->first()?->type_balance ?? 0;
         $walletBalance = CustomerPayment::PaymentMethod(CustomerPayment::PYMT_WALLET)->limit(1)->latest()->first()?->type_balance ?? 0;
@@ -73,6 +75,7 @@ class Dashboard extends Component
             'cashBalance'           => $cashBalance,
             'bankBalance'           => $bankBalance,
             'walletBalance'         => $walletBalance,
+            'totalUnpaidInvoices'         => $totalUnpaidInvoices,
         ])->layout('layouts.app', ['dashboard' => 'active']);
     }
 }

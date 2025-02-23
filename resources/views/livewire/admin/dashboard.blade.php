@@ -129,7 +129,7 @@
 
         <div class="grid grid-cols-12 gap-5 mb-5">
             <div class="col-span-12">
-                <div class="grid md:grid-cols-4 grid-cols-1 gap-4">
+                <div class="grid md:grid-cols-3 grid-cols-1 gap-4">
                     <div class="card">
                         <div class="card-body pt-4 pb-3 px-4">
                             <div class="flex space-x-3 rtl:space-x-reverse">
@@ -193,6 +193,13 @@
                             </div>
                         </div>
                     </div>
+                
+                </div>
+            </div>
+        </div>
+        <div class="grid grid-cols-12 gap-5 mb-5">
+            <div class="col-span-12">
+                <div class="grid md:grid-cols-2 grid-cols-1 gap-4">
                     <div class="card">
                         <div class="card-body pt-4 pb-3 px-4">
                             <div class="flex space-x-3 rtl:space-x-reverse">
@@ -214,10 +221,31 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="card">
+                        <div class="card-body pt-4 pb-3 px-4">
+                            <div class="flex space-x-3 rtl:space-x-reverse">
+                                <div class="flex-none">
+                                    <div
+                                        class="h-12 w-12 rounded-full flex flex-col items-center justify-center text-2xl bg-success-100 dark:bg-slate-900	 text-success-500">
+                                        <iconify-icon icon="mdi:wallet"></iconify-icon>
+
+                                    </div>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="text-slate-600 dark:text-slate-300 text-sm mb-1 font-medium">
+                                        Total
+                                    </div>
+                                    <div class="text-slate-900 dark:text-white text-lg font-medium">
+                                        {{ number_format($totalUnpaidInvoices) }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-
 
         <div class="card">
             <header class="card-header noborder">
