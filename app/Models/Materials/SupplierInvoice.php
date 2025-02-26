@@ -41,10 +41,10 @@ class SupplierInvoice extends Model
         }
         $newFile = $template->copy();
         $activeSheet = $newFile->getActiveSheet();
-        $activeSheet->getCell('D12')->setValue($supplier->name);
+        $activeSheet->getCell('D7')->setValue($supplier->name);
         $invoices_balance = $invoices->sum('total_amount') - $invoices->sum('total_paid');
-        $activeSheet->getCell('B12')->setValue($supplier->name);
-        $i = 15;
+        $activeSheet->getCell('B7')->setValue($invoices_balance);
+        $i = 10;
         foreach ($invoices as $invoice) {
 
             $activeSheet->getCell('A' . $i)->setValue($invoice->code);
@@ -57,7 +57,7 @@ class SupplierInvoice extends Model
 
 
         $writer = new Xlsx($newFile);
-        $file_path = "فواتيرـ{$supplier->name}.xlsx";
+        $file_path =  "فواتيرـ{$supplier->name}.xlsx";
         $public_file_path = storage_path($file_path);
         $writer->save($public_file_path);
 
