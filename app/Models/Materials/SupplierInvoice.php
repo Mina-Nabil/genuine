@@ -35,7 +35,7 @@ class SupplierInvoice extends Model
     {
         $invoices = self::withMax('payments as max_payment_date', 'payment_date')->withSum('payments as total_paid', 'amount')->search(supplierId: $supplierId, entryDateFrom: $entryDateFrom, entryDateTo: $entryDateTo)->get();
         $supplier = Supplier::find($supplierId);
-        $template = IOFactory::load(resource_path('imports/supplier_invoices_export.xlsx'));
+        $template = IOFactory::load(resource_path('import/supplier_invoices_export.xlsx'));
         if (!$template) {
             throw new Exception('Failed to read template file');
         }
@@ -46,13 +46,13 @@ class SupplierInvoice extends Model
         $activeSheet->getCell('B12')->setValue($supplier->name);
         $i = 15;
         foreach ($invoices as $invoice) {
-           
+
             $activeSheet->getCell('A' . $i)->setValue($invoice->code);
             $activeSheet->getCell('B' . $i)->setValue($invoice->total_amount);
             $activeSheet->getCell('C' . $i)->setValue($invoice->payment_due);
             $activeSheet->getCell('E' . $i)->setValue($invoice->total_paid);
             $activeSheet->getCell('F' . $i)->setValue($invoice->max_payment_date);
-           $activeSheet->insertNewRowBefore($i);
+            $activeSheet->insertNewRowBefore($i);
         }
 
 
@@ -463,7 +463,7 @@ class SupplierInvoice extends Model
             ->leftjoin('customer_payments', 'customer_payments.invoice_id', '=', 'supplier_invoices.id')
             ->selectRaw('supplier_invoices.total_amount, SUM(customer_payments.amount) as total_left')
             ->groupBy('supplier_invoices.id')->get();
-            return $unpaid->sum('total_amount') - $unpaid->sum('total_left');
+        return $unpaid->sum('total_amount') - $unpaid->sum('total_left');
     }
 
     public function scopeUnpaid($query)
@@ -471,7 +471,7 @@ class SupplierInvoice extends Model
         return $query->where('is_paid', 0);
     }
 
-    public function scopeSearch($query, $term=null, $supplierId = null, $dueDateFrom = null, $dueDateTo = null, $isPaid = null, $entryDateFrom = null, $entryDateTo = null)
+    public function scopeSearch($query, $term = null, $supplierId = null, $dueDateFrom = null, $dueDateTo = null, $isPaid = null, $entryDateFrom = null, $entryDateTo = null)
     {
         return $query
             ->when($term, function ($q) use ($term) {
