@@ -11,8 +11,9 @@
                     <button wire:click='openEditInfoSection'
                         class="btn inline-flex justify-center btn-outline-light btn-sm">Edit
                         info</button>
+                    <button wire:click='openExportInvoiceModal'
+                        class="btn inline-flex justify-center btn-outline-light btn-sm">Export Invoices</button>
                 </div>
-                <button wire:click='openExportInvoiceModal' class="btn inline-flex justify-center btn-outline-light btn-sm">Export Invoices</button>
             </div>
             <p class="text-xs text-slate-500 dark:text-slate-400">Raw Materials Supplier</p>
         </div>
