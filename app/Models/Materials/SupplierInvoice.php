@@ -14,6 +14,8 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class SupplierInvoice extends Model
 {
@@ -27,6 +29,39 @@ class SupplierInvoice extends Model
         'payment_due' => 'date',
         'entry_date' => 'date',
     ];
+
+    public static function exportSupplierInvoices($supplierId, $entryDateFrom, $entryDateTo)
+    {
+        $invoices = self::withMax('payments as max_payment_date', 'payment_date')->withSum('payments as total_paid', 'amount')->search(supplierId: $supplierId, entryDateFrom: $entryDateFrom, entryDateTo: $entryDateTo)->get();
+        $supplier = Supplier::find($supplierId);
+        $template = IOFactory::load(resource_path('imports/supplier_invoices_export.xlsx'));
+        if (!$template) {
+            throw new Exception('Failed to read template file');
+        }
+        $newFile = $template->copy();
+        $activeSheet = $newFile->getActiveSheet();
+        $activeSheet->getCell('D12')->setValue($supplier->name);
+        $invoices_balance = $invoices->sum('total_amount') - $invoices->sum('total_paid');
+        $activeSheet->getCell('B12')->setValue($supplier->name);
+        $i = 15;
+        foreach ($invoices as $invoice) {
+           
+            $activeSheet->getCell('A' . $i)->setValue($invoice->code);
+            $activeSheet->getCell('B' . $i)->setValue($invoice->total_amount);
+            $activeSheet->getCell('C' . $i)->setValue($invoice->payment_due);
+            $activeSheet->getCell('E' . $i)->setValue($invoice->total_paid);
+            $activeSheet->getCell('F' . $i)->setValue($invoice->max_payment_date);
+           $activeSheet->insertNewRowBefore($i);
+        }
+
+
+        $writer = new Xlsx($newFile);
+        $file_path = "فواتيرـ{$supplier->name}.xlsx";
+        $public_file_path = storage_path($file_path);
+        $writer->save($public_file_path);
+
+        return response()->download($public_file_path)->deleteFileAfterSend(true);
+    }
 
     public static function createInvoice($supplierId, $entryDate, $rawMaterials, $code = null, $title = null, $note = null, $paymentDue = null, $extraFeeDescription = null, $extraFeeAmount = null)
     {

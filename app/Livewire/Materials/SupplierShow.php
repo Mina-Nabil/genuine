@@ -150,9 +150,9 @@ class SupplierShow extends Component
         // Check if the raw material is already assigned to the supplier
         if (
             $this->supplier
-                ->rawMaterials()
-                ->where('raw_material_id', $this->selectedRawMaterial->id)
-                ->exists()
+            ->rawMaterials()
+            ->where('raw_material_id', $this->selectedRawMaterial->id)
+            ->exists()
         ) {
             $this->addError('selectedRawMaterial.id', 'This raw material is already assigned to the supplier.');
             return;
@@ -204,6 +204,35 @@ class SupplierShow extends Component
         }
     }
 
+    ////export balance pages
+    public $isOpenExportInvoiceModal = false;
+    public $exportStartDate;
+    public $exportEndDate;
+
+    public function openExportInvoiceModal()
+    {
+        $this->isOpenExportInvoiceModal = true;
+    }
+
+    public function closeExportInvoiceModal()
+    {
+        $this->reset(['isOpenExportInvoiceModal', 'exportStartDate', 'exportEndDate']);
+    }
+
+    public function exportInvoice()
+    {
+        $this->validate([
+            'exportStartDate' => 'required|date',
+            'exportEndDate' => 'required|date|after_or_equal:exportStartDate',
+        ]);
+
+        $res = Supplier::exportInvoice($this->supplier->id, $this->exportStartDate, $this->exportEndDate);
+
+        $this->closeExportInvoiceModal();
+        $this->alertSuccess('Invoice exported successfully!');
+        return $res;
+    }
+
     public function mount($id)
     {
         $this->supplier = Supplier::findOrFail($id);
@@ -226,9 +255,9 @@ class SupplierShow extends Component
         if ($this->isOpenAssignMaterialSection) {
             $assignedMaterialIds = $this->supplier->rawMaterials()->pluck('raw_material_id')->toArray();
             $this->availableRawMaterials = RawMaterial::whereNotIn('id', $assignedMaterialIds)
-            ->search($this->materialsSearch)
-            ->take(5)
-            ->get();
+                ->search($this->materialsSearch)
+                ->take(5)
+                ->get();
         }
 
         return view('livewire.materials.supplier-show', [
