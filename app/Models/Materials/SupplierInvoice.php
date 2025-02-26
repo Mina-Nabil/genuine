@@ -6,6 +6,7 @@ use App\Models\Materials\SupplierRawMaterial;
 use App\Models\Payments\BalanceTransaction;
 use App\Models\Payments\CustomerPayment;
 use App\Models\Users\AppLog;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -30,7 +31,7 @@ class SupplierInvoice extends Model
         'entry_date' => 'date',
     ];
 
-    public static function exportSupplierInvoices($supplierId, $entryDateFrom, $entryDateTo)
+    public static function exportSupplierInvoices($supplierId, Carbon $entryDateFrom, Carbon $entryDateTo)
     {
         $invoices = self::withMax('payments as max_payment_date', 'payment_date')->withSum('payments as total_paid', 'amount')->search(supplierId: $supplierId, entryDateFrom: $entryDateFrom, entryDateTo: $entryDateTo)->get();
         $supplier = Supplier::find($supplierId);

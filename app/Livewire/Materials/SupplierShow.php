@@ -4,6 +4,7 @@ namespace App\Livewire\Materials;
 
 use App\Models\Materials\RawMaterial;
 use App\Models\Materials\Supplier;
+use App\Models\Materials\SupplierInvoice;
 use App\Models\Materials\SupplierRawMaterial;
 use App\Models\Payments\CustomerPayment;
 use App\Traits\AlertFrontEnd;
@@ -226,7 +227,7 @@ class SupplierShow extends Component
             'exportEndDate' => 'required|date|after_or_equal:exportStartDate',
         ]);
 
-        $res = Supplier::exportInvoice($this->supplier->id, $this->exportStartDate, $this->exportEndDate);
+        $res = SupplierInvoice::exportSupplierInvoices($this->supplier->id, Carbon::parse($this->exportStartDate), Carbon::parse($this->exportEndDate));
 
         $this->closeExportInvoiceModal();
         $this->alertSuccess('Invoice exported successfully!');
