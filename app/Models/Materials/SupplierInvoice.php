@@ -471,10 +471,10 @@ class SupplierInvoice extends Model
         return $query->where('is_paid', 0);
     }
 
-    public function scopeSearch($query, $term, $supplierId = null, $dueDateFrom = null, $dueDateTo = null, $isPaid = null, $entryDateFrom = null, $entryDateTo = null)
+    public function scopeSearch($query, $term=null, $supplierId = null, $dueDateFrom = null, $dueDateTo = null, $isPaid = null, $entryDateFrom = null, $entryDateTo = null)
     {
         return $query
-            ->where(function ($q) use ($term) {
+            ->when($term, function ($q) use ($term) {
                 $q->where('code', 'like', '%' . $term . '%')
                     ->orWhere('title', 'like', '%' . $term . '%')
                     ->orWhere('note', 'like', '%' . $term . '%')
