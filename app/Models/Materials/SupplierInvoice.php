@@ -49,7 +49,7 @@ class SupplierInvoice extends Model
 
             $activeSheet->getCell('F' . $i)->setValue($invoice->code);
             $activeSheet->getCell('E' . $i)->setValue($invoice->total_amount);
-            $activeSheet->getCell('D' . $i)->setValue(Carbon::parse($invoice->payment_due)->format('d M Y'));
+            $activeSheet->getCell('D' . $i)->setValue(Carbon::parse($invoice->payment_due)->locale('ar')->format('d M Y'));
             $activeSheet->getCell('C' . $i)->setValue($invoice->total_paid);
             $activeSheet->getCell('B' . $i)->setValue($invoice->max_payment_date);
             $activeSheet->insertNewRowBefore($i);
