@@ -710,24 +710,24 @@
                         <div class="p-6 space-y-4">
                             <div class="from-group">
                                 <div class="input-area">
-                                    <label for="startDate" class="form-label">Start Date</label>
-                                    <input id="startDate" type="date"
-                                        class="form-control @error('startDate') !border-danger-500 @enderror"
-                                        wire:model.lazy="startDate" autocomplete="off">
+                                    <label for="exportStartDate" class="form-label">Start Date</label>
+                                    <input id="exportStartDate" type="date"
+                                        class="form-control @error('exportStartDate') !border-danger-500 @enderror"
+                                        wire:model.lazy="exportStartDate" autocomplete="off">
                                 </div>
-                                @error('startDate')
+                                @error('exportStartDate')
                                     <span
                                         class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
                                 @enderror
                             </div>
                             <div class="from-group">
                                 <div class="input-area">
-                                    <label for="endDate" class="form-label">End Date</label>
-                                    <input id="endDate" type="date"
-                                        class="form-control @error('endDate') !border-danger-500 @enderror"
-                                        wire:model.lazy="endDate" autocomplete="off">
+                                    <label for="exportEndDate" class="form-label">End Date</label>
+                                    <input id="exportEndDate" type="date"
+                                        class="form-control @error('exportEndDate') !border-danger-500 @enderror"
+                                        wire:model.lazy="exportEndDate" autocomplete="off">
                                 </div>
-                                @error('endDate')
+                                @error('exportEndDate')
                                     <span
                                         class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
                                 @enderror
