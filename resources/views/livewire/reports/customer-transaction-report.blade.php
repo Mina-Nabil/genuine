@@ -231,14 +231,35 @@
 
                             <div class="from-group">
 
+                                <div class="form-group mb-4">
+                                    <label for="title_id" class="form-label">
+                                        Payment Title
+                                    </label>
+                                    <select id="title_id" 
+                                            class="form-control @error('title_id') !border-danger-500 @enderror" 
+                                            wire:model.live="title_id">
+                                        <option value="">Select a payment title</option>
+                                        @foreach($paymentTitles as $title)
+                                            <option value="{{ $title->id }}">{{ $title->title }} (Limit: {{ number_format($title->limit, 2) }})</option>
+                                        @endforeach
+                                    </select>
+                                    @error('title_id')
+                                        <span class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
                                 <div class="form-group">
                                     <label for="amount" class="form-label">
                                         Amount
                                     </label>
-                                    <input type="text" id="amount" class="form-control" wire:model="amount">
+                                    <input type="text" 
+                                           id="amount" 
+                                           class="form-control @error('amount') !border-danger-500 @enderror" 
+                                           wire:model.live="amount"
+                                           @if(!$title_id) disabled @endif
+                                           placeholder="{{ !$title_id ? 'Select a payment title first' : 'Enter amount' }}">
                                     @error('amount')
-                                        <span
-                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                        <span class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
                                     @enderror
                                 </div>
 

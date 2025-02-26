@@ -14,6 +14,7 @@ use App\Livewire\Users\Calendar;
 use App\Livewire\Customers\CustomerIndex;
 use App\Livewire\Customers\CustomerShow;
 use App\Livewire\Customers\FollowupIndex;
+use App\Livewire\Customers\TitlesIndex;
 use App\Livewire\Customers\ZoneIndex;
 use App\Livewire\Materials\InvoiceCreate;
 use App\Livewire\Materials\InvoiceIndex;
@@ -52,6 +53,7 @@ use App\Livewire\Reports\DriversBalanceReport;
 use App\Livewire\Reports\InventoryReport;
 use App\Livewire\Reports\MonthlyTotalsReport;
 use App\Livewire\Reports\OrderReport;
+use App\Livewire\Reports\PaymentTitleReport;
 use App\Livewire\Reports\ProductionPlanning;
 use App\Livewire\Reports\WeeklyTotalsReport;
 use App\Livewire\Reports\ZoneCountReport;
@@ -102,6 +104,7 @@ Route::middleware(['auth', 'no_driver', 'accounting_only_admin'])->group(functio
 
     Route::get('/pets', PetIndex::class);
     Route::get('/zones', ZoneIndex::class);
+    Route::get('/titles', TitlesIndex::class);
     Route::get('/followups', FollowupIndex::class);
 
     Route::get('/calendar', Calendar::class);
@@ -136,6 +139,8 @@ Route::middleware(['auth', 'no_driver', 'accounting_only_admin'])->group(functio
     Route::get('/report/Zones/count', ZoneCountReport::class)->name('reports.zones.count');
     Route::get('/report/inventory', InventoryReport::class)->name('reports.inventory');
     Route::get('/report/drivers/balance', DriversBalanceReport::class)->name('reports.drivers.balance');
+    Route::get('/report/payment-titles', PaymentTitleReport::class)
+    ->name('report.payment-titles');
 
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
 
@@ -164,3 +169,5 @@ Route::get('/welcome', [HomeController::class, 'welcome']);
 Route::post('/login', [HomeController::class, 'authenticate']);
 Route::get('/login', [HomeController::class, 'login'])->name('login');
 Route::get('/logout', [HomeController::class, 'logout'])->name('logout');
+
+

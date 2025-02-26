@@ -37,9 +37,9 @@ class CustomerPayment extends Model
     const PAYMENT_METHODS = [self::PYMT_CASH, self::PYMT_BANK_TRANSFER, self::PYMT_WALLET];
     const PAYMENT_METHODS_WITH_DEBIT = [self::PYMT_CASH, self::PYMT_BANK_TRANSFER, self::PYMT_WALLET, self::PYMT_DEBIT];
 
-    public static function createPayment($amount, $paymentMethod, $note)
+    public static function createPayment($amount, $paymentMethod, $note, $title_id = null)
     {
-        return DB::transaction(function () use ($amount, $paymentMethod, $note) {
+        return DB::transaction(function () use ($amount, $paymentMethod, $note, $title_id) {
             try {
 
                 /** @var User */
@@ -52,6 +52,7 @@ class CustomerPayment extends Model
 
                 $payment = self::create([
                     'amount' => -$amount,
+                    'title_id' => $title_id,
                     'payment_method' => $paymentMethod,
                     'type_balance' => $new_type_balance,
                     'payment_date' => now()->format('Y-m-d'),
@@ -79,7 +80,6 @@ class CustomerPayment extends Model
     public function recalculateBalance()
     {
         $latest_balance = self::paymentMethod($this->payment_method)->where('id', '<', $this->id)->orderByDesc('id')->limit(1)->first()?->type_balance ?? 0;
-        Log::info($latest_balance);
         $this->type_balance = $latest_balance + $this->amount;
         $this->save();
     }
@@ -101,6 +101,8 @@ class CustomerPayment extends Model
             });
         });
     }
+
+    
 
     public function scopeFrom($query, Carbon $date)
     {
@@ -130,6 +132,11 @@ class CustomerPayment extends Model
         return $this->belongsTo(Supplier::class);
     }
 
+    public function title()
+    {
+        return $this->belongsTo(Title::class);
+    }
+
     /**
      * Define relationship with the Order model.
      */
@@ -145,4 +152,32 @@ class CustomerPayment extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
+
+    public function scopeTotalsByTitle($query, ?Carbon $startDate = null, ?Carbon $endDate = null)
+    {
+        $query = $query->selectRaw('
+            customer_payments.title_id,
+            payment_titles.title as title_name,
+            payment_titles.limit as title_limit,
+            SUM(customer_payments.amount) as total_amount,
+            SUM(CASE WHEN payment_method = "cash" THEN amount ELSE 0 END) as cash_total,
+            SUM(CASE WHEN payment_method = "bank_transfer" THEN amount ELSE 0 END) as bank_total,
+            SUM(CASE WHEN payment_method = "wallet" THEN amount ELSE 0 END) as wallet_total,
+            COUNT(*) as transaction_count
+        ')
+        ->leftJoin('payment_titles', 'payment_titles.id', '=', 'customer_payments.title_id')
+        ->groupBy('customer_payments.title_id', 'payment_titles.title', 'payment_titles.limit');
+
+        if ($startDate) {
+            $query->where('customer_payments.created_at', '>=', $startDate->startOfDay());
+        }
+        
+        if ($endDate) {
+            $query->where('customer_payments.created_at', '<=', $endDate->endOfDay());
+        }
+
+        return $query;
+    }
+
+   
 }

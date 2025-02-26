@@ -529,6 +529,18 @@
                             </a>
                         </li>
                     @endcan
+                    @can('viewAny', App\Models\Payments\Title::class)
+                        <li>
+                            <a href="{{ auth()->user()->can('viewAny', App\Models\Payments\Title::class) ? url('/titles') : '#' }}"
+                                class="navItem {{ $titles ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Payments\Title::class) ? '' : 'disabled' }}">
+                                <span class="flex items-center">
+                                    <iconify-icon class="nav-icon" icon="mdi:cash-multiple"></iconify-icon>
+                                    </iconify-icon>
+                                    <span>Payment Titles</span>
+                                </span>
+                            </a>
+                        </li>
+                    @endcan
 
                 </ul>
             </div>
