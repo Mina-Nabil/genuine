@@ -47,11 +47,11 @@ class SupplierInvoice extends Model
         $i = 11;
         foreach ($invoices as $invoice) {
 
-            $activeSheet->getCell('A' . $i)->setValue($invoice->code);
-            $activeSheet->getCell('B' . $i)->setValue($invoice->total_amount);
-            $activeSheet->getCell('C' . $i)->setValue(Carbon::parse($invoice->payment_due)->format('d M Y'));
-            $activeSheet->getCell('D' . $i)->setValue($invoice->total_paid);
-            $activeSheet->getCell('E' . $i)->setValue($invoice->max_payment_date);
+            $activeSheet->getCell('F' . $i)->setValue($invoice->code);
+            $activeSheet->getCell('E' . $i)->setValue($invoice->total_amount);
+            $activeSheet->getCell('D' . $i)->setValue(Carbon::parse($invoice->payment_due)->format('d M Y'));
+            $activeSheet->getCell('C' . $i)->setValue($invoice->total_paid);
+            $activeSheet->getCell('B' . $i)->setValue($invoice->max_payment_date);
             $activeSheet->insertNewRowBefore($i);
         }
 
