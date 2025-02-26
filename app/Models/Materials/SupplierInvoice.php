@@ -44,14 +44,14 @@ class SupplierInvoice extends Model
         $activeSheet->getCell('D7')->setValue($supplier->name);
         $invoices_balance = $invoices->sum('total_amount') - $invoices->sum('total_paid');
         $activeSheet->getCell('B7')->setValue($invoices_balance);
-        $i = 10;
+        $i = 11;
         foreach ($invoices as $invoice) {
 
             $activeSheet->getCell('A' . $i)->setValue($invoice->code);
             $activeSheet->getCell('B' . $i)->setValue($invoice->total_amount);
-            $activeSheet->getCell('C' . $i)->setValue($invoice->payment_due);
-            $activeSheet->getCell('E' . $i)->setValue($invoice->total_paid);
-            $activeSheet->getCell('F' . $i)->setValue($invoice->max_payment_date);
+            $activeSheet->getCell('C' . $i)->setValue(Carbon::parse($invoice->payment_due)->format('d M Y'));
+            $activeSheet->getCell('D' . $i)->setValue($invoice->total_paid);
+            $activeSheet->getCell('E' . $i)->setValue($invoice->max_payment_date);
             $activeSheet->insertNewRowBefore($i);
         }
 
