@@ -12,7 +12,7 @@
                         class="btn inline-flex justify-center btn-outline-light btn-sm">Edit
                         info</button>
                 </div>
-                <button wire:click='openExportInvoicesSection' class="btn inline-flex justify-center btn-outline-light btn-sm">Export Invoices</button>
+                <button wire:click='openExportInvoiceModal' class="btn inline-flex justify-center btn-outline-light btn-sm">Export Invoices</button>
             </div>
             <p class="text-xs text-slate-500 dark:text-slate-400">Raw Materials Supplier</p>
         </div>
@@ -678,7 +678,7 @@
     @endcan
 
 
-    @if ($isOpenExportInvoicesSection)
+    @if ($isOpenExportInvoiceModal)
         <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
             tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
             style="display: block;">
