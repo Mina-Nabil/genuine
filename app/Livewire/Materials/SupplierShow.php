@@ -219,7 +219,7 @@ class SupplierShow extends Component
         $this->reset(['isOpenExportInvoiceModal', 'exportStartDate', 'exportEndDate']);
     }
 
-    public function exportInvoice()
+    public function exportInvoices()
     {
         $this->validate([
             'exportStartDate' => 'required|date',
