@@ -201,7 +201,7 @@ class CustomerShow extends Component
         $this->EditCustomerSection = true;
         $this->fullName = $this->customer->name;
         $this->phone = $this->customer->phone;
-        $this->zone_id = $this->customer->zone->id;
+        $this->zone_id = $this->customer->zone?->id;
         $this->locationUrl = $this->customer->location_url;
         $this->address = $this->customer->address;
     }
