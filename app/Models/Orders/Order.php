@@ -263,14 +263,10 @@ class Order extends Model
                 }
             }
 
-            if ($newStatus === self::STATUS_DONE || $newStatus === self::STATUS_RETURNED) {
+            if ($newStatus === self::STATUS_DONE) {
                 $orderInAnotherShift = $this->driverHasOrdersInAnotherShift();
                 if ($orderInAnotherShift) {
                     $orderInAnotherShift->creditDriverForReturnedShift();
-                }
-
-                if ($newStatus === self::STATUS_RETURNED) {
-                    $this->creditDriverForReturnedShift();
                 }
 
                 $this->calculateStartDeliveryCrDriver();
