@@ -181,6 +181,7 @@ class OrderDriverShift extends Component
 
         if (Auth::user()->is_driver) {
             $this->driver = Driver::getDriverWithMostOrders($this->deliveryDate, Auth::id());
+            $this->driverId = $this->driver->id;
             if (!$this->driver) $this->driver = Driver::byUserID(Auth::id())->first();
         } else {
             if ($this->driverId) {
