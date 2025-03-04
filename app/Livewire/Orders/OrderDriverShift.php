@@ -181,8 +181,8 @@ class OrderDriverShift extends Component
 
         if (Auth::user()->is_driver) {
             $this->driver = Driver::getDriverWithMostOrders($this->deliveryDate, Auth::id());
-            $this->driverId = $this->driver->id;
             if (!$this->driver) $this->driver = Driver::byUserID(Auth::id())->first();
+            $this->driverId = $this->driver?->id;
         } else {
             if ($this->driverId) {
                 $this->driver = Driver::find($this->driverId);
@@ -199,16 +199,15 @@ class OrderDriverShift extends Component
 
     public function getRoute()
     {
-        if($this->startLocation == 'factory' || !$this->startLocation){
+        if ($this->startLocation == 'factory' || !$this->startLocation) {
             $this->startLocation = env('FACTORY_LOCATION');
         }
 
-        if($this->endLocation == 'factory' || !$this->endLocation){
+        if ($this->endLocation == 'factory' || !$this->endLocation) {
             $this->endLocation = env('FACTORY_LOCATION');
         }
 
         $route = RouteNav::getBestRoute($this->driverId, Carbon::parse($this->deliveryDate), $this->startLocation, $this->endLocation);
-     
     }
 
     public function ChangeDriverShift($id)
@@ -261,7 +260,7 @@ class OrderDriverShift extends Component
         ]);
 
         // Get start location
-        $startLocation = match($this->selectedStartLocation) {
+        $startLocation = match ($this->selectedStartLocation) {
             'current' => $this->startLocation, // Current location from the existing input
             'home1' => $this->driver->user->home_location_url_1,
             'home2' => $this->driver->user->home_location_url_2,
@@ -269,7 +268,7 @@ class OrderDriverShift extends Component
         };
 
         // Get destination
-        $destination = match($this->selectedDestination) {
+        $destination = match ($this->selectedDestination) {
             'home1' => $this->driver->user->home_location_url_1,
             'home2' => $this->driver->user->home_location_url_2,
             default => $this->selectedDestination, // Order location URL
