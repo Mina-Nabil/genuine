@@ -296,7 +296,7 @@ class Order extends Model
     }
 
     // Function to create a new order
-    public static function newOrder(int $customerId, string $customerName, string $shippingAddress, string $customerPhone, int $zoneId, $locationURL = null, int $driverId = null, float $totalAmount = 0, float $deliveryAmount = 0, float $discountAmount = 0, Carbon $deliveryDate = null, string $note = null, array $products, $detuctFromBalance = false, $migrated = false, $creator_id = null): Order|bool
+    public static function newOrder(int $customerId, string $customerName, string $shippingAddress, string $customerPhone, int $zoneId, $locationURL = null, ?int $driverId = null, float $totalAmount = 0, float $deliveryAmount = 0, float $discountAmount = 0, ?Carbon $deliveryDate = null, ?string $note = null, array $products, $detuctFromBalance = false, $migrated = false, $creator_id = null): Order|bool
     {
         /** @var User */
         $loggedInUser = Auth::user();
@@ -383,7 +383,7 @@ class Order extends Model
         }
     }
 
-    public function assignDriverToOrder(int $driverId = null): bool
+    public function assignDriverToOrder(?int $driverId = null): bool
     {
         try {
             /** @var User */
@@ -409,7 +409,7 @@ class Order extends Model
         }
     }
 
-    public function updateLocationUrl(string $locationUrl = null): bool
+    public function updateLocationUrl(?string $locationUrl = null): bool
     {
         /** @var User */
         $loggedInUser = Auth::user();
@@ -431,7 +431,7 @@ class Order extends Model
         }
     }
 
-    public function updateDiscount(string $discount = null): bool
+    public function updateDiscount(?string $discount = null): bool
     {
         /** @var User */
         $loggedInUser = Auth::user();
@@ -481,7 +481,7 @@ class Order extends Model
         }
     }
 
-    public function updateDelivery(string $delivery = null): bool
+    public function updateDelivery(?string $delivery = null): bool
     {
         /** @var User */
         $loggedInUser = Auth::user();
@@ -599,7 +599,7 @@ class Order extends Model
         }
     }
 
-    public function updateDeliveryDate(Carbon $deliveryDate = null): bool
+    public function updateDeliveryDate(?Carbon $deliveryDate = null): bool
     {
         /** @var User */
         $loggedInUser = Auth::user();
@@ -625,7 +625,7 @@ class Order extends Model
         }
     }
 
-    public function rescheduleOrder(Carbon $newDeliveryDate = null, $isDriverReturned = false, $is_2x = false): bool
+    public function rescheduleOrder(?Carbon $newDeliveryDate = null, $isDriverReturned = false, $is_2x = false): bool
     {
         /** @var User */
         $loggedInUser = Auth::user();
@@ -1022,7 +1022,7 @@ class Order extends Model
      * @param string|null $note Optional note for adding products.
      * @return bool True if successful, false otherwise.
      */
-    public function addProducts(array $products, string $note = null): bool
+    public function addProducts(array $products, ?string $note = null): bool
     {
         DB::beginTransaction();
 
@@ -1083,7 +1083,7 @@ class Order extends Model
      * @param string|null $reason Optional reason for the cancellation.
      * @return bool True if all products were canceled successfully, false otherwise.
      */
-    public function cancelAllProducts(string $reason = null): bool
+    public function cancelAllProducts(?string $reason = null): bool
     {
         DB::beginTransaction();
 
@@ -1138,7 +1138,7 @@ class Order extends Model
      * @param string|null $reason Reason for the removal (optional).
      * @return bool True if successful, false otherwise.
      */
-    public function cancelProducts(array $products, string $reason = null, string $returnPaymentMethod = null, bool $returnShippingAmount = false): bool
+    public function cancelProducts(array $products, ?string $reason = null, ?string $returnPaymentMethod = null, bool $returnShippingAmount = false): bool
     {
         DB::beginTransaction();
 
@@ -1329,7 +1329,7 @@ class Order extends Model
      * @param  string $note
      * @return bool
      */
-    public function updateNote(string $note = null): bool
+    public function updateNote(?string $note = null): bool
     {
         /** @var User */
         $loggedInUser = Auth::user();
@@ -1350,7 +1350,7 @@ class Order extends Model
         }
     }
 
-    public function updateDriverNote(string $note = null): bool
+    public function updateDriverNote(?string $note = null): bool
     {
         /** @var User */
         $loggedInUser = Auth::user();
@@ -1392,7 +1392,7 @@ class Order extends Model
         }
     }
 
-    public function moveToPosition(int $newPosition = null)
+    public function moveToPosition(?int $newPosition = null)
     {
         return DB::transaction(function () use ($newPosition) {
             if ($newPosition == null || $newPosition <= 0) {
@@ -1421,7 +1421,7 @@ class Order extends Model
         });
     }
 
-    public function updateNoOfBags(int $bags_count = null)
+    public function updateNoOfBags(?int $bags_count = null)
     {
         /** @var User */
         $loggedInUser = Auth::user();
@@ -1815,7 +1815,7 @@ class Order extends Model
         }
     }
 
-    public static function exportReport($searchText, $zone_id = null, $driver_id = null, Carbon $created_from = null, Carbon $created_to = null, Carbon $delivery_from = null, Carbon $delivery_to = null, $creator_id = null, $status = null)
+    public static function exportReport($searchText, $zone_id = null, $driver_id = null, ?Carbon $created_from = null, ?Carbon $created_to = null, ?Carbon $delivery_from = null, ?Carbon $delivery_to = null, $creator_id = null, $status = null)
     {
         $orders = self::report($searchText, $zone_id, $driver_id, $created_from, $created_to, $delivery_from, $delivery_to, $creator_id, $status)->get();
 
@@ -1843,7 +1843,7 @@ class Order extends Model
     }
 
     // Scopes
-    public function scopeReport($query, $searchText, $zone_ids = null, $driver_id = null, Carbon $created_from = null, Carbon $created_to = null, Carbon $delivery_from = null, Carbon $delivery_to = null, $creator_id = null, $status = null)
+    public function scopeReport($query, $searchText, $zone_ids = null, $driver_id = null, ?Carbon $created_from = null, ?Carbon $created_to = null, ?Carbon $delivery_from = null, ?Carbon $delivery_to = null, $creator_id = null, $status = null)
     {
         return $query
             ->notCancelledOrReturned()
@@ -1967,7 +1967,15 @@ class Order extends Model
         return ($hasPayments || $hasBalanceTransactions) && ($this->remaining_to_pay > 0 && $this->remaining_to_pay < $this->total_amount);
     }
 
-    public function scopeSearch(Builder $query, string $searchText = null, array $deliveryDates = [], string $status = null, int $zoneId = null, int $driverId = null, bool $isPaid = null, $skipUserCheck = false, array $zoneIds = []): Builder
+    public function scopeShift(Builder $query, $driverId, $day)
+    {
+
+        return $query->search(deliveryDates: [$day], driverId: $driverId)
+            ->confirmed()->withTotalQuantity()->notCancelledOrders()
+            ->orderByRaw('driver_order IS NULL, driver_order ASC')->sortByZone();
+    }
+
+    public function scopeSearch(Builder $query, ?string $searchText = null, array $deliveryDates = [], ?string $status = null, ?int $zoneId = null, ?int $driverId = null, ?bool $isPaid = null, $skipUserCheck = false, array $zoneIds = []): Builder
     {
         if (!joined($query, 'zones')) {
             $query->join('zones', 'zones.id', '=', 'orders.zone_id');
@@ -2204,6 +2212,15 @@ class Order extends Model
     public function getTotalWeightAttribute()
     {
         return $this->products()->join('products', 'order_products.product_id', '=', 'products.id')->selectRaw('SUM(products.weight * order_products.quantity) as total_weight')->whereNull('order_products.deleted_at')->value('total_weight') ?? 0;
+    }
+
+    public function getValidLocationUrlAttribute()
+    {
+        $locationUrl = $this->location_url ?? $this->customer->location_url;
+        if (filter_var($locationUrl, FILTER_VALIDATE_URL)) {
+            return $locationUrl;
+        }
+        return null;
     }
 
     public static function getTotalDebit()

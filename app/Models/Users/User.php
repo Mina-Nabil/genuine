@@ -35,7 +35,27 @@ class User extends Authenticatable
 
     const TYPES = [self::TYPE_ADMIN, self::TYPE_INVENTORY, self::TYPE_SALES, self::TYPE_DRIVER];
 
-    protected $fillable = ['username', 'first_name', 'last_name', 'type', 'email', 'phone', 'id_number', 'id_doc_url', 'driving_license_number', 'driving_license_doc_url', 'car_license_number', 'car_license_doc_url', 'password', 'image_url', 'is_active', 'driver_day_fees', 'balance'];
+    protected $fillable = [
+        'username', 
+        'first_name', 
+        'last_name', 
+        'type', 
+        'email', 
+        'phone', 
+        'id_number', 
+        'id_doc_url', 
+        'driving_license_number', 
+        'driving_license_doc_url', 
+        'car_license_number', 
+        'car_license_doc_url', 
+        'password', 
+        'image_url', 
+        'is_active', 
+        'driver_day_fees', 
+        'balance',
+        'home_location_url_1',
+        'home_location_url_2'
+    ];
 
     protected $hidden = ['password', 'remember_token'];
 
@@ -61,6 +81,8 @@ class User extends Authenticatable
         $car_model = null, // Driver-specific field
         $shift_start_time = null,
         $shift_end_time = null,
+        $home_location_url_1 = null,
+        $home_location_url_2 = null
     ): self|false {
         try {
             // Check if the user already exists
@@ -84,6 +106,8 @@ class User extends Authenticatable
                 'car_license_doc_url' => $car_license_doc_url,
                 'type' => $type,
                 'image_url' => $image_url,
+                'home_location_url_1' => $home_location_url_1,
+                'home_location_url_2' => $home_location_url_2,
                 'is_active' => 1,
                 // Hash the password before storing
                 'password' => bcrypt($password),
@@ -121,8 +145,24 @@ class User extends Authenticatable
         }
     }
 
-    public function editInfo($username, $first_name, $last_name, $type, $email = null, $phone = null, $id_number = null, $id_doc_url = null, $driving_license_number = null, $driving_license_doc_url = null, $car_license_number = null, $car_license_doc_url = null, $image_url = null, $password = null): bool
-    {
+    public function editInfo(
+        $username, 
+        $first_name, 
+        $last_name, 
+        $type, 
+        $email = null, 
+        $phone = null, 
+        $id_number = null, 
+        $id_doc_url = null, 
+        $driving_license_number = null, 
+        $driving_license_doc_url = null, 
+        $car_license_number = null, 
+        $car_license_doc_url = null, 
+        $image_url = null, 
+        $password = null,
+        $home_location_url_1 = null,
+        $home_location_url_2 = null
+    ): bool {
         try {
             // Update user attributes
             $this->username = $username;
@@ -138,6 +178,8 @@ class User extends Authenticatable
             $this->car_license_doc_url = $car_license_doc_url;
             $this->type = $type;
             $this->image_url = $image_url;
+            $this->home_location_url_1 = $home_location_url_1;
+            $this->home_location_url_2 = $home_location_url_2;
 
             // Only update password if provided
             if ($password) {

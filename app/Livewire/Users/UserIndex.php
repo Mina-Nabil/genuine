@@ -41,6 +41,8 @@ class UserIndex extends Component
     public $startTime = '10:00';
     public $endTime = '18:00';
     public $driverIsAvailable;
+    public $home_location_url_1;
+    public $home_location_url_2;
 
     public function updatedSearch()
     {
@@ -111,7 +113,17 @@ class UserIndex extends Component
     public function closeNewUserSec()
     {
         $this->newUserSection = false;
-        $this->reset(['newUsername', 'newFirstName', 'newLastName', 'newType', 'newPassword', 'newPassword_confirmation', 'newEmail', 'newPhone', 'newManagerId', 'IdNumber', 'IdNumberDoc', 'DrivingLicenceNo', 'DrivingLicenceDoc', 'CarLicenceNo', 'CarLicenceDoc', 'shiftTitle', 'weightLimit', 'orderQuantityLimit', 'carType', 'carModel','startTime','endTime']);
+        $this->reset([
+            'newUsername', 'newFirstName', 'newLastName', 'newType', 
+            'newPassword', 'newPassword_confirmation', 'newEmail', 
+            'newPhone', 'newManagerId', 'IdNumber', 'IdNumberDoc', 
+            'DrivingLicenceNo', 'DrivingLicenceDoc', 'CarLicenceNo', 
+            'CarLicenceDoc', 'shiftTitle', 'weightLimit', 
+            'orderQuantityLimit', 'carType', 'carModel',
+            'startTime', 'endTime',
+            'home_location_url_1',
+            'home_location_url_2'
+        ]);
     }
 
     protected $rules = [
@@ -151,7 +163,9 @@ class UserIndex extends Component
                 'carType' => 'nullable|in:' . implode(',', Driver::CAR_TYPES),
                 'carModel' => 'nullable|string|max:255',
                 'startTime' => 'required|date_format:H:i',
-                'endTime' => 'required|date_format:H:i|after:startTime                                                                                                                                                                                      ',
+                'endTime' => 'required|date_format:H:i|after:startTime',
+                'home_location_url_1' => 'nullable|string',
+                'home_location_url_2' => 'nullable|string',
             ]);
         }
 
@@ -161,7 +175,7 @@ class UserIndex extends Component
         $carLicenseDocUrl = $this->CarLicenceDoc ? $this->CarLicenceDoc->store(User::FILES_DIRECTORY, 's3') : null;
 
         // Create a new user with the validated data and document URLs
-        $res = User::newUser($this->newUsername, $this->newFirstName, $this->newLastName, $this->newType, $this->newPassword, $this->newEmail, $this->newPhone, $this->IdNumber, $idDocUrl, $this->DrivingLicenceNo, $drivingLicenseDocUrl, $this->CarLicenceNo, $carLicenseDocUrl, null, $this->shiftTitle, $this->weightLimit ? $this->weightLimit * 1000 : null , $this->orderQuantityLimit, $this->carType, $this->carModel,$this->startTime,$this->endTime);
+        $res = User::newUser($this->newUsername, $this->newFirstName, $this->newLastName, $this->newType, $this->newPassword, $this->newEmail, $this->newPhone, $this->IdNumber, $idDocUrl, $this->DrivingLicenceNo, $drivingLicenseDocUrl, $this->CarLicenceNo, $carLicenseDocUrl, null, $this->shiftTitle, $this->weightLimit ? $this->weightLimit * 1000 : null , $this->orderQuantityLimit, $this->carType, $this->carModel,$this->startTime,$this->endTime, $this->home_location_url_1, $this->home_location_url_2);
 
         // Check if the user was created successfully
         if ($res) {

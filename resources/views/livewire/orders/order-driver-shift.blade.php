@@ -25,41 +25,57 @@
                 </span>
             </span>
         @endif --}}
-        <div class="flex gap-5 no-wrap">
-            <div class="space-y-2">
-                <div class="input-area flex no-wrap">
-                    <input id="deliveryDate" type="date" class="form-control" wire:model.live="deliveryDate"
-                        autocomplete="off">
-                </div>
-            </div>
-
-
-
-            @if ($driver)
+        <div class="flex gap-5 no-wrap justify-between">
+            <div class="flex gap-5 no-wrap">
                 <div class="space-y-2">
-                    <div class="dropdown relative" style="display: contents">
-                        <span class="badge bg-slate-900 text-white capitalize"
-                            @if (auth()->user()->is_driver) type="button" id="secondaryFlatDropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" @endif>
-                            <span class="cursor-pointer"
-                                @if (!auth()->user()->is_driver) wire:click='openFilteryDriver' @endif>
-                                <span class="text-secondary-500 ">Driver:</span>&nbsp;
-                                {{ ucwords($driver->user->full_name) }} • {{ $driver->shift_title }}
-                            </span>
-                        </span>
-                        <ul
-                            class=" dropdown-menu min-w-max absolute text-sm text-slate-700 dark:text-white hidden bg-white dark:bg-slate-700 shadow
-                            z-[2] float-left overflow-hidden list-none text-left rounded-lg mt-1 m-0 bg-clip-padding border-none">
-                            @foreach (auth()->user()->drivers as $shift)
-                                <li wire:click='ChangeDriverShift({{ $shift->id }})'
-                                    class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
-                                    {{ auth()->user()->full_name }} • <b>{{ $shift->shift_title }}</b>
-                                </li>
-                            @endforeach
-                        </ul>
+                    <div class="input-area flex no-wrap">
+                        <input id="deliveryDate" type="date" class="form-control" wire:model.live="deliveryDate"
+                            autocomplete="off">
                     </div>
                 </div>
-            @endif
 
+
+
+                @if ($driver)
+                    <div class="space-y-2 mt-2">
+                        <div class="dropdown relative" style="display: contents">
+                            <span class="badge bg-slate-900 text-white capitalize"
+                                @if (auth()->user()->is_driver) type="button" id="secondaryFlatDropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" @endif>
+                                <span class="cursor-pointer"
+                                    @if (!auth()->user()->is_driver) wire:click='openFilteryDriver' @endif>
+                                    <span class="text-secondary-500 ">Driver:</span>&nbsp;
+                                    {{ ucwords($driver->user->full_name) }} • {{ $driver->shift_title }}
+                                </span>
+                            </span>
+                            <ul
+                                class=" dropdown-menu min-w-max absolute text-sm text-slate-700 dark:text-white hidden bg-white dark:bg-slate-700 shadow
+                            z-[2] float-left overflow-hidden list-none text-left rounded-lg mt-1 m-0 bg-clip-padding border-none">
+                                @foreach (auth()->user()->drivers as $shift)
+                                    <li wire:click='ChangeDriverShift({{ $shift->id }})'
+                                        class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
+                                        {{ auth()->user()->full_name }} • <b>{{ $shift->shift_title }}</b>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </div>
+                @endif
+            </div>
+
+            <div class="space-y-2 mt-1 float-right">
+                <div class="space-y-2">
+                    @if (!$routes)
+                        <button wire:click="openRoutePlanModal" class="btn btn-sm btn-primary">
+                            Plan Route
+                        </button>
+                    @else
+                        <button class="btn btn-sm btn-primary" disabled>
+                            Route Planned
+                        </button>
+                    @endif
+
+                </div>
+            </div>
         </div>
     </div>
 
@@ -702,5 +718,87 @@
                     </div>
                 </div>
             </div>
+    @endif
+
+
+
+    @if ($showRoutePlanModal)
+        <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+            tabindex="-1" aria-labelledby="routePlanModalLabel" aria-modal="true" role="dialog"
+            style="display: block;">
+            <div class="modal-dialog relative w-auto pointer-events-none">
+                <div
+                    class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
+                    <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
+                        <!-- Modal header -->
+                        <div class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600">
+                            <h3 class="text-base font-medium text-slate-900 dark:text-white capitalize">
+                                Plan Route
+                            </h3>
+                            <button wire:click="closeRoutePlanModal" type="button"
+                                class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white">
+                                <iconify-icon icon="heroicons-outline:x"></iconify-icon>
+                            </button>
+                        </div>
+
+                        <!-- Modal body -->
+                        <div class="p-6 space-y-4">
+                            <div class="from-group space-y-4">
+                                <!-- Start Location -->
+                                <div class="input-area">
+                                    <label class="form-label">Start Location</label>
+                                    <select wire:model="selectedStartLocation" class="form-control">
+                                        <option value="factory">Factory Location</option>
+                                        @if ($driver && $driver->user->home_location_url_1)
+                                            <option value="{{ $driver->user->home_location_url_1 }}">Home Location 1
+                                            </option>
+                                        @endif
+                                        @if ($driver && $driver->user->home_location_url_2)
+                                            <option value="{{ $driver->user->home_location_url_2 }}">Home Location 2
+                                            </option>
+                                        @endif
+                                    </select>
+                                </div>
+
+                                <!-- Destination -->
+                                <div class="input-area">
+                                    <label class="form-label">Destination</label>
+                                    <select wire:model="selectedDestination" class="form-control">
+                                        <option value="">Select Destination</option>
+                                        <option value="factory">Factory Location</option>
+                                        @if ($driver && $driver->user->home_location_url_1)
+                                            <option value="{{ $driver->user->home_location_url_1 }}">Home Location 1
+                                            </option>
+                                        @endif
+                                        @if ($driver && $driver->user->home_location_url_2)
+                                            <option value="{{ $driver->user->home_location_url_2 }}">Home Location 2
+                                            </option>
+                                        @endif
+                                        @foreach ($orders as $order)
+                                            @if ($order->valid_location_url)
+                                                <option value="{{ $order->valid_location_url }}">
+                                                    {{ $order->zone->name }}: {{ $order->customer->name }}
+                                                </option>
+                                            @endif
+                                        @endforeach
+
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modal footer -->
+                        <div
+                            class="flex items-center justify-end p-6 space-x-2 border-t border-slate-200 rounded-b dark:border-slate-600">
+                            <button wire:click="planRoute" class="btn btn-primary">
+                                <span wire:loading.remove wire:target="planRoute">Get Route</span>
+                                <iconify-icon wire:loading wire:target="planRoute" icon="line-md:loading-twotone-loop"
+                                    class="text-xl spin-slow"></iconify-icon>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     @endif
 </div>

@@ -494,6 +494,31 @@
                                             </div>
                                         </div>
                                     </div>
+
+                                    <div class="from-group">
+                                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+                                            <div class="input-area">
+                                                <label for="home_location_url_1" class="form-label">Home Location 1</label>
+                                                <input id="home_location_url_1" type="text"
+                                                    class="form-control @error('home_location_url_1') !border-danger-500 @enderror"
+                                                    wire:model="home_location_url_1" autocomplete="off"
+                                                    placeholder="Enter home location URL">
+                                                @error('home_location_url_1')
+                                                    <span class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+                                            <div class="input-area">
+                                                <label for="home_location_url_2" class="form-label">Home Location 2</label>
+                                                <input id="home_location_url_2" type="text"
+                                                    class="form-control @error('home_location_url_2') !border-danger-500 @enderror"
+                                                    wire:model="home_location_url_2" autocomplete="off"
+                                                    placeholder="Enter home location URL">
+                                                @error('home_location_url_2')
+                                                    <span class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                    </div>
                                 @endif
 
 

@@ -319,6 +319,50 @@
                     </div>
                 </div>
             </div>
+
+            {{-- Home Locations --}}
+            <div>
+                <div class="card h-full">
+                    <header class="card-header flex justify-between">
+                        <h4 class="card-title flex items-center">
+                            <iconify-icon icon="material-symbols:home-pin" class="mr-2"></iconify-icon>
+                            Home Locations
+                        </h4>
+                    </header>
+
+                    <div class="card-body p-6">
+                        <ul class="list space-y-4">
+                            <li class="flex space-x-3 rtl:space-x-reverse">
+                                <div class="flex-1">
+                                    <div class="uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]">
+                                        Home Location 1
+                                    </div>
+                                    <input type="text" wire:model.live="home_location_url_1"
+                                        class="form-control @error('home_location_url_1') !border-danger-500 @enderror"
+                                        placeholder="Enter home location 1">
+                                    @error('home_location_url_1')
+                                        <span class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            </li>
+
+                            <li class="flex space-x-3 rtl:space-x-reverse">
+                                <div class="flex-1">
+                                    <div class="uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]">
+                                        Home Location 2
+                                    </div>
+                                    <input type="text" wire:model.live="home_location_url_2"
+                                        class="form-control @error('home_location_url_2') !border-danger-500 @enderror"
+                                        placeholder="Enter home location 2">
+                                    @error('home_location_url_2')
+                                        <span class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         @endif
 
         {{-- ID  --}}

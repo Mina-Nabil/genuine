@@ -59,6 +59,9 @@ class Profile extends Component
     public $is_open_update_day_fee;
     public $editedDayFee;
 
+    public $home_location_url_1;
+    public $home_location_url_2;
+
     public function closeUpdateDayFee(){
         $this->is_open_update_day_fee = false;
         $this->editedDayFee = null;
@@ -347,6 +350,8 @@ class Profile extends Component
         $this->OLDuploadIDFile = $user->id_doc_url;
         $this->OLDuploadLicFile = $user->driving_license_doc_url;
         $this->OLDuploadCarLicFile = $user->car_license_doc_url;
+        $this->home_location_url_1 = $user->home_location_url_1;
+        $this->home_location_url_2 = $user->home_location_url_2;
         $this->user = $user;
     }
 
@@ -395,6 +400,16 @@ class Profile extends Component
         $this->changes = true;
     }
 
+    public function updatingHomeLocationUrl1()
+    {
+        $this->changes = true;
+    }
+
+    public function updatingHomeLocationUrl2()
+    {
+        $this->changes = true;
+    }
+
     public function saveInfo()
     {
         $this->validate([
@@ -406,6 +421,8 @@ class Profile extends Component
             'idNumber' => 'nullable|string|max:255',
             'driveLicienceNo' => 'nullable|string|max:255',
             'carLicienceNo' => 'nullable|string|max:255',
+            'home_location_url_1' => 'nullable|string|max:2048',
+            'home_location_url_2' => 'nullable|string|max:2048',
         ]);
 
         if ($this->OLDuserImage) {
@@ -458,7 +475,7 @@ class Profile extends Component
             $this->username,
             $this->firstName,
             $this->lastName,
-            $this->user->type, // Assuming 'type' is a property of the currently authenticated user
+            $this->user->type,
             $this->email,
             $this->phone,
             $this->idNumber,
@@ -468,10 +485,13 @@ class Profile extends Component
             $this->carLicienceNo,
             $user_car_lic_url,
             $user_image_url,
+            null,
+            $this->home_location_url_1,
+            $this->home_location_url_2
         );
 
         if ($u) {
-            $this->alertSuccess('Updated Successfuly');
+            $this->alertSuccess('Updated Successfully');
             $this->changes = false;
         } else {
             $this->alertFailed('Server error');

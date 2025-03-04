@@ -5,6 +5,7 @@ namespace App\Livewire\Orders;
 use Livewire\Component;
 use App\Models\Orders\Order;
 use App\Models\Payments\CustomerPayment;
+use App\Models\RouteNav;
 use App\Models\Users\Driver;
 use App\Traits\AlertFrontEnd;
 use Carbon\Carbon;
@@ -46,6 +47,13 @@ class OrderDriverShift extends Component
     public $showBagsId;
     public $expandedId;
     public $noOfBags = [];
+
+    public $startLocation;
+    public $endLocation;
+
+    public $showRoutePlanModal = false;
+    public $selectedStartLocation = 'current';
+    public $selectedDestination = '';
 
     public function updateNoOfBags($id)
     {
@@ -181,11 +189,24 @@ class OrderDriverShift extends Component
                 $this->driver = Driver::first();
             }
         }
-        $orders = Order::search(searchText: $this->search, deliveryDates: [$this->deliveryDate], status: $this->status, driverId: $this->driver?->id, zoneId: $this->zone?->id)
-            ->confirmed()->openOrders()->withTotalQuantity()->orderByRaw('driver_order IS NULL, driver_order ASC')->sortByZone()->paginate(50);
+        $orders = Order::shift($this->driver?->id, $this->deliveryDate)->paginate(50);
         foreach ($orders as $order) {
             $this->noOfBags[$order->id] = $order->no_of_bags;
         }
+    }
+
+    public function getRoute()
+    {
+        if($this->startLocation == 'factory' || !$this->startLocation){
+            $this->startLocation = env('FACTORY_LOCATION');
+        }
+
+        if($this->endLocation == 'factory' || !$this->endLocation){
+            $this->endLocation = env('FACTORY_LOCATION');
+        }
+
+        $route = RouteNav::getBestRoute($this->driverId, Carbon::parse($this->deliveryDate), $this->startLocation, $this->endLocation);
+     
     }
 
     public function ChangeDriverShift($id)
@@ -218,11 +239,52 @@ class OrderDriverShift extends Component
         $this->closeFilteryDriver();
     }
 
+    public function openRoutePlanModal()
+    {
+        $this->showRoutePlanModal = true;
+    }
+
+    public function closeRoutePlanModal()
+    {
+        $this->showRoutePlanModal = false;
+        $this->selectedStartLocation = 'current';
+        $this->selectedDestination = '';
+    }
+
+    public function planRoute()
+    {
+        $this->validate([
+            'selectedStartLocation' => 'required',
+            'selectedDestination' => 'required',
+        ]);
+
+        // Get start location
+        $startLocation = match($this->selectedStartLocation) {
+            'current' => $this->startLocation, // Current location from the existing input
+            'home1' => $this->driver->user->home_location_url_1,
+            'home2' => $this->driver->user->home_location_url_2,
+            default => throw new \Exception('Invalid start location'),
+        };
+
+        // Get destination
+        $destination = match($this->selectedDestination) {
+            'home1' => $this->driver->user->home_location_url_1,
+            'home2' => $this->driver->user->home_location_url_2,
+            default => $this->selectedDestination, // Order location URL
+        };
+
+        // Call the existing getRoute method
+        $this->startLocation = $startLocation;
+        $this->endLocation = $destination;
+        $this->getRoute();
+
+        $this->closeRoutePlanModal();
+    }
+
     public function render()
     {
-        $orders = Order::search(searchText: $this->search, deliveryDates: [$this->deliveryDate], status: $this->status, driverId: $this->driver?->id, zoneId: $this->zone?->id)
-            ->confirmed()->notCancelledOrders()->withTotalQuantity()
-            ->orderByRaw('driver_order IS NULL, driver_order ASC')->sortByZone()->get();
+        $orders = Order::shift($this->driverId, $this->deliveryDate)->get();
+        $routes = RouteNav::where('driver_id', $this->driverId)->where('day', $this->deliveryDate)->first();
 
         $totalZones = Order::getTotalZonesForOrders($orders);
         $PAYMENT_METHODS = CustomerPayment::PAYMENT_METHODS;
@@ -243,7 +305,8 @@ class OrderDriverShift extends Component
         return view('livewire.orders.order-driver-shift', [
             'orders' => $orders,
             'totalZones' => $totalZones,
-            'PAYMENT_METHODS' => $PAYMENT_METHODS
+            'PAYMENT_METHODS' => $PAYMENT_METHODS,
+            'routes' => $routes
         ])->layout('layouts.app', ['page_title' => $this->page_title, 'driverShift' => 'active']);
     }
 }
