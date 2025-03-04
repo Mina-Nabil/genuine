@@ -93,6 +93,7 @@ class CustomerPayment extends Model
     {
         $term = "%{$term}%";
         return $query
+            ->select('customer_payments.*')
             ->leftjoin('suppliers', 'customer_payments.supplier_id', '=', 'suppliers.id')
             ->leftjoin('customers', 'customer_payments.customer_id', '=', 'customers.id')
             ->where(function ($q) use ($term) {
