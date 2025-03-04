@@ -98,7 +98,7 @@ class CustomerPayment extends Model
             ->where(function ($q) use ($term) {
                 $q->orwhere('suppliers.name', 'like', "%$term%")
                     ->orwhere('customers.name', 'like', "%$term%")
-                    ->orWhere('note', 'like', "%$term%");
+                    ->orWhere('customer_payments.note', 'like', "%$term%");
             });
     }
 
