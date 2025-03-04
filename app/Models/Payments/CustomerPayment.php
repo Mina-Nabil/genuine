@@ -12,11 +12,8 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class CustomerPayment extends Model
 {
@@ -61,7 +58,7 @@ class CustomerPayment extends Model
                 ]);
 
                 $payment->save();
-                AppLog::info('Payment Created','Payment created successfuly',loggable: $payment);
+                AppLog::info('Payment Created', 'Payment created successfuly', loggable: $payment);
                 return true;
             } catch (Exception $e) {
                 report($e);
@@ -95,14 +92,17 @@ class CustomerPayment extends Model
     public function scopeSearch($query, $term)
     {
         $term = "%{$term}%";
-        return $query->where(function ($q) use ($term) {
-            $q->whereHas('customer', function ($customerQuery) use ($term) {
-                $customerQuery->where('name', 'like', $term)->orWhere('address', 'like', $term)->orWhere('phone', 'like', $term);
+        return $query
+            ->leftjoin('suppliers', 'customer_payments.supplier_id', '=', 'suppliers.id')
+            ->leftjoin('customers', 'customer_payments.customer_id', '=', 'customers.id')
+            ->where(function ($q) use ($term) {
+                $q->orwhere('name', 'like', "%$term%")
+                    ->orwhere('name', 'like', "%$term%")
+                    ->orWhere('note', 'like', "%$term%");
             });
-        });
     }
 
-    
+
 
     public function scopeFrom($query, Carbon $date)
     {
@@ -165,19 +165,17 @@ class CustomerPayment extends Model
             SUM(CASE WHEN payment_method = "wallet" THEN amount ELSE 0 END) as wallet_total,
             COUNT(*) as transaction_count
         ')
-        ->leftJoin('payment_titles', 'payment_titles.id', '=', 'customer_payments.title_id')
-        ->groupBy('customer_payments.title_id', 'payment_titles.title', 'payment_titles.limit');
+            ->leftJoin('payment_titles', 'payment_titles.id', '=', 'customer_payments.title_id')
+            ->groupBy('customer_payments.title_id', 'payment_titles.title', 'payment_titles.limit');
 
         if ($startDate) {
             $query->where('customer_payments.created_at', '>=', $startDate->startOfDay());
         }
-        
+
         if ($endDate) {
             $query->where('customer_payments.created_at', '<=', $endDate->endOfDay());
         }
 
         return $query;
     }
-
-   
 }
