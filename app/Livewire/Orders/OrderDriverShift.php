@@ -187,6 +187,7 @@ class OrderDriverShift extends Component
                 $this->driver = Driver::find($this->driverId);
             } else {
                 $this->driver = Driver::first();
+                $this->driverId = $this->driver->id;
             }
         }
         $orders = Order::shift($this->driver?->id, $this->deliveryDate)->paginate(50);
