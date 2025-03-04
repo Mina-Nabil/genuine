@@ -61,7 +61,7 @@
                     </div>
                 @endif
             </div>
-            @if ($driver)
+            @if ($driverId)
                 <div class="space-y-2 mt-1 float-right">
                     <div class="space-y-2">
                         @if (!$routes)
