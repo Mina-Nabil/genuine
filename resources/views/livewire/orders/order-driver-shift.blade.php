@@ -61,21 +61,22 @@
                     </div>
                 @endif
             </div>
+            @if ($driver)
+                <div class="space-y-2 mt-1 float-right">
+                    <div class="space-y-2">
+                        @if (!$routes)
+                            <button wire:click="openRoutePlanModal" class="btn btn-sm btn-primary">
+                                Plan Route
+                            </button>
+                        @else
+                            <button class="btn btn-sm btn-primary" disabled>
+                                Route Planned
+                            </button>
+                        @endif
 
-            <div class="space-y-2 mt-1 float-right">
-                <div class="space-y-2">
-                    @if (!$routes)
-                        <button wire:click="openRoutePlanModal" class="btn btn-sm btn-primary">
-                            Plan Route
-                        </button>
-                    @else
-                        <button class="btn btn-sm btn-primary" disabled>
-                            Route Planned
-                        </button>
-                    @endif
-
+                    </div>
                 </div>
-            </div>
+            @endif
         </div>
     </div>
 
