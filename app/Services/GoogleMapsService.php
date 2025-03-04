@@ -90,18 +90,18 @@ class GoogleMapsService
 
         /// url example3 = https://www.google.com/maps/search/29.969535,%2B31.482114%3Fentry%3Dtts%26g_ep%3DEgoyMDI1MDIyNi4xIPu8ASoASAFQAw%253D%253D&q=EgTFNHSPGMLil74GIjAlki6tC9wrCCiUXx7i4KCowVhYoZsAfR9iDMGV667E2ywXsZbn_fRTOBXOjIxQwl4yAXJaAUM
 
-        if(is_array($url)){
+        if (is_array($url)) {
             $url = $url[0];
         }
 
-        
+
         Log::info('URL');
         Log::info($url);
         Log::info('URL end');
 
         // Extract coordinates from URL
         $coordinates = [];
-        
+
         // Try to match coordinates in format lat,lng directly
         if (preg_match('/place\/([\d.-]+),([\d.-]+)/', $url, $matches) || preg_match('/search\/([\d.-]+),\s*%2B?([\d.-]+)/', $url, $matches)) {
             $coordinates = [
@@ -112,12 +112,12 @@ class GoogleMapsService
         // Try to match coordinates in DMS format
         else if (preg_match('/place\/([\d.]+)%C2%B0([\d.]+)\'([\d.]+)%22([NS]).*?([\d.]+)%C2%B0([\d.]+)\'([\d.]+)%22([EW])/', $url, $matches)) {
             // Convert DMS to decimal degrees
-            $latitude = $matches[1] + ($matches[2]/60) + ($matches[3]/3600);
+            $latitude = $matches[1] + ($matches[2] / 60) + ($matches[3] / 3600);
             $latitude = ($matches[4] === 'S') ? -$latitude : $latitude;
-            
-            $longitude = $matches[5] + ($matches[6]/60) + ($matches[7]/3600);
+
+            $longitude = $matches[5] + ($matches[6] / 60) + ($matches[7] / 3600);
             $longitude = ($matches[8] === 'W') ? -$longitude : $longitude;
-            
+
             $coordinates = [
                 'latitude' => $latitude,
                 'longitude' => $longitude
@@ -138,7 +138,7 @@ class GoogleMapsService
             // If no coordinates found and this is first try, follow redirect and try again
             return $this->getLongLattFromAddress($this->getMainUrl($url), false);
         }
-        
+
         if (empty($coordinates)) {
             throw new \Exception("Could not extract coordinates from URL: " . $url);
         }
@@ -151,12 +151,14 @@ class GoogleMapsService
             'latitude' => $coordinates['latitude'],
             'longitude' => $coordinates['longitude']
         ];
-        
     }
 
     function getMainUrl($url)
     {
         $headers = get_headers($url, 1);
-        return $headers['Location'];
+        if (isset($headers['Location'])) {
+            return $headers['Location'];
+        }
+        return $url;
     }
 }
