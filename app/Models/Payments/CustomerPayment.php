@@ -96,8 +96,8 @@ class CustomerPayment extends Model
             ->leftjoin('suppliers', 'customer_payments.supplier_id', '=', 'suppliers.id')
             ->leftjoin('customers', 'customer_payments.customer_id', '=', 'customers.id')
             ->where(function ($q) use ($term) {
-                $q->orwhere('name', 'like', "%$term%")
-                    ->orwhere('name', 'like', "%$term%")
+                $q->orwhere('suppliers.name', 'like', "%$term%")
+                    ->orwhere('customers.name', 'like', "%$term%")
                     ->orWhere('note', 'like', "%$term%");
             });
     }
