@@ -217,6 +217,7 @@ class OrderDriverShift extends Component
 
         if (in_array($id, $shiftsIDS)) {
             $this->driver = Driver::findOrFail($id);
+            $this->driverId = $this->driver->id;
         }
     }
 
