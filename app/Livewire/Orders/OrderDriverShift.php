@@ -10,6 +10,7 @@ use App\Models\Users\Driver;
 use App\Traits\AlertFrontEnd;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Livewire\WithPagination;
 use Livewire\Attributes\Url;
 
@@ -172,7 +173,7 @@ class OrderDriverShift extends Component
 
     public function mount()
     {
-
+        Log::info('OrderDriverShift mounted');
         if ($this->deliveryDate) {
             // $this->deliveryDate = Carbon::parse($this->deliveryDate);
         } else {
