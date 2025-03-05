@@ -241,7 +241,7 @@ class User extends Authenticatable
         });
     }
 
-    public function switchSession($username)
+    public static function switchSession($username)
     {
         // Assuming 'username' is the attribute to identify the user instead of user_id
         $availableSessions = $this->tmp_access_to()->get()->pluck('username')->toArray(); // Changed to pluck 'username'
