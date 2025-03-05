@@ -63,6 +63,7 @@ use App\Livewire\Users\NotificationIndex;
 use App\Livewire\Users\Profile;
 use App\Livewire\Users\UserIndex;
 use App\Models\Accounting\Account;
+use App\Models\Users\User;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -162,6 +163,11 @@ Route::middleware(['auth', 'no_driver', 'accounting_only_admin'])->group(functio
         return response()->json(Account::findOrFail($id)->getTree());
     });
     Route::get('/accounts/{id}', AccountShow::class)->name('accounts.show');
+
+    Route::get('/switch-session/{username}', function($username){
+        return User::switchSession($username);
+    });
+
 });
 
 

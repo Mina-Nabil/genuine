@@ -72,8 +72,8 @@ class RouteNav extends Model
                 Log::info($route);
                 Log::info('Route end');
                 foreach ($route as $key => $value) {
-                    $orders[$key]->driver_order = $value+1;
-                    $orders[$key]->save();
+                    $orders[$value]->driver_order = $key+1;
+                    $orders[$value]->save();
                 }
                 $route = self::create([
                     'driver_id' => $driverId,
