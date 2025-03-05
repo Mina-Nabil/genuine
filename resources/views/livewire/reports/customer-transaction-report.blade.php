@@ -238,7 +238,7 @@
                                     <select id="title_id" 
                                             class="form-control @error('title_id') !border-danger-500 @enderror" 
                                             wire:model.live="title_id">
-                                        <option value="">Select a payment title</option>
+                                        <option value="" selected disabled>Select a payment title</option>
                                         @foreach($paymentTitles as $title)
                                             <option value="{{ $title->id }}">{{ $title->title }} (Limit: {{ number_format($title->limit, 2) }})</option>
                                         @endforeach
