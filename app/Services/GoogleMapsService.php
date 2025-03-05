@@ -89,6 +89,7 @@ class GoogleMapsService
         ///url example2 = https://www.google.com/maps/place/30.060106,31.494161/data=!4m6!3m5!1s0!7e2!8m2!3d30.060105999999998!4d31.494161?utm_source=mstt_1&entry=gps&coh=192189&g_ep=CAESBjI1LjcuMhgAIJ6dCipjLDk0MjIzMjk5LDk0MjE2NDEzLDk0MjEyNDk2LDk0MjA3Mzk0LDk0MjA3NTA2LDk0MjA4NTA2LDk0MjE3NTIzLDk0MjE4NjUzLDk0MjI5ODM5LDQ3MDg0MzkzLDk0MjEzMjAwQgJFRw%3D%3D  
 
         /// url example3 = https://www.google.com/maps/search/29.969535,%2B31.482114%3Fentry%3Dtts%26g_ep%3DEgoyMDI1MDIyNi4xIPu8ASoASAFQAw%253D%253D&q=EgTFNHSPGMLil74GIjAlki6tC9wrCCiUXx7i4KCowVhYoZsAfR9iDMGV667E2ywXsZbn_fRTOBXOjIxQwl4yAXJaAUM
+        /// url example4 = https://www.google.com/maps/search/29.969535,+31.482114%3Fentry%3Dtts%26g_ep%3DEgoyMDI1MDIyNi4xIPu8ASoASAFQAw%253D%253D&q=EgTFNHSPGMLil74GIjAlki6tC9wrCCiUXx7i4KCowVhYoZsAfR9iDMGV667E2ywXsZbn_fRTOBXOjIxQwl4yAXJaAUM
 
         if (is_array($url)) {
             $url = $url[0];
@@ -103,7 +104,8 @@ class GoogleMapsService
         $coordinates = [];
 
         // Try to match coordinates in format lat,lng directly
-        if (preg_match('/place\/([\d.-]+),([\d.-]+)/', $url, $matches) || preg_match('/search\/([\d.-]+),\s*%2B?([\d.-]+)/', $url, $matches)) {
+        if (preg_match('/place\/([\d.-]+),([\d.-]+)/', $url, $matches) || 
+            preg_match('/search\/([\d.-]+),\s*(?:\+|%2B)?([\d.-]+)/', $url, $matches)) {
             $coordinates = [
                 'latitude' => (float)$matches[1],
                 'longitude' => (float)$matches[2]
