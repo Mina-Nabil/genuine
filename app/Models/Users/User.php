@@ -243,18 +243,11 @@ class User extends Authenticatable
 
     public static function switchSession($username)
     {
-        // Assuming 'username' is the attribute to identify the user instead of user_id
-        $availableSessions = $this->tmp_access_to()->get()->pluck('username')->toArray(); // Changed to pluck 'username'
-
-        if (!in_array($username, $availableSessions)) {
-            return false;
-        }
 
         // Find the user by username
         $user = User::where('username', $username)->first(); // Assuming you have a User model
         if ($user) {
             Auth::loginUsingId($user->id); // Log in using the user's ID
-            Session::put('original_session_id', $this->to_id); // Store the original session ID
         }
 
         return true; // Indicate successful switch
