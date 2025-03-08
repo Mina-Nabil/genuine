@@ -267,9 +267,6 @@ class OrderReport extends Component
 
     public function render()
     {
-        if(!$this->creation_date_from && !$this->delivery_date_from) {
-            $this->creation_date_from = Carbon::now()->startOfMonth();
-        }
         
         $AllOrders = Order::Report(
             searchText: $this->search,
