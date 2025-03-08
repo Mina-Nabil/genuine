@@ -48,7 +48,7 @@ class Dashboard extends Component
         $materialsUnderLimit = RawMaterial::UnderLimit()->get();
         $nearlyExpiredMaterials = SupplierRawMaterial::NearlyExpired()->get();
         $expiredMaterials = SupplierRawMaterial::Expired()->get();
-        $totalActiveOrdersCount = Order::search()
+        $totalActiveOrdersCount = Order::search(deliveryDates: [$fromDate, $toDate])
             ->OpenOrders()
             ->notDebitOrders()
             ->selectRaw('Count(orders.id) as active_orders')->first()?->active_orders;
