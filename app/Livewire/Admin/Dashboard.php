@@ -50,7 +50,6 @@ class Dashboard extends Component
         $expiredMaterials = SupplierRawMaterial::Expired()->get();
         $totalActiveOrdersCount = Order::search()
             ->OpenOrders()
-            ->sortByDeliveryDate()
             ->notDebitOrders()
             ->selectRaw('Count(orders.id) as active_orders')->first()?->active_orders;
 
