@@ -94,7 +94,7 @@
                                         Weight sold
                                     </div>
                                     <div class="text-slate-900 dark:text-white text-lg font-medium">
-                                        {{ $totalOrdersWeight / 1000 }} <small>KG</small>
+                                        {{ $totalOrdersWeight / 1000 }}
                                     </div>
                                 </div>
                             </div>
