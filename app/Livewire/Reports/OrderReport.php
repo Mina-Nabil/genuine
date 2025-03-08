@@ -264,10 +264,16 @@ class OrderReport extends Component
         $this->selectedOrders = $this->fetched_orders_IDs;
     }
 
+    public function mount()
+    {
+
+        $this->delivery_date_from = Carbon::now()->startOfMonth();
+    }
+
 
     public function render()
     {
-        
+
         $AllOrders = Order::Report(
             searchText: $this->search,
             zone_ids: $this->zones,
@@ -284,7 +290,7 @@ class OrderReport extends Component
         foreach ($AllOrders as $order) {
             $totalWeight = $totalWeight + $order->total_weight;
         }
-        
+
         $orders = Order::Report(
             searchText: $this->search,
             zone_ids: $this->zones,
