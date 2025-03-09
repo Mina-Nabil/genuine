@@ -34,6 +34,7 @@
                         <thead class="border-t border-slate-100 dark:border-slate-800 bg-slate-200 dark:bg-slate-700">
                             <tr>
                                 <th scope="col" class="table-th">Name</th>
+                                <th scope="col" class="table-th">Available</th>
                                 <th scope="col" class="table-th">New</th>
                             </tr>
                         </thead>
@@ -45,7 +46,7 @@
                                     <tr>
                                         <td class="table-td flex items-center sticky-column bg-white dark:bg-slate-800 colomn-shadow"
                                             style="position: sticky; left: -25px;  z-index: 10;">
-                                      
+
                                             <a href="{{ route('product.show', $inventory->inventoryable?->id) }}"> <span
                                                     class="hover-underline">
                                                     <b>
@@ -62,10 +63,10 @@
                                                 wire:change="updateAvailable({{ $index }})" min="0">
                                         </td> --}}
 
-                                        {{-- <td class="table-td">
-                                            <b>{{ number_format($inventory?->committed) }}</b>
+                                        <td class="table-td">
+                                            <b>{{ number_format($inventory?->on_hand) }}</b>
                                         </td>
-
+                                        {{-- 
                                         <td class="table-td">
                                             {{ $productsChanges['data'][$index]['available'] }}
                                             {{-- <input type="number"
@@ -153,7 +154,7 @@
 
                                         <td class="table-td flex items-center sticky-column bg-white dark:bg-slate-800 colomn-shadow"
                                             style="position: sticky; left: -25px;  z-index: 10;">
-                                        
+
                                             <a href="{{ route('material.show', $inventory->inventoryable?->id) }}">
                                                 <span class="hover-underline">
                                                     <b>
