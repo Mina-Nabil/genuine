@@ -179,4 +179,24 @@ class CustomerPayment extends Model
 
         return $query;
     }
+
+    public function scopeTodayCashIn($query)
+    {
+        return $query->whereDate('payment_date', today())
+            ->where('amount', '>', 0)
+            ->selectRaw('SUM(amount) as total_in');
+    }
+
+    public function scopeTodayCashOut($query)
+    {
+        return $query->whereDate('payment_date', today())
+            ->where('amount', '<', 0)
+            ->selectRaw('SUM(ABS(amount)) as total_out');
+    }
+
+    public function scopeTodayBalance($query)
+    {
+        return $query->whereDate('payment_date', today())
+            ->selectRaw('SUM(amount) as today_balance');
+    }
 }

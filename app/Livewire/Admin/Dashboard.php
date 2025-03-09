@@ -59,6 +59,9 @@ class Dashboard extends Component
         $bankBalance = CustomerPayment::PaymentMethod(CustomerPayment::PYMT_BANK_TRANSFER)->limit(1)->latest()->first()?->type_balance ?? 0;
         $walletBalance = CustomerPayment::PaymentMethod(CustomerPayment::PYMT_WALLET)->limit(1)->latest()->first()?->type_balance ?? 0;
 
+        $todayCashIn = CustomerPayment::todayCashIn()->first()?->total_in ?? 0;
+        $todayCashOut = CustomerPayment::todayCashOut()->first()?->total_out ?? 0;
+        $todayBalance = $todayCashIn - $todayCashOut;
 
         // Ensure the data is properly sent to the view
         return view('livewire.admin.dashboard', [
@@ -75,6 +78,9 @@ class Dashboard extends Component
             'bankBalance'           => $bankBalance,
             'walletBalance'         => $walletBalance,
             'totalUnpaidInvoices'         => $totalUnpaidInvoices,
+            'todayCashIn' => $todayCashIn,
+            'todayCashOut' => $todayCashOut,
+            'todayBalance' => $todayBalance,
         ])->layout('layouts.app', ['dashboard' => 'active']);
     }
 }

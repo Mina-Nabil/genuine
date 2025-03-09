@@ -197,6 +197,10 @@
                 </div>
             </div>
         </div>
+
+    
+
+
         <div class="grid grid-cols-12 gap-5 mb-5">
             <div class="col-span-12">
                 <div class="grid md:grid-cols-2 grid-cols-1 gap-4">
@@ -246,7 +250,75 @@
                 </div>
             </div>
         </div>
+        <div class="grid grid-cols-12 gap-5 mb-5">
+            <div class="col-span-12">
+                <div class="grid md:grid-cols-3 grid-cols-1 gap-4">
+                    <div class="card">
+                        <div class="card-body pt-4 pb-3 px-4">
+                            <div class="flex space-x-3 rtl:space-x-reverse">
+                                <div class="flex-none">
+                                    <div
+                                        class="h-12 w-12 rounded-full flex flex-col items-center justify-center text-2xl bg-success-100 dark:bg-slate-900 text-success-500">
+                                        <iconify-icon icon="mdi:cash-plus"></iconify-icon>
+                                    </div>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="text-slate-600 dark:text-slate-300 text-sm mb-1 font-medium">
+                                        Today Cash In
+                                    </div>
+                                    <div class="text-slate-900 dark:text-white text-lg font-medium">
+                                        {{ number_format($todayCashIn) }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
+                    <div class="card">
+                        <div class="card-body pt-4 pb-3 px-4">
+                            <div class="flex space-x-3 rtl:space-x-reverse">
+                                <div class="flex-none">
+                                    <div
+                                        class="h-12 w-12 rounded-full flex flex-col items-center justify-center text-2xl bg-danger-100 dark:bg-slate-900 text-danger-500">
+                                        <iconify-icon icon="mdi:cash-minus"></iconify-icon>
+                                    </div>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="text-slate-600 dark:text-slate-300 text-sm mb-1 font-medium">
+                                        Today Cash Out
+                                    </div>
+                                    <div class="text-slate-900 dark:text-white text-lg font-medium">
+                                        {{ number_format($todayCashOut) }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-body pt-4 pb-3 px-4">
+                            <div class="flex space-x-3 rtl:space-x-reverse">
+                                <div class="flex-none">
+                                    <div
+                                        class="h-12 w-12 rounded-full flex flex-col items-center justify-center text-2xl {{ $todayBalance >= 0 ? 'bg-success-100 text-success-500' : 'bg-danger-100 text-danger-500' }} dark:bg-slate-900">
+                                        <iconify-icon icon="{{ $todayBalance >= 0 ? 'mdi:cash-check' : 'mdi:cash-remove' }}"></iconify-icon>
+                                    </div>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="text-slate-600 dark:text-slate-300 text-sm mb-1 font-medium">
+                                        Today Balance
+                                    </div>
+                                    <div class="text-slate-900 dark:text-white text-lg font-medium {{ $todayBalance < 0 ? 'text-danger-500' : '' }}">
+                                        {{ number_format($todayBalance) }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
         <div class="card">
             <header class="card-header noborder">
                 <h4 class="card-title">Analysis</h4>
