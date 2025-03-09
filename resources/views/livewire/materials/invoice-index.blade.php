@@ -115,7 +115,7 @@
                             <th scope="col" class="table-th">Serial</th>
                             <th scope="col" class="table-th">Delivery</th>
                             <th scope="col" class="table-th">Supplier</th>
-                            <th scope="col" class="table-th">Total</th>
+                            <th scope="col" class="table-th">Total ({{ $invoices->sum('total_amount') }})</th>
                             <th scope="col" class="table-th">Items</th>
                             <th scope="col" class="table-th">Payment Status</th>
                             <th scope="col" class="table-th">Payment Due</th>
