@@ -349,6 +349,19 @@
                         </li>
                     @endcan
 
+
+                    @can('viewReports', App\Models\Orders\Order::class)
+                        <li>
+                            <a href="{{ auth()->user()->can('viewReports', App\Models\Orders\Order::class) ? url('/report/product-sales') : '#' }}"
+                                class="navItem {{ $productSalesReport ?? '' }} {{ auth()->user()->can('viewReports', App\Models\Orders\Order::class) ? '' : 'disabled' }}">
+                                <span class="flex items-center">
+                                    <iconify-icon class="nav-icon" icon="mdi:package-variant"></iconify-icon>
+                                    <span>مبيعات الاصناف</span>
+                                </span>
+                            </a>
+                        </li>
+                    @endcan
+
                     @if (auth()->user()->is_admin || auth()->user()->is_driver)
 
                         <li class="sidebar-menu-title">Finance</li>

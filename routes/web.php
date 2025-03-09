@@ -142,7 +142,9 @@ Route::middleware(['auth', 'no_driver', 'accounting_only_admin'])->group(functio
     Route::get('/report/drivers/balance', DriversBalanceReport::class)->name('reports.drivers.balance');
     Route::get('/report/payment-titles', PaymentTitleReport::class)
     ->name('report.payment-titles');
-
+    Route::get('/report/product-sales', App\Livewire\Reports\ProductSalesReport::class)
+    ->name('report.product-sales');
+    
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
 
     Route::get('/productions', ProductionPlanning::class)->name('production.planning');

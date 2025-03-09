@@ -2204,6 +2204,33 @@ class Order extends Model
         return $query->groupBy('zones.name', 'week')->orderBy('zones.name')->orderBy('week');
     }
 
+    public function scopeProductTotals($query, $startDate = null, $endDate = null)
+    {
+        $query = $query->join('order_products', 'orders.id', '=', 'order_products.order_id')
+            ->join('products', 'order_products.product_id', '=', 'products.id')
+            ->select(
+                'products.id',
+                'products.name',
+                'products.weight',
+                DB::raw('SUM(order_products.quantity) as total_quantity'),
+                DB::raw('COUNT(DISTINCT orders.id) as order_count')
+            )
+            ->whereNull('order_products.deleted_at')
+            ->whereIn('orders.status', Order::OK_STATUSES)
+            ->where('orders.is_confirmed', true)
+            ->groupBy('products.id', 'products.name', 'products.weight');
+
+        if ($startDate) {
+            $query->where('orders.delivery_date', '>=', $startDate);
+        }
+        
+        if ($endDate) {
+            $query->where('orders.delivery_date', '<=', $endDate);
+        }
+
+        return $query;
+    }
+
     public function scopeUserPerformanceReport($query, $year, $month)
     {
         return $query->selectRaw('CONCAT(users.first_name, " ", users.last_name) as user_name')->selectRaw('DAY(orders.created_at) as day')->selectRaw('COUNT(orders.id) as total_orders')->selectRaw('SUM(orders.total_amount) as total_amount')->join('users', 'users.id', '=', 'orders.created_by')->whereYear('orders.created_at', $year)->whereMonth('orders.created_at', $month)->whereIn('orders.status', Order::OK_STATUSES)->groupBy('users.id', 'day')->orderBy('day', 'ASC');
@@ -2299,4 +2326,6 @@ class Order extends Model
     {
         return $this->belongsTo(Driver::class);
     }
+
+
 }
