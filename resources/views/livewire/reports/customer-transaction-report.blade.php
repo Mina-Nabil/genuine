@@ -250,7 +250,7 @@
 
                                 <div class="form-group">
                                     <label for="amount" class="form-label">
-                                        Amount
+                                        Amount (amount paid by Genuine to others)
                                     </label>
                                     <input type="text" 
                                            id="amount" 
