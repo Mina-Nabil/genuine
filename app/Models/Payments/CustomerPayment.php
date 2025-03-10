@@ -183,6 +183,7 @@ class CustomerPayment extends Model
     public function scopeTodayCashIn($query)
     {
         return $query->whereDate('payment_date', today())
+            ->where('payment_method', self::PYMT_CASH)
             ->where('amount', '>', 0)
             ->selectRaw('SUM(amount) as total_in');
     }
@@ -190,6 +191,7 @@ class CustomerPayment extends Model
     public function scopeTodayCashOut($query)
     {
         return $query->whereDate('payment_date', today())
+            ->where('payment_method', self::PYMT_CASH)
             ->where('amount', '<', 0)
             ->selectRaw('SUM(ABS(amount)) as total_out');
     }
@@ -197,6 +199,7 @@ class CustomerPayment extends Model
     public function scopeTodayBalance($query)
     {
         return $query->whereDate('payment_date', today())
+            ->where('payment_method', self::PYMT_CASH)
             ->selectRaw('SUM(amount) as today_balance');
     }
 }
