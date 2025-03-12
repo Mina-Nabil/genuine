@@ -100,6 +100,8 @@ class OrderShow extends Component
     public $customerSearchText;
     public $Allcustomer;
 
+
+
     public function openUpdateCustomer(){
         $this->isOpenUpdateCustomer = true;
         $this->Allcustomer = Customer::search($this->customerSearchText)->take(10)->get();
@@ -390,8 +392,6 @@ class OrderShow extends Component
             $this->alertFailed();
         }
     }
-
-    public $PAY_BY_PAYMENT_METHOD;
 
     public function confirmPayOrder($method)
     {
@@ -725,6 +725,52 @@ class OrderShow extends Component
 
         $this->closeDeliverySection();
     }
+
+    //Start Partial Payment
+    public $PAY_BY_PAYMENT_METHOD;
+    public $isOpenPartialPaymentSec = false;
+    public $partialPaymentAmount;
+    public $partialPaymentMethod = CustomerPayment::PYMT_CASH;
+
+    public function openPartialPayment()
+    {
+        $this->isOpenPartialPaymentSec = true;
+        $this->partialPaymentAmount = null;
+        $this->partialPaymentMethod = null;
+    }
+
+    public function closePartialPayment()
+    {
+        $this->isOpenPartialPaymentSec = false;
+        $this->reset(['partialPaymentAmount','partialPaymentMethod']);
+    }
+
+    public function makePartialPayment()
+    {
+        $this->authorize('pay', $this->order);
+        
+        // Validate input
+        $this->validate([
+            'partialPaymentAmount' => 'required|numeric|min:0.01|max:' . $this->order->remaining_to_pay,
+            'partialPaymentMethod' => 'required|string',
+        ]);
+        
+        $res = $this->order->createPayment(
+            $this->partialPaymentAmount, 
+            $this->partialPaymentMethod, 
+            Carbon::now(), 
+            false
+        );
+        
+        if ($res) {
+            $this->mount($this->order->id);
+            $this->closePartialPayment();
+            $this->alertSuccess('Partial payment processed successfully');
+        } else {
+            $this->alertFailed();
+        }
+    }
+    //End Partial Payment
 
     public function mount($id)
     {
