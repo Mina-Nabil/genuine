@@ -16,13 +16,14 @@ use App\Events\AppNotification;
 use App\Models\Orders\Order;
 use App\Models\Payments\BalanceTransaction;
 use App\Models\Payments\CustomerPayment;
+use App\Traits\CanBeDisabled;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Facades\DB;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, CanBeDisabled;
 
     const MORPH_TYPE = 'user';
 
@@ -245,7 +246,7 @@ class User extends Authenticatable
     {
 
         // Find the user by username
-        $user = User::where('username', $username)->first(); // Assuming you have a User model
+        $user = User::active()->where('username', $username)->first(); // Assuming you have a User model
         if ($user) {
             Auth::loginUsingId($user->id); // Log in using the user's ID
         }
