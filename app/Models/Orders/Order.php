@@ -996,7 +996,7 @@ class Order extends Model
                 if ($this->remaining_to_pay == 0) {
                     $this->is_paid = true;
                     $this->save();
-                    if (($this->is_confirmed && $this->is_ready) || $this->is_in_delivery || $this->is_delivered) {
+                    if ($this->is_in_delivery && $this->is_delivered) {
                         $this->is_delivered = true;
                         $this->save();
                         $this->setStatus(self::STATUS_DONE, true);
