@@ -258,6 +258,16 @@
                         </li>
                     @endcan
 
+                    <li>
+                        <a href="{{ auth()->user()->can('viewAny', App\Models\Orders\Order::class) ? url('/report/driver-shift-delivery') : '#' }}"
+                            class="navItem {{ $driverShiftDeliveryReport ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Orders\Order::class) ? '' : 'disabled' }}">
+                            <span class="flex items-center">
+                                <iconify-icon class="nav-icon" icon="mdi:account-group-outline"></iconify-icon>
+                                <span>تقرير المندوب</span>
+                            </span>
+                        </a>
+                    </li>
+
 
                     @can('viewSalesReports', App\Models\Orders\Order::class)
                         <li>
