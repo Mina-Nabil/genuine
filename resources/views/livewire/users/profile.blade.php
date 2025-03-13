@@ -5,7 +5,11 @@
             <div class="flex justify-between items-center h-full  float-right">
                 <div class="flex items-center md:space-x-4 space-x-2 xl:space-x-0 rtl:space-x-reverse vertical-box">
                     <button type="submit" wire:click="saveInfo"
-                        class="btn inline-flex justify-center  btn-light btn-sm mr-3">Save</button>
+                        class="btn inline-flex justify-center btn-light btn-sm mr-3">
+                        <span wire:loading.remove wire:target="saveInfo">Save</span>
+                        <iconify-icon wire:loading wire:target="saveInfo" class="text-xl spin-slow"
+                            icon="line-md:loading-twotone-loop"></iconify-icon>
+                    </button>
                 </div>
                 <!-- end nav tools -->
             </div>
@@ -398,7 +402,11 @@
 
                         @if ($OLDuploadIDFile)
                             <button class="btn inline-flex justify-center btn-dark btn-sm"
-                                wire:click="downloadIDDocument">Download ID</button>
+                                wire:click="downloadIDDocument">
+                                <span wire:loading.remove wire:target="downloadIDDocument">Download ID</span>
+                                <iconify-icon wire:loading wire:target="downloadIDDocument" class="text-xl spin-slow"
+                                    icon="line-md:loading-twotone-loop"></iconify-icon>
+                            </button>
                         @elseif($uploadIDFile)
                             <img src="{{ $uploadIDFile->temporaryUrl() }}"
                                 class="rounded-md border-4 border-slate-300 max-w-full w-full block" alt="image">
@@ -454,7 +462,11 @@
 
                         @if ($OLDuploadLicFile)
                             <button class="btn inline-flex justify-center btn-dark btn-sm"
-                                wire:click="downloadLicDocument">Download Licence</button>
+                                wire:click="downloadLicDocument">
+                                <span wire:loading.remove wire:target="downloadLicDocument">Download Licence</span>
+                                <iconify-icon wire:loading wire:target="downloadLicDocument" class="text-xl spin-slow"
+                                    icon="line-md:loading-twotone-loop"></iconify-icon>
+                            </button>
                         @elseif($uploadLicFile)
                             <img src="{{ $uploadLicFile->temporaryUrl() }}"
                                 class="rounded-md border-4 border-slate-300 max-w-full w-full block" alt="image">
@@ -510,7 +522,11 @@
 
                         @if ($OLDuploadCarLicFile)
                             <button class="btn inline-flex justify-center btn-dark btn-sm"
-                                wire:click="downloadCarLicDocument">Download Licence</button>
+                                wire:click="downloadCarLicDocument">
+                                <span wire:loading.remove wire:target="downloadCarLicDocument">Download Licence</span>
+                                <iconify-icon wire:loading wire:target="downloadCarLicDocument" class="text-xl spin-slow"
+                                    icon="line-md:loading-twotone-loop"></iconify-icon>
+                            </button>
                         @elseif($uploadCarLicFile)
                             <img src="{{ $uploadCarLicFile->temporaryUrl() }}"
                                 class="rounded-md border-4 border-slate-300 max-w-full w-full block" alt="image">

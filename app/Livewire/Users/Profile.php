@@ -11,6 +11,7 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Traits\AlertFrontEnd;
 use Illuminate\Support\Facades\Storage;
+use Exception;
 
 class Profile extends Component
 {
@@ -201,79 +202,136 @@ class Profile extends Component
 
     public $is_open_update_pass;
 
+    public function updatingUploadIDFile()
+    {
+        $this->changes = true;
+    }
+
+    public function updatingUploadLicFile()
+    {
+        $this->changes = true;
+    }
+
+    public function updatingUploadCarLicFile()
+    {
+        $this->changes = true;
+    }
+
+    public function updatingUserImage()
+    {
+        $this->changes = true;
+    }
+
+    public function downloadIDDocument()
+    {
+        if (!$this->user->id_doc_url) {
+            $this->alertFailed('No document available for download');
+            return;
+        }
+
+        try {
+            $fileContents = Storage::disk('s3')->get($this->user->id_doc_url);
+            $extension = pathinfo($this->user->id_doc_url, PATHINFO_EXTENSION);
+            $headers = [
+                'Content-Type' => 'application/octet-stream',
+                'Content-Disposition' => 'attachment; filename="' . $this->user->full_name . '_id_document.' . $extension . '"',
+            ];
+
+            return response()->stream(
+                function () use ($fileContents) {
+                    echo $fileContents;
+                },
+                200,
+                $headers,
+            );
+        } catch (Exception $e) {
+            report($e);
+            $this->alertFailed('Error downloading document');
+            return;
+        }
+    }
+
+    public function downloadLicDocument()
+    {
+        if (!$this->user->driving_license_doc_url) {
+            $this->alertFailed('No document available for download');
+            return;
+        }
+
+        try {
+            $fileContents = Storage::disk('s3')->get($this->user->driving_license_doc_url);
+            $extension = pathinfo($this->user->driving_license_doc_url, PATHINFO_EXTENSION);
+            $headers = [
+                'Content-Type' => 'application/octet-stream',
+                'Content-Disposition' => 'attachment; filename="' . $this->user->full_name . '_licience_document.' . $extension . '"',
+            ];
+
+            return response()->stream(
+                function () use ($fileContents) {
+                    echo $fileContents;
+                },
+                200,
+                $headers,
+            );
+        } catch (Exception $e) {
+            report($e);
+            $this->alertFailed('Error downloading document');
+            return;
+        }
+    }
+
+    public function downloadCarLicDocument()
+    {
+        if (!$this->user->car_license_doc_url) {
+            $this->alertFailed('No document available for download');
+            return;
+        }
+
+        try {
+            $fileContents = Storage::disk('s3')->get($this->user->car_license_doc_url);
+            $extension = pathinfo($this->user->car_license_doc_url, PATHINFO_EXTENSION);
+            $headers = [
+                'Content-Type' => 'application/octet-stream',
+                'Content-Disposition' => 'attachment; filename="' . $this->user->full_name . '_car_licience_document.' . $extension . '"',
+            ];
+
+            return response()->stream(
+                function () use ($fileContents) {
+                    echo $fileContents;
+                },
+                200,
+                $headers,
+            );
+        } catch (Exception $e) {
+            report($e);
+            $this->alertFailed('Error downloading document');
+            return;
+        }
+    }
+
     public function clearIDdocFile()
     {
         $this->reset('uploadIDFile', 'OLDuploadIDFile');
+        $this->changes = true;
     }
 
     public function clearLicDocFile()
     {
         $this->reset('uploadLicFile', 'OLDuploadLicFile');
+        $this->changes = true;
     }
 
     public function clearCarLicDocFile()
     {
         $this->reset('uploadCarLicFile', 'OLDuploadCarLicFile');
-    }
-
-    public function downloadIDDocument()
-    {
-        $fileContents = Storage::disk('s3')->get($this->user->id_doc_url);
-        $extension = pathinfo($this->user->id_doc_url, PATHINFO_EXTENSION);
-        $headers = [
-            'Content-Type' => 'application/octet-stream',
-            'Content-Disposition' => 'attachment; filename="' . $this->user->full_name . '_id_document.' . $extension . '"',
-        ];
-
-        return response()->stream(
-            function () use ($fileContents) {
-                echo $fileContents;
-            },
-            200,
-            $headers,
-        );
-    }
-
-    public function downloadLicDocument()
-    {
-        $fileContents = Storage::disk('s3')->get($this->user->driving_license_doc_url);
-        $extension = pathinfo($this->user->driving_license_doc_url, PATHINFO_EXTENSION);
-        $headers = [
-            'Content-Type' => 'application/octet-stream',
-            'Content-Disposition' => 'attachment; filename="' . $this->user->full_name . '_licience_document.' . $extension . '"',
-        ];
-
-        return response()->stream(
-            function () use ($fileContents) {
-                echo $fileContents;
-            },
-            200,
-            $headers,
-        );
-    }
-
-    public function downloadCarLicDocument()
-    {
-        $fileContents = Storage::disk('s3')->get($this->user->car_license_doc_url);
-        $extension = pathinfo($this->user->car_license_doc_url, PATHINFO_EXTENSION);
-        $headers = [
-            'Content-Type' => 'application/octet-stream',
-            'Content-Disposition' => 'attachment; filename="' . $this->user->full_name . '_car_licience_document.' . $extension . '"',
-        ];
-
-        return response()->stream(
-            function () use ($fileContents) {
-                echo $fileContents;
-            },
-            200,
-            $headers,
-        );
+        $this->changes = true;
     }
 
     public function clearImage()
     {
         $this->OLDuserImage = null;
         $this->userImage = null;
+        $this->changes = true;
     }
 
     function generateUrl()
