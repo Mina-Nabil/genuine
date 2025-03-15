@@ -50,6 +50,7 @@ use App\Livewire\Reports\DailySalesPerformanceReport;
 use App\Livewire\Reports\DailyTotalsReport;
 use App\Livewire\Reports\DriverBalanceTransactionReport;
 use App\Livewire\Reports\DriversBalanceReport;
+use App\Livewire\Reports\DriverShiftDeliveryReport;
 use App\Livewire\Reports\InventoryReport;
 use App\Livewire\Reports\MonthlyTotalsReport;
 use App\Livewire\Reports\OrderReport;
@@ -144,6 +145,8 @@ Route::middleware(['auth', 'no_driver', 'accounting_only_admin'])->group(functio
     ->name('report.payment-titles');
     Route::get('/report/product-sales', App\Livewire\Reports\ProductSalesReport::class)
     ->name('report.product-sales');
+    Route::get('/report/driver-shift-delivery', DriverShiftDeliveryReport::class)
+    ->name('report.driver-shift-delivery');
     
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
 
