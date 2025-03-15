@@ -607,6 +607,10 @@ class Order extends Model
             return false;
         }
 
+        if (!$deliveryDate) {
+            return false;
+        }
+
         try {
             $this->delivery_date = $deliveryDate;
 
@@ -2223,7 +2227,7 @@ class Order extends Model
         if ($startDate) {
             $query->where('orders.delivery_date', '>=', $startDate);
         }
-        
+
         if ($endDate) {
             $query->where('orders.delivery_date', '<=', $endDate);
         }
@@ -2326,6 +2330,4 @@ class Order extends Model
     {
         return $this->belongsTo(Driver::class);
     }
-
-
 }
