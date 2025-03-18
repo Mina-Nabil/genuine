@@ -25,7 +25,7 @@ class CustomerPayment extends Model
         'payment_date' => 'datetime',
     ];
 
-    protected $fillable = ['customer_id', 'order_id', 'supplier_id', 'invoice_id', 'amount', 'payment_method', 'type_balance', 'payment_date', 'note', 'created_by'];
+    protected $fillable = ['customer_id', 'order_id', 'supplier_id', 'invoice_id', 'amount', 'payment_method', 'type_balance', 'payment_date', 'note', 'created_by', 'title_id'];
 
     const PYMT_CASH = 'cash';
     const PYMT_BANK_TRANSFER = 'bank_transfer';
@@ -53,7 +53,7 @@ class CustomerPayment extends Model
                     'payment_method' => $paymentMethod,
                     'type_balance' => $new_type_balance,
                     'payment_date' => now()->format('Y-m-d'),
-                    'created_by' => 2,
+                    'created_by' => Auth::id(),
                     'note' => $note
                 ]);
 
