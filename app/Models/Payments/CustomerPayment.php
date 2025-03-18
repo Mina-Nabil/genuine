@@ -202,4 +202,28 @@ class CustomerPayment extends Model
             ->where('payment_method', self::PYMT_CASH)
             ->selectRaw('SUM(amount) as today_balance');
     }
+
+    /**
+     * Scope to get payments in a date range with payment method filtering
+     */
+    public function scopePaymentMethodReport($query, ?string $paymentMethod = null, ?Carbon $startDate = null, ?Carbon $endDate = null, ?int $title_id = null)
+    {
+        if ($paymentMethod) {
+            $query->where('payment_method', $paymentMethod);
+        }
+        
+        if ($startDate) {
+            $query->where('payment_date', '>=', $startDate->startOfDay());
+        }
+        
+        if ($endDate) {
+            $query->where('payment_date', '<=', $endDate->endOfDay());
+        }
+
+        if ($title_id) {
+            $query->where('title_id', $title_id);
+        }
+        
+        return $query->orderBy('id');
+    }
 }

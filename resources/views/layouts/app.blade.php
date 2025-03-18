@@ -418,6 +418,17 @@
                                     </span>
                                 </a>
                             </li>
+
+                            {{-- <li>
+                                <a href="{{ auth()->user()->can('viewReports', App\Models\Orders\Order::class) ? url('/report/payment-methods') : '#' }}"
+                                    class="navItem {{ $paymentMethodReport ?? '' }} {{ auth()->user()->can('viewReports', App\Models\Orders\Order::class) ? '' : 'disabled' }}">
+                                    <span class="flex items-center">
+                                        <iconify-icon class=" nav-icon" icon="mdi:cash-multiple">
+                                        </iconify-icon>
+                                        <span>Payment Method Report</span>
+                                    </span>
+                                </a>
+                            </li> --}}
                         @endif
                         @can('update', App\Models\Users\Driver::class)
                             <li>

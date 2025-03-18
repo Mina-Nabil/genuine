@@ -147,6 +147,8 @@ Route::middleware(['auth', 'no_driver', 'accounting_only_admin'])->group(functio
     ->name('report.product-sales');
     Route::get('/report/driver-shift-delivery', DriverShiftDeliveryReport::class)
     ->name('report.driver-shift-delivery');
+    Route::get('/report/payment-methods', App\Livewire\Reports\PaymentMethodReport::class)
+    ->name('report.payment-methods');
     
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
 
@@ -180,5 +182,7 @@ Route::get('/welcome', [HomeController::class, 'welcome']);
 Route::post('/login', [HomeController::class, 'authenticate']);
 Route::get('/login', [HomeController::class, 'login'])->name('login');
 Route::get('/logout', [HomeController::class, 'logout'])->name('logout');
+
+
 
 
