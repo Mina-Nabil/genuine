@@ -37,22 +37,22 @@ class User extends Authenticatable
     const TYPES = [self::TYPE_ADMIN, self::TYPE_INVENTORY, self::TYPE_SALES, self::TYPE_DRIVER];
 
     protected $fillable = [
-        'username', 
-        'first_name', 
-        'last_name', 
-        'type', 
-        'email', 
-        'phone', 
-        'id_number', 
-        'id_doc_url', 
-        'driving_license_number', 
-        'driving_license_doc_url', 
-        'car_license_number', 
-        'car_license_doc_url', 
-        'password', 
-        'image_url', 
-        'is_active', 
-        'driver_day_fees', 
+        'username',
+        'first_name',
+        'last_name',
+        'type',
+        'email',
+        'phone',
+        'id_number',
+        'id_doc_url',
+        'driving_license_number',
+        'driving_license_doc_url',
+        'car_license_number',
+        'car_license_doc_url',
+        'password',
+        'image_url',
+        'is_active',
+        'driver_day_fees',
         'balance',
         'home_location_url_1',
         'home_location_url_2'
@@ -147,19 +147,19 @@ class User extends Authenticatable
     }
 
     public function editInfo(
-        $username, 
-        $first_name, 
-        $last_name, 
-        $type, 
-        $email = null, 
-        $phone = null, 
-        $id_number = null, 
-        $id_doc_url = null, 
-        $driving_license_number = null, 
-        $driving_license_doc_url = null, 
-        $car_license_number = null, 
-        $car_license_doc_url = null, 
-        $image_url = null, 
+        $username,
+        $first_name,
+        $last_name,
+        $type,
+        $email = null,
+        $phone = null,
+        $id_number = null,
+        $id_doc_url = null,
+        $driving_license_number = null,
+        $driving_license_doc_url = null,
+        $car_license_number = null,
+        $car_license_doc_url = null,
+        $image_url = null,
         $password = null,
         $home_location_url_1 = null,
         $home_location_url_2 = null
@@ -249,9 +249,10 @@ class User extends Authenticatable
         $user = User::active()->where('username', $username)->first(); // Assuming you have a User model
         if ($user) {
             Auth::loginUsingId($user->id); // Log in using the user's ID
+            return true; // Indicate successful switch
+        } else {
+            return false;
         }
-
-        return true; // Indicate successful switch
     }
 
     public function toggleActivation(): bool
@@ -343,7 +344,7 @@ class User extends Authenticatable
      */
     public static function login($username, $password): string|self
     {
-        $user = self::where('username', $username)->first();
+        $user = self::active()->where('username', $username)->first();
         if ($user == null) {
             return 'Username not found';
         }
