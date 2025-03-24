@@ -110,7 +110,7 @@ class PaymentMethodReport extends Component
             $this->payment_date_from ? Carbon::parse($this->payment_date_from) : null,
             $this->payment_date_to ? Carbon::parse($this->payment_date_to) : null,
             $this->title_id
-        )->get();
+        )->orderBy('id', 'desc')->get();
 
         // Calculate start and end balances
         $endBalance = $payments->last()->type_balance ?? 0;
