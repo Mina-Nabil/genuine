@@ -36,7 +36,11 @@ class DriverShiftDeliveryReport extends Component
 
     public function updatedDriverRadio($value)
     {
-        $this->driver = Driver::findOrFail($value);
+        if($value == 'all') {
+            $this->driver = null;
+        } else {
+            $this->driver = Driver::findOrFail($value);
+        }
     }
 
     public function updatedEditedDeliveryDate($value)

@@ -75,6 +75,24 @@
                                 @endif
                             @endforeach
                         </b>
+                        <div class="basicRadio">
+                            <label class="flex items-center cursor-pointer">
+                                <input wire:model.live="driverRadio" type="radio" class="hidden" name="driverRadios"
+                                    value="all" @checked($driver == null)>
+                                <span
+                                    class="flex-none bg-white dark:bg-slate-500 rounded-full border inline-flex ltr:mr-2 rtl:ml-2 relative transition-all
+                                    duration-150 h-[16px] w-[16px] border-slate-400 dark:border-slate-600 dark:ring-slate-700"></span>
+                                <span @class([
+                                    'text-sm',
+                                    'leading-6',
+                                    'capitalize',
+                                    'text-secondary-500' => $driverRadio != 'all',
+                                    'text-primary-500' => $driverRadio == 'all',
+                                ])>
+                                    All
+                                </span>
+                            </label>
+                        </div>
                         @foreach ($todayShifts as $d)
                             <div class="basicRadio">
                                 <label class="flex items-center cursor-pointer">
@@ -146,8 +164,7 @@
 
     @if ($Edited_deliveryDate_sec)
         <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
-            tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog"
-            style="display: block;">
+            tabindex="-1" aria-labelledby="vertically_center" aria-modal="true" role="dialog" style="display: block;">
             <div class="modal-dialog relative w-auto pointer-events-none">
                 <div
                     class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
@@ -229,4 +246,4 @@
             </div>
         </div>
     @endif
-</div> 
+</div>
