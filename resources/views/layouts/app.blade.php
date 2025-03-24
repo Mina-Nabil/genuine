@@ -380,6 +380,15 @@
                                 </span>
                             </a>
                         </li>
+                        <li>
+                            <a href="{{ auth()->user()->can('viewReports', App\Models\Orders\Order::class) ? url('/report/payment-methods') : '#' }}"
+                                class="navItem {{ $paymentMethodReport ?? '' }} {{ auth()->user()->can('viewReports', App\Models\Orders\Order::class) ? '' : 'disabled' }}">
+                                <span class="flex items-center">
+                                    <iconify-icon class="nav-icon" icon="mdi:cash-multiple"></iconify-icon>
+                                    <span>تقرير الحسابات</span>
+                                </span>
+                            </a>
+                        </li>
                     @endcan
 
                     @if (auth()->user()->is_admin || auth()->user()->is_driver)
