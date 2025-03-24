@@ -211,8 +211,8 @@
                         </li>
 
                         <li>
-                            <a href="{{ auth()->user()->can('viewAny', App\Models\Orders\Order::class) ? url('/report/driver-shift-delivery') : '#' }}"
-                                class="navItem {{ $driverShiftDeliveryReport ?? '' }} {{ auth()->user()->can('viewAny', App\Models\Orders\Order::class) ? '' : 'disabled' }}">
+                            <a href="{{ auth()->user()->can('viewOrderInventory', App\Models\Orders\Order::class) ? url('/report/driver-shift-delivery') : '#' }}"
+                                class="navItem {{ $driverShiftDeliveryReport ?? '' }} {{ auth()->user()->can('viewOrderInventory', App\Models\Orders\Order::class) ? '' : 'disabled' }}">
                                 <span class="flex items-center">
                                     <iconify-icon class="nav-icon" icon="mdi:account-group-outline"></iconify-icon>
                                     <span>تحضير مجمع</span>
