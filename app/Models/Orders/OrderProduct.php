@@ -91,7 +91,7 @@ class OrderProduct extends Model
                 // Join on inventory table with polymorphic constraints
                 $join->on('products.id', '=', 'inventories.inventoryable_id')->where('inventories.inventoryable_type', '=', 'Product');
             })
-            ->whereIn('orders.status', [Order::STATUS_NEW])
+            ->whereIn('orders.status', [Order::STATUS_NEW, Order::STATUS_READY, Order::STATUS_IN_DELIVERY, Order::STATUS_DONE])
             ->whereNull('order_products.deleted_at')
             ->whereDate('orders.delivery_date', '>=', now()->toDateString())
             ->when($deliveryDate, function ($q) use ($deliveryDate, $isToDate) {
