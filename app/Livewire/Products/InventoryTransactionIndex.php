@@ -267,11 +267,6 @@ class InventoryTransactionIndex extends Component
             return;
         }
 
-        if ($this->productsChanges[$id]['new'] < 0) {
-            $this->addError("productsChanges.$id.new", 'The value must be positive.');
-            return;
-        }
-
         $new = $this->productsChanges[$id]['new'];
         $oldAvailable = $this->oldproductsChanges[$id]['available'];
         $oldOnHand = $this->oldproductsChanges[$id]['on_hand']; // Old value of on_hand
