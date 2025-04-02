@@ -310,11 +310,11 @@
                                                 {{ $productChanged['product_name'] }}</td>
                                             <td
                                                 class="table-td border border-slate-100 dark:bg-slate-800 dark:border-slate-700 ">
-                                                {{ $productChanged['from_available'] }} ->
-                                                {{ $productChanged['to_available'] }}</td>
+                                                {{ $productChanged['from_on_hand'] }} ->
+                                                {{ $productChanged['to_on_hand'] }}</td>
                                             <td
                                                 class="table-td border border-slate-100 dark:bg-slate-800 dark:border-slate-700 ">
-                                                {{ $productChanged['to_available'] - $productChanged['from_available'] }}
+                                                {{ $productChanged['to_on_hand'] - $productChanged['from_on_hand'] }}
                                             </td>
                                         </tr>
                                     @endforeach
