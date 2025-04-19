@@ -8,6 +8,7 @@ use App\Models\Payments\CustomerPayment;
 use App\Models\Users\Driver;
 use App\Traits\AlertFrontEnd;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -328,7 +329,17 @@ class OrderIndex extends Component
             'bulkDeliveryDate' => 'required|date',
         ]);
 
-        $res = Order::setDeliveryDateForOrders($this->selectedOrders, Carbon::parse($this->bulkDeliveryDate));
+        try {
+            $res = Order::setDeliveryDateForOrders($this->selectedOrders, Carbon::parse($this->bulkDeliveryDate));
+        } catch (Exception $e) {
+            if ($e->getCode() == Order::DRIVER_LIMITS_EXCEEDED_CODE) {
+                $this->alertFailed($e->getMessage());
+                return;
+            }
+            report($e);
+            $this->alertFailed("Internal error, failed to set delivery date");
+            return;
+        }
 
         if ($res) {
             $this->closeSetDeliveryDate();
@@ -355,7 +366,17 @@ class OrderIndex extends Component
         $this->validate([
             'driverId' => 'required|exists:drivers,id',
         ]);
-        $res = Order::assignDriverToOrders($this->selectedOrders, $this->driverId);
+        try {
+            $res = Order::assignDriverToOrders($this->selectedOrders, $this->driverId);
+        } catch (Exception $e) {
+            if ($e->getCode() == Order::DRIVER_LIMITS_EXCEEDED_CODE) {
+                $this->alertFailed($e->getMessage());
+                return;
+            }
+            report($e);
+            $this->alertFailed("Internal error, failed to assign driver");
+            return;
+        }
 
         if ($res) {
             $this->resetPage();

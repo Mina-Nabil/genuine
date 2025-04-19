@@ -14,6 +14,8 @@ use App\Models\Users\User;
 use App\Traits\AlertFrontEnd;
 use App\Traits\ToggleSectionLivewire;
 use Carbon\Carbon;
+use Exception;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use tidy;
 
@@ -102,42 +104,49 @@ class OrderShow extends Component
 
 
 
-    public function openUpdateCustomer(){
+    public function openUpdateCustomer()
+    {
         $this->isOpenUpdateCustomer = true;
         $this->Allcustomer = Customer::search($this->customerSearchText)->take(10)->get();
     }
 
-    public function closeUpdateCustomer(){
+    public function closeUpdateCustomer()
+    {
         $this->isOpenUpdateCustomer = false;
     }
 
-    public function updatedCustomerSearchText(){
+    public function updatedCustomerSearchText()
+    {
         $this->Allcustomer = Customer::search($this->customerSearchText)->take(10)->get();
     }
 
-    public function updateCustomer($customer_id){
-        $this->authorize('updateCustomer',$this->order);
+    public function updateCustomer($customer_id)
+    {
+        $this->authorize('updateCustomer', $this->order);
         $res = $this->order->updateCustomer($customer_id);
 
         if ($res) {
             $this->closeUpdateCustomer();
             $this->mount($this->order->id);
             $this->alertSuccess('Order updated');
-        }else{
+        } else {
             $this->alertFailed();
         }
     }
 
-    public function confirmReschedule()  {
+    public function confirmReschedule()
+    {
         $this->isOpenConfirmReshedule = true;
     }
 
-    public function closeConfirmReschedule(){
-        $this->reset(['isOpenConfirmReshedule','rescheduleDate','isDriverReturned','is2x']);
+    public function closeConfirmReschedule()
+    {
+        $this->reset(['isOpenConfirmReshedule', 'rescheduleDate', 'isDriverReturned', 'is2x']);
     }
 
-    public function rescheduleOder(){
-        $this->authorize('rescheduleOrder',$this->order);
+    public function rescheduleOder()
+    {
+        $this->authorize('rescheduleOrder', $this->order);
 
         $this->validate([
             'rescheduleDate' => 'required|date',
@@ -145,12 +154,12 @@ class OrderShow extends Component
             'is2x'  => 'boolean'
         ]);
 
-        $res = $this->order->rescheduleOrder(Carbon::parse($this->rescheduleDate),$this->isDriverReturned,$this->is2x);
+        $res = $this->order->rescheduleOrder(Carbon::parse($this->rescheduleDate), $this->isDriverReturned, $this->is2x);
 
         if ($res) {
             $this->closeConfirmReschedule();
             $this->alertSuccess('Order Rescheduled');
-        }else{
+        } else {
             $this->alertFailed();
         }
     }
@@ -202,7 +211,17 @@ class OrderShow extends Component
             ];
         }
 
-        $res = $this->order->addProducts($products);
+        try {
+            $res = $this->order->addProducts($products);
+        } catch (Exception $e) {
+            if ($e->getCode() == Order::DRIVER_LIMITS_EXCEEDED_CODE) {
+                $this->alertFailed($e->getMessage());
+                return;
+            }
+            report($e);
+            $this->alertFailed("Internal error, failed to add products");
+            return;
+        }
 
         if ($res) {
             $this->closeCombosSection();
@@ -254,11 +273,11 @@ class OrderShow extends Component
 
     public function resetStatus()
     {
-        $this->authorize('resetStatus',$this->order);
+        $this->authorize('resetStatus', $this->order);
 
         if ($this->order->status === Order::STATUS_READY || $this->order->status === Order::STATUS_DONE) {
             $res = $this->order->resetStatus();
-        }else{
+        } else {
             $this->alertFailed();
         }
 
@@ -335,7 +354,17 @@ class OrderShow extends Component
             Driver::findOrFail($id);
         }
 
-        $res = $this->order->assignDriverToOrder($id);
+        try {
+            $res = $this->order->assignDriverToOrder($id);
+        } catch (Exception $e) {
+            if ($e->getCode() == Order::DRIVER_LIMITS_EXCEEDED_CODE) {
+                $this->alertFailed($e->getMessage());
+                return;
+            }
+            report($e);
+            $this->alertFailed("Internal error, failed to assign driver");
+            return;
+        }
 
         if ($res) {
             $this->closeSetDriverSection();
@@ -360,7 +389,17 @@ class OrderShow extends Component
 
     public function addProducts()
     {
-        $res = $this->order->addProducts($this->productsToAdd);
+        try {
+            $res = $this->order->addProducts($this->productsToAdd);
+        } catch (Exception $e) {
+            if ($e->getCode() == Order::DRIVER_LIMITS_EXCEEDED_CODE) {
+                $this->alertFailed($e->getMessage());
+                return;
+            }
+            report($e);
+            $this->alertFailed("Internal error, failed to add products");
+            return;
+        }
 
         if ($res) {
             $this->closeAddProductsSec();
@@ -505,7 +544,17 @@ class OrderShow extends Component
             'ddate' => 'nullable|date',
         ]);
         $date = $this->ddate ? Carbon::parse($this->ddate) : null;
-        $res = $this->order->updateDeliveryDate($date);
+        try {
+            $res = $this->order->updateDeliveryDate($date);
+        } catch (Exception $e) {
+            if ($e->getCode() == Order::DRIVER_LIMITS_EXCEEDED_CODE) {
+                $this->alertFailed($e->getMessage());
+                return;
+            }
+            report($e);
+            $this->alertFailed("Internal error, failed to update delivery date");
+            return;
+        }
 
         if ($res) {
             $this->mount($this->order->id);
@@ -742,26 +791,26 @@ class OrderShow extends Component
     public function closePartialPayment()
     {
         $this->isOpenPartialPaymentSec = false;
-        $this->reset(['partialPaymentAmount','partialPaymentMethod']);
+        $this->reset(['partialPaymentAmount', 'partialPaymentMethod']);
     }
 
     public function makePartialPayment()
     {
         $this->authorize('pay', $this->order);
-        
+
         // Validate input
         $this->validate([
             'partialPaymentAmount' => 'required|numeric|min:0.01|max:' . $this->order->remaining_to_pay,
             'partialPaymentMethod' => 'required|string',
         ]);
-        
+
         $res = $this->order->createPayment(
-            $this->partialPaymentAmount, 
-            $this->partialPaymentMethod, 
-            Carbon::now(), 
+            $this->partialPaymentAmount,
+            $this->partialPaymentMethod,
+            Carbon::now(),
             false
         );
-        
+
         if ($res) {
             $this->mount($this->order->id);
             $this->closePartialPayment();

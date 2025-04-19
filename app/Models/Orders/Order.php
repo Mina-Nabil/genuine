@@ -37,6 +37,8 @@ class Order extends Model
     const MORPH_TYPE = 'order';
     const currency = 'EGP';
 
+    const DRIVER_LIMITS_EXCEEDED_CODE = 321;
+
     protected $casts = [
         'delivery_date' => 'date',
     ];
@@ -313,6 +315,17 @@ class Order extends Model
             }
         }
 
+        if ($driverId && !$loggedInUser->can('overrideDriverLimits', self::class)) {
+            $driver = Driver::findOrFail($driverId);
+            $totalWeight = 0;
+            foreach ($products as $product) {
+                $productObject = Product::findOrFail($product['id']);
+                $totalWeight += $product['quantity'] * $productObject->weight;
+            }
+            if (!$driver->checkProductsLimits($totalWeight, $deliveryDate)) {
+                return throw new Exception('Driver limits exceeded', self::DRIVER_LIMITS_EXCEEDED_CODE);
+            }
+        }
         try {
             $order = new self();
             $order->order_number = self::generateNextOrderNumber();
@@ -385,16 +398,23 @@ class Order extends Model
 
     public function assignDriverToOrder(?int $driverId = null): bool
     {
-        try {
-            /** @var User */
-            $user = Auth::user();
+        /** @var User */
+        $user = Auth::user();
 
-            if (!$user->can('updateDeliveryInfo', $this)) {
-                return false;
+        if ($driverId && !$user->can('overrideDriverLimits', $this)) {
+            $driver = Driver::findOrFail($driverId);
+            if (!$driver->checkOrderLimits($this)) {
+                return throw new Exception('Driver limits exceeded', self::DRIVER_LIMITS_EXCEEDED_CODE);
             }
+        }
+
+        if (!$user->can('updateDeliveryInfo', $this)) {
+            return false;
+        }
+
+        try {
 
             $this->driver_id = $driverId;
-
             if ($this->driver_id !== $driverId) {
                 $this->driver_order = null;
             }
@@ -560,6 +580,9 @@ class Order extends Model
             return true;
         } catch (Exception $e) {
             DB::rollBack();
+            if ($e->getCode() == self::DRIVER_LIMITS_EXCEEDED_CODE) {
+                throw $e;
+            }
             report($e);
             AppLog::error('Failed to assign orders to driver', $e->getMessage());
             return false;
@@ -593,6 +616,11 @@ class Order extends Model
             return true;
         } catch (Exception $e) {
             DB::rollBack();
+
+            if ($e->getCode() == self::DRIVER_LIMITS_EXCEEDED_CODE) {
+                throw $e;
+            }
+
             report($e); // Log the exception
             AppLog::error('Failed to set delivery date to orders', $e->getMessage());
             return false;
@@ -609,6 +637,13 @@ class Order extends Model
 
         if (!$deliveryDate) {
             return false;
+        }
+
+        if ($this->driver_id && !$loggedInUser->can('overrideDriverLimits', $this)) {
+            $driver = Driver::findOrFail($this->driver_id);
+            if (!$driver->checkProductsLimits($this->total_weight, $deliveryDate)) {
+                return throw new Exception('Driver limits exceeded', self::DRIVER_LIMITS_EXCEEDED_CODE);
+            }
         }
 
         try {
@@ -1028,6 +1063,21 @@ class Order extends Model
      */
     public function addProducts(array $products, ?string $note = null): bool
     {
+        /** @var User */
+        $loggedInUser = Auth::user();
+
+        if ($this->driver_id && !$loggedInUser->can('overrideDriverLimits', $this)) {
+            $totalExtraWeight = 0;
+            foreach ($products as $product) {
+                $productObject = Product::findOrFail($product['product_id']);
+                $totalExtraWeight += $product['quantity'] * $productObject->weight;
+            }
+            $driver = Driver::findOrFail($this->driver_id);
+            if (!$driver->checkProductsLimits($totalExtraWeight, $this->delivery_date)) {
+                return throw new Exception('Driver limits exceeded', self::DRIVER_LIMITS_EXCEEDED_CODE);
+            }
+        }
+
         DB::beginTransaction();
 
         try {

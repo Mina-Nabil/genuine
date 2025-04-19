@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class Driver extends Model
 {
@@ -120,6 +121,70 @@ class Driver extends Model
             AppLog::error('Failed to update driver', $e->getMessage());
             return false;
         }
+    }
+
+    /**
+     * Check if the driver can handle the new order based on weight and quantity limits.
+     *
+     * @param float $newProductsWeight The weight of the new products in the order.
+     * @param Carbon $deliveryDate The date of the delivery.
+     * @return bool True if the order can be handled, false otherwise.
+     */
+    public function checkProductsLimits($newProductsWeight, Carbon $deliveryDate)
+    {
+        $totalWeight = $this->orders()
+            ->join('order_products', 'orders.id', '=', 'order_products.order_id')
+            ->join('products', 'order_products.product_id', '=', 'products.id')
+            ->selectRaw('SUM(order_products.quantity * products.weight) as total_calc_weight')
+            ->whereIn('orders.status', Order::OK_STATUSES)
+            ->whereDate('delivery_date', $deliveryDate->format('Y-m-d'))
+            ->whereNull('order_products.deleted_at')
+            ->whereNull('orders.deleted_at')
+            ->first()->total_calc_weight;
+
+        $ordersQuantity = $this->orders()->whereDate('delivery_date', $deliveryDate->format('Y-m-d'))->count();
+        Log::info("totalWeight: $totalWeight, newProductsWeight: $newProductsWeight, weight_limit: $this->weight_limit");
+        Log::info("ordersQuantity: $ordersQuantity, order_quantity_limit: $this->order_quantity_limit");
+        if ($totalWeight + $newProductsWeight > $this->weight_limit) {
+            return false;
+        }
+
+        if ($ordersQuantity + 1 > $this->order_quantity_limit) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if the driver can handle the new order based on weight and quantity limits.
+     *
+     * @param Order $order The order to check.
+     * @return bool True if the order can be handled, false otherwise.
+     */
+    public function checkOrderLimits(Order $order)
+    {
+        $totalWeight = $this->orders()
+            ->join('order_products', 'orders.id', '=', 'order_products.order_id')
+            ->join('products', 'order_products.product_id', '=', 'products.id')
+            ->selectRaw('SUM(order_products.quantity * products.weight) as total_calc_weight')
+            ->whereIn('orders.status', Order::OK_STATUSES)
+            ->whereDate('delivery_date', $order->delivery_date)
+            ->whereNull('order_products.deleted_at')
+            ->whereNull('orders.deleted_at')
+            ->first()->total_calc_weight;
+
+        $ordersQuantity = $this->orders()->whereDate('delivery_date', $order->delivery_date)->count();
+
+        if ($totalWeight + $order->total_weight > $this->weight_limit) {
+            return false;
+        }
+
+        if ($ordersQuantity + 1 > $this->order_quantity_limit) {
+            return false;
+        }
+
+        return true;
     }
 
     public static function getDriverWithMostOrders($date = null, $userId = null)

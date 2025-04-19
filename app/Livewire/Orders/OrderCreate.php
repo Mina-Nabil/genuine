@@ -11,6 +11,7 @@ use App\Models\Users\Driver;
 use App\Models\Users\User;
 use App\Traits\AlertFrontEnd;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
@@ -539,8 +540,17 @@ class OrderCreate extends Component
 
         $driverID = null;
         $this->driver ? ($driverID = $this->driver->id) : null;
-
-        $res = Order::newOrder($customerId, $this->customerName, $this->shippingAddress, $this->customerPhone, $this->zoneId, $this->locationURL, $driverID, $this->total, $this->shippingFee, $this->discountAmount, $this->ddate ? Carbon::parse($this->ddate) : null, $this->note, $this->fetchedProducts, $detuctFromBalance, creator_id: $this->creator_id);
+        try {
+            $res = Order::newOrder($customerId, $this->customerName, $this->shippingAddress, $this->customerPhone, $this->zoneId, $this->locationURL, $driverID, $this->total, $this->shippingFee, $this->discountAmount, $this->ddate ? Carbon::parse($this->ddate) : null, $this->note, $this->fetchedProducts, $detuctFromBalance, creator_id: $this->creator_id);
+        } catch (Exception $e) {
+            if ($e->getCode() == 321) {
+                $this->alertFailed($e->getMessage());
+                return;
+            }
+            report($e);
+            $this->alertFailed("Internal error, failed to create order");
+            return;
+        }
 
         if ($res) {
             $this->alertSuccess('order added!');
