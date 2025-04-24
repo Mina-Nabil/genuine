@@ -2053,7 +2053,12 @@ class Order extends Model
                 }
             })
             ->when(!empty($deliveryDates), function ($query) use ($deliveryDates) {
-                $query->whereIn('delivery_date', $deliveryDates);
+                foreach ($deliveryDates as $dd) {
+                    $query->where(function ($q) use ($dd) {
+                        $q->where('delivery_date', '>=', $dd->copy()->startOfDay())
+                            ->where('delivery_date', '<=', $dd->copy()->endOfDay());
+                    });
+                }
             })
             ->when($status, function ($query, $status) {
                 $query->where('status', $status);
