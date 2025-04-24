@@ -2055,8 +2055,9 @@ class Order extends Model
             ->when(!empty($deliveryDates), function ($query) use ($deliveryDates) {
                 foreach ($deliveryDates as $dd) {
                     $query->where(function ($q) use ($dd) {
-                        $q->where('delivery_date', '>=', $dd->copy()->startOfDay())
-                            ->where('delivery_date', '<=', $dd->copy()->endOfDay());
+                        $dateObj = new Carbon($dd);
+                        $q->where('delivery_date', '>=', $dateObj->copy()->startOfDay())
+                            ->where('delivery_date', '<=', $dateObj->copy()->endOfDay());
                     });
                 }
             })
