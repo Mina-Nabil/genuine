@@ -233,6 +233,7 @@ class FollowupReport extends Component
             'start_week' => $startDate,
             'end_week' => $end,
             'saved_zones' => $zones,
+            'periodic_types' => $this->periodic_types,
         ])->layout('layouts.app', ['page_title' => $this->page_title, 'followupReport' => 'active']);
     }
 }
