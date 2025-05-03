@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
+use App\Models\Orders\PeriodicOrder;
 
 class CustomerIndex extends Component
 {
@@ -26,6 +27,7 @@ class CustomerIndex extends Component
     public $zone_id;
     public $locationUrl;
     public $address;
+    public $periodic_type;
 
     public $pets = [];
 
@@ -118,7 +120,7 @@ class CustomerIndex extends Component
 
     public function closeNewCustomerSec()
     {
-        $this->reset(['fullName', 'phone', 'zone_id', 'locationUrl', 'address', 'newCustomerSection']);
+        $this->reset(['fullName', 'phone', 'zone_id', 'locationUrl', 'address', 'periodic_type', 'newCustomerSection']);
     }
 
     public function updatingSearch()
@@ -130,21 +132,13 @@ class CustomerIndex extends Component
     {
         $this->authorize('create', Customer::class);
 
-        // foreach ($this->pets as $index => $pet) {
-        //     $this->pets[$index]['bdate'] = Pet::calculateBirthDate($pet['pet_years'],$pet['pet_months'] ?? 0,$pet['pet_days'] ?? 1);
-        // }
-        
-        
         $this->validate([
             'fullName' => 'required|string|max:255',
             'phone' => 'required|string',
             'zone_id' => 'nullable|exists:zones,id',
             'locationUrl' => 'nullable|url|max:255',
             'address' => 'nullable|string|max:255',
-            // 'pets.*.name' => 'nullable|string|max:255',
-            // 'pets.*.category' => 'required|in:' . implode(',', Pet::CATEGORIES),
-            // 'pets.*.type' => 'required|string|max:255',
-            // 'pets.*.bdate' => 'required|date',
+            'periodic_type' => 'nullable|in:' . implode(',', PeriodicOrder::PERIODIC_TYPES),
         ], attributes: [
             'pets.*.name' => 'pet name',
             'pets.*.category' => 'pet category',
@@ -152,11 +146,7 @@ class CustomerIndex extends Component
             'pets.*.bdate' => 'pet name',
         ]);
 
-        $res = Customer::newCustomer($this->fullName, $this->address, $this->phone, $this->locationUrl, $this->zone_id);
-
-        // foreach ($this->pets as $pet) {
-        //     $res->addPet($pet['name'], $pet['category'], $pet['type'], $pet['bdate']);
-        // }
+        $res = Customer::newCustomer($this->fullName, $this->address, $this->phone, $this->locationUrl, $this->zone_id, $this->periodic_type);
 
         if ($res) {
             return redirect(route('customer.show', $res->id));

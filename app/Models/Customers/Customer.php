@@ -37,13 +37,14 @@ class Customer extends Model
         'zone_id',
         'monthly_weight_target',
         'note',
-        'creator_id'
+        'creator_id',
+        'periodic_type'
     ];
 
     public $ordersKGs = [];
 
     // Create a new customer
-    public static function newCustomer($name, $address = null, $phone, $location_url = null, $zone_id = null)
+    public static function newCustomer($name, $address = null, $phone, $location_url = null, $zone_id = null, $periodic_type = null)
     {
         try {
             $customer = new self();
@@ -52,6 +53,7 @@ class Customer extends Model
             $customer->phone = $phone;
             $customer->location_url = $location_url;
             $customer->zone_id = $zone_id;
+            $customer->periodic_type = $periodic_type;
             $customer->creator_id = Auth::id();
 
             if ($customer->save()) {
@@ -111,7 +113,7 @@ class Customer extends Model
 
 
     // Edit customer info
-    public function editInfo($name, $address = null, $phone, $location_url = null, $zone_id = null)
+    public function editInfo($name, $address = null, $phone, $location_url = null, $zone_id = null, $periodic_type = null)
     {
         try {
             $this->name = $name;
@@ -119,6 +121,7 @@ class Customer extends Model
             $this->phone = $phone;
             $this->location_url = $location_url;
             $this->zone_id = $zone_id;
+            $this->periodic_type = $periodic_type;
 
             if ($this->save()) {
                 AppLog::info('Customer updated', "Customer $name updated successfully.", loggable: $this);
@@ -424,6 +427,10 @@ class Customer extends Model
         return $query->when($zone_id, fn($q) => $q->where('customers.zone_id', $zone_id));
     }
 
+    public function scopeByPeriodicType($query, $periodic_type)
+    {
+        return $query->when($periodic_type, fn($q) => $q->where('periodic_type', $periodic_type));
+    }
 
     public function scopeSearch($query, $term)
     {

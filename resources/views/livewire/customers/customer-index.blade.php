@@ -68,6 +68,7 @@
                             </th>
                                 <th scope="col" class="table-th">Phone</th>
                                 <th scope="col" class="table-th">Zone</th>
+                                <th scope="col" class="table-th">Orders</th>
                                 <th scope="col" class="table-th">Address</th>
                                 <th scope="col" class="table-th">Location</th>
 
@@ -97,6 +98,10 @@
 
                                 <td class="table-td">
                                     {{ $customer->zone?->name }}
+                                </td>
+
+                                <td class="table-td">
+                                    {{ $customer->periodic_type ? ucwords(str_replace('_', ' ', $customer->periodic_type)) : 'None' }}
                                 </td>
 
                                 <td class="table-td text-start overflow-hidden text-ellipsis whitespace-nowrap">
@@ -228,10 +233,23 @@
                                         <span
                                             class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
                                     @enderror
-                                    @error('zone')
-                                        <span
-                                            class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
-                                    @enderror
+
+                                    <div class="input-area">
+                                        <label for="periodic_type" class="form-label">Periodic Type</label>
+                                        <select name="periodic_type" id="periodic_type"
+                                            class="form-control w-full mt-2 @error('periodic_type') !border-danger-500 @enderror"
+                                            wire:model="periodic_type" autocomplete="off">
+                                            <option value="">None</option>
+                                            @foreach (App\Models\Orders\PeriodicOrder::PERIODIC_TYPES as $type)
+                                                <option value="{{ $type }}">
+                                                    {{ ucwords(str_replace('_', ' ', $type)) }}</option>
+                                            @endforeach
+                                        </select>
+                                        @error('periodic_type')
+                                            <span
+                                                class="font-Inter text-sm text-danger-500 pt-2 inline-block">{{ $message }}</span>
+                                        @enderror
+                                    </div>
                                 </div>
 
                                 <div class="from-group">

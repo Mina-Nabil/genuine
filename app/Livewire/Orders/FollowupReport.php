@@ -5,6 +5,7 @@ namespace App\Livewire\Orders;
 use App\Models\Customers\Customer;
 use App\Models\Customers\Followup;
 use App\Models\Customers\Zone;
+use App\Models\Orders\PeriodicOrder;
 use App\Models\Users\User;
 use App\Traits\AlertFrontEnd;
 use Carbon\Carbon;
@@ -33,6 +34,9 @@ class FollowupReport extends Component
     public $Edited_Zone_sec;
     public $selectedZones = [];
     public $selectedZonesNames = [];
+
+    public $periodic_types = PeriodicOrder::PERIODIC_TYPES;
+    public $selected_periodic_type = null;
 
     //followup
     public $followupDetailsSection; //carries followup id
@@ -187,6 +191,11 @@ class FollowupReport extends Component
         $this->selectedWeek = $week;
     }
 
+    public function setPeriodicType($type)
+    {
+        $this->selected_periodic_type = $type;
+    }
+
     public function viewAny(User $user): bool
     {
         return true;
@@ -203,19 +212,19 @@ class FollowupReport extends Component
             ->when($this->is_ordered, function ($q) use ($startDate, $end) {
                 $q->orderedBetween($startDate, $end);
             })
-            ->ByZones($this->zones)->paginate(30);
+            ->ByZones($this->zones)
+            ->ByPeriodicType($this->selected_periodic_type)
+            ->paginate(30);
 
         /** @var Customer */
         foreach ($customers as $c) {
             $startTmp = $startDate->clone()->startOfDay();
             while ($startTmp->lessThanOrEqualTo($end)) {
-      
                 $tmpEnd =  $startTmp->clone()->addDays(6);
                 if ($tmpEnd->dayOfMonth > 25) $tmpEnd->endOfMonth();
 
                 $c->appendKGTotal($startTmp, $tmpEnd);
                 $startTmp = $tmpEnd->clone()->addDay();
-  
             }
         }
         // Log::info($customers->links());

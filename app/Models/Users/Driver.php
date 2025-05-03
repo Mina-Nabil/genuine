@@ -177,10 +177,12 @@ class Driver extends Model
         $ordersQuantity = $this->orders()->whereDate('delivery_date', $order->delivery_date)->count();
 
         if ($totalWeight + $order->total_weight > $this->weight_limit) {
+            Log::info("totalWeight: $totalWeight, order->total_weight: $order->total_weight, weight_limit: $this->weight_limit");
             return false;
         }
 
         if ($ordersQuantity + 1 > $this->order_quantity_limit) {
+            Log::info("ordersQuantity: $ordersQuantity, order_quantity_limit: $this->order_quantity_limit");
             return false;
         }
 

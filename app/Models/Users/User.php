@@ -251,7 +251,7 @@ class User extends Authenticatable
             Auth::loginUsingId($user->id); // Log in using the user's ID
             return true; // Indicate successful switch
         } else {
-            return false;
+            throw new Exception("User not found");
         }
     }
 

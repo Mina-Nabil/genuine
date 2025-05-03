@@ -50,6 +50,7 @@ class CustomerShow extends Component
     public $zone_id;
     public $locationUrl;
     public $address;
+    public $periodic_type;
     public $EditCustomerSection = false;
 
     public $editedCustomerNote;
@@ -197,19 +198,19 @@ class CustomerShow extends Component
 
     public function showEditCustomerSection()
     {
-        // dd('ssss');
         $this->EditCustomerSection = true;
         $this->fullName = $this->customer->name;
         $this->phone = $this->customer->phone;
         $this->zone_id = $this->customer->zone?->id;
         $this->locationUrl = $this->customer->location_url;
         $this->address = $this->customer->address;
+        $this->periodic_type = $this->customer->periodic_type;
     }
 
     public function closeEditCustomerSection()
     {
         $this->EditCustomerSection = false;
-        $this->reset(['fullName', 'phone', 'zone_id', 'locationUrl', 'address']);
+        $this->reset(['fullName', 'phone', 'zone_id', 'locationUrl', 'address', 'periodic_type']);
     }
 
     public function editCustomer()
@@ -221,9 +222,10 @@ class CustomerShow extends Component
             'zone_id' => 'nullable|exists:zones,id',
             'locationUrl' => 'nullable|url|max:255',
             'address' => 'nullable|string|max:255',
+            'periodic_type' => 'nullable|in:' . implode(',', PeriodicOrder::PERIODIC_TYPES),
         ]);
 
-        $res = $this->customer->editInfo($this->fullName, $this->address, $this->phone, $this->locationUrl, $this->zone_id);
+        $res = $this->customer->editInfo($this->fullName, $this->address, $this->phone, $this->locationUrl, $this->zone_id, $this->periodic_type);
 
         if ($res) {
             $this->closeEditCustomerSection();

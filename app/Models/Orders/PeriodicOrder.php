@@ -25,6 +25,9 @@ class PeriodicOrder extends Model
     const PERIODIC_WEEKLY = 'weekly';
     const PERIODIC_BI_WEEKLY = 'bi-weekly';
     const PERIODIC_MONTHLY = 'monthly';
+    const PERIODIC_RANDOM = 'random';
+
+    const PERIODIC_TYPES = [self::PERIODIC_WEEKLY, self::PERIODIC_BI_WEEKLY, self::PERIODIC_MONTHLY, self::PERIODIC_RANDOM];
 
     const daysOfWeek = [
         'Sunday', //1
