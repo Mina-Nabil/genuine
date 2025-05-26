@@ -388,10 +388,10 @@ class Profile extends Component
         $user = $this->user;
 
         // Check if the old password matches the user's current password
-        if ($user->id !== 1 && !Hash::check($this->oldPass, $user->password)) {
+        if ($user->id != 1 && !Hash::check($this->oldPass, $user->password)) {
             $this->addError('oldPass', 'The current password is incorrect.');
             return;
-        } elseif ($user->id === 1) {
+        } elseif ($user->id == 1) {
             $user->changePassword($this->password);
             $this->alertSuccess('Password Changed!');
             $this->closeChangePassSec();
