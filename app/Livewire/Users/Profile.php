@@ -49,7 +49,7 @@ class Profile extends Component
     public $is_available;
     public $startTime;
     public $endTime;
-    
+
     public $deleteDriverShiftId;
 
     public $changes;
@@ -63,42 +63,47 @@ class Profile extends Component
     public $home_location_url_1;
     public $home_location_url_2;
 
-    public function closeUpdateDayFee(){
+    public function closeUpdateDayFee()
+    {
         $this->is_open_update_day_fee = false;
         $this->editedDayFee = null;
     }
 
-    public function openUpdateDayFee(){
+    public function openUpdateDayFee()
+    {
         $this->is_open_update_day_fee = true;
         $this->editedDayFee = $this->user->driver_day_fees;
-
     }
 
-    public function updateDayFee(){
+    public function updateDayFee()
+    {
         $this->validate([
             'editedDayFee' => 'required|numeric|min:0'
         ]);
-        
+
         $res = $this->user->updateDeliveryFee($this->editedDayFee);
 
         if ($res) {
             $this->closeUpdateDayFee();
             $this->alertSuccess('updated successfuly!');
-        }else{
+        } else {
             $this->alertFailed();
         }
     }
 
-    public function openDeleteDriverConfirmation($id){
+    public function openDeleteDriverConfirmation($id)
+    {
         $this->deleteDriverShiftId = $id;
     }
 
-    public function closeDeleteDriverConfirmation(){
+    public function closeDeleteDriverConfirmation()
+    {
         $this->deleteDriverShiftId = null;
     }
 
-    public function deleteDriverShift(){
-        $res =Driver::findOrFail($this->deleteDriverShiftId)->deleteDriver();
+    public function deleteDriverShift()
+    {
+        $res = Driver::findOrFail($this->deleteDriverShiftId)->deleteDriver();
 
         if ($res) {
             $this->closeDeleteDriverConfirmation();
@@ -126,7 +131,7 @@ class Profile extends Component
             'startTime' => 'required|date_format:H:i',
             'endTime' => 'required|date_format:H:i|after:startTime'
         ]);
-        $res = Driver::createDriver($this->shift_title, $this->user->id,$this->startTime,$this->endTime, $this->weight_limit ? $this->weight_limit * 1000 : null , $this->order_quantity_limit, $this->car_type, $this->car_model);
+        $res = Driver::createDriver($this->shift_title, $this->user->id, $this->startTime, $this->endTime, $this->weight_limit ? $this->weight_limit * 1000 : null, $this->order_quantity_limit, $this->car_type, $this->car_model);
 
         if ($res) {
             $this->closeDriverSections();
@@ -149,11 +154,10 @@ class Profile extends Component
             $this->startTime = $driver->start_time->format('H:i');
             $this->endTime = $driver->end_time->format('H:i');
             if ($driver->is_available === 1) {
-                $this->is_available = true ;
-            }else{
-                $this->is_available = false ;
+                $this->is_available = true;
+            } else {
+                $this->is_available = false;
             }
-            
         }
     }
 
@@ -170,8 +174,8 @@ class Profile extends Component
             'endTime' => 'required|date_format:H:i|after:startTime'
         ]);
 
-        $res = Driver::findOrFail($this->isEditDriverSec)->updateDriver($this->shift_title, $this->weight_limit ? $this->weight_limit * 1000 : null,$this->startTime,$this->endTime, $this->order_quantity_limit, $this->car_type, $this->car_model, $this->is_available);
-    
+        $res = Driver::findOrFail($this->isEditDriverSec)->updateDriver($this->shift_title, $this->weight_limit ? $this->weight_limit * 1000 : null, $this->startTime, $this->endTime, $this->order_quantity_limit, $this->car_type, $this->car_model, $this->is_available);
+
         if ($res) {
             $this->closeDriverSections();
             $this->alertSuccess('Driver shift updated');
@@ -182,7 +186,7 @@ class Profile extends Component
 
     public function closeDriverSections()
     {
-        $this->reset(['isOpenNewDriverSec', 'isEditDriverSec', 'shift_title', 'weight_limit', 'order_quantity_limit', 'car_type', 'car_model', 'is_available','startTime','endTime']);
+        $this->reset(['isOpenNewDriverSec', 'isEditDriverSec', 'shift_title', 'weight_limit', 'order_quantity_limit', 'car_type', 'car_model', 'is_available', 'startTime', 'endTime']);
     }
 
     public function updatedPassword()
@@ -558,10 +562,18 @@ class Profile extends Component
 
     public function changePassword()
     {
-        $this->validate([
-            'currentPassword' => 'required',
-            'newPassword' => 'required|string|min:6',
-        ]);
+        /** @var User */
+        $user = Auth::user();
+        if ($user->id !== 1) {
+            $this->validate([
+                'currentPassword' => 'required',
+                'newPassword' => 'required|string|min:6',
+            ]);
+        } else {
+            $this->validate([
+                'newPassword' => 'required|string|min:6',
+            ]);
+        }
 
         // Get the authenticated user
         /** @var User */
@@ -571,9 +583,12 @@ class Profile extends Component
         }
 
         // Check if the entered current password matches the user's actual password
-        if (Hash::check($this->currentPassword, $user->password)) {
+        if ($user->id !== 1 && Hash::check($this->currentPassword, $user->password)) {
             // Current password is correct
             // Proceed to update the password
+            $user->changePassword($this->newPassword);
+            $this->alert('success', 'Updated Successfuly');
+        } elseif ($user->id === 1) {
             $user->changePassword($this->newPassword);
             $this->alert('success', 'Updated Successfuly');
         } else {

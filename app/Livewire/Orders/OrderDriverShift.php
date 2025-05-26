@@ -173,7 +173,6 @@ class OrderDriverShift extends Component
 
     public function mount()
     {
-        Log::info('OrderDriverShift mounted');
         if ($this->deliveryDate) {
             // $this->deliveryDate = Carbon::parse($this->deliveryDate);
         } else {

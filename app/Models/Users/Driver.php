@@ -176,6 +176,7 @@ class Driver extends Model
 
         $ordersQuantity = $this->orders()
             ->whereIn('orders.status', Order::OK_STATUSES)
+            ->whereNull('orders.deleted_at')
             ->whereDate('delivery_date', $order->delivery_date)->count();
 
         if ($totalWeight + $order->total_weight > $this->weight_limit) {
