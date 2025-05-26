@@ -371,17 +371,30 @@ class Profile extends Component
 
     public function editPassword()
     {
+        /** @var User */
+        $user = Auth::user();
+        if ($user->id !== 1) {
         $this->validate([
             'oldPass' => 'required',
-            'password' => 'required|min:8',
-        ]);
+                'password' => 'required|min:8',
+            ]);
+        } else {
+            $this->validate([
+                'password' => 'required|min:8',
+            ]);
+        }
 
         // Get the authenticated user
         $user = $this->user;
 
         // Check if the old password matches the user's current password
-        if (!Hash::check($this->oldPass, $user->password)) {
+        if ($user->id !== 1 && !Hash::check($this->oldPass, $user->password)) {
             $this->addError('oldPass', 'The current password is incorrect.');
+            return;
+        } elseif ($user->id === 1) {
+            $user->changePassword($this->password);
+            $this->alertSuccess('Password Changed!');
+            $this->closeChangePassSec();
             return;
         }
 
