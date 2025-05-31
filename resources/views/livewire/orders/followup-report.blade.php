@@ -83,7 +83,7 @@
                         @foreach ($months as $one_months)
                             <li wire:click='setMonth({{ $one_months }})'
                                 class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white cursor-pointer">
-                                {{ \Carbon\Carbon::createFromFormat('m', $one_months)->monthName }}
+                                {{ \Carbon\Carbon::createFromFormat('d-m', "1-".$one_months)->monthName }}
                             </li>
                         @endforeach
 
