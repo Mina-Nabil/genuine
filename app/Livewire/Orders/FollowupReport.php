@@ -166,9 +166,7 @@ class FollowupReport extends Component
         $this->selectedWeek = min(4, $start->weekOfMonth);
 
         $this->years = range($this->year - 4, $this->year + 1);
-        $this->months = array_map(function ($month) {
-            return sprintf('%02d', $month);
-        }, range(1, 12));
+        $this->months = range(1, 12);
     }
 
     public function setMonth($month)
