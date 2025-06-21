@@ -142,9 +142,16 @@ class Driver extends Model
             ->whereNull('orders.deleted_at')
             ->first()->total_calc_weight;
 
-        $ordersQuantity = $this->orders()->whereDate('delivery_date', $deliveryDate->format('Y-m-d'))->count();
+        $ordersQuantity = $this->orders()
+        ->whereDate('delivery_date', $deliveryDate->format('Y-m-d'))
+        ->whereIn('orders.status', Order::OK_STATUSES)
+        ->whereNull('orders.deleted_at')
+        ->count();
+        
         Log::info("totalWeight: $totalWeight, newProductsWeight: $newProductsWeight, weight_limit: $this->weight_limit");
         Log::info("ordersQuantity: $ordersQuantity, order_quantity_limit: $this->order_quantity_limit");
+        
+
         if ($totalWeight + $newProductsWeight > $this->weight_limit) {
             return false;
         }
