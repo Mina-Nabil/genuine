@@ -211,23 +211,11 @@ class OrderInventory extends Component
 
         $todayShifts = Driver::hasOrdersOn($this->deliveryDate)->get();
 
-        $cancelledOrders = Order::search(
-            searchText: $this->search,
-            status: $this->status,
-            driverId: $this->driver?->id,
-            zoneId: $this->zone?->id
-        )
-            ->withCancelledReadyProducts()
-            ->with(['products' => function ($query) {
-                $query->withTrashed(); // Include trashed products in the eager loading
-            }])
-            ->get();
 
         return view('livewire.orders.order-inventory', [
             'orders' => $orders,
             'todayShifts' => $todayShifts,
-            'DRIVERS' => $DRIVERS,
-            'cancelledOrders' => $cancelledOrders
+            'DRIVERS' => $DRIVERS
         ])->layout('layouts.app', ['page_title' => $this->page_title, 'ordersInventory' => 'active']);
     }
 }
