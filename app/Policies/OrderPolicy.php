@@ -37,7 +37,7 @@ class OrderPolicy
      */
     public function view(User $user, Order $order): bool
     {
-        return true;
+        return $user->is_admin || $user->is_sales;
     }
 
     public function resetStatus(User $user, Order $order): bool
