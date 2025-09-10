@@ -632,6 +632,15 @@
                                         </a>
                                     </div>
                                 @endif
+                                @if (auth()->user()->is_admin)
+                                    <div class="text-right">
+                                        <a href="https://genuine-hr.msquare.app/">
+                                            <button
+                                                class="btn btn-sm inline-flex justify-center btn-outline-light rounded-[25px]">HR
+                                                APP</button>
+                                        </a>
+                                    </div>
+                                @endif
                             </div>
                             <!-- end vertcial -->
                             <div class="items-center space-x-4 rtl:space-x-reverse horizental-box">
