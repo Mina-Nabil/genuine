@@ -625,7 +625,7 @@
                                 </button>
                                 @if (auth()->user()->is_admin)
                                     <div class="text-right">
-                                        <a href="/accounts">
+                                        <a href="/accounts" target="_blank">
                                             <button
                                                 class="btn btn-sm inline-flex justify-center btn-outline-light rounded-[25px]">Accounting
                                                 APP</button>
@@ -634,7 +634,7 @@
                                 @endif
                                 @if (auth()->user()->is_admin)
                                     <div class="text-right">
-                                        <a href="https://genuine-hr.msquare.app/">
+                                        <a href="https://genuine-hr.msquare.app/" target="_blank">
                                             <button
                                                 class="btn btn-sm inline-flex justify-center btn-outline-light rounded-[25px]">HR
                                                 APP</button>
