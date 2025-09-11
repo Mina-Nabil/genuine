@@ -1,4 +1,4 @@
-<div>
+<div x-data="{ expandedId: null }">
     <div class="flex justify-between flex-wrap items-center">
         <div class="md:mb-6 mb-4 flex space-x-3 rtl:space-x-reverse">
             <h4 class="font-medium lg:text-2xl text-xl capitalize text-slate-900 inline-block ltr:pr-4 rtl:pl-4">
@@ -62,7 +62,7 @@
                 @endif
             </div>
             @if ($driverId)
-                <div class="space-y-2 mt-1 float-right">
+                {{-- <div class="space-y-2 mt-1 float-right">
                     <div class="space-y-2">
                         @if (!$routes)
                             <button wire:click="openRoutePlanModal" class="btn btn-sm btn-primary">
@@ -75,7 +75,7 @@
                         @endif
 
                     </div>
-                </div>
+                </div> --}}
             @endif
         </div>
     </div>
@@ -318,8 +318,174 @@
                                             @endif
                                         </div>
                                     </div>
-                                    @if (!auth()->user()->is_driver || $order->id == $expandedId)
+                                    @if (!auth()->user()->is_driver)
                                         <div class="sm:border-l-0 md:border-l p-3 md:col-span-1">
+
+                                            <div class="space-y-1">
+                                                <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
+                                                    Zone
+                                                </h4>
+                                                <div class="text-sm font-medium text-slate-900 dark:text-white">
+                                                    {{ $order->zone->name }}
+
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+
+                                        <div class="sm:border-l-0 md:border-l p-3 md:col-span-2">
+                                            <div class="space-y-1">
+                                                <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
+                                                    Address
+                                                </h4>
+                                                <div class="text-sm font-medium text-slate-900 dark:text-white">
+                                                    {{ $order->shipping_address }}&nbsp; @if ($order->location_url || $order->customer->location_url)
+                                                        <br />
+                                                        <a class="clickable-link" target="_blank"
+                                                            href="{{ $order->location_url ?? $order->customer->location_url }}"><iconify-icon
+                                                                icon="mdi:location" width="1.2em"
+                                                                height="1.2em"></iconify-icon>Location</a>
+                                                    @endif
+                                                </div>
+                                                @if ($order->customer_phone || $order->customer->phone)
+                                                    <h4
+                                                        class="text-slate-600 dark:text-slate-200 text-xs font-normal mt-5">
+                                                        Phone
+                                                    </h4>
+                                                    <div class="text-sm font-medium text-slate-900 dark:text-white">
+                                                        <a class="clickable-link" target="_blanck"
+                                                            href="tel:{{ $order->customer_phone ?? $order->customer->phone }}">
+                                                            <iconify-icon icon="mdi:phone" width="1.2em"
+                                                                height="1.2em"></iconify-icon>
+                                                            {{ $order->customer_phone ?? $order->customer->phone }}
+                                                        </a>
+                                                    </div>
+                                                @endif
+
+                                            </div>
+                                        </div>
+
+
+                                        <div class="sm:border-l-0 md:border-l p-3 md:col-span-3">
+                                            <div
+                                                class="bg-slate-50 dark:bg-slate-900 rounded p-2 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-5 flex-wrap">
+
+                                                <div class="space-y-1">
+                                                    <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
+                                                        Price
+                                                    </h4>
+                                                    <div class=" font-medium text-success-500 dark:text-white">
+                                                        <b>{{ number_format($order->total_amount, 2) }}</b>
+                                                        <small>EGP</small>
+                                                    </div>
+                                                </div>
+                                                <div class="space-y-1">
+                                                    <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
+                                                        Weight
+                                                    </h4>
+                                                    <div class=" font-medium dark:text-white">
+                                                        {{ number_format($order->total_weight / 1000, 2) }}
+                                                        <small>KG</small>
+                                                    </div>
+                                                </div>
+
+                                                <div class="space-y-1">
+                                                    <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
+                                                        Collect
+                                                    </h4>
+                                                    <div class=" font-medium text-success-500 dark:text-white">
+                                                        <b>{{ number_format($order->remaining_to_pay, 2) }}</b>
+                                                        <small>EGP</small>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                            @if (auth()->user()->is_driver)
+                                                <div class="grid grid-cols-2 gap-2 mt-2">
+                                                    <div>
+                                                        @if ($order->is_delivered)
+                                                            <button
+                                                                wire:click='toggleIsDelivered({{ $order->id }})'
+                                                                class="btn inline-flex justify-center btn-success block-btn btn-sm">
+                                                                <span class="flex items-center">
+                                                                    <iconify-icon class="text-xl ltr:mr-2 rtl:ml-2"
+                                                                        icon="mdi:truck-check"></iconify-icon>
+                                                                    <span>Delivered</span>
+                                                                </span>
+                                                            </button>
+                                                        @else
+                                                            <button
+                                                                wire:click='toggleIsDelivered({{ $order->id }})'
+                                                                class="btn inline-flex justify-center btn-secondary block-btn btn-sm">
+                                                                <span class="flex items-center">
+                                                                    <iconify-icon class="text-xl ltr:mr-2 rtl:ml-2"
+                                                                        icon="mdi:truck-remove"></iconify-icon>
+                                                                    <span>Not Delivered</span>
+                                                                </span>
+                                                            </button>
+                                                        @endif
+                                                    </div>
+
+                                                    <div class="dropdown relative">
+                                                        <button
+                                                            class="btn flex justify-center w-full btn-outline-dark items-center btn-sm"
+                                                            type="button" id="blockDropdownMenuButton2"
+                                                            data-bs-toggle="dropdown" aria-expanded="false">
+                                                            {{ $order->driver_payment_type ? ucwords(str_replace('_', ' ', $order->driver_payment_type)) : 'Not Paid' }}
+                                                            <iconify-icon class="text-xl ltr:ml-2 rtl:mr-2"
+                                                                icon="ic:round-keyboard-arrow-down"></iconify-icon>
+                                                        </button>
+                                                        <ul class="dropdown-menu min-w-full absolute text-sm text-slate-700 dark:text-white hidden bg-white dark:bg-slate-700 shadow z-[2] float-left overflow-hidden list-none text-left rounded-lg mt-1 m-0 bg-clip-padding border-none"
+                                                            style="">
+                                                            <li wire:click='setDriverPaymentType({{ $order->id }})'
+                                                                class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600
+                                                    dark:hover:text-white cursor-pointer">
+                                                                None
+                                                            </li>
+                                                            @foreach ($PAYMENT_METHODS as $PAYMENT_METHOD)
+                                                                <li wire:click='setDriverPaymentType({{ $order->id }},"{{ $PAYMENT_METHOD }}")'
+                                                                    class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600
+                                                    dark:hover:text-white cursor-pointer">
+                                                                    {{ paymentMethodInArabic($PAYMENT_METHOD) }}
+                                                                </li>
+                                                            @endforeach
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            @else
+                                                <div class="flex justify-between">
+                                                    <div class="mt-2">
+                                                        @if ($order->is_delivered)
+                                                            <span
+                                                                class="badge bg-success-500 text-white capitalize">Delivered</span>
+                                                        @else
+                                                            <span
+                                                                class="badge bg-secondary-500 text-white capitalize">Not
+                                                                Delivered</span>
+                                                        @endif
+                                                        @if ($order->driver_payment_type)
+                                                            <span
+                                                                class="badge bg-success-500 text-white capitalize">Paid:
+                                                                {{ ucwords(str_replace('_', ' ', $order->driver_payment_type)) }}</span>
+                                                        @else
+                                                            <span
+                                                                class="badge bg-secondary-500 text-white capitalize">Not
+                                                                Paid</span>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            @endif
+
+
+
+
+                                        </div>
+                                    @else
+                                        <div x-show="expandedId === {{ $order->id }}">
+                                            <div class="sm:border-l-0 md:border-l p-3 md:col-span-1">
 
                                             <div class="space-y-1">
                                                 <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
@@ -484,17 +650,19 @@
 
 
                                         </div>
-                                        @if (auth()->user()->is_driver)
-                                            <div class="flex mt-2">
-                                                <button wire:click='setExpandedId()' class="action-btn"
-                                                    type="button">
-                                                    <iconify-icon icon="mingcute:up-fill"></iconify-icon>
-                                                </button>
-                                            </div>
-                                        @endif
-                                    @else
-                                        <div class="flex mt-2">
-                                            <button wire:click='setExpandedId({{ $order->id }})'
+                                            @if (auth()->user()->is_driver)
+                                                <div class="flex mt-2">
+                                                    <button @click="expandedId = null" class="action-btn"
+                                                        type="button">
+                                                        <iconify-icon icon="mingcute:up-fill"></iconify-icon>
+                                                    </button>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @endif
+                                    @if (auth()->user()->is_driver)
+                                        <div class="flex mt-2" x-show="expandedId !== {{ $order->id }}">
+                                            <button @click="expandedId = {{ $order->id }}"
                                                 class="action-btn" type="button">
                                                 <iconify-icon icon="mingcute:down-fill"></iconify-icon>
                                             </button>

@@ -46,7 +46,6 @@ class OrderDriverShift extends Component
     public $driverOrder;
     public $showDriverOrderId;
     public $showBagsId;
-    public $expandedId;
     public $noOfBags = [];
 
     public $startLocation;
@@ -67,10 +66,6 @@ class OrderDriverShift extends Component
         }
     }
 
-    public function setExpandedId($id = null)
-    {
-        $this->expandedId = $id;
-    }
 
     public function showDriverOrder($id)
     {
