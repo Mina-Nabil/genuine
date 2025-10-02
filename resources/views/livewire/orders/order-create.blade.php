@@ -62,8 +62,8 @@
                                 <div class="input-area w-full">
                                     <label for="phone" class="form-label"><b>Products</b></label>
                                     <input id="phone" type="tel" class="form-control"
-                                        wire:click='openProductsSection' wire:model.live='dummyProductsSearch'
-                                        placeholder="Search products..." autocomplete="off">
+                                        wire:focus='openProductsSection' wire:model.live='dummyProductsSearch'
+                                        placeholder="Search products..." autocomplete="off" readonly onfocus="this.removeAttribute('readonly');">
                                 </div>
                                 <button wire:click='openCombosSection'
                                     class="btn inline-flex justify-center btn-outline-light btn-sm no-wrap">Combos</button>
