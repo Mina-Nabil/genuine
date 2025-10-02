@@ -980,23 +980,27 @@ document.addEventListener("DOMContentLoaded", function () {
     const rowCheckboxes = document.querySelectorAll(".row-checkbox");
 
     // Function to handle the "Select All" checkbox
-    selectAllCheckbox.addEventListener("change", function () {
-        rowCheckboxes.forEach(function (checkbox) {
-            checkbox.checked = selectAllCheckbox.checked;
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener("change", function () {
+            rowCheckboxes.forEach(function (checkbox) {
+                checkbox.checked = selectAllCheckbox.checked;
+            });
         });
-    });
+    }
 
     // Function to check the "Select All" checkbox based on row selections
-    rowCheckboxes.forEach(function (checkbox) {
-        checkbox.addEventListener("change", function () {
-            const allChecked = Array.from(rowCheckboxes).every(function (
-                checkbox
-            ) {
-                return checkbox.checked;
+    if (rowCheckboxes) {
+        rowCheckboxes.forEach(function (checkbox) {
+            checkbox.addEventListener("change", function () {
+                const allChecked = Array.from(rowCheckboxes).every(function (
+                    checkbox
+                ) {
+                    return checkbox.checked;
+                });
+                selectAllCheckbox.checked = allChecked;
             });
-            selectAllCheckbox.checked = allChecked;
         });
-    });
+    }
 });
 // END: Select Multi Rows in a Table
 
