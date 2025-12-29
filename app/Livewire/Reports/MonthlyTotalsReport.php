@@ -18,7 +18,7 @@ class MonthlyTotalsReport extends Component
     {
         $this->currentYear = Carbon::now()->format('Y');
         $this->selectedYear = Carbon::parse($this->currentYear)->format('Y');
-        $this->lastYears = collect(range($this->currentYear - 5, $this->currentYear));
+        $this->lastYears = collect(range($this->currentYear - 5, $this->currentYear + 1));
     }
 
     public function selectYear($year){
