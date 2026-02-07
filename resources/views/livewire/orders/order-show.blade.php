@@ -1396,7 +1396,7 @@
                                             name="checkbox">
                                         <span
                                             class="h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 bg-slate-100 dark:bg-slate-900">
-                                            <img src="{{ asset('assets/images/icon/ck-white.svg') }}" alt=""
+                                            <img src="{{ asset("assets/images/icon/ck-white.svg") }}" alt=""
                                                 class="h-[10px] w-[10px] block m-auto opacity-0"></span>
                                         <span class="text-slate-500 dark:text-slate-400 text-sm leading-6">is driver back
                                             to office ?</span>
@@ -1408,7 +1408,7 @@
                                         <input wire:model='is2x' type="checkbox" class="hidden" name="checkbox">
                                         <span
                                             class="h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 bg-slate-100 dark:bg-slate-900">
-                                            <img src="{{ asset('assets/images/icon/ck-white.svg') }}" alt=""
+                                            <img src="{{ asset("assets/images/icon/ck-white.svg") }}" alt=""
                                                 class="h-[10px] w-[10px] block m-auto opacity-0"></span>
                                         <span class="text-slate-500 dark:text-slate-400 text-sm leading-6">is driver
                                             deliver twice ?</span>
@@ -1537,7 +1537,7 @@
                                                                 checked="checked">
                                                             <span
                                                                 class="h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 bg-slate-100 dark:bg-slate-900">
-                                                                <img src="{{ asset('assets/images/icon/ck-white.svg') }}"
+                                                                <img src="{{ asset("assets/images/icon/ck-white.svg") }}"
                                                                     alt=""
                                                                     class="h-[10px] w-[10px] block m-auto opacity-0"></span>
                                                             <span
@@ -1608,7 +1608,7 @@
                                                 class="hidden" name="checkbox" checked="checked">
                                             <span
                                                 class="h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 bg-slate-100 dark:bg-slate-900">
-                                                <img src="{{ asset('assets/images/icon/ck-white.svg') }}" alt=""
+                                                <img src="{{ asset("assets/images/icon/ck-white.svg") }}" alt=""
                                                     class="h-[10px] w-[10px] block m-auto opacity-0"></span>
                                             <span class="text-slate-500 dark:text-slate-400 text-sm leading-6">
                                                 Return Shipping Amount ?</span>

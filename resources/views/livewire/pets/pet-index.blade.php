@@ -38,7 +38,7 @@
                                             id="select-all">
                                         <span
                                             class="h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 bg-slate-100 dark:bg-slate-900">
-                                            <img src="assets/images/icon/ck-white.svg" alt=""
+                                            <img src="{{ asset("assets/images/icon/ck-white.svg") }}" alt=""
                                                 class="h-[10px] w-[10px] block m-auto opacity-0"></span>
                                     </label>
                                 </div>
@@ -79,7 +79,7 @@
                                                 class="hidden" id="select-all">
                                             <span
                                                 class="h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 bg-slate-100 dark:bg-slate-900">
-                                                <img src="assets/images/icon/ck-white.svg" alt=""
+                                                <img src="{{ asset("assets/images/icon/ck-white.svg") }}" alt=""
                                                     class="h-[10px] w-[10px] block m-auto opacity-0"></span>
                                         </label>
                                     </div>

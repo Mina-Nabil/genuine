@@ -138,6 +138,12 @@ class OrderCreate extends Component
         $this->closeDriverSection();
     }
 
+    public function clearNewOrder()
+    {
+        $this->reset(['openOrderInNewTab', 'selectedProducts', 'fetchedProducts', 'ddate', 'note', 'driver', 'isOpenSelectDriverSec', 'driversSearchText', 'customersSearchText', 'isOpenSelectCustomerSec', 'dummyProductsSearch', 'creator_id', 'paymentMethod', 'periodicOption', 'customerIsNew', 'customerId', 'customerBalance', 'detuctFromBalance', 'customerName', 'shippingAddress', 'locationURL', 'customerPhone', 'zoneId', 'initiateDiscountAmount', 'isOpenSelectComboSec', 'combosSearchText', 'isOpenEditDiscount', 'hasPrevOrdersAlert', 'subtotal', 'totalItems', 'shippingFee', 'zoneName', 'total', 'discountAmount', 'customerLastOrder', 'fetchedCombos']);
+        $this->refreshPayments();
+    }
+
     public function clearDriver()
     {
         $this->reset(['driver']);
@@ -556,7 +562,9 @@ class OrderCreate extends Component
             $this->alertSuccess('order added!');
             sleep(2);
             if ($this->openOrderInNewTab) {
-                $this->dispatch('openNewTab', ['url' => route('orders.show', ['id' => $res->id])]);
+                $this->clearCustomer();
+
+                return $this->dispatch('openNewTab', ['url' => route('orders.show', ['id' => $res->id])]);
             }
             return redirect(route('orders.create'));
         } else {
