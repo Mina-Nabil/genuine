@@ -562,8 +562,7 @@ class OrderCreate extends Component
             $this->alertSuccess('order added!');
             sleep(2);
             if ($this->openOrderInNewTab) {
-                $this->clearCustomer();
-
+                $this->clearNewOrder();
                 return $this->dispatch('openNewTab', ['url' => route('orders.show', ['id' => $res->id])]);
             }
             return redirect(route('orders.create'));
