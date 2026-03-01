@@ -71,6 +71,7 @@
                                 <th scope="col" class="table-th">Orders</th>
                                 <th scope="col" class="table-th">Address</th>
                                 <th scope="col" class="table-th">Location</th>
+                                <th scope="col" class="table-th w-14">Actions</th>
 
                         </tr>
                     </thead>
@@ -122,6 +123,18 @@
                                     @endif
                                 </td>
 
+                                <td class="table-td">
+                                    @can('delete', $customer)
+                                        @if ($customer->orders_count === 0)
+                                            <button wire:click="confirmDeleteCustomer({{ $customer->id }})"
+                                                type="button"
+                                                class="text-slate-500 hover:text-danger-500 transition-colors"
+                                                title="Delete customer">
+                                                <iconify-icon icon="lucide:recycle" width="1.2em" height="1.2em"></iconify-icon>
+                                            </button>
+                                        @endif
+                                    @endcan
+                                </td>
 
                             </tr>
                         @endforeach
@@ -485,6 +498,61 @@
                     </div>
                 </div>
             </div>
+    @endif
+
+    @if ($showDeleteModal && $customerBeingDeleted)
+        <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto show"
+            tabindex="-1" aria-labelledby="delete_customer_modal" aria-modal="true" role="dialog"
+            style="display: block;">
+            <div class="modal-dialog relative w-auto pointer-events-none">
+                <div
+                    class="modal-content border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-white bg-clip-padding rounded-md outline-none text-current">
+                    <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
+                        <div
+                            class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
+                            <h3 class="text-xl font-medium text-white dark:text-white capitalize">
+                                Delete customer
+                            </h3>
+                            <button wire:click="cancelDeleteCustomer" type="button"
+                                class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-slate-600 dark:hover:text-white"
+                                data-bs-dismiss="modal">
+                                <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd"
+                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                <span class="sr-only">Close modal</span>
+                            </button>
+                        </div>
+
+                        <div class="p-6 space-y-4">
+                            <div class="py-[18px] px-6 font-normal font-Inter text-sm rounded-md bg-warning-500 bg-opacity-[14%] text-warning-500">
+                                <div class="flex items-start space-x-3 rtl:space-x-reverse">
+                                    <div class="flex-1">
+                                        Are you sure you want to delete <strong>{{ $customerBeingDeleted->name }}</strong>? This action cannot be undone.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end gap-2 p-6 border-t border-slate-200 rounded-b dark:border-slate-600">
+                            <button wire:click="cancelDeleteCustomer"
+                                class="btn inline-flex justify-center btn-outline-dark btn-sm">
+                                Cancel
+                            </button>
+                            <button wire:click="deleteCustomer"
+                                class="btn inline-flex justify-center text-white bg-danger-500 btn-sm">
+                                <span wire:loading.remove wire:target="deleteCustomer">Yes, delete</span>
+                                <iconify-icon class="text-xl spin-slow ltr:mr-2 rtl:ml-2 relative top-[1px]"
+                                    wire:loading wire:target="deleteCustomer"
+                                    icon="line-md:loading-twotone-loop"></iconify-icon>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     @endif
 
 </div>

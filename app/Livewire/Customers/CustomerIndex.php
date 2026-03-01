@@ -7,6 +7,7 @@ use App\Models\Customers\Zone;
 use App\Models\Pets\Pet;
 use Livewire\Component;
 use App\Traits\AlertFrontEnd;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -16,7 +17,7 @@ use App\Models\Orders\PeriodicOrder;
 
 class CustomerIndex extends Component
 {
-    use WithFileUploads, AlertFrontEnd, WithPagination;
+    use WithFileUploads, AlertFrontEnd, WithPagination, AuthorizesRequests;
     public $page_title = '• Customers';
 
     public $search;
@@ -35,6 +36,8 @@ class CustomerIndex extends Component
     public $Edited_zoneId_sec = false;
     public $Edited_zoneId;
 
+    public $customerToDelete = null;
+    public $showDeleteModal = false;
 
     public function openFilteryZone()
     {
@@ -128,6 +131,31 @@ class CustomerIndex extends Component
         $this->resetPage();
     }
 
+    public function confirmDeleteCustomer($customerId)
+    {
+        $this->customerToDelete = $customerId;
+        $this->showDeleteModal = true;
+    }
+
+    public function cancelDeleteCustomer()
+    {
+        $this->customerToDelete = null;
+        $this->showDeleteModal = false;
+    }
+
+    public function deleteCustomer()
+    {
+        $customer = Customer::findOrFail($this->customerToDelete);
+        $this->authorize('delete', $customer);
+        $res = $customer->deleteCustomer();
+        $this->cancelDeleteCustomer();
+        if ($res) {
+            $this->alertSuccess('Customer deleted.');
+        } else {
+            $this->alertFailed();
+        }
+    }
+
     public function addNewCustomer()
     {
         $this->authorize('create', Customer::class);
@@ -158,12 +186,20 @@ class CustomerIndex extends Component
     public function render()
     {
         $ZONES = Zone::select('id', 'name')->get();
-        $customers = Customer::when($this->search, fn($q) => $q->search($this->search))->zone($this->zone?->id)->paginate(50);
+        $customers = Customer::when($this->search, fn($q) => $q->search($this->search))
+            ->zone($this->zone?->id)
+            ->withCount('orders')
+            ->paginate(50);
         $PET_CATEGORIES = Pet::CATEGORIES;
+        $customerBeingDeleted = $this->showDeleteModal && $this->customerToDelete
+            ? Customer::find($this->customerToDelete)
+            : null;
+
         return view('livewire.customers.customer-index', [
             'customers' => $customers,
             'ZONES' => $ZONES,
             'PET_CATEGORIES' => $PET_CATEGORIES,
+            'customerBeingDeleted' => $customerBeingDeleted,
         ])->layout('layouts.app', ['page_title' => $this->page_title, 'customers' => 'active']);
     }
 }
