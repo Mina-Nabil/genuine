@@ -83,6 +83,7 @@ class Dashboard extends Component
             'cashBalance'           => $cashBalance,
             'bankBalance'           => $bankBalance,
             'walletBalance'         => $walletBalance,
+            'totalReadyOrdersCount' => $totalReadyOrdersCount,
             'totalUnpaidInvoices'         => $totalUnpaidInvoices,
             'todayCashIn' => $todayCashIn,
             'todayCashOut' => $todayCashOut,
