@@ -2187,6 +2187,11 @@ class Order extends Model
         return $query->orderBy('zones.name', $direction);
     }
 
+    public function scopeReadyOrders(Builder $query): Builder
+    {
+        return $query->where('status', self::STATUS_READY);
+    }
+
     public function scopeDailyTotals($query, $year, $month)
     {
         return $query

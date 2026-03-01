@@ -53,6 +53,12 @@ class Dashboard extends Component
             ->notDebitOrders()
             ->selectRaw('Count(orders.id) as active_orders')->first()?->active_orders;
 
+        $totalActiveOrdersCount = Order::search(deliveryDates: [$fromDate, $toDate])
+            ->readyOrders()
+            ->OpenOrders()
+            ->notDebitOrders()
+            ->selectRaw('Count(orders.id) as ready_orders')->first()?->ready_orders;
+
 
         $totalUnpaidInvoices = SupplierInvoice::unpaidTotal();
         $cashBalance = CustomerPayment::PaymentMethod(CustomerPayment::PYMT_CASH)->limit(1)->latest()->first()?->type_balance ?? 0;

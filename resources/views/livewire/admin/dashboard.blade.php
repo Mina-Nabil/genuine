@@ -50,10 +50,10 @@
                                 </div>
                                 <div class="flex-1">
                                     <div class="text-slate-600 dark:text-slate-300 text-sm mb-1 font-medium">
-                                        Active Orders
+                                        Active / Ready
                                     </div>
                                     <div class="text-slate-900 dark:text-white text-lg font-medium">
-                                        {{ $totalActiveOrdersCount }}
+                                        {{ $totalActiveOrdersCount }} / {{ $totalReadyOrdersCount }}
                                     </div>
                                 </div>
                             </div>
