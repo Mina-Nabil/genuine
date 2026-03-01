@@ -53,7 +53,7 @@ class Dashboard extends Component
             ->notDebitOrders()
             ->selectRaw('Count(orders.id) as active_orders')->first()?->active_orders;
 
-        $totalActiveOrdersCount = Order::search(deliveryDates: [$fromDate, $toDate])
+        $totalReadyOrdersCount = Order::search(deliveryDates: [$fromDate, $toDate])
             ->readyOrders()
             ->OpenOrders()
             ->notDebitOrders()
