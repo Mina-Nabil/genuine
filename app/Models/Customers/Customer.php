@@ -379,7 +379,7 @@ class Customer extends Model
     // Scopes
     public function scopeZonesCountReport($query, Carbon $start_date, Carbon $end_date, $zone_name)
     {
-        $query->selectRaw('zones.name as zone_name, COUNT(customers.id) as customers_count')
+        $query->selectRaw("zones.name as zone_name, COUNT(customers.id) as customers_count, GROUP_CONCAT(customers.name ORDER BY customers.name SEPARATOR ', ') as clients_list")
             ->where('customers.created_at', '>=', $start_date->format('Y-m-d 00:00:00'))
             ->where('customers.created_at', '<=', $end_date->format('Y-m-d 23:59:59'))
             ->join('zones', 'zones.id', '=', 'customers.zone_id')

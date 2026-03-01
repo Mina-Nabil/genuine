@@ -48,6 +48,7 @@
                                     Zone
                                 </th>
                                 <th scope="col" class="table-th">Customers Count ({{ $zones->sum('customers_count') }})</th>
+                                <th scope="col" class="table-th">Clients</th>
                             </tr>
                         </thead>
                         <tbody
@@ -65,6 +66,10 @@
 
                                     <td class="table-td">
                                         {{ $zone->customers_count }}
+                                    </td>
+
+                                    <td class="table-td">
+                                        {{ $zone->clients_list ?? '—' }}
                                     </td>
 
                                 </tr>
