@@ -13,13 +13,8 @@ class WeeklyTotalsReport extends Component
 
     public $searchTerm;
 
-    public $currentYear;
-    public $lastYears;
-    public $selectedYear;
-
-    public $currentMonth;
-    public $AllMonths;
-    public $selectedMonth;
+    public $fromDate;
+    public $toDate;
 
     public $setZoneSection = false;
     public $zones = [];
@@ -30,24 +25,11 @@ class WeeklyTotalsReport extends Component
 
     public function mount()
     {
-        $this->currentYear = Carbon::now()->format('Y');
-        $this->selectedYear = Carbon::parse($this->currentYear)->format('Y');
-        $this->lastYears = collect(range($this->currentYear - 5, $this->currentYear));
-
-        $this->currentMonth =  Carbon::now()->format('m');
-        $this->AllMonths = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
-        $this->selectedMonth = $this->currentMonth;
+        $this->fromDate = Carbon::now()->startOfMonth()->format('Y-m-d');
+        $this->toDate = Carbon::now()->endOfMonth()->format('Y-m-d');
     }
 
-    public function selectYear($year){
-        $this->selectedYear = Carbon::createFromFormat('Y', $year)->format('Y');
-    }
 
-    public function selectMonth($month){
-        $this->selectedMonth = Carbon::createFromFormat('m', $month)->format('m');
-    }
-
-    
     public function clearZones()
     {
         $this->zones = [];
@@ -100,11 +82,15 @@ class WeeklyTotalsReport extends Component
     public function render()
     {
         $saved_zones = Zone::all();
-        $zoneReports = Order::weeklyZoneReport($this->selectedYear, $this->selectedMonth , $this->searchTerm , $this->zones)->get();
+        $zoneReports = Order::weeklyZoneReport($this->fromDate, $this->toDate, $this->searchTerm, $this->zones)->get();
         $groupedZoneReports = $zoneReports->groupBy('zone_name');
+        $daysInRange = Carbon::parse($this->fromDate)->diffInDays(Carbon::parse($this->toDate)) + 1;
+        $weekCount = max(1, (int) ceil($daysInRange / 7));
+
         return view('livewire.reports.weekly-totals-report',[
             'groupedZoneReports' => $groupedZoneReports,
-            'saved_zones' => $saved_zones
+            'saved_zones' => $saved_zones,
+            'weekCount' => $weekCount,
         ])->layout('layouts.app', ['page_title' => $this->page_title, 'weeklyTotalsReport' => 'active']);
     }
 }

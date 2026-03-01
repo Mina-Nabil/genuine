@@ -26,44 +26,10 @@
         </div>
     </div>
 
-    <div class="flex">
-        <div class="dropdown relative mb-5">
-            <button class="btn inline-flex justify-center btn-outline-dark items-center btn-sm" type="button"
-                id="darkOutlineDropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                Year: {{ $selectedYear }}
-                <iconify-icon class="text-xl ltr:ml-2 rtl:mr-2" icon="ic:round-keyboard-arrow-down"></iconify-icon>
-            </button>
-            <ul class="dropdown-menu min-w-max absolute text-sm text-slate-700 dark:text-white hidden bg-white dark:bg-slate-700 shadow z-[2] float-left overflow-hidden list-none text-left rounded-lg mt-1 m-0 bg-clip-padding border-none"
-                style="">
-
-                @foreach ($lastYears as $year)
-                    <li wire:click='selectYear({{ $year }})'
-                        class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600
-                    dark:hover:text-white cursor-pointer">
-                        {{ $year }}
-                    </li>
-                @endforeach
-            </ul>
-        </div>
-
-        <div class="dropdown relative ml-2 mb-5">
-            <button class="btn inline-flex justify-center btn-outline-dark items-center btn-sm" type="button"
-                id="darkOutlineDropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                Month: {{ \Carbon\Carbon::createFromFormat('m', $selectedMonth)->format('F') }}
-                <iconify-icon class="text-xl ltr:ml-2 rtl:mr-2" icon="ic:round-keyboard-arrow-down"></iconify-icon>
-            </button>
-            <ul class="dropdown-menu min-w-max absolute text-sm text-slate-700 dark:text-white hidden bg-white dark:bg-slate-700 shadow z-[2] float-left overflow-hidden list-none text-left rounded-lg mt-1 m-0 bg-clip-padding border-none"
-                style="">
-
-                @foreach ($AllMonths as $month)
-                    <li wire:click='selectMonth({{ $month }})'
-                        class="text-slate-600 dark:text-white block font-Inter font-normal px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600
-                    dark:hover:text-white cursor-pointer">
-                        {{ \Carbon\Carbon::createFromFormat('m', $month)->format('F') }}
-                    </li>
-                @endforeach
-            </ul>
-        </div>
+    <div class="flex gap-2 mb-5 items-center">
+        <input type="date" class="form-control w-auto" wire:model.live="fromDate" />
+        <span>to</span>
+        <input type="date" class="form-control w-auto" wire:model.live="toDate" />
     </div>
 
 
@@ -101,7 +67,7 @@
                         @php
                             $allTotal = 0;
                             $zonesTotal = [];
-                            for ($i = 1; $i <= 4; $i++) {
+                            for ($i = 1; $i <= $weekCount; $i++) {
                                 $zonesTotal[$i] = 0;
                                 foreach ($groupedZoneReports as $zoneName => $weeks) {
                                     $zonesTotal[$i] += $weeks->where('week', $i)->sum('total_orders');
@@ -115,11 +81,10 @@
 
 
                             <th scope="col" class="table-th">Zone</th>
-                            <th scope="col" class="table-th">Week 1 ({{$zonesTotal[1]}})</th>
-                            <th scope="col" class="table-th">Week 2 ({{$zonesTotal[2]}})</th>
-                            <th scope="col" class="table-th">Week 3 ({{$zonesTotal[3]}})</th>
-                            <th scope="col" class="table-th">Week 4 ({{$zonesTotal[4]}})</th>
-                            <th scope="col" class="table-th">Total Monthly Orders ({{$allTotal}})</th>
+                            @for ($i = 1; $i <= $weekCount; $i++)
+                                <th scope="col" class="table-th">Week {{ $i }} ({{ $zonesTotal[$i] ?? 0 }})</th>
+                            @endfor
+                            <th scope="col" class="table-th">Total ({{ $allTotal }})</th>
 
 
                         </tr>
@@ -129,7 +94,7 @@
                         @foreach ($groupedZoneReports as $zoneName => $weeks)
                             <tr class="even:bg-slate-100 dark:even:bg-slate-700">
                                 <td class="table-td"><b>{{ $zoneName }}</b></td>
-                                @for ($i = 1; $i <= 4; $i++)
+                                @for ($i = 1; $i <= $weekCount; $i++)
                                     <td class="table-td">
                                         {{ $weeks->firstWhere('week', $i)->total_orders ?? 0 }}
                                     </td>
