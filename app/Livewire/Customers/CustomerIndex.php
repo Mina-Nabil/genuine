@@ -36,6 +36,10 @@ class CustomerIndex extends Component
     public $Edited_zoneId_sec = false;
     public $Edited_zoneId;
 
+    public $filterPeriodicType;
+    public $Edited_periodicType_sec = false;
+    public $Edited_periodicType;
+
     public $customerToDelete = null;
     public $showDeleteModal = false;
 
@@ -55,6 +59,24 @@ class CustomerIndex extends Component
     {
         $this->zone = Zone::findOrFail($this->Edited_zoneId);
         $this->closeFilteryZone();
+    }
+
+    public function openFilterByPeriodicType()
+    {
+        $this->Edited_periodicType_sec = true;
+        $this->Edited_periodicType = $this->filterPeriodicType;
+    }
+
+    public function closeFilterByPeriodicType()
+    {
+        $this->Edited_periodicType_sec = false;
+        $this->Edited_periodicType = null;
+    }
+
+    public function setFilterPeriodicType()
+    {
+        $this->filterPeriodicType = $this->Edited_periodicType ?: null;
+        $this->closeFilterByPeriodicType();
     }
 
     public function clearProperty(string $propertyName)
@@ -188,6 +210,7 @@ class CustomerIndex extends Component
         $ZONES = Zone::select('id', 'name')->get();
         $customers = Customer::when($this->search, fn($q) => $q->search($this->search))
             ->zone($this->zone?->id)
+            ->byPeriodicType($this->filterPeriodicType)
             ->withCount('orders')
             ->paginate(50);
         $PET_CATEGORIES = Pet::CATEGORIES;
