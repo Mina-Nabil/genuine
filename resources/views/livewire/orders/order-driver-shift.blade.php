@@ -219,6 +219,10 @@
                                                                 href="tel:{{ $order->customer_phone ?? $order->customer->phone }}">
                                                                 <iconify-icon icon="mdi:phone" width="1.2em"
                                                                     height="1.2em"></iconify-icon></a>
+                                                            <a class="clickable-link" target="_blank" title="WhatsApp"
+                                                                href="https://wa.me/{{ preg_replace('/\D/', '', $order->customer_phone ?? $order->customer->phone) }}">
+                                                                <iconify-icon icon="logos:whatsapp-icon" width="1.2em"
+                                                                    height="1.2em"></iconify-icon></a>
                                                             <a class="clickable-link" target="_blank"
                                                                 href="{{ $order->location_url ?? $order->customer->location_url }}">
                                                                 <iconify-icon icon="mdi:location" width="1.2em"
@@ -353,12 +357,17 @@
                                                         class="text-slate-600 dark:text-slate-200 text-xs font-normal mt-5">
                                                         Phone
                                                     </h4>
-                                                    <div class="text-sm font-medium text-slate-900 dark:text-white">
-                                                        <a class="clickable-link" target="_blanck"
+                                                    <div class="text-sm font-medium text-slate-900 dark:text-white inline-flex items-center gap-1">
+                                                        <a class="clickable-link" target="_blank"
                                                             href="tel:{{ $order->customer_phone ?? $order->customer->phone }}">
                                                             <iconify-icon icon="mdi:phone" width="1.2em"
                                                                 height="1.2em"></iconify-icon>
                                                             {{ $order->customer_phone ?? $order->customer->phone }}
+                                                        </a>
+                                                        <a class="clickable-link" target="_blank" title="WhatsApp"
+                                                            href="https://wa.me/{{ preg_replace('/\D/', '', $order->customer_phone ?? $order->customer->phone) }}">
+                                                            <iconify-icon icon="logos:whatsapp-icon" width="1.2em"
+                                                                height="1.2em"></iconify-icon>
                                                         </a>
                                                     </div>
                                                 @endif
@@ -519,12 +528,17 @@
                                                         class="text-slate-600 dark:text-slate-200 text-xs font-normal mt-5">
                                                         Phone
                                                     </h4>
-                                                    <div class="text-sm font-medium text-slate-900 dark:text-white">
-                                                        <a class="clickable-link" target="_blanck"
+                                                    <div class="text-sm font-medium text-slate-900 dark:text-white inline-flex items-center gap-1">
+                                                        <a class="clickable-link" target="_blank"
                                                             href="tel:{{ $order->customer_phone ?? $order->customer->phone }}">
                                                             <iconify-icon icon="mdi:phone" width="1.2em"
                                                                 height="1.2em"></iconify-icon>
                                                             {{ $order->customer_phone ?? $order->customer->phone }}
+                                                        </a>
+                                                        <a class="clickable-link" target="_blank" title="WhatsApp"
+                                                            href="https://wa.me/{{ preg_replace('/\D/', '', $order->customer_phone ?? $order->customer->phone) }}">
+                                                            <iconify-icon icon="logos:whatsapp-icon" width="1.2em"
+                                                                height="1.2em"></iconify-icon>
                                                         </a>
                                                     </div>
                                                 @endif
