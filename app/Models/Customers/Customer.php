@@ -114,21 +114,19 @@ class Customer extends Model
 
 
     /**
-     * Normalize a raw phone string for WhatsApp wa.me links (digits only, Egyptian 01 -> 20).
+     * Normalize a raw phone string for WhatsApp wa.me links.
+     * Same logic as Order::generateWhatsAppMessage: remove spaces, then 01 -> +2.
      */
     public static function normalizePhoneForWhatsApp(?string $raw): ?string
     {
         if ($raw === null || $raw === '') {
             return null;
         }
-        $digits = preg_replace('/\D/', '', $raw);
-        if ($digits === '') {
-            return null;
+        $phoneNumber = str_replace(' ', '', $raw);
+        if (Str::startsWith($phoneNumber, '01')) {
+            $phoneNumber = '+2' . $phoneNumber;
         }
-        if (Str::startsWith($digits, '01') && strlen($digits) >= 10) {
-            $digits = '2' . substr($digits, 1);
-        }
-        return $digits;
+        return $phoneNumber;
     }
 
     /**
