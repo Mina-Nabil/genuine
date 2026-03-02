@@ -279,7 +279,7 @@ class OrderIndex extends Component
         $this->STATUSES = Order::STATUSES;
         $this->drivers = Driver::all();
         $this->PAYMENT_METHODS = CustomerPayment::PAYMENT_METHODS_WITH_DEBIT;
-        $this->CREATORS = User::orderBy('first_name')->orderBy('last_name')->get();
+        $this->CREATORS = User::active()->orderBy('first_name')->orderBy('last_name')->get();
     }
 
     public function clearProperty(string $propertyName)
