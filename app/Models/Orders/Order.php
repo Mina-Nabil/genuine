@@ -2037,7 +2037,7 @@ class Order extends Model
             ->orderByRaw('driver_order IS NULL, driver_order ASC')->sortByZone();
     }
 
-    public function scopeSearch(Builder $query, ?string $searchText = null, array $deliveryDates = [], ?string $status = null, ?int $zoneId = null, ?int $driverId = null, ?bool $isPaid = null, $skipUserCheck = false, array $zoneIds = []): Builder
+    public function scopeSearch(Builder $query, ?string $searchText = null, array $deliveryDates = [], ?string $status = null, ?int $zoneId = null, ?int $driverId = null, ?bool $isPaid = null, $skipUserCheck = false, array $zoneIds = [], ?int $creatorId = null): Builder
     {
         if (!joined($query, 'zones')) {
             $query->join('zones', 'zones.id', '=', 'orders.zone_id');
@@ -2083,6 +2083,9 @@ class Order extends Model
             })
             ->when(!is_null($isPaid), function ($query) use ($isPaid) {
                 $query->where('is_paid', $isPaid);
+            })
+            ->when($creatorId, function ($query) use ($creatorId) {
+                $query->where('orders.created_by', $creatorId);
             });
     }
 

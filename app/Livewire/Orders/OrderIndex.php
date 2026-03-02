@@ -6,6 +6,7 @@ use App\Models\Customers\Zone;
 use App\Models\Orders\Order;
 use App\Models\Payments\CustomerPayment;
 use App\Models\Users\Driver;
+use App\Models\Users\User;
 use App\Traits\AlertFrontEnd;
 use Carbon\Carbon;
 use Exception;
@@ -23,6 +24,7 @@ class OrderIndex extends Component
     public $drivers;
     public $STATUSES;
     public $DRIVERS;
+    public $CREATORS;
     public $saved_zones;
     public $PAYMENT_METHODS;
 
@@ -51,6 +53,11 @@ class OrderIndex extends Component
     public $AmountToCollect;
     public $Edited_driverId;
     public $Edited_driverId_sec;
+
+    #[Url]
+    public $creator;
+    public $Edited_creatorId;
+    public $Edited_creatorId_sec;
 
     public $setZoneSection = false;
     public $zones = [];
@@ -187,6 +194,26 @@ class OrderIndex extends Component
     {
         $this->driver = Driver::findOrFail($this->Edited_driverId);
         $this->closeFilteryDriver();
+        $this->resetPage();
+    }
+
+    public function openFilteryCreator()
+    {
+        $this->Edited_creatorId_sec = true;
+        $this->Edited_creatorId = $this->creator?->id;
+    }
+
+    public function closeFilteryCreator()
+    {
+        $this->Edited_creatorId_sec = false;
+        $this->Edited_creatorId = null;
+    }
+
+    public function setFilterCreator()
+    {
+        $this->creator = User::findOrFail($this->Edited_creatorId);
+        $this->closeFilteryCreator();
+        $this->resetPage();
     }
 
     public function clearZones()
@@ -252,6 +279,7 @@ class OrderIndex extends Component
         $this->STATUSES = Order::STATUSES;
         $this->drivers = Driver::all();
         $this->PAYMENT_METHODS = CustomerPayment::PAYMENT_METHODS_WITH_DEBIT;
+        $this->CREATORS = User::orderBy('first_name')->orderBy('last_name')->get();
     }
 
     public function clearProperty(string $propertyName)
@@ -407,7 +435,7 @@ class OrderIndex extends Component
 
     public function render()
     {
-        $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneIds: $this->zones)
+        $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneIds: $this->zones, creatorId: $this->creator?->id)
             ->OpenOrders()
             ->with('customer', 'zone', 'driver', 'creator')
             ->sortByDeliveryDate()
