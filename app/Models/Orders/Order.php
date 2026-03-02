@@ -1310,6 +1310,17 @@ class Order extends Model
         $this->save();
     }
 
+    /**
+     * Phone number normalized for WhatsApp (wa.me) links.
+     * Uses order customer_phone or customer->phone, same normalization as generateWhatsAppMessage.
+     */
+    public function getWhatsappPhoneAttribute(): ?string
+    {
+        $raw = $this->customer_phone ?? $this->customer?->phone;
+
+        return $raw ? Customer::normalizePhoneForWhatsApp($raw) : null;
+    }
+
     // File Path: /app/Models/Order.php
 
     public function generateWhatsAppMessage()
@@ -1349,10 +1360,7 @@ class Order extends Model
         EOD;
 
         $encodedMessage = urlencode($message);
-        $phoneNumber = str_replace(' ', '', $this->customer_phone);
-        if (Str::startsWith($phoneNumber, '01')) {
-            $phoneNumber = '+2' . $phoneNumber;
-        }
+        $phoneNumber = $this->whatsapp_phone ?? '';
 
         return "https://wa.me/{$phoneNumber}?text={$encodedMessage}";
     }

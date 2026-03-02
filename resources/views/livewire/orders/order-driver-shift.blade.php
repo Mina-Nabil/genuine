@@ -219,10 +219,12 @@
                                                                 href="tel:{{ $order->customer_phone ?? $order->customer->phone }}">
                                                                 <iconify-icon icon="mdi:phone" width="1.2em"
                                                                     height="1.2em"></iconify-icon></a>
-                                                            <a class="clickable-link" target="_blank" title="WhatsApp"
-                                                                href="https://wa.me/{{ preg_replace('/\D/', '', $order->customer_phone ?? $order->customer->phone) }}">
-                                                                <iconify-icon icon="logos:whatsapp-icon" width="1.2em"
-                                                                    height="1.2em"></iconify-icon></a>
+                                                            @if ($order->whatsapp_phone)
+                                                                <a class="clickable-link" target="_blank" title="WhatsApp"
+                                                                    href="https://wa.me/{{ $order->whatsapp_phone }}">
+                                                                    <iconify-icon icon="logos:whatsapp-icon" width="1.2em"
+                                                                        height="1.2em"></iconify-icon></a>
+                                                            @endif
                                                             <a class="clickable-link" target="_blank"
                                                                 href="{{ $order->location_url ?? $order->customer->location_url }}">
                                                                 <iconify-icon icon="mdi:location" width="1.2em"
@@ -364,11 +366,13 @@
                                                                 height="1.2em"></iconify-icon>
                                                             {{ $order->customer_phone ?? $order->customer->phone }}
                                                         </a>
-                                                        <a class="clickable-link" target="_blank" title="WhatsApp"
-                                                            href="https://wa.me/{{ preg_replace('/\D/', '', $order->customer_phone ?? $order->customer->phone) }}">
-                                                            <iconify-icon icon="logos:whatsapp-icon" width="1.2em"
-                                                                height="1.2em"></iconify-icon>
-                                                        </a>
+                                                        @if ($order->whatsapp_phone)
+                                                            <a class="clickable-link" target="_blank" title="WhatsApp"
+                                                                href="https://wa.me/{{ $order->whatsapp_phone }}">
+                                                                <iconify-icon icon="logos:whatsapp-icon" width="1.2em"
+                                                                    height="1.2em"></iconify-icon>
+                                                            </a>
+                                                        @endif
                                                     </div>
                                                 @endif
 
@@ -535,11 +539,13 @@
                                                                 height="1.2em"></iconify-icon>
                                                             {{ $order->customer_phone ?? $order->customer->phone }}
                                                         </a>
-                                                        <a class="clickable-link" target="_blank" title="WhatsApp"
-                                                            href="https://wa.me/{{ preg_replace('/\D/', '', $order->customer_phone ?? $order->customer->phone) }}">
-                                                            <iconify-icon icon="logos:whatsapp-icon" width="1.2em"
-                                                                height="1.2em"></iconify-icon>
-                                                        </a>
+                                                        @if ($order->whatsapp_phone)
+                                                            <a class="clickable-link" target="_blank" title="WhatsApp"
+                                                                href="https://wa.me/{{ $order->whatsapp_phone }}">
+                                                                <iconify-icon icon="logos:whatsapp-icon" width="1.2em"
+                                                                    height="1.2em"></iconify-icon>
+                                                            </a>
+                                                        @endif
                                                     </div>
                                                 @endif
 

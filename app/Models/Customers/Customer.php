@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -111,6 +112,32 @@ class Customer extends Model
         }
     }
 
+
+    /**
+     * Normalize a raw phone string for WhatsApp wa.me links (digits only, Egyptian 01 -> 20).
+     */
+    public static function normalizePhoneForWhatsApp(?string $raw): ?string
+    {
+        if ($raw === null || $raw === '') {
+            return null;
+        }
+        $digits = preg_replace('/\D/', '', $raw);
+        if ($digits === '') {
+            return null;
+        }
+        if (Str::startsWith($digits, '01') && strlen($digits) >= 10) {
+            $digits = '2' . substr($digits, 1);
+        }
+        return $digits;
+    }
+
+    /**
+     * Phone number normalized for WhatsApp (wa.me) links.
+     */
+    public function getWhatsappPhoneAttribute(): ?string
+    {
+        return self::normalizePhoneForWhatsApp($this->phone);
+    }
 
     // Edit customer info
     public function editInfo($name, $address = null, $phone, $location_url = null, $zone_id = null, $periodic_type = null)
