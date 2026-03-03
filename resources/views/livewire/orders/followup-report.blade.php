@@ -223,9 +223,9 @@
                                                 <b class="underline" wire:click='openFollowupDetailsSec({{ $c->last_followup->id }})'>
                                                     {{ \Carbon\Carbon::parse($c->last_followup->call_time)->format('d M h:i A') }}
                                                 </b>
-                                                @if ($c->last_followup->desc || $c->last_followup->caller_note)
-                                                    — <span class="text-slate-500 dark:text-slate-500" title="{{ $c->last_followup->desc ?? $c->last_followup->caller_note }}">
-                                                        {{ Str::limit($c->last_followup->desc ?? $c->last_followup->caller_note, 40) }}
+                                                @if ($c->last_followup->title || $c->last_followup->desc)
+                                                    — <span class="text-slate-500 dark:text-slate-500" title="{{ trim($c->last_followup->title . ' ' . ($c->last_followup->desc ?? '')) }}">
+                                                        {{ Str::limit(trim(($c->last_followup->title ?? '') . ($c->last_followup->desc ? ' — ' . $c->last_followup->desc : '')), 50) }}
                                                     </span>
                                                 @endif
                                             @else
