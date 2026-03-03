@@ -223,6 +223,11 @@
                                                 <b class="underline" wire:click='openFollowupDetailsSec({{ $c->last_followup->id }})'>
                                                     {{ \Carbon\Carbon::parse($c->last_followup->call_time)->format('d M h:i A') }}
                                                 </b>
+                                                @if ($c->last_followup->desc || $c->last_followup->caller_note)
+                                                    — <span class="text-slate-500 dark:text-slate-500" title="{{ $c->last_followup->desc ?? $c->last_followup->caller_note }}">
+                                                        {{ Str::limit($c->last_followup->desc ?? $c->last_followup->caller_note, 40) }}
+                                                    </span>
+                                                @endif
                                             @else
                                                 <b>N/A</b>
                                             @endif
