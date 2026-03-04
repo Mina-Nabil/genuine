@@ -216,7 +216,7 @@
 
                                         @if ($c->note)
                                             <div class="text-xs font-normal text-slate-600 dark:text-slate-400">
-                                                Customer note: {{ $c->note }}
+                                                Note: {{ Str::limit($c->note, 90) }}
                                             </div>
                                         @endif
 
