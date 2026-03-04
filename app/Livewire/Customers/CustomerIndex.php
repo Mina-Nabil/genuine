@@ -4,6 +4,7 @@ namespace App\Livewire\Customers;
 
 use App\Models\Customers\Customer;
 use App\Models\Customers\Zone;
+use App\Models\Orders\Order;
 use App\Models\Pets\Pet;
 use Livewire\Component;
 use App\Traits\AlertFrontEnd;
@@ -212,6 +213,12 @@ class CustomerIndex extends Component
             ->zone($this->zone?->id)
             ->byPeriodicType($this->filterPeriodicType)
             ->withCount('orders')
+            ->addSelect([
+                'last_completed_order_date' => Order::selectRaw('MAX(delivery_date)')
+                    ->whereColumn('orders.customer_id', 'customers.id')
+                    ->where('status', Order::STATUS_DONE)
+                    ->whereNull('orders.deleted_at'),
+            ])
             ->paginate(50);
         $PET_CATEGORIES = Pet::CATEGORIES;
         $customerBeingDeleted = $this->showDeleteModal && $this->customerToDelete

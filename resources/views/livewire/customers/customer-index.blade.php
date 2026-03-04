@@ -86,6 +86,7 @@
                                 <th scope="col" class="table-th">Orders</th>
                                 <th scope="col" class="table-th">Address</th>
                                 <th scope="col" class="table-th">Location</th>
+                                <th scope="col" class="table-th">Last completed order</th>
                                 <th scope="col" class="table-th w-14">Actions</th>
 
                         </tr>
@@ -136,6 +137,10 @@
                                             <a target="_blank" href="{{ $customer->location_url }}">Location</a>
                                         </div>
                                     @endif
+                                </td>
+
+                                <td class="table-td">
+                                    {{ $customer->last_completed_order_date ? \Carbon\Carbon::parse($customer->last_completed_order_date)->format('M j, Y') : '—' }}
                                 </td>
 
                                 <td class="table-td">
