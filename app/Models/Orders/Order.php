@@ -42,9 +42,10 @@ class Order extends Model
 
     protected $casts = [
         'delivery_date' => 'date',
+        'is_locked'     => 'boolean',
     ];
 
-    protected $fillable = ['order_number', 'customer_id', 'customer_name', 'shipping_address', 'location_url', 'customer_phone', 'status', 'zone_id', 'driver_id', 'periodic_option', 'total_amount', 'delivery_amount', 'discount_amount', 'delivery_date', 'is_paid', 'is_confirmed', 'note', 'driver_note', 'created_by', 'is_delivered', 'driver_payment_type', 'driver_order', 'is_debit'];
+    protected $fillable = ['order_number', 'customer_id', 'customer_name', 'shipping_address', 'location_url', 'customer_phone', 'status', 'zone_id', 'driver_id', 'periodic_option', 'total_amount', 'delivery_amount', 'discount_amount', 'delivery_date', 'is_paid', 'is_confirmed', 'is_locked', 'note', 'driver_note', 'created_by', 'is_delivered', 'driver_payment_type', 'driver_order', 'is_debit'];
 
     const PERIODIC_OPTIONS = [self::PERIODIC_WEEKLY, self::PERIODIC_BI_WEEKLY, self::PERIODIC_MONTHLY];
     const PERIODIC_WEEKLY = 'weekly';
@@ -133,6 +134,32 @@ class Order extends Model
             DB::rollBack();
             report($e);
             AppLog::error('Failed to set bulk confirmation for orders', $e->getMessage());
+            return false;
+        }
+    }
+
+    public function lock(): bool
+    {
+        try {
+            $this->is_locked = true;
+            $this->save();
+            return true;
+        } catch (Exception $e) {
+            report($e);
+            AppLog::error('Failed to lock order', $e->getMessage());
+            return false;
+        }
+    }
+
+    public function unlock(): bool
+    {
+        try {
+            $this->is_locked = false;
+            $this->save();
+            return true;
+        } catch (Exception $e) {
+            report($e);
+            AppLog::error('Failed to unlock order', $e->getMessage());
             return false;
         }
     }

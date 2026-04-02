@@ -118,11 +118,20 @@ class OrderPolicy
         return true;
     }
 
+    public function lockOrder(User $user, Order $order = null): bool
+    {
+        return $user->is_admin;
+    }
+
     /**
      * Determine whether the user can update the model.
+     * Locked orders can only be updated by admins.
      */
     public function update(User $user, Order $order): bool
     {
+        if ($order->is_locked) {
+            return $user->is_admin;
+        }
         return true;
     }
 

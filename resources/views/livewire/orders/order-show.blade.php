@@ -26,6 +26,12 @@
                             &nbsp;{{ ucwords(str_replace('_', ' ', $order->periodic_option)) }}
                         </span>
                     @endif
+                    @if ($order->is_locked)
+                        <span class="badge bg-danger-500 text-white capitalize">
+                            <iconify-icon icon="material-symbols:lock" width="1.2em" height="1.2em"></iconify-icon>
+                            &nbsp;Locked
+                        </span>
+                    @endif
                 </h5>
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Created
                     {{ $order->created_at->format('F j, Y \a\t g:i a') }}</p>
