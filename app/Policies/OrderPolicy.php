@@ -137,9 +137,13 @@ class OrderPolicy
 
     /**
      * Determine whether the user can return products.
+     * Locked orders can only have products returned by admins.
      */
     public function returnProducts(User $user, Order $order): bool
     {
+        if ($order->is_locked) {
+            return $user->is_admin;
+        }
         return true;
     }
 
