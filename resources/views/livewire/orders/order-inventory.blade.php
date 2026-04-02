@@ -29,6 +29,11 @@
                 Print ({{ $this->deliveryDate[0]?->format('d M') }}) Shift
             </button>
 
+            <button wire:click='printLabels'
+                class="btn inline-flex justify-center btn-dark dark:bg-slate-700 dark:text-slate-300 m-1 btn-sm">
+                Print ({{ $this->deliveryDate[0]?->format('d M') }}) labels
+            </button>
+
         </div>
     </div>
 

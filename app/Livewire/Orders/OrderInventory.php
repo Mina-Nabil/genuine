@@ -143,6 +143,12 @@ class OrderInventory extends Component
             return Order::printPrepareDoc($this->deliveryDate[0]);
     }
 
+    public function printLabels()
+    {
+        if (count($this->deliveryDate))
+            return Order::printLabelsDoc($this->deliveryDate, $this->driver?->id);
+    }
+
     public function setAsInDelivery($order_id)
     {
         $res = Order::findOrFail($order_id)->setStatus(Order::STATUS_IN_DELIVERY);
