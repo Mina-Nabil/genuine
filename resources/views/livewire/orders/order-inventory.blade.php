@@ -7,6 +7,19 @@
         </div>
         <div class="flex sm:space-x-4 space-x-2 sm:justify-end items-center md:mb-6 mb-4 rtl:space-x-reverse">
 
+            @can('lockOrder', App\Models\Orders\Order::class)
+                <button wire:click='lockAllOrders'
+                    class="btn inline-flex justify-center btn-danger dark:bg-red-800 dark:text-slate-200 m-1 btn-sm">
+                    <iconify-icon icon="material-symbols:lock" width="1.2em" height="1.2em" class="ltr:mr-1 rtl:ml-1"></iconify-icon>
+                    Lock All
+                </button>
+                <button wire:click='unlockAllOrders'
+                    class="btn inline-flex justify-center btn-outline-dark dark:text-slate-300 m-1 btn-sm">
+                    <iconify-icon icon="material-symbols:lock-open" width="1.2em" height="1.2em" class="ltr:mr-1 rtl:ml-1"></iconify-icon>
+                    Unlock All
+                </button>
+            @endcan
+
             <div class="dropdown relative">
                 <button class="btn inline-flex justify-center btn-dark items-center btn-sm" type="button"
                     id="darkDropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
@@ -27,6 +40,11 @@
             <button wire:click='printInventoryShift'
                 class="btn inline-flex justify-center btn-dark dark:bg-slate-700 dark:text-slate-300 m-1 btn-sm">
                 Print ({{ $this->deliveryDate[0]?->format('d M') }}) Shift
+            </button>
+
+            <button wire:click='printLabels'
+                class="btn inline-flex justify-center btn-dark dark:bg-slate-700 dark:text-slate-300 m-1 btn-sm">
+                Print ({{ $this->deliveryDate[0]?->format('d M') }}) labels
             </button>
 
         </div>
@@ -133,6 +151,14 @@
                             Items ) </small>
                     </div>
                 </div>
+                <div class="space-y-1">
+                    <h4 class="text-slate-600 dark:text-slate-200 text-xs font-normal">
+                        Total Bags
+                    </h4>
+                    <div class="text-sm font-medium text-slate-900 dark:text-white">
+                        {{ $orders->sum('no_of_bags') }}
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -217,6 +243,11 @@
                                                     Confirmed
                                             @endif
                                             </span>
+                                            @if ($order->is_locked)
+                                                <span class="text-danger-500" title="Locked">
+                                                    <iconify-icon icon="material-symbols:lock" width="1.2em" height="1.2em"></iconify-icon>
+                                                </span>
+                                            @endif
                                             <div class="flex items-center text-xs">
                                                 @if ($order->driver)
                                                     <iconify-icon icon="healthicons:truck-driver" width="15"

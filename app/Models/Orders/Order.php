@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Locale;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Color;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -41,9 +42,10 @@ class Order extends Model
 
     protected $casts = [
         'delivery_date' => 'date',
+        'is_locked'     => 'boolean',
     ];
 
-    protected $fillable = ['order_number', 'customer_id', 'customer_name', 'shipping_address', 'location_url', 'customer_phone', 'status', 'zone_id', 'driver_id', 'periodic_option', 'total_amount', 'delivery_amount', 'discount_amount', 'delivery_date', 'is_paid', 'is_confirmed', 'note', 'driver_note', 'created_by', 'is_delivered', 'driver_payment_type', 'driver_order', 'is_debit'];
+    protected $fillable = ['order_number', 'customer_id', 'customer_name', 'shipping_address', 'location_url', 'customer_phone', 'status', 'zone_id', 'driver_id', 'periodic_option', 'total_amount', 'delivery_amount', 'discount_amount', 'delivery_date', 'is_paid', 'is_confirmed', 'is_locked', 'note', 'driver_note', 'created_by', 'is_delivered', 'driver_payment_type', 'driver_order', 'is_debit'];
 
     const PERIODIC_OPTIONS = [self::PERIODIC_WEEKLY, self::PERIODIC_BI_WEEKLY, self::PERIODIC_MONTHLY];
     const PERIODIC_WEEKLY = 'weekly';
@@ -132,6 +134,32 @@ class Order extends Model
             DB::rollBack();
             report($e);
             AppLog::error('Failed to set bulk confirmation for orders', $e->getMessage());
+            return false;
+        }
+    }
+
+    public function lock(): bool
+    {
+        try {
+            $this->is_locked = true;
+            $this->save();
+            return true;
+        } catch (Exception $e) {
+            report($e);
+            AppLog::error('Failed to lock order', $e->getMessage());
+            return false;
+        }
+    }
+
+    public function unlock(): bool
+    {
+        try {
+            $this->is_locked = false;
+            $this->save();
+            return true;
+        } catch (Exception $e) {
+            report($e);
+            AppLog::error('Failed to unlock order', $e->getMessage());
             return false;
         }
     }
@@ -1699,6 +1727,85 @@ class Order extends Model
 
         $writer = new Xlsx($newFile);
         $file_path = "downloads/inventory_{$day->format('Md')}.xlsx";
+        $public_file_path = storage_path($file_path);
+        $writer->save($public_file_path);
+
+        return response()->download($public_file_path)->deleteFileAfterSend(true);
+    }
+
+    public static function printLabelsDoc(array $days, $driverId = null)
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setRightToLeft(true);
+
+        // Header row
+        $sheet->getCell('A1')->setValue('اسم المندوب');
+        $sheet->getCell('B1')->setValue('اسم العميل');
+        $sheet->getCell('C1')->setValue('الصنف + العدد');
+
+        $headerStyle = [
+            'font'    => ['bold' => true],
+            'fill'    => [
+                'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => ['argb' => 'FFD1DBF0'],
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color'       => ['argb' => 'FF000000'],
+                ],
+            ],
+            'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
+        ];
+        $sheet->getStyle('A1:C1')->applyFromArray($headerStyle);
+
+        $driversQuery = Driver::hasOrdersOn($days);
+        if ($driverId) {
+            $driversQuery->where('id', $driverId);
+        }
+        $shifts = $driversQuery->get();
+
+        $i = 2;
+        foreach ($shifts as $s) {
+            $orders = Order::with('products', 'products.product')
+                ->search(deliveryDates: $days, driverId: $s->id)
+                ->openOrders()
+                ->get();
+
+            foreach ($orders as $o) {
+                $productLines = '';
+                foreach ($o->products as $product) {
+                    $productLines .= "{$product->product->name}: {$product->quantity}\n";
+                }
+                $productLines = rtrim($productLines, "\n");
+
+                $sheet->getCell("A$i")->setValue($s->shift_title);
+                $sheet->getCell("B$i")->setValue($o->customer->name);
+                $sheet->getCell("C$i")->setValue($productLines);
+
+                $rowStyle = [
+                    'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => Border::BORDER_THIN,
+                            'color'       => ['argb' => 'FF000000'],
+                        ],
+                    ],
+                    'alignment' => ['wrapText' => true, 'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_TOP],
+                ];
+                $sheet->getStyle("A$i:C$i")->applyFromArray($rowStyle);
+                $sheet->getRowDimension($i)->setRowHeight(-1); // auto height
+
+                $i++;
+            }
+        }
+
+        $sheet->getColumnDimension('A')->setWidth(25);
+        $sheet->getColumnDimension('B')->setWidth(25);
+        $sheet->getColumnDimension('C')->setWidth(40);
+
+        $writer = new Xlsx($spreadsheet);
+        $file_path = "downloads/labels_{$days[0]->format('Md')}.xlsx";
         $public_file_path = storage_path($file_path);
         $writer->save($public_file_path);
 

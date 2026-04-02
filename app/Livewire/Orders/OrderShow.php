@@ -200,6 +200,7 @@ class OrderShow extends Component
 
     public function selectCombo($id)
     {
+        $this->authorize('updateItems', $this->order);
         $products = [];
         $combo = Combo::findOrFail($id);
 
@@ -390,6 +391,7 @@ class OrderShow extends Component
 
     public function addProducts()
     {
+        $this->authorize('updateItems', $this->order);
         try {
             $res = $this->order->addProducts($this->productsToAdd);
         } catch (Exception $e) {

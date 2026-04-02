@@ -137,10 +137,36 @@ class OrderInventory extends Component
         }
     }
 
+    public function lockAllOrders()
+    {
+        $this->authorize('lockOrder', Order::class);
+        $orders = Order::search(deliveryDates: $this->deliveryDate, driverId: $this->driver?->id)->openOrders()->get();
+        foreach ($orders as $order) {
+            $order->lock();
+        }
+        $this->alertSuccess('All orders locked');
+    }
+
+    public function unlockAllOrders()
+    {
+        $this->authorize('lockOrder', Order::class);
+        $orders = Order::search(deliveryDates: $this->deliveryDate, driverId: $this->driver?->id)->openOrders()->get();
+        foreach ($orders as $order) {
+            $order->unlock();
+        }
+        $this->alertSuccess('All orders unlocked');
+    }
+
     public function printInventoryShift()
     {
         if (count($this->deliveryDate))
             return Order::printPrepareDoc($this->deliveryDate[0]);
+    }
+
+    public function printLabels()
+    {
+        if (count($this->deliveryDate))
+            return Order::printLabelsDoc($this->deliveryDate, $this->driver?->id);
     }
 
     public function setAsInDelivery($order_id)
