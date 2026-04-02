@@ -124,10 +124,10 @@ class OrderPolicy
     }
 
     /**
-     * Determine whether the user can update the model.
-     * Locked orders can only be updated by admins.
+     * Determine whether the user can update order items (products).
+     * Locked orders block non-admins from adding/removing items.
      */
-    public function update(User $user, Order $order): bool
+    public function updateItems(User $user, Order $order): bool
     {
         if ($order->is_locked) {
             return $user->is_admin;
@@ -136,8 +136,16 @@ class OrderPolicy
     }
 
     /**
+     * Determine whether the user can update the model.
+     */
+    public function update(User $user, Order $order): bool
+    {
+        return true;
+    }
+
+    /**
      * Determine whether the user can return products.
-     * Locked orders can only have products returned by admins.
+     * Locked orders block non-admins from removing items.
      */
     public function returnProducts(User $user, Order $order): bool
     {
