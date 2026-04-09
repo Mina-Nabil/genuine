@@ -9,13 +9,12 @@ use App\Traits\AlertFrontEnd;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
-use Livewire\WithPagination;
 use Livewire\Attributes\Url;
 
 
 class OrderInventory extends Component
 {
-    use WithPagination, AlertFrontEnd;
+    use AlertFrontEnd;
     public $page_title = '• Orders • Inventory';
     public $search;
     public $status;
@@ -219,7 +218,7 @@ class OrderInventory extends Component
         if ($this->driverRadio)
             $this->driver = Driver::findOrFail($this->driverRadio);
 
-        $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneId: $this->zone?->id)->withTotalQuantity()->openOrders()->paginate(50);
+        $orders = Order::search(searchText: $this->search, deliveryDates: $this->deliveryDate, status: $this->status, driverId: $this->driver?->id, zoneId: $this->zone?->id)->withTotalQuantity()->openOrders()->get();
         foreach ($orders as $order) {
             $this->noOfBags[$order->id] = $order->no_of_bags;
         }
