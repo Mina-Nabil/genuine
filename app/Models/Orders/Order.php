@@ -1735,38 +1735,15 @@ class Order extends Model
 
     public static function printLabelsDoc(array $days, $driverId = null)
     {
-        $spreadsheet = new Spreadsheet();
-        $sheet = $spreadsheet->getActiveSheet();
-        $sheet->setRightToLeft(true);
-
-        // Header row
-        $sheet->getCell('A1')->setValue('اسم المندوب');
-        $sheet->getCell('B1')->setValue('اسم العميل');
-        $sheet->getCell('C1')->setValue('الصنف + العدد');
-
-        $headerStyle = [
-            'font'    => ['bold' => true],
-            'fill'    => [
-                'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                'startColor' => ['argb' => 'FFD1DBF0'],
-            ],
-            'borders' => [
-                'allBorders' => [
-                    'borderStyle' => Border::BORDER_THIN,
-                    'color'       => ['argb' => 'FF000000'],
-                ],
-            ],
-            'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
-        ];
-        $sheet->getStyle('A1:C1')->applyFromArray($headerStyle);
-
         $driversQuery = Driver::hasOrdersOn($days);
         if ($driverId) {
-            $driversQuery->where('id', $driverId);
+            $driversQuery->where('drivers.id', $driverId);
         }
         $shifts = $driversQuery->get();
 
-        $i = 2;
+        // Load all orders and find the max number of products across all orders
+        $allOrderRows = [];
+        $maxProducts = 0;
         foreach ($shifts as $s) {
             $orders = Order::with('products', 'products.product')
                 ->search(deliveryDates: $days, driverId: $s->id)
@@ -1774,35 +1751,70 @@ class Order extends Model
                 ->get();
 
             foreach ($orders as $o) {
-                $productLines = '';
-                foreach ($o->products as $product) {
-                    $productLines .= "{$product->product->name}: {$product->quantity}\n";
+                $products = $o->products->values();
+                if ($products->count() > $maxProducts) {
+                    $maxProducts = $products->count();
                 }
-                $productLines = rtrim($productLines, "\n");
-
-                $sheet->getCell("A$i")->setValue($s->shift_title);
-                $sheet->getCell("B$i")->setValue($o->customer->name);
-                $sheet->getCell("C$i")->setValue($productLines);
-
-                $rowStyle = [
-                    'borders' => [
-                        'allBorders' => [
-                            'borderStyle' => Border::BORDER_THIN,
-                            'color'       => ['argb' => 'FF000000'],
-                        ],
-                    ],
-                    'alignment' => ['wrapText' => true, 'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_TOP],
-                ];
-                $sheet->getStyle("A$i:C$i")->applyFromArray($rowStyle);
-                $sheet->getRowDimension($i)->setRowHeight(-1); // auto height
-
-                $i++;
+                $allOrderRows[] = ['shift' => $s->shift_title, 'customer' => $o->customer->name, 'products' => $products];
             }
         }
 
-        $sheet->getColumnDimension('A')->setWidth(25);
-        $sheet->getColumnDimension('B')->setWidth(25);
-        $sheet->getColumnDimension('C')->setWidth(40);
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setRightToLeft(true);
+
+        // Header row: اسم المندوب | اسم العميل | العدد1 | الصنف1 | العدد2 | الصنف2 | ...
+        $sheet->getCell('A1')->setValue('اسم المندوب');
+        $sheet->getCell('B1')->setValue('اسم العميل');
+        for ($p = 1; $p <= $maxProducts; $p++) {
+            $qtyCol = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex(($p - 1) * 2 + 3);
+            $nameCol = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex(($p - 1) * 2 + 4);
+            $sheet->getCell("{$qtyCol}1")->setValue("العدد{$p}");
+            $sheet->getCell("{$nameCol}1")->setValue("الصنف{$p}");
+        }
+
+        $lastCol = $maxProducts > 0
+            ? \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($maxProducts * 2 + 2)
+            : 'B';
+
+        $headerStyle = [
+            'font'      => ['bold' => true],
+            'fill'      => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'startColor' => ['argb' => 'FFD1DBF0']],
+            'borders'   => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['argb' => 'FF000000']]],
+            'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
+        ];
+        $sheet->getStyle("A1:{$lastCol}1")->applyFromArray($headerStyle);
+
+        // Data rows
+        $i = 2;
+        foreach ($allOrderRows as $row) {
+            $sheet->getCell("A$i")->setValue($row['shift']);
+            $sheet->getCell("B$i")->setValue($row['customer']);
+
+            foreach ($row['products'] as $idx => $product) {
+                $qtyCol = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($idx * 2 + 3);
+                $nameCol = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($idx * 2 + 4);
+                $sheet->getCell("{$qtyCol}{$i}")->setValue($product->quantity);
+                $sheet->getCell("{$nameCol}{$i}")->setValue($product->product->name);
+            }
+
+            $rowStyle = [
+                'borders'   => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['argb' => 'FF000000']]],
+                'alignment' => ['vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER],
+            ];
+            $sheet->getStyle("A$i:{$lastCol}{$i}")->applyFromArray($rowStyle);
+            $i++;
+        }
+
+        // Column widths
+        $sheet->getColumnDimension('A')->setWidth(20);
+        $sheet->getColumnDimension('B')->setWidth(22);
+        for ($p = 1; $p <= $maxProducts; $p++) {
+            $qtyCol = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex(($p - 1) * 2 + 3);
+            $nameCol = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex(($p - 1) * 2 + 4);
+            $sheet->getColumnDimension($qtyCol)->setWidth(8);
+            $sheet->getColumnDimension($nameCol)->setWidth(22);
+        }
 
         $writer = new Xlsx($spreadsheet);
         $file_path = "downloads/labels_{$days[0]->format('Md')}.xlsx";
