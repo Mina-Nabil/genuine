@@ -120,7 +120,7 @@ class OrderPolicy
 
     public function lockOrder(User $user, Order $order = null): bool
     {
-        return $user->is_admin;
+        return $user->is_admin || $user->is_inventory;
     }
 
     /**
