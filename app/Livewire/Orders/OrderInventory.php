@@ -67,13 +67,8 @@ class OrderInventory extends Component
 
     public function updatedEditedDeliveryDate($value)
     {
-        foreach ($this->selectedDeliveryDates as $date) {
-            if ($date->toDateString() === $value) {
-                return;
-            }
-        }
-        $this->selectedDeliveryDates[] = Carbon::parse($value);
-        $this->Edited_deliveryDate = null;
+        $this->selectedDeliveryDates = [Carbon::parse($value)];
+        $this->setFilteryDeliveryDate();
     }
 
     public function updatedDriverRadio($value)
