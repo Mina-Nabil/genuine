@@ -47,6 +47,15 @@ class ZoneCountReport extends Component
         $this->reset(['creation_date_from', 'creation_date_to']);
     }
 
+    public function exportReport()
+    {
+        return Customer::exportZonesCountReport(
+            Carbon::parse($this->creation_date_from),
+            Carbon::parse($this->creation_date_to),
+            $this->searchText
+        );
+    }
+
     public function render()
     {
         $zones = Customer::ZonesCountReport(Carbon::parse($this->creation_date_from),Carbon::parse($this->creation_date_to),$this->searchText)->paginate(50);

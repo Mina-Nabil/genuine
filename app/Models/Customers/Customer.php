@@ -419,6 +419,28 @@ class Customer extends Model
                 ->orderBy('zones.name');
     }
 
+    public static function exportZonesCountReport(Carbon $start_date, Carbon $end_date, $zone_name = null)
+    {
+        $zones = self::ZonesCountReport($start_date, $end_date, $zone_name)->get();
+
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $sheet->fromArray(['Zone', 'Customers Count', 'Clients'], null, 'A1');
+        $i = 2;
+        foreach ($zones as $zone) {
+            $sheet->fromArray([$zone->zone_name, $zone->customers_count, $zone->clients_list], null, 'A' . $i);
+            $i++;
+        }
+
+        $writer = new Xlsx($spreadsheet);
+        $file_path = 'downloads/zone_count_report.xlsx';
+        $public_file_path = storage_path($file_path);
+        $writer->save($public_file_path);
+
+        return response()->download($public_file_path)->deleteFileAfterSend(true);
+    }
+
     public function scopeByZones($query, array $zones)
     {
         $query->whereIn('customers.zone_id', $zones);

@@ -1,5 +1,5 @@
 <div>
-    <div class="space-y-5 profile-page mx-auto" style="max-width: 800px">
+    <div class="space-y-5 profile-page">
 
         <div class="flex justify-between flex-wrap items-center">
 
@@ -10,6 +10,13 @@
                         Zone Count Report
                     </h4>
                 </div>
+            </div>
+            <div>
+                <button wire:click="exportReport" class="btn inline-flex justify-center btn-success btn-sm">
+                    <iconify-icon wire:loading wire:target="exportReport" class="text-xl ltr:mr-2 rtl:ml-2 relative top-[1px]" icon="line-md:loading-twotone-loop"></iconify-icon>
+                    <iconify-icon wire:loading.remove wire:target="exportReport" class="text-xl ltr:mr-2 rtl:ml-2 relative top-[1px]" icon="vscode-icons:file-type-excel"></iconify-icon>
+                    Export Excel
+                </button>
             </div>
         </div>
 
