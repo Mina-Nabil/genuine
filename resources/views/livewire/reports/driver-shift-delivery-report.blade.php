@@ -119,6 +119,49 @@
         </div>
     </div>
 
+    @if ($combinedTotals)
+        <div class="card active mb-5">
+            <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base">
+                <div class="flex justify-between p-5 items-center mb-4">
+                    <h5 class="text-lg font-medium text-slate-900 dark:text-white">
+                        All Drivers • Combined Totals
+                    </h5>
+                    <div class="flex gap-4">
+                        <div class="text-sm">
+                            <span class="text-slate-600 dark:text-slate-300">Total Weight:</span>
+                            <span class="font-bold">{{ number_format($combinedTotals['total_weight'], 3) }} KG</span>
+                        </div>
+                        <div class="text-sm">
+                            <span class="text-slate-600 dark:text-slate-300">Total Items:</span>
+                            <span class="font-bold">{{ $combinedTotals['total_items'] }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700">
+                        <thead class="bg-slate-50 dark:bg-slate-700">
+                            <tr>
+                                <th scope="col" class="table-th">Product</th>
+                                <th scope="col" class="table-th">Quantity</th>
+                                <th scope="col" class="table-th">Weight (KG)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
+                            @foreach ($combinedTotals['product_totals'] as $product)
+                                <tr>
+                                    <td class="table-td text-lg"><b>{{ $product['name'] }}</b></td>
+                                    <td class="table-td">{{ $product['quantity'] }}</td>
+                                    <td class="table-td">{{ number_format($product['weight'], 3) }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    @endif
+
     @foreach ($driverTotals as $driverId => $data)
         <div class="card active mb-5">
             <div class="card-body rounded-md bg-white dark:bg-slate-800 shadow-base">

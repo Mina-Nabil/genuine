@@ -140,9 +140,42 @@ class DriverShiftDeliveryReport extends Component
             ];
         }
 
+        $combinedTotals = null;
+        if (!$this->driver) {
+            $combinedProductTotals = [];
+            $combinedWeight = 0;
+            $combinedItems = 0;
+            foreach ($driverTotals as $data) {
+                foreach ($data['product_totals'] as $productId => $product) {
+                    if (!isset($combinedProductTotals[$productId])) {
+                        $combinedProductTotals[$productId] = [
+                            'name' => $product['name'],
+                            'quantity' => 0,
+                            'weight' => 0,
+                        ];
+                    }
+                    $combinedProductTotals[$productId]['quantity'] += $product['quantity'];
+                    $combinedProductTotals[$productId]['weight'] += $product['weight'];
+                }
+                $combinedWeight += $data['total_weight'];
+                $combinedItems += $data['total_items'];
+            }
+
+            uasort($combinedProductTotals, function ($a, $b) {
+                return $b['weight'] <=> $a['weight'];
+            });
+
+            $combinedTotals = [
+                'product_totals' => $combinedProductTotals,
+                'total_weight' => $combinedWeight,
+                'total_items' => $combinedItems,
+            ];
+        }
+
         return view('livewire.reports.driver-shift-delivery-report', [
             'driverTotals' => $driverTotals,
-            'todayShifts' => $drivers
+            'todayShifts' => $drivers,
+            'combinedTotals' => $combinedTotals,
         ])->layout('layouts.app', ['page_title' => $this->page_title , 'driverShiftDeliveryReport' => 'active']);
     }
 } 
