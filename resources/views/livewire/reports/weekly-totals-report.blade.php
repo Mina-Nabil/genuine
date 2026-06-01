@@ -66,13 +66,18 @@
 
                         @php
                             $allTotal = 0;
+                            $allTotalWeight = 0;
                             $zonesTotal = [];
+                            $zonesTotalWeight = [];
                             for ($i = 1; $i <= $weekCount; $i++) {
                                 $zonesTotal[$i] = 0;
+                                $zonesTotalWeight[$i] = 0;
                                 foreach ($groupedZoneReports as $zoneName => $weeks) {
                                     $zonesTotal[$i] += $weeks->where('week', $i)->sum('total_orders');
+                                    $zonesTotalWeight[$i] += $weeks->where('week', $i)->sum('total_weight');
                                 }
                                 $allTotal += $zonesTotal[$i];
+                                $allTotalWeight += $zonesTotalWeight[$i];
                             }
                         @endphp
 
@@ -82,9 +87,13 @@
 
                             <th scope="col" class="table-th">Zone</th>
                             @for ($i = 1; $i <= $weekCount; $i++)
-                                <th scope="col" class="table-th">Week {{ $i }} ({{ $zonesTotal[$i] ?? 0 }})</th>
+                                <th scope="col" class="table-th">
+                                    Week {{ $i }} ({{ $zonesTotal[$i] ?? 0 }} / {{ number_format(($zonesTotalWeight[$i] ?? 0) / 1000, 3) }} KG)
+                                </th>
                             @endfor
-                            <th scope="col" class="table-th">Total ({{ $allTotal }})</th>
+                            <th scope="col" class="table-th">
+                                Total ({{ $allTotal }} / {{ number_format($allTotalWeight / 1000, 3) }} KG)
+                            </th>
 
 
                         </tr>
@@ -95,11 +104,20 @@
                             <tr class="even:bg-slate-100 dark:even:bg-slate-700">
                                 <td class="table-td"><b>{{ $zoneName }}</b></td>
                                 @for ($i = 1; $i <= $weekCount; $i++)
+                                    @php $weekRow = $weeks->firstWhere('week', $i); @endphp
                                     <td class="table-td">
-                                        {{ $weeks->firstWhere('week', $i)->total_orders ?? 0 }}
+                                        {{ $weekRow->total_orders ?? 0 }}
+                                        <span class="text-xs text-slate-500">
+                                            ({{ number_format(($weekRow->total_weight ?? 0) / 1000, 3) }} KG)
+                                        </span>
                                     </td>
                                 @endfor
-                                <td class="table-td"><b>{{ $weeks->sum('total_orders') }}</b></td>
+                                <td class="table-td">
+                                    <b>{{ $weeks->sum('total_orders') }}</b>
+                                    <span class="text-xs text-slate-500">
+                                        ({{ number_format($weeks->sum('total_weight') / 1000, 3) }} KG)
+                                    </span>
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>

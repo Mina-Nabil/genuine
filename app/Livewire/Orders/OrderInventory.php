@@ -67,8 +67,9 @@ class OrderInventory extends Component
 
     public function updatedEditedDeliveryDate($value)
     {
+        // Replace any existing pending selection with the newly picked date,
+        // but do NOT apply the filter yet — wait for the user to submit.
         $this->selectedDeliveryDates = [Carbon::parse($value)];
-        $this->setFilteryDeliveryDate();
     }
 
     public function updatedDriverRadio($value)
