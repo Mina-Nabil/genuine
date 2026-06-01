@@ -30,6 +30,9 @@
         <input type="date" class="form-control w-auto" wire:model.live="fromDate" />
         <span>to</span>
         <input type="date" class="form-control w-auto" wire:model.live="toDate" />
+        <iconify-icon class="text-2xl spin-slow ltr:ml-2 rtl:mr-2"
+            wire:loading wire:target="fromDate,toDate,searchTerm,setZones,removeSelectedZone"
+            icon="line-md:loading-twotone-loop"></iconify-icon>
     </div>
 
 

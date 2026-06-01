@@ -2380,14 +2380,15 @@ class Order extends Model
             ->selectRaw('zones.name as zone_name')
             ->selectRaw('FLOOR(DATEDIFF(orders.delivery_date, ?) / 7) + 1 AS week', [$from])
             ->selectRaw('COUNT(orders.id) as total_orders')
-            ->selectRaw('COALESCE(SUM((
-                SELECT SUM(order_products.quantity * products.weight)
-                FROM order_products
-                JOIN products ON order_products.product_id = products.id
-                WHERE order_products.order_id = orders.id
-                AND order_products.deleted_at IS NULL
-            )), 0) as total_weight')
+            ->selectRaw('COALESCE(SUM(order_weights.ord_weight), 0) as total_weight')
             ->join('zones', 'zones.id', '=', 'orders.zone_id')
+            ->leftJoin(DB::raw('(
+                SELECT order_products.order_id, SUM(order_products.quantity * products.weight) as ord_weight
+                FROM order_products
+                JOIN products ON products.id = order_products.product_id
+                WHERE order_products.deleted_at IS NULL
+                GROUP BY order_products.order_id
+            ) as order_weights'), 'order_weights.order_id', '=', 'orders.id')
             ->whereBetween('orders.delivery_date', [$from, $to])
             ->whereIn('orders.status', Order::OK_STATUSES);
 
