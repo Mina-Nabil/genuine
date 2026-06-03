@@ -2380,15 +2380,7 @@ class Order extends Model
             ->selectRaw('zones.name as zone_name')
             ->selectRaw('FLOOR(DATEDIFF(orders.delivery_date, ?) / 7) + 1 AS week', [$from])
             ->selectRaw('COUNT(orders.id) as total_orders')
-            ->selectRaw('COALESCE(SUM(order_weights.ord_weight), 0) as total_weight')
             ->join('zones', 'zones.id', '=', 'orders.zone_id')
-            ->leftJoin(DB::raw('(
-                SELECT order_products.order_id, SUM(order_products.quantity * products.weight) as ord_weight
-                FROM order_products
-                JOIN products ON products.id = order_products.product_id
-                WHERE order_products.deleted_at IS NULL
-                GROUP BY order_products.order_id
-            ) as order_weights'), 'order_weights.order_id', '=', 'orders.id')
             ->whereBetween('orders.delivery_date', [$from, $to])
             ->whereIn('orders.status', Order::OK_STATUSES);
 
@@ -2401,6 +2393,46 @@ class Order extends Model
         }
 
         return $query->groupBy('zones.name', 'week')->orderBy('zones.name')->orderBy('week');
+    }
+
+    /**
+     * Separate aggregation for total weight per zone+week, keyed by "zone_name|week".
+     * Done as its own query (instead of bolted onto scopeWeeklyZoneReport) because
+     * joining order_products inside the count query was producing 0 due to grouping
+     * interactions with the outer Eloquent default select.
+     */
+    public static function weeklyZoneWeights($fromDate, $toDate, $searchText = null, $zoneIds = [])
+    {
+        $from = Carbon::parse($fromDate)->format('Y-m-d');
+        $to = Carbon::parse($toDate)->format('Y-m-d');
+
+        $query = DB::table('orders')
+            ->selectRaw('zones.name as zone_name')
+            ->selectRaw('FLOOR(DATEDIFF(orders.delivery_date, ?) / 7) + 1 AS week', [$from])
+            ->selectRaw('COALESCE(SUM(order_products.quantity * products.weight), 0) as total_weight')
+            ->join('zones', 'zones.id', '=', 'orders.zone_id')
+            ->join('order_products', 'order_products.order_id', '=', 'orders.id')
+            ->join('products', 'products.id', '=', 'order_products.product_id')
+            ->whereNull('orders.deleted_at')
+            ->whereNull('order_products.deleted_at')
+            ->whereBetween('orders.delivery_date', [$from, $to])
+            ->whereIn('orders.status', Order::OK_STATUSES);
+
+        if (!empty($zoneIds)) {
+            $query->whereIn('zones.id', $zoneIds);
+        }
+
+        if (!empty($searchText)) {
+            $query->where('zones.name', 'LIKE', '%' . $searchText . '%');
+        }
+
+        $rows = $query->groupBy('zones.name', 'week')->get();
+
+        $map = [];
+        foreach ($rows as $row) {
+            $map[$row->zone_name . '|' . $row->week] = (float) $row->total_weight;
+        }
+        return $map;
     }
 
     public function scopeProductTotals($query, $startDate = null, $endDate = null)
