@@ -83,6 +83,16 @@ class WeeklyTotalsReport extends Component
     {
         $saved_zones = Zone::all();
         $zoneReports = Order::weeklyZoneReport($this->fromDate, $this->toDate, $this->searchTerm, $this->zones)->get();
+
+        // Attach weight per (zone_name, week) from the separate weights query.
+        // NOTE: we deliberately avoid the name `total_weight` here because the Order
+        // model defines a getTotalWeightAttribute() accessor that would override
+        // anything we set on the Eloquent model when read in the view.
+        $weights = Order::weeklyZoneWeights($this->fromDate, $this->toDate, $this->searchTerm, $this->zones);
+        foreach ($zoneReports as $row) {
+            $row->zone_week_weight = $weights[$row->zone_name . '|' . $row->week] ?? 0;
+        }
+
         $groupedZoneReports = $zoneReports->groupBy('zone_name');
         $daysInRange = Carbon::parse($this->fromDate)->diffInDays(Carbon::parse($this->toDate)) + 1;
         $weekCount = max(1, (int) ceil($daysInRange / 7));
