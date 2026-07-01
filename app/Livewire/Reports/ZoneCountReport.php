@@ -5,9 +5,13 @@ namespace App\Livewire\Reports;
 use App\Models\Customers\Customer;
 use Carbon\Carbon;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class ZoneCountReport extends Component
 {
+
+    use WithPagination;
+     
     public $searchText;
     public $creation_date_from;
     public $creation_date_to;
