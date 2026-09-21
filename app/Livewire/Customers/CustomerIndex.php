@@ -4,11 +4,9 @@ namespace App\Livewire\Customers;
 
 use App\Models\Customers\Customer;
 use App\Models\Customers\Zone;
-use App\Models\Orders\Order;
 use App\Models\Pets\Pet;
 use Livewire\Component;
 use App\Traits\AlertFrontEnd;
-use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Auth;
@@ -214,6 +212,17 @@ class CustomerIndex extends Component
         }
     }
 
+    public function exportReport()
+    {
+        return Customer::exportIndex(
+            $this->search,
+            $this->zone?->id,
+            $this->filterPeriodicType,
+            $this->creation_date_from,
+            $this->creation_date_to
+        );
+    }
+
     public function addNewCustomer()
     {
         $this->authorize('create', Customer::class);
@@ -244,19 +253,13 @@ class CustomerIndex extends Component
     public function render()
     {
         $ZONES = Zone::select('id', 'name')->get();
-        $customers = Customer::when($this->search, fn($q) => $q->search($this->search))
-            ->zone($this->zone?->id)
-            ->byPeriodicType($this->filterPeriodicType)
-            ->when($this->creation_date_from, fn($q) => $q->where('customers.created_at', '>=', Carbon::parse($this->creation_date_from)->format('Y-m-d 00:00:00')))
-            ->when($this->creation_date_to, fn($q) => $q->where('customers.created_at', '<=', Carbon::parse($this->creation_date_to)->format('Y-m-d 23:59:59')))
-            ->withCount('orders')
-            ->addSelect([
-                'last_completed_order_date' => Order::selectRaw('MAX(delivery_date)')
-                    ->whereColumn('orders.customer_id', 'customers.id')
-                    ->where('status', Order::STATUS_DONE)
-                    ->whereNull('orders.deleted_at'),
-            ])
-            ->paginate(50);
+        $customers = Customer::indexList(
+            $this->search,
+            $this->zone?->id,
+            $this->filterPeriodicType,
+            $this->creation_date_from,
+            $this->creation_date_to
+        )->paginate(50);
         $PET_CATEGORIES = Pet::CATEGORIES;
         $customerBeingDeleted = $this->showDeleteModal && $this->customerToDelete
             ? Customer::find($this->customerToDelete)

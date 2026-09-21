@@ -441,6 +441,44 @@ class Customer extends Model
         return response()->download($public_file_path)->deleteFileAfterSend(true);
     }
 
+    public static function exportIndex(
+        ?string $search = null,
+        ?int $zone_id = null,
+        ?string $periodic_type = null,
+        ?string $creation_date_from = null,
+        ?string $creation_date_to = null
+    ) {
+        $customers = self::indexList($search, $zone_id, $periodic_type, $creation_date_from, $creation_date_to)->get();
+
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $sheet->fromArray(['Name', 'Phone', 'Zone', 'Orders', 'Address', 'Location', 'Last completed order'], null, 'A1');
+
+        $i = 2;
+        foreach ($customers as $customer) {
+            $sheet->fromArray([
+                $customer->name,
+                $customer->phone,
+                $customer->zone?->name,
+                $customer->periodic_type ? ucwords(str_replace('_', ' ', $customer->periodic_type)) : 'None',
+                $customer->address,
+                $customer->location_url,
+                $customer->last_completed_order_date
+                    ? Carbon::parse($customer->last_completed_order_date)->format('M j, Y')
+                    : '—',
+            ], null, 'A' . $i);
+            $i++;
+        }
+
+        $writer = new Xlsx($spreadsheet);
+        $file_path = 'downloads/customers_export.xlsx';
+        $public_file_path = storage_path($file_path);
+        $writer->save($public_file_path);
+
+        return response()->download($public_file_path)->deleteFileAfterSend(true);
+    }
+
     public function scopeByZones($query, array $zones)
     {
         $query->whereIn('customers.zone_id', $zones);
@@ -467,6 +505,30 @@ class Customer extends Model
             ->when($created_from, fn($q) => $q->where('customers.created_at', '>=', $created_from->format('Y-m-d 00:00:00')))
             ->when($created_to, fn($q) => $q->where('customers.created_at', '<=', $created_to->format('Y-m-d 23:59:59')))
             ->when($creator_id, fn($q) => $q->where('customers.creator_id', $creator_id));
+    }
+
+    public function scopeIndexList(
+        $query,
+        ?string $search = null,
+        ?int $zone_id = null,
+        ?string $periodic_type = null,
+        ?string $creation_date_from = null,
+        ?string $creation_date_to = null
+    ) {
+        return $query
+            ->when($search, fn($q) => $q->search($search))
+            ->zone($zone_id)
+            ->byPeriodicType($periodic_type)
+            ->when($creation_date_from, fn($q) => $q->where('customers.created_at', '>=', Carbon::parse($creation_date_from)->format('Y-m-d 00:00:00')))
+            ->when($creation_date_to, fn($q) => $q->where('customers.created_at', '<=', Carbon::parse($creation_date_to)->format('Y-m-d 23:59:59')))
+            ->with('zone')
+            ->withCount('orders')
+            ->addSelect([
+                'last_completed_order_date' => Order::selectRaw('MAX(delivery_date)')
+                    ->whereColumn('orders.customer_id', 'customers.id')
+                    ->where('status', Order::STATUS_DONE)
+                    ->whereNull('orders.deleted_at'),
+            ]);
     }
 
     public function scopeZone($query, $zone_id = null)
