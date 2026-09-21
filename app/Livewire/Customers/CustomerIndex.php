@@ -8,6 +8,7 @@ use App\Models\Orders\Order;
 use App\Models\Pets\Pet;
 use Livewire\Component;
 use App\Traits\AlertFrontEnd;
+use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Auth;
@@ -40,6 +41,12 @@ class CustomerIndex extends Component
     public $filterPeriodicType;
     public $Edited_periodicType_sec = false;
     public $Edited_periodicType;
+
+    public $creation_date_from;
+    public $creation_date_to;
+    public $edited_creation_date_from;
+    public $edited_creation_date_to;
+    public $Edited_creation_date_from_sec = false;
 
     public $customerToDelete = null;
     public $showDeleteModal = false;
@@ -78,6 +85,34 @@ class CustomerIndex extends Component
     {
         $this->filterPeriodicType = $this->Edited_periodicType ?: null;
         $this->closeFilterByPeriodicType();
+    }
+
+    public function openFilterCreationDate()
+    {
+        $this->Edited_creation_date_from_sec = true;
+        $this->edited_creation_date_from = $this->creation_date_from;
+        $this->edited_creation_date_to = $this->creation_date_to;
+    }
+
+    public function closeFilterCreationDate()
+    {
+        $this->Edited_creation_date_from_sec = false;
+        $this->edited_creation_date_from = null;
+        $this->edited_creation_date_to = null;
+    }
+
+    public function setFilterCreationDate()
+    {
+        $this->creation_date_from = $this->edited_creation_date_from;
+        $this->creation_date_to = $this->edited_creation_date_to;
+        $this->closeFilterCreationDate();
+        $this->resetPage();
+    }
+
+    public function clearFilterCreationDates()
+    {
+        $this->reset(['creation_date_from', 'creation_date_to']);
+        $this->resetPage();
     }
 
     public function clearProperty(string $propertyName)
@@ -212,6 +247,8 @@ class CustomerIndex extends Component
         $customers = Customer::when($this->search, fn($q) => $q->search($this->search))
             ->zone($this->zone?->id)
             ->byPeriodicType($this->filterPeriodicType)
+            ->when($this->creation_date_from, fn($q) => $q->where('customers.created_at', '>=', Carbon::parse($this->creation_date_from)->format('Y-m-d 00:00:00')))
+            ->when($this->creation_date_to, fn($q) => $q->where('customers.created_at', '<=', Carbon::parse($this->creation_date_to)->format('Y-m-d 23:59:59')))
             ->withCount('orders')
             ->addSelect([
                 'last_completed_order_date' => Order::selectRaw('MAX(delivery_date)')
